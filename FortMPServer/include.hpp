@@ -26,3 +26,7 @@
 #include "component_loader.hpp"
 #include "engine_manager.hpp"
 #include "memory_manager.hpp"
+
+//SDK
+#include "sdk/basic.hpp"
+#include "sdk/coreuobject.hpp"
