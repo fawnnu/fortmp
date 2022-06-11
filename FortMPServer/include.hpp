@@ -20,6 +20,9 @@
 
 #pragma comment(lib, "opengl32.lib")
 
+#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #include <spdlog/spdlog.h>
 
 #include "component_loader.hpp"
+#include "engine_manager.hpp"
+#include "memory_manager.hpp"

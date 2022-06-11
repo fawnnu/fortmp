@@ -1,7 +1,7 @@
 ﻿#include "include.hpp"
 #include "component_loader.hpp"
 
-#include "components/fort_inventory_component.h"
+#include "components/fort_inventory_component.hpp"
 
 component_loader::component_loader()
 {
