@@ -19,12 +19,12 @@ public:
     {
         std::wstring result;
         
-        for (UObject* outer = Outer; outer; outer->Outer)
+        for (UObject* outer = Outer; outer; outer = outer->Outer)
         {
             result = outer->GetName() + L"." + result;
         }
 
-        result += GetName();
+        result = result + this->GetName();
 
         return result;
     }

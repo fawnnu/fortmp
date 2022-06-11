@@ -168,6 +168,7 @@
     <ClInclude Include="memory_manager.hpp" />
     <ClInclude Include="sdk\basic.hpp" />
     <ClInclude Include="sdk\coreuobject.hpp" />
+    <ClInclude Include="sdk\world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ext\include\imgui\imgui.cpp">
