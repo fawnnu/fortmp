@@ -75,6 +75,10 @@ void engine_manager::wait_for_server()
 
 void engine_manager::setup_components_and_hooks()
 {
+    //construct a new hook manager 
+    new hook_manager();
+
+    //construct a new component loader
     new component_loader();
 }
 

@@ -160,7 +160,7 @@
     <ClInclude Include="..\ext\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\ext\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\ext\include\imgui\imstb_truetype.h" />
-    <ClInclude Include="components\fort_inventory_component.hpp" />
+    <ClInclude Include="components\server_component.hpp" />
     <ClInclude Include="component_loader.hpp" />
     <ClInclude Include="engine_manager.hpp" />
     <ClInclude Include="hook_manager.hpp" />
@@ -202,7 +202,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="components\fort_inventory_component.cpp" />
+    <ClCompile Include="components\server_component.cpp" />
     <ClCompile Include="component_loader.cpp" />
     <ClCompile Include="engine_manager.cpp" />
     <ClCompile Include="hook_manager.cpp" />

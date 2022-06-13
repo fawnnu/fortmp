@@ -4,9 +4,11 @@
 
 class hook
 {
+public:
     hook(std::string hook_name, void** function_pointer, void* function_detour);
     
 private:
+    std::string function_name;
     void** function_pointer;
     void* function_detour;
 };
@@ -14,8 +16,13 @@ private:
 class hook_manager
 {
 public:
-    hook_manager() = default;
+    hook_manager();
+
+    //add a hook to the hooks vector
+    void add_hook(hook* new_hook);
     
 private:
     std::vector<hook*> hooks;
 };
+
+inline hook_manager* global_hook_manager; 
