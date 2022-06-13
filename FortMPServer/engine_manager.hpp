@@ -64,9 +64,16 @@ inline engine_manager* global_engine_manager;
     }
 
 #define GENERATE_STATIC_CLASS(Class)\
-    static UObject* Class##::StaticClass()\
+    static UObject* StaticClass()\
     {\
         std::string object_to_find_string = Class##_Path;\
         std::wstring object_to_find = std::wstring(object_to_find_string.begin(), object_to_find_string.end());\
         return global_engine_manager->static_find_object(nullptr, nullptr, object_to_find.c_str(), false);\
     }
+
+#define INIT_PTR(Function, InitAddress)\
+    Function = reinterpret_cast<decltype(Function)>(InitAddress);
+
+#define DEFINE_HOOK(ReturnType, Function, Params)\
+    ReturnType (* Function##) Params;\
+    ReturnType Function##_Hook Params

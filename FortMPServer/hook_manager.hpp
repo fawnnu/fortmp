@@ -7,7 +7,6 @@ class hook
 public:
     hook(std::string hook_name, void** function_pointer, void* function_detour);
     
-private:
     std::string function_name;
     void** function_pointer;
     void* function_detour;
@@ -21,7 +20,6 @@ public:
     //add a hook to the hooks vector
     void add_hook(hook* new_hook);
     
-private:
     std::vector<hook*> hooks;
 };
 

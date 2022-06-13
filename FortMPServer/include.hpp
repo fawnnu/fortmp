@@ -35,3 +35,6 @@
 #include "sdk/engine.hpp"
 #include "sdk/gameplaystatics.hpp"
 #include "sdk/playercontroller.hpp"
+#include "sdk/replicationdriver.hpp"
+#include "sdk/netdriver.hpp"
+#include "sdk/gamemode.hpp"

@@ -78,3 +78,19 @@ public:
 private:
     
 };
+
+DEFINE_UCLASS(UFunction, "/Script/CoreUObject.Function", public UObject)
+{
+    public:
+
+    GENERATE_STATIC_CLASS(UFunction);
+    
+    // returns native func pointer
+    void* get_func()
+    {
+        // offset of native function in a UFunction struct
+        static int offset = *reinterpret_cast<int*>(uintptr(StaticClass()) + 0x40) - sizeof(void*);
+
+        return *reinterpret_cast<void**>(uintptr(this) + offset);
+    }
+};

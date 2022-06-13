@@ -15,6 +15,7 @@ void component_loader::load_component(component* component_to_load)
     {
         // Add to component list
         components.push_back(component_to_load);
+        spdlog::info("Loaded server component: {}", component_to_load->component_name.c_str());
     }
     else
     {

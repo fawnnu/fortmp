@@ -169,8 +169,11 @@
     <ClInclude Include="sdk\basic.hpp" />
     <ClInclude Include="sdk\coreuobject.hpp" />
     <ClInclude Include="sdk\engine.hpp" />
+    <ClInclude Include="sdk\gamemode.hpp" />
     <ClInclude Include="sdk\gameplaystatics.hpp" />
+    <ClInclude Include="sdk\netdriver.hpp" />
     <ClInclude Include="sdk\playercontroller.hpp" />
+    <ClInclude Include="sdk\replicationdriver.hpp" />
     <ClInclude Include="sdk\world.hpp" />
   </ItemGroup>
   <ItemGroup>
