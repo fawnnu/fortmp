@@ -24,6 +24,9 @@ engine_manager::engine_manager()
     get_engine_version = reinterpret_cast<decltype(get_engine_version)>(memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
     find_function_by_name = reinterpret_cast<decltype(find_function_by_name)>(memory_manager::find_function_by_string(L"CallFunctionByNameWithArguments: Name not found", { 0xE8 }, 1,false));
     GWorld = reinterpret_cast<UWorld**>(memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
+    GEngine = reinterpret_cast<UEngine**>(memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", {0x48}, 3, false));
+    process_event = reinterpret_cast<decltype(process_event)>(static_find_object(nullptr, nullptr, L"/Script/CoreUObject", false) ->VTableObject[64]);
+    fname_fname = reinterpret_cast<decltype(fname_fname)>(memory_manager::find_function_by_string(L"EnteringMap", {0xE9}, 1, false));
 
     check(fname_to_string);
     check(free_internal);
@@ -32,16 +35,35 @@ engine_manager::engine_manager()
     check(get_engine_version);
     check(find_function_by_name);
     check(GWorld);
+    check(GEngine);
+    check(process_event);
+    check(fname_fname)
 
     spdlog::info(L"FortMP was initialized successfully.");
 
-    while (true)
+    while (TRUE)
     {
         if (*GWorld)
         {
-            break;
+            UGameplayStatics* gameplay_statics = static_cast<UGameplayStatics*>(static_find_object(nullptr, nullptr, L"/Script/Engine.Default__GameplayStatics", false));
+
+            APlayerController* server_controller = gameplay_statics->call_function<APlayerController*>(L"GetPlayerController", *GWorld, 0);
+
+            if (server_controller)
+            {
+                server_controller->call_function(L"SwitchLevel", FString(L"Athena_Terrain"));
+
+                while ( (*GWorld)->get_name().find(L"Frontend") != -1 )
+                {
+                }
+
+                // start server here
+                
+                break;
+            }
         }
 
         Sleep(500);
     }
+
 }

@@ -4,6 +4,8 @@ typedef int64_t int64;
 typedef uint64_t uint64;
 typedef intptr_t intptr;
 typedef uintptr_t uintptr;
+typedef int16_t int16;
+typedef uint16_t uint16;
 
 class engine_manager
 {
@@ -30,6 +32,7 @@ public:
     void (*fname_fname)(FName*, const wchar_t*, int);
 
     class UWorld** GWorld;
+    class UEngine** GEngine;
 };
 
 inline engine_manager* global_engine_manager;
@@ -42,7 +45,7 @@ inline engine_manager* global_engine_manager;
     }
 
 #define DEFINE_UCLASS(ClassName, ClassPath, ...)\
-    std::string ClassName##_Path = ClassPath;\
+    inline std::string ClassName##_Path = ClassPath;\
     class ClassName : __VA_ARGS__
 
 #define DEFINE_UPROPERTY(Type, Name, ClassName)\
@@ -52,4 +55,12 @@ inline engine_manager* global_engine_manager;
         std::wstring object_to_find = std::wstring(object_to_find_string.begin(), object_to_find_string.end());\
         static int PropertyOffset = *reinterpret_cast<int*>(uintptr(global_engine_manager->static_find_object(nullptr, nullptr, object_to_find.c_str(), false)) + 0x44);\
         return *reinterpret_cast<Type*>(uintptr(this) + PropertyOffset);\
+    }
+
+#define GENERATE_STATIC_CLASS(Class)\
+    static UObject* Class##::StaticClass()\
+    {\
+        std::string object_to_find_string = Class##_Path;\
+        std::wstring object_to_find = std::wstring(object_to_find_string.begin(), object_to_find_string.end());\
+        return global_engine_manager->static_find_object(nullptr, nullptr, object_to_find.c_str(), false);\
     }

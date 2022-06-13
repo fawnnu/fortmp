@@ -51,6 +51,21 @@ public:
     
     FName() = default;
 
+    FName(const wchar_t* InName)
+    {
+        global_engine_manager->fname_fname(this, InName, 1);
+    }
+
+    FName(const char* InName)
+    {
+        WCHAR WideName[1024];
+        MultiByteToWideChar(CP_ACP, 0, InName, -1, WideName, sizeof(WideName));
+
+        global_engine_manager->fname_fname(this, WideName, 1);
+
+        free(WideName);
+    }
+    
     FORCEINLINE bool operator==(FName name) const
     {
         return this->ComparisonIndex == name.ComparisonIndex && this->Number == name.Number;

@@ -31,3 +31,6 @@
 #include "sdk/basic.hpp"
 #include "sdk/coreuobject.hpp"
 #include "sdk/world.hpp"
+#include "sdk/engine.hpp"
+#include "sdk/gameplaystatics.hpp"
+#include "sdk/playercontroller.hpp"
