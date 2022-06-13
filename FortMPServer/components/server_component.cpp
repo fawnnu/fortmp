@@ -25,8 +25,7 @@ server_component::server_component()
     check(SetWorld);
 
     // Set up hooks
-    INIT_PTR(ReadyToStartMatch, static_cast<UFunction*>(global_engine_manager->static_find_object(nullptr, nullptr, L"/Script/Engine.GameMode.ReadyToStartMatch", false))->get_func());
-    new hook("ReadyToStartMatch", &reinterpret_cast<LPVOID&>(ReadyToStartMatch), ReadyToStartMatch_Hook);
+    HOOK_UFUNCTION(ReadyToStartMatch, L"/Script/Engine.GameMode.ReadyToStartMatch", ReadyToStartMatch_Hook);
 }
 
 

@@ -72,8 +72,18 @@ inline engine_manager* global_engine_manager;
     }
 
 #define INIT_PTR(Function, InitAddress)\
-    Function = reinterpret_cast<decltype(Function)>(InitAddress);
+    if (!Function)\
+    {\
+        Function = reinterpret_cast<decltype(Function)>(InitAddress);\
+    }
 
 #define DEFINE_HOOK(ReturnType, Function, Params)\
     ReturnType (* Function##) Params;\
     ReturnType Function##_Hook Params
+
+#define HOOK_FUNCTION(Function, Address, Detour)\
+    INIT_PTR(Function, Address);\
+    new hook(#Function, &reinterpret_cast<LPVOID&>(Function), Function##_Hook);
+
+#define HOOK_UFUNCTION(Function, Name, Detour)\
+    HOOK_FUNCTION(Function, static_cast<UFunction*>(global_engine_manager->static_find_object(nullptr, nullptr, Name, false))->get_func(), Detour)
