@@ -41,6 +41,11 @@ engine_manager::engine_manager()
 
     spdlog::info(L"FortMP was initialized successfully.");
 
+    wait_for_server();
+}
+
+void engine_manager::wait_for_server()
+{
     while (TRUE)
     {
         if (*GWorld)
@@ -58,6 +63,7 @@ engine_manager::engine_manager()
                 }
 
                 // start server here
+                setup_components_and_hooks();
                 
                 break;
             }
@@ -65,5 +71,11 @@ engine_manager::engine_manager()
 
         Sleep(500);
     }
-
 }
+
+void engine_manager::setup_components_and_hooks()
+{
+    new component_loader();
+}
+
+

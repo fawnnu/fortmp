@@ -11,6 +11,12 @@ class engine_manager
 {
 public:
     engine_manager();
+
+    //waits for server to be loaded, then call setup_components_and_hooks
+    void wait_for_server();
+    
+    //initializes components and hooks of FMP
+    void setup_components_and_hooks();
     
     //Core functions that FMP needs to have initialized and usable
     void (*free_internal)(void*);

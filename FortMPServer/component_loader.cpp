@@ -6,7 +6,6 @@
 component_loader::component_loader()
 {
     // Load game components
-    //load_component(new fort_inventory_component());
 }
 
 void component_loader::load_component(component* component_to_load)
