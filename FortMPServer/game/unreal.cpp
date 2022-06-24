@@ -1,0 +1,22 @@
+﻿#include "include.hpp"
+#include "unreal.hpp"
+
+void unreal_manager::setup_unreal_engine()
+{
+    INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
+    INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
+    INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
+
+    INIT_POINTER(FindFunctionByName, memory_manager::find_function_by_string(L"CallFunctionByNameWithArguments: Name not found", { 0xE8 }, 1, false));
+    INIT_POINTER(FindPropertyByName, memory_manager::find_pattern("E8 ? ? ? ? 49 89 ? ? ? ? ? 49 8B ? ? ? ? ? 48 85 C9 74 33 48 85 DB 74 2E 48 8B 01 48 8B D3 ? 8B ? 30 FF 90 ? ? ? ? 49 8B ? ? ? ? ? 49 8B ? ? ? ? ? 48 8B ? 10", true, 1));
+    
+    INIT_POINTER(StaticFindObject, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 30 80 3D ? ? ? ? ? 41 0F B6 D9 49 8B F8 48 8B F2"));
+    INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
+
+    INIT_POINTER(SpawnActor, memory_manager::find_pattern("40 53 56 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 0F 28 1D ? ? ? ? 0F 57 D2 48 8B B4 24 ? ? ? ? 0F 28 CB"));
+    
+    INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
+    INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
+
+    INIT_POINTER(ProcessEvent, FindObject(L"/Script/CoreUObject.Default__Object")->VTable[0x40]);
+}

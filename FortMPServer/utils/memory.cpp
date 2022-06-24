@@ -1,10 +1,10 @@
 ﻿#include "include.hpp"
-#include "memory_manager.hpp"
+#include "memory.hpp"
 
 #include <dbghelp.h>
 #pragma comment(lib, "dbghelp.lib")
 
-intptr memory_manager::find_pattern(const char* signature, bool bRelative, uint32_t offset)
+uintptr_t memory_manager::find_pattern(const char* signature, bool bRelative, uint32_t offset)
 {
 	uintptr_t base_address = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL));
 	static auto patternToByte = [](const char* pattern)
@@ -63,7 +63,7 @@ intptr memory_manager::find_pattern(const char* signature, bool bRelative, uint3
 	return NULL;
 }
 
-intptr memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards)
+uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards)
 {
     __int64 BaseAddress = (__int64)GetModuleHandle(NULL);
 
@@ -135,5 +135,34 @@ intptr memory_manager::find_function_by_string(const wchar_t* String, std::vecto
 	}
 
 	return Function ? BaseAddress + Function->BeginAddress : 0;
+}
+
+bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
+{
+    if (pointer_cache.find(pointer_to_read) != pointer_cache.end())
+	{
+		return pointer_cache[pointer_to_read];
+	}
+
+	MEMORY_BASIC_INFORMATION mbi;
+		
+	if (VirtualQuery(pointer_to_read, &mbi, sizeof(mbi)))
+	{
+		auto mask = (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+		auto is_bad_read = !(mbi.Protect & mask);
+		
+		if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS))
+		{
+			is_bad_read = true;
+		}
+
+		pointer_cache[pointer_to_read] = is_bad_read;
+
+		return is_bad_read;
+	}
+
+	pointer_cache[pointer_to_read] = true;
+	
+	return true;
 }
 
