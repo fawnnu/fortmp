@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "player_component.hpp"
 
+#include "ability_component.hpp"
+
 player_component::player_component()
 {
     // Update default pawn class
@@ -23,6 +25,12 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
     if (player_pawn)
     {
         player_controller->Possess(player_pawn);
+
+        UObject* ability_set = FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") ?
+            FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
+        
+        // Apply Athena ability set
+        ability_component::apply_ability_set(player_pawn, ability_set);
         
         return player_pawn;
     }

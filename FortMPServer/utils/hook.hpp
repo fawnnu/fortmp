@@ -19,6 +19,11 @@
                                                                                                                                                                                                                     \
     REGISTER_FUNCTION_DETOUR(FunctionName, native_to_hook, FunctionDetour); }
 
+#define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
+    inline ReturnType (* FunctionName##) FunctionDefinition;                \
+                                                                            \
+    ReturnType FunctionName##_Hook FunctionDefinition;
+
 class hook
 {
 public:

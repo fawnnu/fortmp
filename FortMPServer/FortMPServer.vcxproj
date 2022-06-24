@@ -160,12 +160,15 @@
     <ClInclude Include="..\ext\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\ext\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\ext\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="components\ability_component.hpp" />
+    <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
     <ClInclude Include="components\loader_component.hpp" />
     <ClInclude Include="components\net_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\player_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
+    <ClInclude Include="game\sdk\AbilitySystemComponent.hpp" />
     <ClInclude Include="game\sdk\Actor.hpp" />
     <ClInclude Include="game\sdk\BuildingActor.hpp" />
     <ClInclude Include="game\sdk\FortGameMode.hpp" />
@@ -181,6 +184,7 @@
     <ClInclude Include="game\unreal.hpp" />
     <ClInclude Include="game\unreal\unreal_containers.hpp" />
     <ClInclude Include="game\unreal\unreal_math.hpp" />
+    <ClInclude Include="game\unreal\unreal_net.hpp" />
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\hook.hpp" />
@@ -215,6 +219,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="components\ability_component.cpp" />
+    <ClCompile Include="components\aircraft_component.cpp" />
     <ClCompile Include="components\building_component.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>x64\Release\</AssemblerListingLocation>

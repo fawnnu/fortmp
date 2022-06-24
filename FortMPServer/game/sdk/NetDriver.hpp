@@ -4,4 +4,6 @@ class UNetDriver : public UObject
 {
 public:
     DEFINE_PROPERTY(UObject*, ReplicationDriver);
+
+    DEFINE_PROPERTY(TArray<UNetConnection*>, ClientConnections);
 };

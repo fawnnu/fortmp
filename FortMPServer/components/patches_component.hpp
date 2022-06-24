@@ -8,6 +8,8 @@ public:
 
 namespace patches_component_hook
 {
+    DEFINE_FUNCTION_HOOK(void, GetPlayerViewPoint, (AController* PlayerController, FVector& out_Location, FRotator& out_Rotation));
+    
     inline void (*UpdateNetStats)(UObject* NetDebugWidget);
     inline bool (*GetTagsFromPawnLocation)(AFortPoiVolume* FortPoiVolume, __int64 Tags);
     inline __int64 (*TravelPatch)(UObject* GameInstance, char a1);

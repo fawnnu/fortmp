@@ -1,5 +1,7 @@
 #include "include.hpp"
 
+#include "components/ability_component.hpp"
+#include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
 #include "components/loader_component.hpp"
 #include "components/net_component.hpp"
@@ -35,6 +37,8 @@ void Setup()
                     new patches_component();
                     new net_component();
                     new player_component();
+                    new aircraft_component();
+                    new ability_component();
                     
                     break;
                 }

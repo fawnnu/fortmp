@@ -5,10 +5,20 @@ class APlayerState : public UObject
 
 };
 
-class AFortPlayerStateAthena : public APlayerState
+class Test : public UObject
+{
+public:
+    DEFINE_PROPERTY(UObject*, HeroDefinition);
+};
+
+class AFortPlayerState : public UObject
+{
+public:
+    DEFINE_PROPERTY(UObject*, HeroType);
+};
+
+class AFortPlayerStateAthena : public AFortPlayerState
 {
 public:
     DEFINE_PROPERTY(uint8_t, TeamIndex);
-
-    DEFINE_PROPERTY(UObject*, HeroType);
 };

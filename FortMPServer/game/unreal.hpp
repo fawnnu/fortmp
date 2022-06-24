@@ -3,6 +3,7 @@
 #include "unreal/unreal_math.hpp"
 #include "unreal/unreal_containers.hpp"
 #include "unreal/unreal_string.hpp"
+#include "unreal/unreal_net.hpp"
 
 class unreal_manager
 {
@@ -146,13 +147,10 @@ class UFunction : public UObject
 public:
     void* get_native_function()
     {
-        /*
         // Offset of native function in a UFunction struct
         static int function_offset = *reinterpret_cast<int*>(__int64(this->Class) + 0x40) - sizeof(void*);
 
-        return *reinterpret_cast<void**>(__int64(this) + function_offset);
-        */
-        return *reinterpret_cast<void**>(__int64(this) + 0xC0);
+        return *reinterpret_cast<void**>(__int64(this) + function_offset); 
     }
 };
 

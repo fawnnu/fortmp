@@ -30,3 +30,4 @@
 #include "sdk/BuildingActor.hpp"
 #include "sdk/GameplayStatics.hpp"
 #include "sdk/FortVolume.hpp"
+#include "sdk/AbilitySystemComponent.hpp"

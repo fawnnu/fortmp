@@ -9,5 +9,5 @@ public:
 class UNetConnection : public UPlayer
 {
 public:
-    
+    DEFINE_PROPERTY(AActor*, ViewTarget);
 };

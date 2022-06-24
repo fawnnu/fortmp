@@ -19,6 +19,8 @@ class AFortGameStateAthena : public UObject
 public:
     DEFINE_PROPERTY(TArray<UObject*>, BuildingActorClasses);
 
+    DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
+
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
 
     DEFINE_PROPERTY(uint8_t, GamePhase);
