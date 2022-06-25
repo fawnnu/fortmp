@@ -135,8 +135,8 @@ T* FindObject(const wchar_t* ObjectName, bool bLoadObject = false, bool bUseAnyP
 
     if (Object == nullptr)
     {
-        spdlog::warn(L"Object '{}' not found when trying to FindObject (bLoadObject: {}, bUseAnyPackage: {})",
-            ObjectName, bLoadObject, bUseAnyPackage);
+        spdlog::warn(L"Object '{}' not found",
+            ObjectName);
     }
 
     return reinterpret_cast<T*>(Object);

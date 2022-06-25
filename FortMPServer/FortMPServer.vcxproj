@@ -163,6 +163,7 @@
     <ClInclude Include="components\ability_component.hpp" />
     <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
+    <ClInclude Include="components\inventory_component.hpp" />
     <ClInclude Include="components\loader_component.hpp" />
     <ClInclude Include="components\net_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="game\sdk\BuildingActor.hpp" />
     <ClInclude Include="game\sdk\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortGameState.hpp" />
+    <ClInclude Include="game\sdk\FortItem.hpp" />
     <ClInclude Include="game\sdk\FortPlayerController.hpp" />
     <ClInclude Include="game\sdk\FortPlayerPawn.hpp" />
     <ClInclude Include="game\sdk\FortPlayerState.hpp" />
@@ -290,6 +292,7 @@
       <AdditionalIncludeDirectories>E:\FortMP v2\fortmp-server\packages\Detours.4.0.1\build\native\..\..\lib\native\include\;E:\FortMP v2\fortmp-server\ext\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="components\inventory_component.cpp" />
     <ClCompile Include="components\loader_component.cpp" />
     <ClCompile Include="components\net_component.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>

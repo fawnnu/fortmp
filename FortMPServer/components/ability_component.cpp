@@ -87,7 +87,7 @@ void ability_component_hooks::ServerTryActivateAbility_Hook(UAbilitySystemCompon
     function_params params = *reinterpret_cast<function_params*>(StackFrame.Locals);
     
     // Activate ability
-    ability_component::activate_ability(AbilitySystemComponent, params.Handle, params.InputPressed, params.PredictionKey);
+    ability_component::activate_ability(AbilitySystemComponent, params.Handle, params.InputPressed, params.PredictionKey); 
     
     return ServerTryActivateAbility(AbilitySystemComponent, StackFrame);
 }

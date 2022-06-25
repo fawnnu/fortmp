@@ -37,6 +37,8 @@ public:
 
     DEFINE_PROPERTY(AActor*, QuickBars);
 
+    DEFINE_PROPERTY(UObject*, WorldInventory);
+
     bool IsInAircraft()
     {
         static UFunction* function = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.IsInAircraft");

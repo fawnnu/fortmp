@@ -3,6 +3,7 @@
 #include "components/ability_component.hpp"
 #include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
+#include "components/inventory_component.hpp"
 #include "components/loader_component.hpp"
 #include "components/net_component.hpp"
 #include "components/patches_component.hpp"
@@ -39,6 +40,7 @@ void Setup()
                     new player_component();
                     new aircraft_component();
                     new ability_component();
+                    new inventory_component();
                     
                     break;
                 }

@@ -15,7 +15,25 @@
         return *reinterpret_cast<PropertyType*>(__int64(this) + PropertyOffset);                       \
     }
 
+#define DEFINE_STRUCT_CLASS(ClassName)                                                                 \
+    UObject* GetClass()                                                                                \
+    {                                                                                                  \
+        static UObject* class_ptr = FindObject(ClassName);                                             \
+                                                                                                       \
+        return class_ptr;                                                                              \
+    }
+
+#define DEFINE_STRUCT_PROPERTY(PropertyType, PropertyName)                                             \
+    PropertyType##& PropertyName##()                                                                   \
+    {                                                                                                  \
+        static void* native_property = FindPropertyByName(GetClass(), #PropertyName);                  \
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + 0x44);  \
+                                                                                                       \
+        return *reinterpret_cast<PropertyType*>(__int64(this) + native_property_offset);               \
+    }
+
 #include "sdk/Actor.hpp"
+#include "sdk/FortItem.hpp"
 
 #include "sdk/FortPlayerState.hpp"
 #include "sdk/FortPlayerPawn.hpp"

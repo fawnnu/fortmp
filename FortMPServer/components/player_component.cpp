@@ -2,6 +2,7 @@
 #include "player_component.hpp"
 
 #include "ability_component.hpp"
+#include "inventory_component.hpp"
 
 player_component::player_component()
 {
@@ -57,6 +58,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
+
+            // test
+            //inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Keg_Athena.WID_Harvest_Pickaxe_Keg_Athena"), 1);
         }
     }
 

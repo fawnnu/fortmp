@@ -9,7 +9,7 @@
     }                                                                                  \
     else                                                                               \
     {                                                                                  \
-        spdlog::warn("Failed to setup hook '{}', invalid function pointer provided",   \
+        spdlog::error("Failed to setup hook '{}', invalid function pointer provided",  \
             #FunctionName);                                                            \
     }
 

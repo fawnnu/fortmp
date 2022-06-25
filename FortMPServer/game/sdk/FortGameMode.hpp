@@ -43,7 +43,13 @@ public:
     }
 };
 
-class AFortGameModeAthena : public AGameMode
+class AFortGameModeZone : public AGameMode
+{
+public:
+    //DEFINE_PROPERTY(TArray<struct FItemAndCount>, StartingItems);
+};
+
+class AFortGameModeAthena : public AFortGameModeZone
 {
 public:
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
