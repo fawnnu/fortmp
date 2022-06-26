@@ -167,6 +167,11 @@ public:
     }
 };
 
+struct TSoftObjectPtr
+{
+    char pad[0x28];
+};
+
 struct FActorSpawnParameters
 {
     char Unk00[0x40];

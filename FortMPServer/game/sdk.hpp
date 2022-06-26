@@ -41,11 +41,15 @@
 #include "sdk/FortGameState.hpp"
 #include "sdk/FortGameMode.hpp"
 
+#include "sdk/FortPickup.hpp"
 #include "sdk/NetConnection.hpp"
 #include "sdk/NetDriver.hpp"
 #include "sdk/World.hpp"
+#include "sdk/DataTable.hpp"
+#include "sdk/KismetLibrary.hpp"
 
 #include "sdk/BuildingActor.hpp"
 #include "sdk/GameplayStatics.hpp"
 #include "sdk/FortVolume.hpp"
 #include "sdk/AbilitySystemComponent.hpp"
+#include "sdk/FortLoot.hpp"

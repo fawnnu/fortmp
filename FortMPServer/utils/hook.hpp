@@ -28,7 +28,6 @@ class hook
 {
 public:
     hook(void**& function_pointer, void* function_detour);
-    hook(void**& function_pointer, UObject* function, void* function_detour);
 
     bool enable_hook();
     bool disable_hook();

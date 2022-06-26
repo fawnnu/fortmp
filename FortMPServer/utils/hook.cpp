@@ -7,15 +7,6 @@ hook::hook(void**& function_pointer, void* function_detour)
     this->function_detour = function_detour;
 }
 
-hook::hook(void**& function_pointer, UObject* function, void* function_detour)
-{
-    // Update function pointer
-    function_pointer = reinterpret_cast<void**>(__int64(function) + 0xB0);
-
-    this->function_pointer = function_pointer;
-    this->function_detour = function_detour;
-}
-
 bool hook::enable_hook()
 {
     return DetourAttach(this->function_pointer, this->function_detour) == NO_ERROR;

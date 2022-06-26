@@ -24,8 +24,8 @@
 #include <spdlog/spdlog.h>
 #include <Detours.h>
 
-#include "game/unreal.hpp"
-#include "game/sdk.hpp"
-
 #include "utils/memory.hpp"
 #include "utils/hook.hpp"
+
+#include "game/unreal.hpp"
+#include "game/sdk.hpp"

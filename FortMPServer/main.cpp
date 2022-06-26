@@ -5,8 +5,10 @@
 #include "components/building_component.hpp"
 #include "components/inventory_component.hpp"
 #include "components/loader_component.hpp"
+#include "components/looting_component.hpp"
 #include "components/net_component.hpp"
 #include "components/patches_component.hpp"
+#include "components/pickup_component.hpp"
 #include "components/player_component.hpp"
 
 void Setup()
@@ -41,6 +43,8 @@ void Setup()
                     new aircraft_component();
                     new ability_component();
                     new inventory_component();
+                    new pickup_component();
+                    new looting_component();
                     
                     break;
                 }
