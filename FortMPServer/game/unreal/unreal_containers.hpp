@@ -157,3 +157,53 @@ public:
         }
     }
 };
+
+
+/*
+ * TArrayManager: A custom implementation to deal with TArrays completely dynamicallyà
+ * Uses pointers and sizes to iterate and access elements of a TArray
+ */
+
+template<typename T>
+class TArrayManager
+{
+public:
+    TArrayManager() = default;
+    
+    TArrayManager(TArray<T>& in_array_reference, DWORD in_size)
+    {
+        local_Array_reference = in_array_reference;
+
+        local_element_size = in_size;
+    }
+
+    FORCEINLINE T& operator[](int Idx)
+    {
+        return *reinterpret_cast<T*>(uintptr_t(local_Array_reference.Data) + Idx * local_element_size);
+    }
+
+    int Add(PVOID NewElement)
+    {
+        local_Array_reference.Data = (T*)FMemory_Realloc(local_Array_reference.Data, local_element_size * (local_Array_reference.Num() + 1), 0);
+
+        memcpy(local_Array_reference.Data + local_Array_reference.Count++ * local_element_size, NewElement, local_element_size);
+
+        local_Array_reference.Max = local_Array_reference.Count;
+
+        return local_Array_reference.Count - 1;
+    }
+    
+    void Remove(int Idx, void* ArrayProperty)
+    {
+        GenericArray_Remove(&local_Array_reference, ArrayProperty, Idx);
+    }
+
+    int Num()
+    {
+        return local_Array_reference->Num();
+    }
+    
+private:
+    TArray<T>& local_Array_reference;
+    DWORD local_element_size;
+};

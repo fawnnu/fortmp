@@ -20,6 +20,12 @@ void unreal_manager::setup_unreal_engine()
 
     INIT_POINTER(ProcessEvent, FindObject(L"/Script/CoreUObject.Default__Object")->VTable[0x40]);
 
+    INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
+    INIT_POINTER(GenericArray_Remove, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) ?
+        memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) :
+        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1));
+    INIT_POINTER(EngineMarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", {0xe8}, 1, false));
+    
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
 
     // initialize offsets

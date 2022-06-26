@@ -17,6 +17,15 @@ class UObject;
 inline UWorld** GWorld;
 inline UObject** GEngine;
 
+// Marks array dirty (update array over network)
+inline static void (*EngineMarkArrayDirty)(FFastArraySerializer& FastArraySerializer);
+
+// FMemory_Realloc, necessary for resizing TArrays
+inline static void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
+
+// UE4 Function that handles removing from an array
+inline static void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
+
 // Find UProperty/FProperty by FName
 inline void* (*FindPropertyByName)(UObject* InClass, FName PropertyToFind);
 
@@ -71,6 +80,12 @@ public:
         return NamePrivate.ToString();
     }
 
+    //checks if this object has a property; useful for universal implementation
+    bool HasProperty(FName in_property) const
+    {
+        return FindPropertyByName(Class, in_property);
+    }
+    
     template<typename T = char, typename ...Params>
     T Call(const wchar_t* function_name, Params... args)
     {
