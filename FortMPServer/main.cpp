@@ -11,12 +11,27 @@
 #include "components/pickup_component.hpp"
 #include "components/player_component.hpp"
 
+#include "gui/renderer.hpp"
+
 void Setup()
 {
     AllocConsole();
     
     // setup Unreal Engine
     unreal_manager::setup_unreal_engine();
+
+    {
+        auto renderer_thread = [](LPVOID) -> DWORD
+        {
+            // Render on a new thread as to not block everything
+            new renderer();
+
+            return 0;
+        };
+
+        // TODO: Check if renderer has been enabled through the command line before doing anything
+        CreateThread(nullptr, 0, renderer_thread, nullptr, 0, nullptr);
+    }
 
     {
         while (true)
@@ -62,7 +77,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     if (ul_reason_for_call == DLL_PROCESS_ATTACH)
     {
         CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&Setup), 0, 0, 0);
-        //Setup();
     }
     else if (ul_reason_for_call == DLL_PROCESS_DETACH)
     {
