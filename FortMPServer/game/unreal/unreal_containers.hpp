@@ -167,6 +167,36 @@ public:
 template<typename T>
 class TArrayManager
 {
+private:
+    class Iterator
+    {
+    public:
+        Iterator(uintptr_t Address, size_t pSize)
+        {
+            Element = Address;
+            Size = pSize;
+        }
+        
+        T& operator*() const
+        {
+            return *reinterpret_cast<T*>(Element);
+        }
+
+        Iterator& operator++()
+        {
+            Element += Size;
+            return *this;
+        }
+
+        bool operator!=(Iterator& cmp)
+        {
+            return Element != cmp.Element;
+        }
+    
+        uintptr_t Element;
+        size_t Size;
+    };
+    
 public:
     TArrayManager(TArray<T>& in_array_reference, DWORD in_size)
         : local_array_reference(in_array_reference), local_element_size(in_size)
@@ -197,7 +227,17 @@ public:
 
     int Num()
     {
-        return local_array_reference->Num();
+        return local_array_reference.Num();
+    }
+
+    Iterator begin()
+    {
+        return Iterator(uintptr_t(local_array_reference.Data), local_element_size);
+    }
+
+    Iterator end()
+    {
+        return Iterator(uintptr_t(local_array_reference.Data) + local_array_reference.Num() * local_element_size, local_element_size);
     }
     
 private:

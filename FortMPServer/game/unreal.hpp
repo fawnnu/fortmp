@@ -206,9 +206,9 @@ T* SpawnDefaultActor(UWorld* World, UObject* Class)
     return reinterpret_cast<T*>(SpawnActor(World, Class, &spawn_location, &spawn_rotation, spawn_parameters));
 }
 
-inline int GetEngineVersionEasy()
+inline float GetEngineVersionEasy()
 {
     const std::wstring engine_version = GetEngineVersion().c_str();
 
-    return std::stof(engine_version.substr(0, 4)) * 100;
+    return std::stod(engine_version.substr(0, 4)) * 100;
 }

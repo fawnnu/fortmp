@@ -46,7 +46,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     // Make warmup longer
     (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 180.f;
     (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 180.f;
-    
+
+    //listen
     const FURL in_url((*GWorld)->GetName().c_str(), 7777);
                     
     if (net_component::listen(in_url))
@@ -56,8 +57,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     }
     else
     {
-        spdlog::error(L"Failed to listen in '{}' on port 7777", (*GWorld)->GetName().c_str());
+        spdlog::error(L"Failed to start listening in '{}' on port 7777", (*GWorld)->GetName().c_str());
     }
+
+    // Update default pawn class
+    (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 }
 
 void loader_component::load_level(FName package_name)
@@ -102,7 +106,9 @@ void loader_component_hooks::ReadyToStartMatch_Hook(AGameMode* GameMode, FFrame&
         {
             while (true)
             {
-                TArray<struct FFortLevelStreamingInfo>& streamed_levels = (*GWorld)->GameState()->WorldManager()->StreamedLevels();
+                static DWORD streamed_levels_size = *reinterpret_cast<DWORD*>(uintptr_t(FindObject(L"/Script/FortniteGame.FortLevelStreamingInfo")) + CoreOffsets::StructSize);
+                    
+                auto streamed_levels = TArrayManager((*GWorld)->GameState()->WorldManager()->StreamedLevels(), streamed_levels_size);
 
                 if (streamed_levels.Num() > 0 && streamed_levels.Num() == loader_component::loaded_levels.size())
                 {

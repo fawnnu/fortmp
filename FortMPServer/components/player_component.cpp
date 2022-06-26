@@ -6,9 +6,6 @@
 
 player_component::player_component()
 {
-    // Update default pawn class
-    (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
-
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
