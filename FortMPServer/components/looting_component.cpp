@@ -29,7 +29,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
 
     float max_weight = 0.0f;
 
-    for (auto element : loot_tier_data_map) // <--- crashes here, maybe missing a null check
+    for (auto element : loot_tier_data_map)
     {
         // Category name
         FName category_row_name = element.Element.Key;
@@ -187,12 +187,34 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
 
 UObject* looting_component::get_loot_tier_data()
 {
-    // TODO: Get from playlist
-    return FindObject(L"/Game/Items/Datatables/AthenaLootTierData_Client.AthenaLootTierData_Client", true);
+    UObject* loot_tier_data = FindObject(L"/Game/Items/Datatables/AthenaLootTierData_Client.AthenaLootTierData_Client", true);
+
+    // Get current playlist
+    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+        (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
+    
+    if (UObject* playlist_loot_tier_data = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject(current_playlist->LootTierData()))
+    {
+        // Override loot tier data from playlist
+        loot_tier_data = playlist_loot_tier_data;
+    }
+    
+    return loot_tier_data;
 }
 
 UObject* looting_component::get_loot_tier_packages()
 {
-    // TODO: Get from playlist
-    return FindObject(L"/Game/Items/Datatables/AthenaLootPackages_Client.AthenaLootPackages_Client", true);
+    UObject* loot_tier_packages = FindObject(L"/Game/Items/Datatables/AthenaLootPackages_Client.AthenaLootPackages_Client", true);
+
+    // Get current playlist
+    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+        (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
+    
+    if (UObject* playlist_loot_tier_packages = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject(current_playlist->LootPackages()))
+    {
+        // Override loot tier packages from playlist
+        loot_tier_packages = playlist_loot_tier_packages;
+    }
+    
+    return loot_tier_packages;
 }

@@ -25,30 +25,34 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     {
         (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
 
+        // Load playlist on the server
         (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
     }
     else if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo"))
     {
         (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
-
         (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
-
         (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
 
+        // Load playlist on the server
         (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
     }
     else
     {
-        spdlog::error(L"Couldn't set the playlist, CurrentPlaylistData and CurrentPlaylistInfo do not exist.");
+        spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
+            in_playlist->GetName().c_str());
+        
         return;
     }
     
-    // Make warmup longer
-    (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 180.f;
-    (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 180.f;
+    // Infinite warmup
+    (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
+    (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999999.f;
 
-    //listen
-    const FURL in_url((*GWorld)->GetName().c_str(), 7777);
+    constexpr int listen_port = 7777;
+    
+    // Listen for connections
+    const FURL in_url((*GWorld)->GetName().c_str(), listen_port);
                     
     if (net_component::listen(in_url))
     {
@@ -57,7 +61,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     }
     else
     {
-        spdlog::error(L"Failed to start listening in '{}' on port 7777", (*GWorld)->GetName().c_str());
+        spdlog::critical(L"Failed to start listening in world '{}' on port '{}'",
+            (*GWorld)->GetName().c_str(),
+            listen_port);
     }
 
     // Update default pawn class

@@ -68,9 +68,11 @@ void renderer::render()
     {
         ImGui::Begin("World", nullptr, ImGuiWindowFlags_None);
 
-        if (ImGui::Button("Test"))
+        if (ImGui::Button("Start Game"))
         {
-            ImGui::OpenPopup("Test");
+            // Reduce warmup time to start game
+            (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
+            (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
         }
         
         ImGui::End();
@@ -78,12 +80,8 @@ void renderer::render()
 
     // Render everything that has just been created
     ImGui::Render();
-
-    // Render all draw data on the OpenGL window
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(glfw_window);
-
-    // Keep rendering, even if window is not visible
     glfwPollEvents();
 }

@@ -35,7 +35,7 @@ public:
 
     DEFINE_PROPERTY(uint8_t, GamePhase);
 
-    DEFINE_PROPERTY(UObject*, CurrentPlaylistData);
+    DEFINE_PROPERTY(UFortPlaylistAthena*, CurrentPlaylistData);
 
     DEFINE_PROPERTY(FPlaylistPropertyArray, CurrentPlaylistInfo);
     
