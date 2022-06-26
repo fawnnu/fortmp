@@ -2,6 +2,8 @@
 
 struct FVector
 {
+    FVector() = default;
+    
     /*
     FVector(float InX, float InY, float InZ) :
         X(InX), Y(InY), Z(InZ)
@@ -21,6 +23,8 @@ struct FVector
 
 struct FRotator
 {
+    FRotator() = default;
+    
     FRotator(float InPitch, float InYaw, float InRoll) :
         Pitch(InPitch), Yaw(InYaw), Roll(InRoll)
     {

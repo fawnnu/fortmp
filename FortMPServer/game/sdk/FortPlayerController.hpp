@@ -9,10 +9,7 @@ public:
     
     void Possess(AFortPlayerPawn* InPawn)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.Controller.Possess");
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &InPawn);
+        Call(L"Possess", InPawn);
     }
 };
 
@@ -23,10 +20,7 @@ public:
 
     void SwitchLevel(FString URL)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.PlayerController.SwitchLevel");
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &URL);
+        Call(L"SwitchLevel", URL);
     }
 };
 
@@ -41,21 +35,11 @@ public:
 
     bool IsInAircraft()
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.IsInAircraft");
-
-        bool bIsInAircraft;
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &bIsInAircraft);
-
-        return bIsInAircraft;
+        return Call<bool>(L"IsInAircraft");
     }
 
     void ServerAttemptAircraftJump(FRotator ClientRotation)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump");
-
-        // TODO: use Call
-        ProcessEvent(this, function, &ClientRotation);
+        Call(L"ServerAttemptAircraftJump", ClientRotation);
     }
 };

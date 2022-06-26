@@ -5,27 +5,7 @@ class UGameplayStatics : public UObject
 public:
     APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.GameplayStatics.GetPlayerController");
-        
-        struct params
-        {
-            // World to look for player in
-            UWorld* WorldContextObject;
-
-            // Player to find by index
-            int PlayerIndex;
-
-            // Player that was found (if any)
-            APlayerController* ReturnValue;
-        } function_params;
-
-        function_params.WorldContextObject = WorldContextObject;
-        function_params.PlayerIndex = PlayerIndex;
-
-        // TODO: use Call
-        ProcessEvent(this, function, &function_params);
-
-        return function_params.ReturnValue;
+        return Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
     }
 
     TArray<UObject*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)

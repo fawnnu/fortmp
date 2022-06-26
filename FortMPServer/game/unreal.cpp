@@ -19,4 +19,41 @@ void unreal_manager::setup_unreal_engine()
     INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
 
     INIT_POINTER(ProcessEvent, FindObject(L"/Script/CoreUObject.Default__Object")->VTable[0x40]);
+
+    INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
+
+    // initialize offsets
+    if (GetEngineVersionEasy() == 416 ||
+        GetEngineVersionEasy() == 419 ||
+        GetEngineVersionEasy() == 420 ||
+        GetEngineVersionEasy() == 421)
+    {
+        CoreOffsets::Children = 0x38;
+        CoreOffsets::Next = 0x28;
+        CoreOffsets::StructSize = 0x40;
+        CoreOffsets::Offset_Internal = 0x44;
+        CoreOffsets::ElementSize = 0x34;
+        CoreOffsets::PropertyFlags = 0x38;
+    }
+    else if (GetEngineVersionEasy() == 422 ||
+             GetEngineVersionEasy() == 423 ||
+             GetEngineVersionEasy() == 424)
+    {
+        CoreOffsets::Children = 0x48;
+        CoreOffsets::Next = 0x28;
+        CoreOffsets::StructSize = 0x50;
+        CoreOffsets::Offset_Internal = 0x44;
+        CoreOffsets::ElementSize = 0x34;
+        CoreOffsets::PropertyFlags = 0x38;
+    }
+    else if (GetEngineVersionEasy() == 425 ||
+             GetEngineVersionEasy() == 426)
+    {
+        CoreOffsets::Children = 0x48;
+        CoreOffsets::Next = 0x28;
+        CoreOffsets::StructSize = 0x58;
+        CoreOffsets::Offset_Internal = 0x4C;
+        CoreOffsets::ElementSize = 0x3C;
+        CoreOffsets::PropertyFlags = 0x40;
+    }
 }

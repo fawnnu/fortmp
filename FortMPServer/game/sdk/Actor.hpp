@@ -5,45 +5,21 @@ class AActor : public UObject
 public:
     FTransform GetTransform()
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.Actor.GetTransform");
-
-        FTransform ActorTransform {};
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &ActorTransform);
-
-        return ActorTransform;
+        return Call<FTransform>(L"GetTransform");
     }
 
     FVector K2_GetActorLocation()
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.Actor.K2_GetActorLocation");
-
-        FVector ActorLocation {};
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &ActorLocation);
-
-        return ActorLocation;
+        return Call<FVector>(L"K2_GetActorLocation");
     }
     
     FRotator K2_GetActorRotation()
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.Actor.K2_GetActorRotation");
-
-        FRotator ActorRotation { 0, 0, 0 };
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &ActorRotation);
-
-        return ActorRotation;
+        return Call<FRotator>(L"K2_GetActorRotation");
     }
 
     void SetOwner(UObject* NewOwner)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.Actor.SetOwner");
-
-        // TODO: use Call
-        ProcessEvent(this, function, &NewOwner);
+        Call(L"SetOwner", NewOwner);
     }
 };

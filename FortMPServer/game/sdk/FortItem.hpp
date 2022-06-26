@@ -19,27 +19,7 @@ class UFortItemDefinition : public UObject
 public:
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/FortniteGame.FortItemDefinition.CreateTemporaryItemInstanceBP");
-        
-        struct params
-        {
-            // Item count
-            int Count;
-
-            // Level of item
-            int Level;
-
-            // Temporary item created
-            UFortItem* TemporaryItemInstance;
-        } function_params;
-        
-        function_params.Count = Count;
-        function_params.Level = Level;
-        
-        // TODO: use Call
-        ProcessEvent(this, function, &function_params);
-
-        return function_params.TemporaryItemInstance;
+        return Call<UFortItem*>(L"CreateTemporaryItemInstanceBP", Count, Level);
     }
 };
 

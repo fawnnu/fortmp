@@ -4,7 +4,7 @@
     PropertyType##& PropertyName##()                                                                   \
     {                                                                                                  \
         static void* native_property = FindPropertyByName(this->Class, #PropertyName);                 \
-        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + 0x44);  \
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);  \
                                                                                                        \
         return *reinterpret_cast<PropertyType*>(__int64(this) + native_property_offset);               \
     }
@@ -27,7 +27,7 @@
     PropertyType##& PropertyName##()                                                                   \
     {                                                                                                  \
         static void* native_property = FindPropertyByName(GetClass(), #PropertyName);                  \
-        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + 0x44);  \
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);  \
                                                                                                        \
         return *reinterpret_cast<PropertyType*>(__int64(this) + native_property_offset);               \
     }

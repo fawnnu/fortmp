@@ -29,9 +29,6 @@ public:
 
     void OnRep_CurrentPlaylistData()
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/FortniteGame.FortGameStateAthena.OnRep_CurrentPlaylistData");
-        
-        // TODO: use Call
-        ProcessEvent(this, function, nullptr);
+        Call(L"OnRep_CurrentPlaylistData");
     }
 };

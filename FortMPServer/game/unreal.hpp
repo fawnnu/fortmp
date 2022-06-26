@@ -26,6 +26,25 @@ inline UObject* (*FindFunctionByName)(UObject* InObject, FName FunctionToFind, i
 // UObject::ProcessEvent
 inline void* (*ProcessEvent)(UObject* Object, UObject* Function, void* Params);
 
+// Gets engine version dynamically
+inline struct FString (*GetEngineVersion)();
+
+// Find an object by name
+inline UObject* (*StaticFindObject)(UObject* Class, void* Outer, const wchar_t* Name, bool ExactClass);
+
+// Load an object by name
+inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wchar_t*, int, void*, bool);
+
+namespace CoreOffsets
+{
+    inline DWORD Children;
+    inline DWORD Next;
+    inline DWORD Offset_Internal;
+    inline DWORD ElementSize;
+    inline DWORD PropertyFlags;
+    inline DWORD StructSize;
+}
+
 class UObject
 {
 public:
@@ -57,23 +76,25 @@ public:
     {
         char offset_vector_iterator = 0;
         
-        if (UObject* function_object = FindFunctionByName(this->Class, function_name, 1))
+        if (UObject* function_object = FindFunctionByName(this->Class, function_name, 1) ?
+            FindFunctionByName(this->Class, function_name, 1) :
+            StaticFindObject(nullptr, nullptr, function_name, false))
         {
             int16_t return_offset = 0;
             int16_t parms_size = 0;
             
             std::vector<int> offset_vector;
             
-            for (UObject* Property = *reinterpret_cast<UObject**>(__int64(function_object) + 0x38); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + 0x28))
+            for (UObject* Property = *reinterpret_cast<UObject**>(__int64(function_object) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
             {
-                int offset = *reinterpret_cast<int*>(__int64(Property) + 0x44);
+                int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
             
                 parms_size = offset + // Offset_Internal
-                    *reinterpret_cast<int*>(__int64(Property) + 0x34); // ElementSize
+                    *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
 
                 offset_vector.push_back(offset);
             
-                if (*reinterpret_cast<uint64_t*>(__int64(Property) + 0x38) & 0x0000000000000400) //CPF_ReturnParm
+                if (*reinterpret_cast<uint64_t*>(__int64(Property) + CoreOffsets::PropertyFlags) & 0x0000000000000400) //CPF_ReturnParm
                 {
                     return_offset = offset;
                 }
@@ -92,14 +113,12 @@ public:
 
             return *reinterpret_cast<T*>(__int64(params) + return_offset);
         }
-        else
-        {
-            // Warn that the function does not exist
-            spdlog::error(L"Unable to call function '{}' due to no function existing",
-                function_name);
-        }
+        
+        // Warn that the function does not exist
+        spdlog::error(L"Unable to call function '{}' due to no function existing",
+            function_name);
 
-        return 0;
+        return {};
     }
 };
 
@@ -116,12 +135,6 @@ struct FFrame
     // Pointer to parameters in frame
     uint8_t* Locals;
 };
-
-// Find an object by name
-inline UObject* (*StaticFindObject)(UObject* Class, void* Outer, const wchar_t* Name, bool ExactClass);
-
-// Load an object by name
-inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wchar_t*, int, void*, bool);
 
 template<typename T = UObject>
 T* FindObject(const wchar_t* ObjectName, bool bLoadObject = false, bool bUseAnyPackage = false)
@@ -148,7 +161,7 @@ public:
     void* get_native_function()
     {
         // Offset of native function in a UFunction struct
-        static int function_offset = *reinterpret_cast<int*>(__int64(this->Class) + 0x40) - sizeof(void*);
+        static int function_offset = *reinterpret_cast<int*>(__int64(this->Class) + CoreOffsets::StructSize) - sizeof(void*);
 
         return *reinterpret_cast<void**>(__int64(this) + function_offset); 
     }
@@ -171,4 +184,11 @@ T* SpawnDefaultActor(UWorld* World, UObject* Class)
     FRotator spawn_rotation = FRotator { 0, 0, 0 };
 
     return reinterpret_cast<T*>(SpawnActor(World, Class, &spawn_location, &spawn_rotation, spawn_parameters));
+}
+
+inline int GetEngineVersionEasy()
+{
+    const std::wstring engine_version = GetEngineVersion().c_str();
+
+    return std::stof(engine_version.substr(0, 4)) * 100;
 }

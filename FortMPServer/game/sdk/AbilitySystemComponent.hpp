@@ -49,21 +49,6 @@ public:
 
     void ClientActivateAbilityFailed(FGameplayAbilitySpecHandle AbilityToActivate, int16_t PredictionKey)
     {
-        static UFunction* function = FindObject<UFunction>(L"/Script/GameplayAbilities.AbilitySystemComponent.ClientActivateAbilityFailed");
-        
-        struct params
-        {
-            // Ability to activate by handle
-            FGameplayAbilitySpecHandle AbilityToActivate;
-
-            // Prediction key
-            int16_t PredictionKey;
-        } function_params;
-        
-        function_params.AbilityToActivate = AbilityToActivate;
-        function_params.PredictionKey = PredictionKey;
-
-        // TODO: use Call
-        ProcessEvent(this, function, &function_params);
+        Call(L"ClientActivateAbilityFailed", AbilityToActivate, PredictionKey);
     }
 };
