@@ -5,7 +5,7 @@ class loader_component
 public:
     loader_component();
 
-    static void start_match(UObject* in_playlist = nullptr);
+    static void start_match(UFortPlaylistAthena* in_playlist = nullptr);
     static void load_level(FName package_name);
 
     inline static std::vector<FName> loaded_levels;

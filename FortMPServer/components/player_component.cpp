@@ -43,6 +43,11 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 {
     if (State == 3)
     {
+        if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Num() == 1)
+        {
+            (*GWorld)->AuthorityGameMode()->StartMatch();
+        }
+        
         AFortPlayerPawn* player_pawn = player_component::create_player(NetConnection->PlayerController(), NetConnection->PlayerController()->GetTransform());
 
         if (player_pawn)
@@ -58,9 +63,6 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
-
-            // test
-            //inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Harvest_Pickaxe_Keg_Athena.WID_Harvest_Pickaxe_Keg_Athena"), 1);
         }
     }
 

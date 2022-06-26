@@ -183,6 +183,7 @@
     <ClInclude Include="game\sdk\FortPlayerController.hpp" />
     <ClInclude Include="game\sdk\FortPlayerPawn.hpp" />
     <ClInclude Include="game\sdk\FortPlayerState.hpp" />
+    <ClInclude Include="game\sdk\FortPlaylist.hpp" />
     <ClInclude Include="game\sdk\FortVolume.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />

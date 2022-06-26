@@ -36,9 +36,9 @@ void Setup()
                         // block DLL thread until level starts to load
                     }
 
+                    new net_component();
                     new loader_component();
                     new patches_component();
-                    new net_component();
                     new player_component();
                     new aircraft_component();
                     new ability_component();

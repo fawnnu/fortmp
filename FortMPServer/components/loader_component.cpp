@@ -13,38 +13,50 @@ loader_component::loader_component()
     DetourTransactionCommit();
 }
 
-void loader_component::start_match(UObject* in_playlist)
+void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 {
     if (in_playlist == nullptr)
     {
         // Use default playlist if none specified
-        in_playlist = FindObject(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
+        in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
     }
 
-    const auto current_playlist_data = &(*GWorld)->GameState()->CurrentPlaylistData();
-    
-    if (!memory_manager::is_bad_read_pointer(current_playlist_data))
+    if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistData"))
     {
-        *current_playlist_data = in_playlist;
+        (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
 
-        // Load playlist on the server
         (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
+    }
+    else if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo"))
+    {
+        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
+
+        (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
+
+        (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
+
+        (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
     }
     else
     {
-        spdlog::warn(L"Failed to set playlist '{}' in CurrentPlaylistData, invalid pointer provided",
-            in_playlist->GetName().c_str());
+        spdlog::error(L"Couldn't set the playlist, CurrentPlaylistData and CurrentPlaylistInfo do not exist.");
+        return;
     }
-
-    // Start match
-    (*GWorld)->AuthorityGameMode()->StartMatch();
-
+    
+    // Make warmup longer
+    (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 180.f;
+    (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 180.f;
+    
     const FURL in_url((*GWorld)->GetName().c_str(), 7777);
                     
     if (net_component::listen(in_url))
     {
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
+    }
+    else
+    {
+        spdlog::error(L"Failed to listen in '{}' on port 7777", (*GWorld)->GetName().c_str());
     }
 }
 
