@@ -17,13 +17,10 @@ class UObject;
 inline UWorld** GWorld;
 inline UObject** GEngine;
 
-// Marks array dirty (update array over network)
-inline static void (*EngineMarkArrayDirty)(FFastArraySerializer& FastArraySerializer);
-
-// FMemory_Realloc, necessary for resizing TArrays
+// Reallocates given area of memory
 inline static void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
 
-// UE4 Function that handles removing from an array
+// Removes an element from an array
 inline static void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
 
 // Find UProperty/FProperty by FName
@@ -35,7 +32,7 @@ inline UObject* (*FindFunctionByName)(UObject* InObject, FName FunctionToFind, i
 // UObject::ProcessEvent
 inline void* (*ProcessEvent)(UObject* Object, UObject* Function, void* Params);
 
-// Gets engine version dynamically
+// Returns current Engine version
 inline struct FString (*GetEngineVersion)();
 
 // Find an object by name

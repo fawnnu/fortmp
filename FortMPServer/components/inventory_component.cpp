@@ -14,12 +14,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     }
 
     UFortWorldItem* world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(Count, 1));
-
-    if (world_item->ItemEntry().ItemDefinition())
-    {
-        spdlog::info(L"ItemEntry ItemDefinition: {}",
-            world_item->ItemEntry().ItemDefinition()->GetName().c_str());
-    }
     
     return world_item;
 }

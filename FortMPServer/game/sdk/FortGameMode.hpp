@@ -23,7 +23,7 @@ public:
 class AFortGameModeZone : public AGameMode
 {
 public:
-    //DEFINE_PROPERTY(TArray<struct FItemAndCount>, StartingItems);
+    DEFINE_PROPERTY(TArray<struct FItemAndCount>, StartingItems);
 };
 
 class AFortGameModeAthena : public AFortGameModeZone

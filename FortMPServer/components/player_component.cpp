@@ -41,13 +41,8 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
 
 void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnection, int State)
 {
-    if (State == 3)
+    if (State == 3) // ReceivedJoin
     {
-        if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Num() == 1)
-        {
-            (*GWorld)->AuthorityGameMode()->StartMatch();
-        }
-        
         AFortPlayerPawn* player_pawn = player_component::create_player(NetConnection->PlayerController(), NetConnection->PlayerController()->GetTransform());
 
         if (player_pawn)
@@ -60,6 +55,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
                 // Update QuickBars ownership
                 NetConnection->PlayerController()->QuickBars()->SetOwner(NetConnection->PlayerController());
             }
+
+            // Grant harvesting tool
+            inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;

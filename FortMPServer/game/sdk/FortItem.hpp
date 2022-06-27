@@ -23,7 +23,21 @@ public:
     }
 };
 
-struct FFortItemEntry
+struct FFortItemList : public FFastArraySerializer
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, ReplicatedEntries);
+    DEFINE_STRUCT_PROPERTY(TArray<UFortWorldItem*>, ItemInstances);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemList");
+};
+ 
+class AFortInventory : public UObject
+{
+public:
+    DEFINE_PROPERTY(FFortItemList, Inventory);
+};
+
+struct FFortItemEntry : public FFastArraySerializerItem
 {
     DEFINE_STRUCT_PROPERTY(int, Count);
     DEFINE_STRUCT_PROPERTY(int, PreviousCount);
@@ -32,4 +46,11 @@ struct FFortItemEntry
     DEFINE_STRUCT_PROPERTY(struct FGuid, ItemGuid);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
+};
+
+struct FItemAndCount
+{
+    int Count;
+    char pad2[4];
+    UFortItemDefinition* Item;
 };

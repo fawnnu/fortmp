@@ -24,6 +24,8 @@ public:
     }
 };
 
+class AFortInventory;
+
 class AFortPlayerController : public APlayerController
 {
 public:
@@ -31,7 +33,7 @@ public:
 
     DEFINE_PROPERTY(AActor*, QuickBars);
 
-    DEFINE_PROPERTY(UObject*, WorldInventory);
+    DEFINE_PROPERTY(AFortInventory*, WorldInventory);
 
     bool IsInAircraft()
     {
