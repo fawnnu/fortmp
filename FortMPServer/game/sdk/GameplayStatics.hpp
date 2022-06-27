@@ -8,7 +8,7 @@ public:
         return Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
     }
 
-    TArray<UObject*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
+    TArray<AActor*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
     {
         static UFunction* function = FindObject<UFunction>(L"/Script/Engine.GameplayStatics.GetAllActorsOfClass");
         
@@ -21,7 +21,7 @@ public:
             UObject* ActorClass;
 
             // List of out actors
-            TArray<UObject*> OutActors;
+            TArray<AActor*> OutActors;
         } function_params;
         
         function_params.WorldContextObject = WorldContextObject;

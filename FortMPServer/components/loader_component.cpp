@@ -1,15 +1,17 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "looting_component.hpp"
 #include "net_component.hpp"
+#include "pickup_component.hpp"
 
 loader_component::loader_component()
 {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
-    REGISTER_UFUNCTION_DETOUR(loader_component_hooks::ReadyToStartMatch, L"/Script/Engine.GameMode.ReadyToStartMatch", loader_component_hooks::ReadyToStartMatch_Hook);
-
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetLoadedLevel, memory_manager::find_function_by_string(L"STAT_OnLevelLoaded_Broadcast"), loader_component_hooks::SetLoadedLevel_Hook);
+    
     DetourTransactionCommit();
 }
 
@@ -44,6 +46,21 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         return;
     }
+
+    // All floor loot actors in the sub-level
+    TArray<AActor*> floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true));
+        
+    for (AActor* floor_loot_actor : floor_loot_actors)
+    {
+        // TODO: Roll floor loot
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot");
+
+        for (const auto& [ item_definition, count ] : loot_to_spawn)
+        {
+            // Spawn pickup
+            pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count);
+        }
+    }
     
     // Infinite warmup
     (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
@@ -70,78 +87,24 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 }
 
-void loader_component::load_level(FName package_name)
-{
-    if (std::find(loaded_levels.begin(), loaded_levels.end(), package_name) != loaded_levels.end())
-    {
-        return;
-    }
-    
-    // Find the UWorld instance of the level
-    UWorld* world_level = FindObject<UWorld>(package_name.ToString().c_str(), false, true);
-
-    if (world_level)
-    {
-        loaded_levels.push_back(package_name);
-
-        // All floor loot actors in the sub-level
-        TArray<UObject*> floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true));
-        
-        for (UObject* floor_loot_actor : floor_loot_actors)
-        {
-            // TODO: Roll floor loot
-        }
-    }
-    else
-    {
-        spdlog::error(L"Failed to load level with package name '{}', no world context object exists",
-            world_level->GetName().c_str());
-    }
-}
-
-// Little hack to prevent ReadyToStartMatch from being run more than once
+// Little hack to prevent start match from being run more than once
 bool bReadyToStartMatch = false;
 
-void loader_component_hooks::ReadyToStartMatch_Hook(AGameMode* GameMode, FFrame& StackFrame)
+void loader_component_hooks::SetLoadedLevel_Hook(ULevelStreaming* LevelStreaming, UObject* Level)
 {
-    if (!bReadyToStartMatch)
-    {
-        bReadyToStartMatch = true;
-        
-        auto loading_thread = [](LPVOID) -> DWORD
-        {
-            while (true)
-            {
-                static DWORD streamed_levels_size = *reinterpret_cast<DWORD*>(uintptr_t(FindObject(L"/Script/FortniteGame.FortLevelStreamingInfo")) + CoreOffsets::StructSize);
-                    
-                auto streamed_levels = TArrayManager((*GWorld)->GameState()->WorldManager()->StreamedLevels(), streamed_levels_size);
-
-                if (streamed_levels.Num() > 0 && streamed_levels.Num() == loader_component::loaded_levels.size())
-                {
-                    // Start match
-                    loader_component::start_match();
-                    
-                    return 0;
-                }
-                
-                for (const auto& streamed_level : streamed_levels)
-                {
-                    if (streamed_level.LevelState == 6) // LSS_Ready
-                    {
-                        // Load the level
-                        loader_component::load_level(streamed_level.PackageName);
-                    }
-                }
-                
-                Sleep(500);
-            }
-            
-            return 0;
-        };
-
-        // Load all streaming levels on a new thread
-        CreateThread(nullptr, 0, loading_thread, nullptr, 0, nullptr);
-    }
+    // Add to loaded levels
+    loader_component::loaded_levels.push_back(LevelStreaming->PackageNameToLoad());
     
-    return ReadyToStartMatch(GameMode, StackFrame);
+    if (loader_component::loaded_levels.size() == loader_component::loaded_levels_threshold)
+    {
+        if (!bReadyToStartMatch)
+        {
+            bReadyToStartMatch = true;
+
+            // Start match
+            loader_component::start_match();
+        }
+    }
+
+    return SetLoadedLevel(LevelStreaming, Level);
 }

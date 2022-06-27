@@ -15,10 +15,16 @@ class UWorld : public UObject
 {
 public:
     DEFINE_PROPERTY(AFortGameStateAthena*, GameState);
-
     DEFINE_PROPERTY(AFortGameModeAthena*, AuthorityGameMode);
 
     DEFINE_PROPERTY(UNetDriver*, NetDriver);
 
     DEFINE_PROPERTY(TArray<FLevelCollection>, LevelCollections);
+};
+
+class ULevelStreaming : public UObject
+{
+public:
+    DEFINE_PROPERTY(TSoftObjectPtr, WorldAsset);
+    DEFINE_PROPERTY(FName, PackageNameToLoad);
 };

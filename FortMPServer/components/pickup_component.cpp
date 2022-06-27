@@ -23,9 +23,20 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         return nullptr;
     }
 
-    // Update the loaded ammo within the pickup
+    // Update item entry for the pickup
+    fort_pickup->PrimaryPickupItemEntry().ItemDefinition() = item_definition;
+    fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
 
+    if (fort_pickup->HasProperty("bServerStoppedSimulation"))
+    {
+        if (fort_pickup->bServerStoppedSimulation())
+        {
+            // Enable physics on pickups which is required on some builds
+            fort_pickup->bServerStoppedSimulation() = false;
+        }
+    }
+    
     // TODO: Add bServerStoppedSimulation, it might need a is_bad_read_ptr as the property does not exist on some builds
     fort_pickup->bRandomRotation() = true;
 
