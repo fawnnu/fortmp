@@ -10,8 +10,10 @@ public:
 
 namespace player_component_hooks
 {
-    inline void (*SetClientLoginState)(UNetConnection* NetConnection, int State);
-
     // Called when a player joins the server
-    void SetClientLoginState_Hook(UNetConnection* NetConnection, int State);
+    DEFINE_FUNCTION_HOOK(void, SetClientLoginState, (UNetConnection* NetConnection, int State));
+
+    // Called to override the hero type
+    DEFINE_FUNCTION_HOOK(UObject*, GetHeroDefinition, (UObject* Hero));
+    
 }

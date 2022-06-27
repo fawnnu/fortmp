@@ -16,7 +16,7 @@ public:
 class APlayerController : public AController
 {
 public:
-    DEFINE_PROPERTY(AFortPlayerStateAthena, PlayerState);
+    DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
 
     void SwitchLevel(FString URL)
     {
