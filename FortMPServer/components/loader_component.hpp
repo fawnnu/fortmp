@@ -18,4 +18,5 @@ namespace loader_component_hooks
 {
     // Called when a streaming level is loaded
     DEFINE_FUNCTION_HOOK(void, SetLoadedLevel, (ULevelStreaming* LevelStreaming, UObject* Level));
+    DEFINE_FUNCTION_HOOK(bool, ReadyToStartMatch, (AFortGameModeAthena* GameMode));
 }

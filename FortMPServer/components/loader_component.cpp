@@ -11,6 +11,7 @@ loader_component::loader_component()
     DetourUpdateThread(GetCurrentThread());
     
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetLoadedLevel, memory_manager::find_function_by_string(L"STAT_OnLevelLoaded_Broadcast"), loader_component_hooks::SetLoadedLevel_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::ReadyToStartMatch, memory_manager::find_function_by_string(L"GameMode returned ReadyToStartMatch", {0xe8}, 1), loader_component_hooks::ReadyToStartMatch_Hook);
     
     DetourTransactionCommit();
 }
@@ -61,10 +62,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count);
         }
     }
-    
-    // Infinite warmup
-    (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
-    (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999999.f;
 
     constexpr int listen_port = 7777;
     
@@ -107,4 +104,13 @@ void loader_component_hooks::SetLoadedLevel_Hook(ULevelStreaming* LevelStreaming
     }
 
     return SetLoadedLevel(LevelStreaming, Level);
+}
+
+bool loader_component_hooks::ReadyToStartMatch_Hook(AFortGameModeAthena* GameMode)
+{
+    //Make sure warmup is infinite before startmatch is called!
+    GameMode->WarmupCountdownDuration() = 99999999.f;
+    GameMode->WarmupEarlyCountdownDuration() = 99999999.f;
+    
+    return true; //Automatically starts match
 }
