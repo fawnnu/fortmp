@@ -67,3 +67,4 @@
 #include "sdk/FortVolume.hpp"
 #include "sdk/AbilitySystemComponent.hpp"
 #include "sdk/FortLoot.hpp"
+#include "sdk/FortQuickbars.hpp"

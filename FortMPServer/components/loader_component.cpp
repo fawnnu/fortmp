@@ -10,7 +10,6 @@ loader_component::loader_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::ReadyToStartMatch, memory_manager::find_function_by_string(L"GameMode returned ReadyToStartMatch", {0xe8}, 1), loader_component_hooks::ReadyToStartMatch_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     
     DetourTransactionCommit();
@@ -71,6 +70,13 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
+        // Start match
+        (*GWorld)->AuthorityGameMode()->StartMatch();
+        
+        // Infinite warmup
+        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
+        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999999.f;
+
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
@@ -80,43 +86,29 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     }
 }
 
-bool loader_component_hooks::ReadyToStartMatch_Hook(AFortGameModeAthena* GameMode)
-{
-    //Make sure warmup is infinite before startmatch is called!
-    GameMode->WarmupCountdownDuration() = 99999999.f;
-    GameMode->WarmupEarlyCountdownDuration() = 99999999.f;
-    
-    return true; //Automatically starts match
-}
-
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {
-    //Call the c++ function before executing our code
+    // Call original function first
     UpdateLevelStreaming(World);
-
-    //make sure we have a valid gamestate
+    
     if (World->GameState())
     {
-        //make sure we have a valid worldmanager
         if (World->GameState()->WorldManager())
         {
-            //loop through all streamed levels to make sure none is unloaded
             for (auto& streamed_level : TArrayManager(World->GameState()->WorldManager()->StreamedLevels(), FFortLevelStreamingInfo::GetStructSize()))
             {
-                //check if the level is unloaded
                 if (streamed_level.LevelState == 0)
                 {
-                    //if it is, return
+                    // Return if any level is unloaded
                     return;
                 }
             }
 
-            //make sure we have enough loaded levels and start match (listen for connections, spawn floor loot, set playlist)
             if (World->GameState()->WorldManager()->StreamedLevels().Num())
             {
+                // Start match if we have enough loaded levels
                 loader_component::start_match();
             }
         }
     }
 }
-

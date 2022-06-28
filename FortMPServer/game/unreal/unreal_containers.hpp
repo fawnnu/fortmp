@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+// Reallocates given area of memory
+inline static void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
+
+// Removes an element from an array
+inline static void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
+
 template<class T>
 struct TArray
 {

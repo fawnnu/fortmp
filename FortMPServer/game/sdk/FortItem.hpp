@@ -17,6 +17,9 @@ public:
 class UFortItemDefinition : public UObject
 {
 public:
+    DEFINE_PROPERTY(int, MaxStackSize);
+    DEFINE_PROPERTY(uint8_t, ItemType);
+    
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)
     {
         return Call<UFortItem*>(L"CreateTemporaryItemInstanceBP", Count, Level);
@@ -35,6 +38,11 @@ class AFortInventory : public UObject
 {
 public:
     DEFINE_PROPERTY(FFortItemList, Inventory);
+
+    void HandleInventoryLocalUpdate()
+    {
+        Call(L"HandleInventoryLocalUpdate");
+    }
 };
 
 struct FFortItemEntry : public FFastArraySerializerItem

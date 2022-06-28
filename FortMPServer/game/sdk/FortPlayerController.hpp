@@ -29,6 +29,8 @@ class AFortInventory;
 class AFortPlayerController : public APlayerController
 {
 public:
+    DEFINE_PROPERTY(AActor*, Pawn);
+    
     DEFINE_PROPERTY(bool, bHasServerFinishedLoading);
 
     DEFINE_PROPERTY(class AFortQuickBars*, QuickBars);

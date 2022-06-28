@@ -17,12 +17,6 @@ class UObject;
 inline UWorld** GWorld;
 inline UObject** GEngine;
 
-// Reallocates given area of memory
-inline static void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
-
-// Removes an element from an array
-inline static void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
-
 // Find UProperty/FProperty by FName
 inline void* (*FindPropertyByName)(UObject* InClass, FName PropertyToFind);
 
