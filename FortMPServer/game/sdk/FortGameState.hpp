@@ -5,6 +5,8 @@ struct FFortLevelStreamingInfo
     struct FName PackageName;
     uint8_t LevelState;
     char pad2[7];
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortLevelStreamingInfo");
 };
 
 struct FPlaylistPropertyArray

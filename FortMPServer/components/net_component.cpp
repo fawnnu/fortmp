@@ -19,6 +19,12 @@ net_component::net_component()
 
 bool net_component::listen(FURL in_url)
 {
+    if ((*GWorld)->NetDriver())
+    {
+        //A netdriver has been set already, therefore we shouldn't attempt listening again!
+        return false;
+    }
+    
     const FName NAME_GameNetDriver(L"GameNetDriver");
     
     if (CreateNamedNetDriver(*GEngine, *GWorld, NAME_GameNetDriver, NAME_GameNetDriver))
