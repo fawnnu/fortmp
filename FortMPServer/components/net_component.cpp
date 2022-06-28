@@ -31,7 +31,7 @@ bool net_component::listen(FURL in_url)
             // set World in NetDriver
             SetWorld(net_driver, *GWorld);
             
-            auto LevelCollections = TArrayManager((*GWorld)->LevelCollections(), *reinterpret_cast<DWORD*>(uintptr_t(FindObject(L"/Script/Engine.LevelCollection")) + CoreOffsets::ElementSize));
+            auto LevelCollections = TArrayManager((*GWorld)->LevelCollections(), FLevelCollection::GetStructSize());
 
             // set netdriver in levelcollections, RPCs will now work
             LevelCollections[0].NetDriver = net_driver;

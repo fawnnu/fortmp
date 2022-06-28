@@ -7,8 +7,9 @@ struct FLevelCollection
     class UNetDriver*         NetDriver;                      
     class UObject*            DemoNetDriver;                         
     class UObject*            PersistentLevel;               
-    unsigned char             UnknownData01[0x50];            
-    unsigned char             UnknownData02[0x8];             
+    unsigned char             UnknownData01[0x50];         
+
+    DEFINE_STRUCT_CLASS(L"/Script/Engine.LevelCollection");
 };
 
 class UWorld : public UObject
