@@ -14,7 +14,10 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 8B A9 ? ? ? ? 8B F2 48 8B F9 3B EA 75 55 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 05 ? ? ? ? 8B CA 48 89 44 24 ?"), player_component_hooks::SetClientLoginState_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_function_by_string(L"UNetConnection::SetClientLoginState: State same: %s"), player_component_hooks::SetClientLoginState_Hook);
 
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::GetHeroDefinition, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set.", { 0xE8 }, 1), player_component_hooks::GetHeroDefinition_Hook);
+    if (GetEngineVersionEasy() < 421)
+    {
+        REGISTER_FUNCTION_DETOUR(player_component_hooks::GetHeroDefinition, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set.", { 0xE8 }, 1), player_component_hooks::GetHeroDefinition_Hook);
+    }
     
     DetourTransactionCommit();
 }
@@ -48,12 +51,27 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
         if (player_pawn)
         {
             // Spawn QuickBars
-            NetConnection->PlayerController()->QuickBars() = SpawnDefaultActor<AActor>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
+            AFortQuickBars* new_quick_bars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
 
-            if (NetConnection->PlayerController()->QuickBars())
+            if (NetConnection->PlayerController()->HasProperty(L"QuickBars"))
             {
-                // Update QuickBars ownership
-                NetConnection->PlayerController()->QuickBars()->SetOwner(NetConnection->PlayerController());
+                NetConnection->PlayerController()->QuickBars() = new_quick_bars;
+
+                if (NetConnection->PlayerController()->QuickBars())
+                {
+                    // Update QuickBars ownership
+                    NetConnection->PlayerController()->QuickBars()->SetOwner(NetConnection->PlayerController());
+                }
+            }
+            else
+            {
+                NetConnection->PlayerController()->ClientQuickBars() = new_quick_bars;
+
+                if (NetConnection->PlayerController()->ClientQuickBars())
+                {
+                    // Update QuickBars ownership
+                    NetConnection->PlayerController()->ClientQuickBars()->SetOwner(NetConnection->PlayerController());
+                }
             }
 
             // Grant harvesting tool

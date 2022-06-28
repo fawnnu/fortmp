@@ -53,6 +53,7 @@
 #include "sdk/FortGameState.hpp"
 #include "sdk/FortGameMode.hpp"
 #include "sdk/FortPlaylist.hpp"
+#include "sdk/FortQuickbars.hpp"
 
 #include "sdk/FortPickup.hpp"
 #include "sdk/NetConnection.hpp"
