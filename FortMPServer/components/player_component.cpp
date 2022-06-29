@@ -10,6 +10,8 @@ player_component::player_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAcknowledgePossession, L"/Script/Engine.PlayerController.ServerAcknowledgePossession", player_component_hooks::ServerAcknowledgePossession_Hook);
+    
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 40 8B DA 48 8B F9 39 91 ? ? ? ? 0F 85 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 85 D2 74 41 83 EB 01 74 33 83 EB 01"), player_component_hooks::SetClientLoginState_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 8B A9 ? ? ? ? 8B F2 48 8B F9 3B EA 75 55 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 05 ? ? ? ? 8B CA 48 89 44 24 ?"), player_component_hooks::SetClientLoginState_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_function_by_string(L"UNetConnection::SetClientLoginState: State same: %s"), player_component_hooks::SetClientLoginState_Hook);
@@ -41,6 +43,16 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
     }
 
     return nullptr;
+}
+
+void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(UObject*, P);
+
+    // Update acknowledged pawn
+    PlayerController->AcknowledgedPawn() = P;
+    
+    return ServerAcknowledgePossession(PlayerController, StackFrame);
 }
 
 void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnection, int State)

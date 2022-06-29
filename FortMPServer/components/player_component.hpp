@@ -10,6 +10,9 @@ public:
 
 namespace player_component_hooks
 {
+    // Called to set acknowledged pawn
+    DEFINE_FUNCTION_HOOK(void, ServerAcknowledgePossession, (APlayerController* PlayerController, FFrame& StackFrame));
+    
     // Called when a player joins the server
     DEFINE_FUNCTION_HOOK(void, SetClientLoginState, (UNetConnection* NetConnection, int State));
 

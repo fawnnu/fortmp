@@ -16,6 +16,7 @@ public:
 class APlayerController : public AController
 {
 public:
+    DEFINE_PROPERTY(UObject*, AcknowledgedPawn);
     DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
 
     void SwitchLevel(FString URL)
