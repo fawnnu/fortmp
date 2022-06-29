@@ -3,7 +3,7 @@
 struct FFastArraySerializer;
 
 // Marks an array for replication
-inline static void (*FastArraySerializer_MarkArrayDirty)(FFastArraySerializer& FastArraySerializer);
+inline void (*FastArraySerializer_MarkArrayDirty)(FFastArraySerializer& FastArraySerializer);
 
 struct FFastArraySerializerItem
 {
@@ -34,7 +34,7 @@ struct FFastArraySerializer
         }
 
         Item.ReplicationKey++;
-
+        
         // Mark array for replication
         MarkArrayDirty();
     }

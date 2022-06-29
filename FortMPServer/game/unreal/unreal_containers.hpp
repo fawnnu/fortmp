@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-// Reallocates given area of memory
-inline static void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
+// Reallocate an area of memory
+inline void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
 
-// Removes an element from an array
-inline static void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
+// Remove an element from an array
+inline void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
 
 template<class T>
 struct TArray
@@ -164,13 +164,7 @@ public:
     }
 };
 
-
-/*
- * TArrayManager: A custom implementation to deal with TArrays completely dynamicallyà
- * Uses pointers and sizes to iterate and access elements of a TArray
- */
-
-template<typename T>
+template <typename T>
 class TArrayManager
 {
 private:
@@ -204,49 +198,54 @@ private:
     };
     
 public:
-    TArrayManager(TArray<T>& in_array_reference, DWORD in_size)
-        : local_array_reference(in_array_reference), local_element_size(in_size)
+    TArrayManager(PVOID ArrayPointer, size_t ArraySize)
     {
-        
+        Array = ArrayPointer;
+        ElementSize = ArraySize;
     }
 
     FORCEINLINE T& operator[](int Idx)
     {
-        return *reinterpret_cast<T*>(uintptr_t(local_array_reference.Data) + Idx * local_element_size);
+        auto& TArr = *reinterpret_cast<TArray<T>*>(Array);
+
+        return *reinterpret_cast<T*>(uintptr_t(TArr.Data) + Idx * ElementSize);
     }
 
     int Add(PVOID NewElement)
     {
-        local_array_reference.Data = (T*)FMemory_Realloc(local_array_reference.Data, local_element_size * (local_array_reference.Num() + 1), 0);
+        auto& TArr = *reinterpret_cast<TArray<T>*>(Array); 
+        
+        TArr.Data = (T*)FMemory_Realloc(TArr.Data, ElementSize * (TArr.Count + 1), 0);
 
-        memcpy(local_array_reference.Data + local_array_reference.Count++ * local_element_size, NewElement, local_element_size);
+        memcpy(TArr.Data + TArr.Count++ * ElementSize, NewElement, ElementSize);
 
-        local_array_reference.Max = local_array_reference.Count;
+        TArr.Max = TArr.Count;
 
-        return local_array_reference.Count - 1;
+        return TArr.Count - 1;
     }
     
-    void Remove(int Idx, void* ArrayProperty)
+    void Remove(int Idx, UObject* ArrayProperty)
     {
-        GenericArray_Remove(&local_array_reference, ArrayProperty, Idx);
+        GenericArray_Remove(Array, ArrayProperty, Idx);
     }
 
     int Num()
     {
-        return local_array_reference.Num();
+        return reinterpret_cast<TArray<T>*>(Array)->Num();
     }
-
+    
     Iterator begin()
     {
-        return Iterator(uintptr_t(local_array_reference.Data), local_element_size);
+        return Iterator(uintptr_t(reinterpret_cast<TArray<T>*>(Array)->Data), ElementSize);
     }
 
     Iterator end()
     {
-        return Iterator(uintptr_t(local_array_reference.Data) + local_array_reference.Num() * local_element_size, local_element_size);
+        auto& TArr = *reinterpret_cast<TArray<T>*>(Array);
+        return Iterator(uintptr_t(TArr.Data) + TArr.Count * ElementSize, ElementSize);
     }
-    
+
 private:
-    TArray<T>& local_array_reference;
-    DWORD local_element_size;
+    PVOID Array;
+    size_t ElementSize;
 };

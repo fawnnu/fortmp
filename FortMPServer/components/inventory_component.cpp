@@ -14,8 +14,8 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
     
-    TArrayManager<FFortItemEntry> replicated_entries = TArrayManager(player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-    TArrayManager<UFortWorldItem*> item_instances = TArrayManager(player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+    TArrayManager replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    TArrayManager item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
 
     // Create a world item from the item definition
     UFortWorldItem* world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(item_count, 1));
@@ -107,7 +107,7 @@ bool inventory_component::is_inventory_full(AFortPlayerController* player_contro
     int maximum_item_count = 5;
     
     // List of all replicated entries in inventory
-    TArrayManager<FFortItemEntry> replicated_entries = TArrayManager(player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    TArrayManager replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
     
     for (FFortItemEntry& replicated_entry : replicated_entries)
     {
@@ -135,7 +135,7 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
     }
 
     // Get all slots in the primary quick bar
-    TArrayManager<FQuickBarSlotData> quickbar_slots = TArrayManager(player_quickbars->PrimaryQuickBar().DataDefinition().QuickbarSlots(), FQuickBarSlotData::GetStructSize());
+    TArrayManager quickbar_slots = TArrayManager<FQuickBarSlotData>(&player_quickbars->PrimaryQuickBar().DataDefinition().QuickbarSlots(), FQuickBarSlotData::GetStructSize());
 
     //return quickbar_slots[quickbar_slot].AcceptedItemTypes().Find(item_definition->ItemType());
     return true;
