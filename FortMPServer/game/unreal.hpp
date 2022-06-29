@@ -80,6 +80,12 @@ public:
     {
         return FindFunctionByName(Class, in_function, 1);
     }
+
+    bool IsA(UObject* in_class)
+    {
+        // TODO: Implement inheritance
+        return in_class == Class;
+    }
     
     template<typename T = char, typename ...Params>
     T Call(const wchar_t* function_name, Params... args)

@@ -49,6 +49,11 @@ public:
         Call(L"ServerAttemptAircraftJump", ClientRotation);
     }
 
+    void ClientEquipItem(FGuid ItemGuid, bool bForceExecution)
+    {
+        Call(L"ClientEquipItem", ItemGuid, bForceExecution);
+    }
+
     UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)
     {
         return Call<UFortItem*>(L"BP_GetInventoryItemWithGuid", ItemGuid);

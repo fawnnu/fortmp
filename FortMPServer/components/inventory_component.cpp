@@ -108,6 +108,58 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     return world_item;
 }
 
+void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item)
+{
+    if (player_controller->Pawn() && should_drop_item)
+    {
+        // No pawn to spawn item at
+        return;
+    }
+
+    TArrayManager replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    TArrayManager item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+
+    for (int i = 0; i < replicated_entries.Num(); i++)
+    {
+        // Get both replicated entry and item instance at the index
+        FFortItemEntry& replicated_entry = replicated_entries[i];
+        UFortWorldItem*& item_instance = item_instances[i];
+
+        if (replicated_entry.ItemGuid() == item_guid)
+        {
+            if (should_drop_item)
+            {
+                // Spawn dropped item as pickup
+                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo());
+            }
+
+            if (item_count > 0 && replicated_entry.Count() - item_count > 0)
+            {
+                // Update item entry count
+                replicated_entry.Count() -= item_count;
+                item_instance->Count() -= item_count;
+
+                // Mark for replication
+                player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+                
+                return;
+            }
+
+            // Cache array classes
+            static UObject* replicated_entries_property = FindObject(L"/Script/FortniteGame.FortItemList.ReplicatedEntries");
+            static UObject* item_instances_property = FindObject(L"/Script/FortniteGame.FortItemList.ItemInstances");
+
+            replicated_entries.Remove(i, replicated_entries_property);
+            item_instances.Remove(i, item_instances_property);
+
+            // Mark for replication
+            player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+
+            break;
+        }
+    }
+}
+
 bool inventory_component::is_inventory_full(AFortPlayerController* player_controller)
 {
     int item_count = 0;
