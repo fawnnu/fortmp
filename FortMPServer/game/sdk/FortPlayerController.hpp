@@ -29,7 +29,7 @@ class AFortInventory;
 class AFortPlayerController : public APlayerController
 {
 public:
-    DEFINE_PROPERTY(AActor*, Pawn);
+    DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
     
     DEFINE_PROPERTY(bool, bHasServerFinishedLoading);
 
@@ -46,5 +46,15 @@ public:
     void ServerAttemptAircraftJump(FRotator ClientRotation)
     {
         Call(L"ServerAttemptAircraftJump", ClientRotation);
+    }
+
+    UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)
+    {
+        return Call<UFortItem*>(L"BP_GetInventoryItemWithGuid", ItemGuid);
+    }
+
+    UFortItem* K2_GetInventoryItemWithGuid(FGuid ItemGuid)
+    {
+        return Call<UFortItem*>(L"K2_GetInventoryItemWithGuid", ItemGuid);
     }
 };

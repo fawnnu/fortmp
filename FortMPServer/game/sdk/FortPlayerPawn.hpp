@@ -1,6 +1,16 @@
 ﻿#pragma once
 
-class AFortPlayerPawn : public UObject
+class AFortPawn : public AActor
+{
+public:
+    UObject* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
+    {
+        return Call<UObject*>(L"EquipWeaponDefinition", WeaponData, ItemEntryGuid);
+    }
+};
+
+
+class AFortPlayerPawn : public AFortPawn
 {
 public:
     DEFINE_PROPERTY(UObject*, Owner);

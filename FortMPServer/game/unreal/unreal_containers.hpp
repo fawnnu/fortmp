@@ -6,6 +6,19 @@ inline void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
 // Remove an element from an array
 inline void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);
 
+struct FGuid
+{
+    int A;
+    int B;
+    int C;
+    int D;
+
+    FORCEINLINE bool operator==(FGuid cmp)
+    {
+        return this->A == cmp.A && this->B == cmp.B && this->C == cmp.C && this->D == cmp.D;
+    };
+};
+
 template<class T>
 struct TArray
 {

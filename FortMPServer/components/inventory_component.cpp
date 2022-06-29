@@ -5,6 +5,13 @@
 
 inventory_component::inventory_component()
 {
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryItem, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryItem", inventory_component_hooks::ServerExecuteInventoryItem_Hook);
+    REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
+    
+    DetourTransactionCommit();
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -137,6 +144,47 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
     // Get all slots in the primary quick bar
     TArrayManager quickbar_slots = TArrayManager<FQuickBarSlotData>(&player_quickbars->PrimaryQuickBar().DataDefinition().QuickbarSlots(), FQuickBarSlotData::GetStructSize());
 
+    // TODO: Fix
     //return quickbar_slots[quickbar_slot].AcceptedItemTypes().Find(item_definition->ItemType());
+
     return true;
+}
+
+void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(FGuid, ItemGuid);
+
+    // Get inventory item by GUID
+    UFortItem* fort_item = PlayerController->HasFunction("K2_GetInventoryItemWithGuid") ?
+        PlayerController->K2_GetInventoryItemWithGuid(ItemGuid) : PlayerController->BP_GetInventoryItemWithGuid(ItemGuid);
+
+    if (fort_item == nullptr)
+    {
+        return;
+    }
+
+    // Get item definition from inventory item
+    UFortItemDefinition* item_definition = fort_item->GetItemDefinitionBP();
+
+    if (item_definition == nullptr)
+    {
+        return;
+    }
+
+    // TODO: Add trap support
+
+    // Equip weapon
+    PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+    
+    return ServerExecuteInventoryItem(PlayerController, StackFrame);
+}
+
+void inventory_component_hooks::ServerExecuteInventoryWeapon_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(AFortWeapon*, Weapon);
+
+    // Equip weapon
+    PlayerController->Pawn()->EquipWeaponDefinition(Weapon->WeaponData(), Weapon->ItemEntryGuid());
+    
+    return ServerExecuteInventoryWeapon(PlayerController, StackFrame);
 }

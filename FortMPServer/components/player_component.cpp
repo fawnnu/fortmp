@@ -65,7 +65,6 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
                 player_quickbars->SetOwner(NetConnection->PlayerController());
             }
             
-            // Grant harvesting tool
             inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
 
             // Drop loading screen

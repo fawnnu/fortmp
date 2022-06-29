@@ -186,6 +186,7 @@
     <ClInclude Include="game\sdk\FortPlaylist.hpp" />
     <ClInclude Include="game\sdk\FortQuickbars.hpp" />
     <ClInclude Include="game\sdk\FortVolume.hpp" />
+    <ClInclude Include="game\sdk\FortWeapon.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />
     <ClInclude Include="game\sdk\NetConnection.hpp" />

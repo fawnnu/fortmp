@@ -71,10 +71,14 @@ public:
         return NamePrivate.ToString();
     }
 
-    //checks if this object has a property; useful for universal implementation
     bool HasProperty(FName in_property) const
     {
         return FindPropertyByName(Class, in_property);
+    }
+
+    bool HasFunction(FName in_function) const
+    {
+        return FindFunctionByName(Class, in_function, 1);
     }
     
     template<typename T = char, typename ...Params>

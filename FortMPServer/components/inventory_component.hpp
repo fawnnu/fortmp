@@ -10,3 +10,12 @@ public:
     static bool is_inventory_full(AFortPlayerController* player_controller);
     static bool has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
 };
+
+namespace inventory_component_hooks
+{
+    // Called when player tries to equip an inventory item
+    DEFINE_FUNCTION_HOOK(void, ServerExecuteInventoryItem, (AFortPlayerController* PlayerController, FFrame& StackFrame));
+
+    // Called when player tries to equip an inventory weapon
+    DEFINE_FUNCTION_HOOK(void, ServerExecuteInventoryWeapon, (AFortPlayerController* PlayerController, FFrame& StackFrame));
+}

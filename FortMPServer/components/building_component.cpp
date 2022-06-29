@@ -5,9 +5,14 @@ building_component::building_component()
 {
     INIT_POINTER(ReplaceBuildingActor, memory_manager::find_function_by_string(L"STAT_Fort_BuildingSMActorReplaceBuildingActor"));
 
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerCreateBuildingActor, L"ServerCreateBuildingActor", building_component_hooks::ServerCreateBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEditBuildingActor, L"ServerEditBuildingActor", building_component_hooks::ServerEditBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"ServerRepairBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
+
+    DetourTransactionCommit();
 }
 
 bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, AFortPlayerController* building_owner)

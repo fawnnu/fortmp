@@ -15,7 +15,7 @@
         return *reinterpret_cast<PropertyType*>(__int64(this) + PropertyOffset);      \
     }
 
-#define GET_PROPERTY(PropertyType, PropertyName)                                                                                    \
+#define GET_PARAMETER(PropertyType, PropertyName)                                                                                   \
     static void* PropertyName##_property = FindPropertyByName(StackFrame.Node, #PropertyName);                                      \
     static int PropertyName##_offset = *reinterpret_cast<int*>(__int64(PropertyName##_property) + CoreOffsets::Offset_Internal);    \
                                                                                                                                     \
@@ -68,3 +68,4 @@
 #include "sdk/AbilitySystemComponent.hpp"
 #include "sdk/FortLoot.hpp"
 #include "sdk/FortQuickbars.hpp"
+#include "sdk/FortWeapon.hpp"
