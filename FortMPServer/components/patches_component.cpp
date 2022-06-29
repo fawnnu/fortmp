@@ -5,34 +5,43 @@ patches_component::patches_component()
 {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetPlayerViewPoint, memory_manager::find_function_by_string(L"APlayerController::GetPlayerViewPoint: out_Location, ViewTarget=%s"), patches_component_hook::GetPlayerViewPoint_Hook);
+    
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("48 8B C4 57 48 81 EC ? ? ? ? 4C 8B 82 ? ? ? ? 48 8B F9 0F 29 70 E8 0F 29 78 D8 44 0F 29 40 ? F3 45 0F 10 80 ? ? ? ? F3 41 0F 10 B0 ? ? ? ? F3 41 0F 10 88 ? ? ? ? F3 41 0F 10 A0 ? ? ? ? 44 0F 29 58 ? 44 0F 29 60 ? 45 0F 57 E4"), patches_component_hook::GetTagsFromPawnLocation_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_function_by_string(L"STAT_PoiVolume_CheckPawnOverlap", { 0xE8, 0x100, 0x100, 0x1 }, 1, false), patches_component_hook::GetTagsFromPawnLocation_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_pattern("40 55 56 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 48 8B 01"), patches_component_hook::UpdateNetStats_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_function_by_string(L"STAT_NetDebugWidget_UpdateNetStats"), patches_component_hook::UpdateNetStats_Hook);
 
-    if (GetEngineVersionEasy() > 421) //Apply patches only on s7+ in order to prevent errors on earlier versions
+    if (GetEngineVersionEasy() > 421)
     {
+        // Only apply patches on S7+ to prevent errors on earlier versions
         REGISTER_FUNCTION_DETOUR(patches_component_hook::TravelPatch, memory_manager::find_function_by_string(L"OnInitWorldRecordComplete: Invalid tile", {0xe8, 0x100, 0x100, 0x100, 0xff}, 1, false), patches_component_hook::TravelPatch_Hook);
         REGISTER_FUNCTION_DETOUR(patches_component_hook::LoadingScreenPatch, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 48 8B 01 48 8B F9 FF 90 ? ? ? ? 48 8B D8 48 85 C0 0F 84 ? ? ? ? 48 83 78 ? ? 0F 84 ? ? ? ? 48 8B 17 48 8B CF"), patches_component_hook::LoadingScreenPatch_Hook);
     }
-    
-    DetourTransactionCommit();
-}
 
-void patches_component_hook::GetPlayerViewPoint_Hook(AController* PlayerController, FVector& out_Location, FRotator& out_Rotation)
-{
-    if (PlayerController->NetConnection())
     {
-        AActor* view_target = PlayerController->NetConnection()->ViewTarget();
+        // TODO: Maybe use a hook instead of this
+        auto view_point_patch = memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6") ?
+            memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6") : memory_manager::find_pattern("74 46 0F 57 C0 0F 2F 80 ? ? ? ? 73 3A 8B 9F ? ? ? ? 48 8B CF C1 EB 03 E8 ? ? ? ? 80 E3 01 74 09 48 8D 48 1B E8 ? ? ? ? 48 8B 8F ? ? ? ? 4D 8B C6 48 8B D6");
 
-        if (view_target)
+        if (view_point_patch)
         {
-            out_Location = view_target->K2_GetActorLocation();
-            out_Rotation = view_target->K2_GetActorRotation();
+            DWORD d2;
+            DWORD d12;
+
+            VirtualProtect(reinterpret_cast<LPVOID>(view_point_patch), 1, PAGE_EXECUTE_READWRITE, &d2);
+
+            // Patch GetPlayerViewPoint function to prevent replication issues
+            reinterpret_cast<char*>(view_point_patch)[0] = 0x75;
+
+            VirtualProtect(reinterpret_cast<LPVOID>(view_point_patch), 1, d2, &d12);
+        }
+        else
+        {
+            spdlog::critical("Failed to setup patch 'GetPlayerViewPoint', invalid patch address provided");
         }
     }
+    
+    DetourTransactionCommit();
 }
 
 void patches_component_hook::UpdateNetStats_Hook(UObject* NetDebugWidget)
