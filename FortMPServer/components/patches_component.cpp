@@ -11,6 +11,12 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_pattern("40 55 56 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 48 8B 01"), patches_component_hook::UpdateNetStats_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_function_by_string(L"STAT_NetDebugWidget_UpdateNetStats"), patches_component_hook::UpdateNetStats_Hook);
 
+    // GetNetMode and WorldGetNetMode are hooked to make Fortnite think we are a dedicated server;
+    // With those hooks, double damage numbers, glider being attached to the pawn and other minor issues such as items not working will be fixed.
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetNetMode, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28"), patches_component_hook::GetNetMode_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_pattern("40 53 48 81 EC ? ? ? ? 48 83 79 ? ? 48 8B D9 74 0E B8 ? ? ? ? 48 81 C4 ? ? ? ? 5B"), patches_component_hook::WorldGetNetMode_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_function_by_string(L"not creating navigation on clients", {0xe8}, 1), patches_component_hook::WorldGetNetMode_Hook);
+
     if (GetEngineVersionEasy() > 421)
     {
         // Only apply patches on S7+ to prevent errors on earlier versions
@@ -19,7 +25,6 @@ patches_component::patches_component()
     }
 
     {
-        // TODO: Maybe use a hook instead of this
         auto view_point_patch = memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6") ?
             memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6") : memory_manager::find_pattern("74 46 0F 57 C0 0F 2F 80 ? ? ? ? 73 3A 8B 9F ? ? ? ? 48 8B CF C1 EB 03 E8 ? ? ? ? 80 E3 01 74 09 48 8D 48 1B E8 ? ? ? ? 48 8B 8F ? ? ? ? 4D 8B C6 48 8B D6");
 
@@ -69,4 +74,14 @@ __int64 patches_component_hook::LoadingScreenPatch_Hook(long long Object)
 {
     // Do nothing to prevent crash
     return 0;
+}
+
+int patches_component_hook::GetNetMode_Hook(UNetDriver* NetDriver)
+{
+    return 1; //Dedicated Server
+}
+
+int patches_component_hook::WorldGetNetMode_Hook(UWorld* World)
+{
+    return 1; //Dedicated Server
 }

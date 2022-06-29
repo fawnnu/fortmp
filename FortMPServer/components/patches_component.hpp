@@ -9,6 +9,9 @@ public:
 namespace patches_component_hook
 {
     DEFINE_FUNCTION_HOOK(void, GetPlayerViewPoint, (AController* PlayerController, FVector& out_Location, FRotator& out_Rotation));
+
+    DEFINE_FUNCTION_HOOK(int, GetNetMode, (UNetDriver* NetDriver));
+    DEFINE_FUNCTION_HOOK(int, WorldGetNetMode, (UWorld* World));
     
     inline void (*UpdateNetStats)(UObject* NetDebugWidget);
     inline bool (*GetTagsFromPawnLocation)(AFortPoiVolume* FortPoiVolume, __int64 Tags);
