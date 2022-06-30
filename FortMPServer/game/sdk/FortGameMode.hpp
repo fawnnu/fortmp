@@ -20,7 +20,13 @@ public:
     }
 };
 
-class AFortGameModeZone : public AGameMode
+class AFortGameMode : public AGameMode
+{
+public:
+    DEFINE_PROPERTY(TArray<AFortPlayerController*>, ConnectedPlayerControllers);
+};
+
+class AFortGameModeZone : public AFortGameMode
 {
 public:
     DEFINE_PROPERTY(TArray<struct FItemAndCount>, StartingItems);

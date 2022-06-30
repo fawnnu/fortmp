@@ -80,7 +80,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
-        //log
+        // Server is ready
+        is_server_ready = true;
+        
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
     }

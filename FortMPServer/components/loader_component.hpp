@@ -6,6 +6,8 @@ public:
     loader_component();
 
     static void start_match(UFortPlaylistAthena* in_playlist = nullptr);
+
+    inline static bool is_server_ready = false;
 };
 
 namespace loader_component_hooks

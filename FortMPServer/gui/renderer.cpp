@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "renderer.hpp"
 
+#include "window.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -19,7 +20,7 @@ renderer::renderer()
     {
         return;
     }
-
+    
     while (!glfwWindowShouldClose(glfw_window))
     {
         // Render everything in the GLFW window
@@ -43,7 +44,7 @@ GLFWwindow* renderer::create_window(std::string window_name, int window_height, 
     }
 
     glfwMakeContextCurrent(new_window);
-    glfwSwapInterval(1); // TODO: Reduce update rate (5/s?) to prevent server lag
+    glfwSwapInterval(1);
 
     ImGui::CreateContext();
 
@@ -58,24 +59,18 @@ GLFWwindow* renderer::create_window(std::string window_name, int window_height, 
 
 void renderer::render()
 {
+    // Clear background
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
 
+    // Start new frame
     ImGui::NewFrame();
 
     {
-        ImGui::Begin("World", nullptr, ImGuiWindowFlags_None);
-
-        if (ImGui::Button("Start Game"))
-        {
-            // Reduce warmup time to start game
-            (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
-            (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
-        }
-        
-        ImGui::End();
+        // Render main window
+        window::render(glfw_window);
     }
 
     // Render everything that has just been created
