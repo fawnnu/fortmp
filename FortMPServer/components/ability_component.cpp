@@ -11,6 +11,8 @@ ability_component::ability_component()
     INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("48 89 5C 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B 01 41 0F B6 D8 4C 8B F2 48 8B F9 FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?"));
     INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 80 B9 ? ? ? ? ? 48 8B FA 48 8B D9 75 4A C6 81 ? ? ? ? ? 48 81 C1 ? ? ? ? 83 3A FF 75 16 FF 41 50"));
 
+    INIT_POINTER(GiveAbilityAndActivateOnce, memory_manager::find_function_by_string(L"GiveAbilityAndActivateOnce called on ability %s that"));
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 

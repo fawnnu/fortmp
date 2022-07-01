@@ -18,6 +18,8 @@ struct FPredictionKey
 
 struct FGameplayAbilitySpec : FFastArraySerializerItem
 {
+    FGameplayAbilitySpec() = default;
+    
     int Handle;
     UObject* Ability;
     int Level;

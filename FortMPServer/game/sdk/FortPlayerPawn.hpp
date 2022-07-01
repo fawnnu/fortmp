@@ -8,6 +8,7 @@ class AFortPawn : public AActor
 public:
     DEFINE_PROPERTY(AFortPlayerController*, Controller);
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
+    DEFINE_PROPERTY(class UAbilitySystemComponent*, AbilitySystemComponent);
     
     UObject* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {

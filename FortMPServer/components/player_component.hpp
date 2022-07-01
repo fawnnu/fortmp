@@ -18,5 +18,8 @@ namespace player_component_hooks
 
     // Called to override the hero type
     DEFINE_FUNCTION_HOOK(UObject*, GetHeroDefinition, (UObject* Hero));
+
+    // Called when a player attempts to emote
+    DEFINE_FUNCTION_HOOK(void, ServerPlayEmoteItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
     
 }

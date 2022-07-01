@@ -26,3 +26,6 @@ inline bool (*InternalTryActivateAbility)(UObject* AbilitySystemComponent, FGame
 
 // Mark ability for replication
 inline void (*MarkAbilitySpecDirty)(UObject* AbilitySystemComponent, FGameplayAbilitySpec& Spec);
+
+// Gives an ability and activates it once
+inline FGameplayAbilitySpecHandle (*GiveAbilityAndActivateOnce)(UAbilitySystemComponent* AbilitySystemComponent, DWORD*, FGameplayAbilitySpec& InSpec);
