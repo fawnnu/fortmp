@@ -20,4 +20,7 @@ namespace inventory_component_hooks
 
     // Called when player tries to equip an inventory weapon
     DEFINE_FUNCTION_HOOK(void, ServerExecuteInventoryWeapon, (AFortPlayerController* PlayerController, FFrame& StackFrame));
+
+    // Called when player tries to drop item from inventory
+    DEFINE_FUNCTION_HOOK(void, ServerAttemptInventoryDrop, (AFortPlayerController* PlayerController, FFrame& StackFrame));
 }

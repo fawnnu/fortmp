@@ -10,6 +10,7 @@ inventory_component::inventory_component()
 
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryItem, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryItem", inventory_component_hooks::ServerExecuteInventoryItem_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
+    REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     
     DetourTransactionCommit();
 }
@@ -239,4 +240,15 @@ void inventory_component_hooks::ServerExecuteInventoryWeapon_Hook(AFortPlayerCon
     PlayerController->Pawn()->EquipWeaponDefinition(Weapon->WeaponData(), Weapon->ItemEntryGuid());
     
     return ServerExecuteInventoryWeapon(PlayerController, StackFrame);
+}
+
+void inventory_component_hooks::ServerAttemptInventoryDrop_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(FGuid, ItemGuid);
+    GET_PARAMETER(int, Count);
+
+    // Remove item
+    inventory_component::remove_item(PlayerController, ItemGuid, Count);
+    
+    return ServerAttemptInventoryDrop(PlayerController, StackFrame);
 }
