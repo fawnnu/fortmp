@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "ability_component.hpp"
 
+#include "inventory_component.hpp"
+
 ability_component::ability_component()
 {
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_pattern("4C 89 4C 24 ? 4C 89 44 24 ? 89 54 24 10 55 53 56 57 41 54 41 57 48 8D AC 24 ? ? ? ?"));
@@ -15,6 +17,10 @@ ability_component::ability_component()
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbility, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbility", ability_component_hooks::ServerTryActivateAbility_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbilityWithEventData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbilityWithEventData", ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
+    
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_pattern("89 54 24 10 55 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 80 B9 ? ? ? ? ? 4C 8B F1 0F 85 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 49 8B CE 48 89 BC 24 ? ? ? ? E8 ? ? ? ? 48 89 45 7F"), ability_component_hooks::AbilityCost_Hook);
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Weapon [%s] - Failed to find an Inventory Owner"), ability_component_hooks::AbilityCost_Hook);
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::CheckCost, memory_manager::find_function_by_string(L"UFortGameplayAbility::CheckCost for %s"), ability_component_hooks::CheckCost_Hook);
     
     DetourTransactionCommit();
 }
@@ -99,5 +105,90 @@ void ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook(UAbilit
 
 void ability_component_hooks::ServerAbilityRPCBatch_Hook(UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame)
 {
+    GET_PARAMETER(FServerAbilityRPCBatch, BatchInfo);
+    
+    ability_component::activate_ability(AbilitySystemComponent, BatchInfo.AbilitySpecHandle(), BatchInfo.InputPressed(), BatchInfo.PredictionKey()); 
+    
     return ServerAbilityRPCBatch(AbilitySystemComponent, StackFrame);   
 }
+
+bool ability_component_hooks::CheckCost_Hook(UFortGameplayAbility* Ability, int Handle, uintptr_t unk_0, uintptr_t unk_1)
+{
+    const bool result = CheckCost(Ability, Handle, unk_0, unk_1);
+    
+    if (result)
+    {
+        if (auto Costs = TArrayManager<FFortAbilityCost>(&Ability->AbilityCosts(), FFortAbilityCost::GetStructSize()); Costs.Num())
+        {
+            if (Costs[0].CostSource() == 2) //AmmoMagazine
+            {
+                const auto player_controller = Ability->GetActivatingPawn()->Controller();
+                const FGuid fort_weapon_guid = Ability->GetCurrentSourceWeapon()->ItemEntryGuid();
+                
+                auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+
+                for (int i = 0; i < replicated_entries.Num(); i++)
+                {
+                    FFortItemEntry& replicated_entry = replicated_entries[i];
+                    UFortWorldItem*& item_instance = item_instances[i];
+
+                    if (replicated_entry.ItemGuid() == fort_weapon_guid)
+                    {
+                        const auto new_loaded_ammo = Ability->GetCurrentSourceWeapon()->GetMagazineAmmoCount() - 1;
+                        
+                        replicated_entry.LoadedAmmo() = new_loaded_ammo;
+                        item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
+
+                        player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amount)
+{
+    if (FortWeapon)
+    {
+        if (const auto weapon_item_definition = static_cast<UFortWorldItemDefinition*>(FortWeapon->WeaponData()))
+        {
+            if (const auto ammo_item_definition = weapon_item_definition->GetAmmoWorldItemDefinition_BP())
+            {
+                const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
+
+                auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+
+                for (int i = 0; i < replicated_entries.Num(); i++)
+                {
+                    FFortItemEntry& replicated_entry = replicated_entries[i];
+                    UFortWorldItem*& item_instance = item_instances[i];
+
+                    if (replicated_entry.ItemGuid() == FortWeapon->ItemEntryGuid())
+                    {
+                        const auto new_loaded_ammo = FortWeapon->GetMagazineAmmoCount();
+                        
+                        replicated_entry.LoadedAmmo() = new_loaded_ammo;
+                        item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
+
+                        player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+                    }
+
+                    if (replicated_entry.ItemDefinition() == ammo_item_definition)
+                    {
+                        inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), Amount, false);
+                    }
+                }
+            }
+        }
+    }
+
+    return AbilityCost(FortWeapon, Amount);
+}
+

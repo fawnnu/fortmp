@@ -23,7 +23,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         return nullptr;
     }
     
-    static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickup");
+    static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
 
     // Spawn pickup in world
     AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, fort_pickup_class, &pickup_location, nullptr, FActorSpawnParameters {})); // <--- crashes
@@ -100,10 +100,10 @@ void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn
         }
     }
 
-    __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0];
+    __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0]; //taken from IDA
     
     // Grab pickup
-    GrabPickup(Pickup, PlayerPawn, InFlyTime, reinterpret_cast<__int64>(&grab_pickup_parameter));
+    GrabPickup(Pickup, PlayerPawn, 0.4f, reinterpret_cast<__int64>(&grab_pickup_parameter));
 
     // Prevent additional pickups
     Pickup->bPickedUp() = true;

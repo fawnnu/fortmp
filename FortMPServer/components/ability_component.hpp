@@ -17,6 +17,8 @@ namespace ability_component_hooks
     DEFINE_FUNCTION_HOOK(void, ServerTryActivateAbility, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerTryActivateAbilityWithEventData, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerAbilityRPCBatch, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, AbilityCost, (AFortWeapon* FortWeapon, int Amount));
+    DEFINE_FUNCTION_HOOK(bool, CheckCost, (UFortGameplayAbility* Ability, int Handle, uintptr_t unk_0, uintptr_t unk_1));
 }
 
 // Activate ability internally

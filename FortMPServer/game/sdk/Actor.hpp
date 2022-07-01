@@ -22,4 +22,9 @@ public:
     {
         Call(L"SetOwner", NewOwner);
     }
+
+    AActor* GetOwner()
+    {
+        return Call<AActor*>(L"GetOwner");
+    }
 };

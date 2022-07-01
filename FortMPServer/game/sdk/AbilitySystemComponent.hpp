@@ -42,6 +42,15 @@ struct FGameplayAbilitySpecContainer : public FFastArraySerializer
     UObject*                            Owner;
 };
 
+struct FServerAbilityRPCBatch
+{
+    DEFINE_STRUCT_PROPERTY(FGameplayAbilitySpecHandle, AbilitySpecHandle);
+    DEFINE_STRUCT_PROPERTY(FPredictionKey, PredictionKey);
+    DEFINE_STRUCT_PROPERTY(bool, InputPressed);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.ServerAbilityRPCBatch");
+};
+
 class UAbilitySystemComponent : public UObject
 {
 public:

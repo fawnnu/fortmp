@@ -111,7 +111,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
 void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item)
 {
-    if (player_controller->Pawn() && should_drop_item)
+    if (!player_controller->Pawn() && should_drop_item)
     {
         // No pawn to spawn item at
         return;
@@ -154,7 +154,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             item_instances.Remove(i, item_instances_property);
 
             // Mark for replication
-            player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+            player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
             break;
         }

@@ -32,6 +32,15 @@ public:
     }
 };
 
+class UFortWorldItemDefinition : public UFortItemDefinition
+{
+public:
+    UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()
+    {
+        return Call<UFortWorldItemDefinition*>(L"GetAmmoWorldItemDefinition_BP");
+    }
+};
+
 struct FFortItemList : public FFastArraySerializer
 {
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, ReplicatedEntries);
