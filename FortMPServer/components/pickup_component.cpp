@@ -100,8 +100,10 @@ void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn
         }
     }
 
+    __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0];
+    
     // Grab pickup
-    GrabPickup(Pickup, PlayerPawn, InFlyTime, 0);
+    GrabPickup(Pickup, PlayerPawn, InFlyTime, reinterpret_cast<__int64>(&grab_pickup_parameter));
 
     // Prevent additional pickups
     Pickup->bPickedUp() = true;

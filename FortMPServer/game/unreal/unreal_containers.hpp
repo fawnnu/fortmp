@@ -177,7 +177,12 @@ public:
     }
 };
 
-template <typename T>
+struct Struct
+{
+    // Empty struct used when iterating through dynamic struct arrays
+};
+
+template <typename T = Struct>
 class TArrayManager
 {
 private:
@@ -219,16 +224,16 @@ public:
 
     FORCEINLINE T& operator[](int Idx)
     {
-        auto& TArr = *reinterpret_cast<TArray<T>*>(Array);
+        auto& TArr = *reinterpret_cast<TArray<Struct>*>(Array);
 
         return *reinterpret_cast<T*>(uintptr_t(TArr.Data) + Idx * ElementSize);
     }
 
     int Add(PVOID NewElement)
     {
-        auto& TArr = *reinterpret_cast<TArray<T>*>(Array); 
+        auto& TArr = *reinterpret_cast<TArray<Struct>*>(Array); 
         
-        TArr.Data = (T*)FMemory_Realloc(TArr.Data, ElementSize * (TArr.Count + 1), 0);
+        TArr.Data = (Struct*)FMemory_Realloc(TArr.Data, ElementSize * (TArr.Count + 1), 0);
 
         memcpy(TArr.Data + TArr.Count++ * ElementSize, NewElement, ElementSize);
 
@@ -244,17 +249,17 @@ public:
 
     int Num()
     {
-        return reinterpret_cast<TArray<T>*>(Array)->Num();
+        return reinterpret_cast<TArray<Struct>*>(Array)->Num();
     }
     
     Iterator begin()
     {
-        return Iterator(uintptr_t(reinterpret_cast<TArray<T>*>(Array)->Data), ElementSize);
+        return Iterator(uintptr_t(reinterpret_cast<TArray<Struct>*>(Array)->Data), ElementSize);
     }
 
     Iterator end()
     {
-        auto& TArr = *reinterpret_cast<TArray<T>*>(Array);
+        auto& TArr = *reinterpret_cast<TArray<Struct>*>(Array);
         return Iterator(uintptr_t(TArr.Data) + TArr.Count * ElementSize, ElementSize);
     }
 
