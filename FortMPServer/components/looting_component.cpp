@@ -93,7 +93,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
     }
 
     // Only call ToString once for performance
-    const wchar_t* final_loot_package = final_loot_tier_data->LootPackage().ToString().c_str();
+    std::wstring final_loot_package = final_loot_tier_data->LootPackage().ToString();
 
     for (float i = 0; i < final_loot_tier_data->NumLootPackageDrops(); i++)
     {
@@ -110,7 +110,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
 
         std::vector<FName> temp_loot_package_calls;
 
-        if (!wcsstr(final_loot_package, L"WorldList"))
+        if (!wcsstr(final_loot_package.c_str(), L"WorldList"))
         {
             for (auto element : loot_tier_packages_map)
             {
@@ -127,7 +127,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
                 }
             }
         }
-        else if (wcsstr(final_loot_package, L"Empty"))
+        else if (wcsstr(final_loot_package.c_str(), L"Empty"))
         {
             // Empty loot package name, do nothing
             continue;
