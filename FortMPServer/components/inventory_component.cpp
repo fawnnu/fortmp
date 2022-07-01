@@ -138,7 +138,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             {
                 // Update item entry count
                 replicated_entry.Count() -= item_count;
-                item_instance->Count() -= item_count;
+                item_instance->ItemEntry().Count() -= item_count;
 
                 // Mark for replication
                 player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
@@ -177,7 +177,7 @@ bool inventory_component::is_inventory_full(AFortPlayerController* player_contro
         }
     }
 
-    return item_count == maximum_item_count;
+    return item_count >= maximum_item_count;
 }
 
 bool inventory_component::has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
@@ -197,10 +197,7 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
     // Get all slots in the primary quick bar
     TArrayManager quickbar_slots = TArrayManager<FQuickBarSlotData>(&player_quickbars->PrimaryQuickBar().DataDefinition().QuickbarSlots(), FQuickBarSlotData::GetStructSize());
 
-    // TODO: Fix
-    //return quickbar_slots[quickbar_slot].AcceptedItemTypes().Find(item_definition->ItemType());
-
-    return true;
+    return quickbar_slots[quickbar_slot].AcceptedItemTypes().Find(item_definition->ItemType());
 }
 
 void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

@@ -47,7 +47,7 @@ struct TArray
         return Count;
     }
 
-    bool Find(T ElementToFind) const
+    bool Find(T ElementToFind)
     {
         for (T Element : *this)
         {

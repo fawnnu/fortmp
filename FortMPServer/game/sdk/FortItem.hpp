@@ -6,8 +6,6 @@ class UFortItemDefinition;
 class UFortItem : public UObject
 {
 public:
-    DEFINE_PROPERTY(int, Count);
-
     UFortItemDefinition* GetItemDefinitionBP()
     {
         return Call<UFortItemDefinition*>(L"GetItemDefinitionBP");
