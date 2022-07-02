@@ -19,7 +19,7 @@ struct FBuildingClassData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.BuildingClassData");
 };
 
-class ABuildingActor : public UObject
+class ABuildingActor : public AActor
 {
 public:
     DEFINE_PROPERTY(uint8_t, Team);
@@ -43,4 +43,10 @@ class AFortWeap_EditingTool : public UObject
 {
 public:
     DEFINE_PROPERTY(ABuildingSMActor*, EditActor);
+};
+
+class ABuildingContainer : public ABuildingSMActor
+{
+public:
+    DEFINE_PROPERTY(FName, SearchLootTierGroup);
 };

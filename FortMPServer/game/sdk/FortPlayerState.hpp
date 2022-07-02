@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class APlayerState : public UObject
+class APlayerState : public AActor
 {
 
 };
@@ -11,7 +11,7 @@ public:
     DEFINE_PROPERTY(UObject*, HeroDefinition);
 };
 
-class AFortPlayerState : public UObject
+class AFortPlayerState : public APlayerState
 {
 public:
     DEFINE_PROPERTY(UObject*, HeroType);

@@ -11,6 +11,11 @@ public:
     {
         Call(L"Possess", InPawn);
     }
+
+    void SetControlRotation(FRotator in_rotation)
+    {
+        Call(L"SetControlRotation", in_rotation);
+    }
 };
 
 class APlayerController : public AController

@@ -5,6 +5,12 @@
 
 looting_component::looting_component()
 {
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    REGISTER_UFUNCTION_DETOUR(looting_component_hooks::ServerAttemptInteract, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInteract", looting_component_hooks::ServerAttemptInteract_Hook);
+    
+    DetourTransactionCommit();
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
@@ -218,3 +224,27 @@ UObject* looting_component::get_loot_tier_packages()
     
     return loot_tier_packages;
 }
+
+void looting_component_hooks::ServerAttemptInteract_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(AActor*, ReceivingActor);
+
+    if (ReceivingActor == nullptr)
+    {
+        return; // Invalid ReceivingActor
+    }
+
+    //Make sure our actor is a container (Chest, ammo box)
+    if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, FindObject(L"/Script/FortniteGame.BuildingContainer")))
+    {
+        FString SearchLootTierGroup = static_cast<ABuildingContainer*>(ReceivingActor)->SearchLootTierGroup().ToString().c_str();
+
+        FString left_str;
+        FString right_str;
+
+        UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
+    }
+    
+    return ServerAttemptInteract(FortPlayerController, StackFrame);
+}
+

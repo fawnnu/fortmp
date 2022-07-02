@@ -10,3 +10,8 @@ public:
     static UObject* get_loot_tier_data();
     static UObject* get_loot_tier_packages();
 };
+
+namespace looting_component_hooks
+{
+    DEFINE_FUNCTION_HOOK(void, ServerAttemptInteract, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+}

@@ -15,7 +15,7 @@ namespace aircraft_component_hooks
     DEFINE_FUNCTION_HOOK(void, OnAircraftExitedDropZone, (AFortGameModeAthena* GameMode, FFrame& StackFrame));
 
     // Called when a player enters the aircraft
-    DEFINE_FUNCTION_HOOK(void, EnterAircraft, (AFortPlayerController* PlayerController, void* unknown_data));
+    DEFINE_FUNCTION_HOOK(void, ServerSetInAircraft, (AFortPlayerState* PlayerState, FFrame& StackFrame));
 };
 
 // Used to choose a player start for the player exiting the aircraft
