@@ -78,10 +78,10 @@ __int64 patches_component_hook::LoadingScreenPatch_Hook(long long Object)
 
 int patches_component_hook::GetNetMode_Hook(UNetDriver* NetDriver)
 {
-    return 1; //Dedicated Server
+    return 1; // NM_DedicatedServer
 }
 
 int patches_component_hook::WorldGetNetMode_Hook(UWorld* World)
 {
-    return 1; //Dedicated Server
+    return 1; // NM_DedicatedServer
 }
