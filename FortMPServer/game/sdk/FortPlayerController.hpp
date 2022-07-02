@@ -63,4 +63,14 @@ public:
     {
         return Call<UFortItem*>(L"K2_GetInventoryItemWithGuid", ItemGuid);
     }
+
+    UFortItem* BP_FindExistingItemForDefinition(UFortItemDefinition* ItemDefinition, bool bInStorageVault = false)
+    {
+        return Call<UFortItem*>(L"BP_FindExistingItemForDefinition", ItemDefinition, bInStorageVault);
+    }
+
+    UFortItem* K2_FindExistingItemForDefinition(UFortItemDefinition* ItemDefinition, bool bInStorageVault = false)
+    {
+        return Call<UFortItem*>(L"K2_FindExistingItemForDefinition", ItemDefinition, bInStorageVault);
+    }
 };

@@ -33,3 +33,9 @@ public:
         Call(L"SetMirrored", bMirrored);
     }
 };
+
+class AFortWeap_EditingTool : public UObject
+{
+public:
+    DEFINE_PROPERTY(ABuildingSMActor*, EditActor);
+};

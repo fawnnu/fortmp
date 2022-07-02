@@ -10,6 +10,11 @@ public:
     {
         return Call<UFortItemDefinition*>(L"GetItemDefinitionBP");
     }
+
+    FGuid GetItemGuid()
+    {
+        return Call<FGuid>(L"GetItemGuid");
+    }
 };
 
 class UFortWorldItem : public UFortItem

@@ -10,7 +10,7 @@ building_component::building_component()
     
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerCreateBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerCreateBuildingActor", building_component_hooks::ServerCreateBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEditBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerEditBuildingActor", building_component_hooks::ServerEditBuildingActor_Hook);
-    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerBeginEditingBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerBeginEditingBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerBeginEditingBuildingActor", building_component_hooks::ServerBeginEditingBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerRepairBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
     
     DetourTransactionCommit();
@@ -127,11 +127,46 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
 
 void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
+    GET_PARAMETER(ABuildingActor*, BuildingActorToEdit);
+    GET_PARAMETER(UObject*, NewBuildingClass);
+    GET_PARAMETER(bool, bMirrored);
+    GET_PARAMETER(int, RotationIterations);
+
+    if (BuildingActorToEdit && NewBuildingClass)
+    {
+        // Edit building actor
+        building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+    }
+    
     return ServerEditBuildingActor(FortPlayerController, StackFrame);
 }
 
 void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
+    GET_PARAMETER(ABuildingSMActor*, BuildingActorToEdit);
+
+    if (BuildingActorToEdit)
+    {
+        // Edit tool item definition
+        static UFortItemDefinition* edit_tool_definition = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/EditTool.EditTool");
+
+        // Get edit tool item
+        UFortItem* edit_tool = FortPlayerController->HasFunction("K2_FindExistingItemForDefinition") ?
+            FortPlayerController->K2_FindExistingItemForDefinition(edit_tool_definition) : FortPlayerController->BP_FindExistingItemForDefinition(edit_tool_definition);
+
+        if (!memory_manager::is_bad_read_pointer(edit_tool))
+        {
+            // Equip edit tool
+            AFortWeap_EditingTool* edit_tool_weapon = reinterpret_cast<AFortWeap_EditingTool*>(FortPlayerController->Pawn()->EquipWeaponDefinition(edit_tool_definition, edit_tool->GetItemGuid()));
+
+            if (!memory_manager::is_bad_read_pointer(edit_tool_weapon))
+            {
+                // Update build in edit tool
+                edit_tool_weapon->EditActor() = BuildingActorToEdit;
+            }
+        }
+    }
+    
     return ServerBeginEditingBuildingActor(FortPlayerController, StackFrame);
 }
 
