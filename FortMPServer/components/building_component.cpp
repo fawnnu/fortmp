@@ -172,5 +172,18 @@ void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerC
 
 void building_component_hooks::ServerRepairBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
+    GET_PARAMETER(ABuildingSMActor*, BuildingActorToRepair);
+
+    // TODO: Get proper repair cost, most likely to do with BuildingRepairCostMultiplierHandles
+    constexpr int repair_cost = 3;
+
+    if (BuildingActorToRepair)
+    {
+        // Repair building
+        BuildingActorToRepair->RepairBuilding(FortPlayerController, repair_cost);
+
+        // TODO: Repair cost
+    }
+    
     return ServerRepairBuildingActor(FortPlayerController, StackFrame);
 }

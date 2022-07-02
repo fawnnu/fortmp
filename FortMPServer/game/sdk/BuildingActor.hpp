@@ -32,6 +32,11 @@ public:
     {
         Call(L"SetMirrored", bMirrored);
     }
+
+    void RepairBuilding(AFortPlayerController* RepairingController, int ResourcesSpent)
+    {
+        Call(L"RepairBuilding", RepairingController, ResourcesSpent);
+    }
 };
 
 class AFortWeap_EditingTool : public UObject
