@@ -8,22 +8,26 @@ building_component::building_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
-    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerCreateBuildingActor, L"ServerCreateBuildingActor", building_component_hooks::ServerCreateBuildingActor_Hook);
-    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEditBuildingActor, L"ServerEditBuildingActor", building_component_hooks::ServerEditBuildingActor_Hook);
-    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"ServerRepairBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
-
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerCreateBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerCreateBuildingActor", building_component_hooks::ServerCreateBuildingActor_Hook);
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEditBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerEditBuildingActor", building_component_hooks::ServerEditBuildingActor_Hook);
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerBeginEditingBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerRepairBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
+    
     DetourTransactionCommit();
 }
 
-bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, AFortPlayerController* building_owner)
+bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner)
 {
     if (is_building_class_valid(building_class))
     {
-         // Spawn in a building actor to the world
-         ABuildingActor* building_actor = reinterpret_cast<ABuildingActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
+         // Spawn a building actor in the world
+         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
      
          if (building_actor)
          {
+             // Set mirrored
+             building_actor->SetMirrored(is_mirrored);
+             
              if (building_owner)
              {
                  // Only allow members of the team to edit the building actor
@@ -73,20 +77,65 @@ bool building_component::is_building_class_valid(UObject* building_class)
     return false;
 }
 
-void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerController* FortPlayerController,
-    FFrame& StackFrame)
+void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
+    // Support both legacy and new building
+    static bool use_new_building = FindObject(L"/Script/FortniteGame.CreateBuildingActorData");
+    
+    UObject* building_class;
+    FVector build_location;
+    FRotator build_rotation;
+    bool is_mirrored;
+    
+    if (use_new_building)
+    {
+        GET_PARAMETER(FCreateBuildingActorData, CreateBuildingData);
+
+        // Used to get building class from a building class handle
+        static TArray<UObject*> building_actor_classes = (*GWorld)->GameState()->AllPlayerBuildableClasses();
+        
+        // Update existing properties
+        building_class = building_actor_classes[CreateBuildingData.BuildingClassHandle()];
+        build_location = CreateBuildingData.BuildLoc();
+        build_rotation = CreateBuildingData.BuildRot();
+        is_mirrored = CreateBuildingData.bMirrored();
+    }
+    else
+    {
+        GET_PARAMETER(FBuildingClassData, BuildingClassData);
+        GET_PARAMETER(FVector, BuildLoc);
+        GET_PARAMETER(FRotator, BuildRot);
+        GET_PARAMETER(bool, bMirrored);
+
+        // Update existing properties
+        building_class = BuildingClassData.BuildingClass();
+        build_location = BuildLoc;
+        build_rotation = BuildRot;
+        is_mirrored = bMirrored;
+    }
+    
+    if (true) // TODO: Add double build check
+    {
+        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
+        {
+            // TODO: Remove resource
+        }
+    } 
+    
     return ServerCreateBuildingActor(FortPlayerController, StackFrame);
 }
 
-void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerController* FortPlayerController,
-    FFrame& StackFrame)
+void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     return ServerEditBuildingActor(FortPlayerController, StackFrame);
 }
 
-void building_component_hooks::ServerRepairBuildingActor_Hook(AFortPlayerController* FortPlayerController,
-    FFrame& StackFrame)
+void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    return ServerBeginEditingBuildingActor(FortPlayerController, StackFrame);
+}
+
+void building_component_hooks::ServerRepairBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     return ServerRepairBuildingActor(FortPlayerController, StackFrame);
 }

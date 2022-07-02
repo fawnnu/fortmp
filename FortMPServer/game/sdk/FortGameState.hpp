@@ -30,6 +30,7 @@ class AFortGameStateAthena : public UObject
 {
 public:
     DEFINE_PROPERTY(TArray<UObject*>, BuildingActorClasses);
+    DEFINE_PROPERTY(TArray<UObject*>, AllPlayerBuildableClasses);
 
     DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
 

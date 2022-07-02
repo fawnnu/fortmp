@@ -60,6 +60,7 @@ void Setup()
                     new inventory_component();
                     new pickup_component();
                     new looting_component();
+                    new building_component();
                     
                     break;
                 }

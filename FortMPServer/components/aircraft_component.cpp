@@ -35,7 +35,7 @@ void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerControl
     if (aircraft)
     {
         AFortPlayerPawn* player_pawn = player_component::create_player(FortPlayerController, aircraft->GetTransform());
-
+        
         // Update pawn rotation
         player_pawn->K2_SetActorRotation(ClientRotation, true);
         

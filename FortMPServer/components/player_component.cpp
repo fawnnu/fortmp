@@ -87,7 +87,7 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
                 // Grant default item
                 inventory_component::add_item(NetConnection->PlayerController(), starting_item.Item, starting_item.Count);
             }
-            
+
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
         }
