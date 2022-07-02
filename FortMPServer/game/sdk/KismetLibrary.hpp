@@ -11,6 +11,14 @@ public:
         
         return Default__KismetSystemLibrary->Call<T*>(L"Conv_SoftObjectReferenceToObject", SoftObject);
     }
+
+    static void SetBoolPropertyByName(UObject* Target, FName PropertyName, bool Value)
+    {
+        // Static function so use default object
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+
+        Default__KismetSystemLibrary->Call(L"SetBoolPropertyByName", Target, PropertyName, Value);
+    }
 };
 
 class UKismetMathLibrary : public UObject
@@ -22,6 +30,14 @@ public:
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
         
         return Default__KismetMathLibrary->Call<float>(L"RandomFloatInRange", Min, Max);
+    }
+    
+    static bool RandomBool()
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<bool>(L"RandomBool");
     }
 
     //better than reimplementing IsA!
@@ -78,5 +94,12 @@ public:
         static UKismetStringLibrary* Default__KismetStringLibrary = FindObject<UKismetStringLibrary>(L"/Script/Engine.Default__KismetStringLibrary");
         
         return Default__KismetStringLibrary->Call<FString>(L"Concat_StrStr", A, B);
+    }
+
+    static bool Equals(FString A, FString B)
+    {
+        static UKismetStringLibrary* Default__KismetStringLibrary = FindObject<UKismetStringLibrary>(L"/Script/Engine.Default__KismetStringLibrary");
+        
+        return Default__KismetStringLibrary->Call<bool>(L"EqualEqual_StrStr", A, B);
     }
 };

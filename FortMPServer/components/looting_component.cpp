@@ -1,5 +1,6 @@
 ﻿#include "include.hpp"
 #include "looting_component.hpp"
+#include "pickup_component.hpp"
 
 #include <random>
 
@@ -239,10 +240,48 @@ void looting_component_hooks::ServerAttemptInteract_Hook(AFortPlayerController* 
     {
         FString SearchLootTierGroup = static_cast<ABuildingContainer*>(ReceivingActor)->SearchLootTierGroup().ToString().c_str();
 
+        std::wstring final_search_loot_tier_group;
         FString left_str;
         FString right_str;
 
+        //split the string
         UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
+
+        //build the string
+        final_search_loot_tier_group += left_str.c_str();
+        final_search_loot_tier_group += L"_Athena";
+        final_search_loot_tier_group += right_str.c_str();
+
+        if (right_str == L"Ammo")
+        {
+            final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
+        }
+
+        // get proper location for loot spawn
+        FVector ContainerLocation = ReceivingActor->K2_GetActorLocation();
+        FVector ContainerLocationOffset = static_cast<ABuildingContainer*>(ReceivingActor)->LootSpawnLocation_Athena();
+        
+        // Sum actor location and loot spawn location to get location to spawn loot
+        FVector LootSpawnLocation {};
+
+        LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
+        LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
+        LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
+
+        //generate and spawn the loot
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
+
+        for (const auto& [ item_definition, count ] : loot_to_spawn)
+        {
+            // Spawn pickup
+            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count);
+        }
+
+        //mark the container as open
+        UKismetSystemLibrary::SetBoolPropertyByName(ReceivingActor, L"bAlreadySearched", true);
+
+        //onrep it
+        static_cast<ABuildingContainer*>(ReceivingActor)->OnRep_bAlreadySearched();
     }
     
     return ServerAttemptInteract(FortPlayerController, StackFrame);

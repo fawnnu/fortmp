@@ -26,6 +26,8 @@ struct FString : private TArray<wchar_t>
             Data = const_cast<wchar_t*>(InString);
         }
     }
+
+    bool operator==(FString in_str);
     
     const wchar_t* c_str() const
     {

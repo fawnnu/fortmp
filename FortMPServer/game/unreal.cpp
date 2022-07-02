@@ -64,3 +64,8 @@ void unreal_manager::setup_unreal_engine()
         CoreOffsets::PropertyFlags = 0x40;
     }
 }
+
+bool FString::operator==(FString in_str)
+{
+    return UKismetStringLibrary::Equals(*this, in_str);
+}

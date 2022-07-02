@@ -49,4 +49,10 @@ class ABuildingContainer : public ABuildingSMActor
 {
 public:
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
+    DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
+
+    void OnRep_bAlreadySearched()
+    {
+        Call(L"OnRep_bAlreadySearched");
+    }
 };
