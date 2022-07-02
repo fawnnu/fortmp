@@ -1,42 +1,26 @@
 ﻿#include "include.hpp"
 #include "hook.hpp"
 
-hook::hook(void**& function_pointer, void* function_detour)
+hook_manager::hook_manager()
 {
-    this->function_pointer = function_pointer;
-    this->function_detour = function_detour;
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessEvent, FindObject(L"/Script/CoreUObject.Default__Object")->VTable[0x40], hook_manager_hooks::ProcessEvent_Hook);
+
+    DetourTransactionCommit();
 }
 
-bool hook::enable_hook()
+void hook_manager_hooks::ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    return DetourAttach(this->function_pointer, this->function_detour) == NO_ERROR;
-}
-
-bool hook::disable_hook()
-{
-    return DetourDetach(this->function_pointer, this->function_detour) == NO_ERROR;
-}
-
-void hook_manager::register_hook(hook* hook_to_add)
-{
-    hooks.push_back(hook_to_add);
-}
-
-void hook_manager::enable_all_hooks()
-{
-    for (hook* hook : hooks)
+    if (Object && Function)
     {
-        if (hook->enable_hook())
+        if (hook_manager::hooked_functions[Function])
         {
-            spdlog::info("Enabled hook at {:p}",
-                *hook->function_pointer);
-        }
-        else
-        {
-            // Usually caused by bad pointer or invalid arguments
-            spdlog::error("Failed to enable hook at {:p}",
-                *hook->function_pointer);
+            // Call hooked function
+            hook_manager::hooked_functions[Function](Object, Function, Params);
         }
     }
+    
+    return ProcessEvent(Object, Function, Params);
 }
-

@@ -32,4 +32,9 @@ public:
     {
         return Call<AActor*>(L"GetOwner");
     }
+
+    float GetDistanceTo(AActor* OtherActor)
+    {
+        return Call<float>(L"GetDistanceTo", OtherActor);
+    }
 };

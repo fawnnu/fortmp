@@ -14,33 +14,33 @@
     }
 
 #define REGISTER_UFUNCTION_DETOUR(FunctionName, FunctionObject, FunctionDetour)                                                                                                                                     \
-    { void* native_to_hook = FindObject<UFunction>(FunctionObject) ?                                                                                                                                                  \
+    { void* native_to_hook = FindObject<UFunction>(FunctionObject) ?                                                                                                                                                \
         FindObject<UFunction>(FunctionObject)->get_native_function() : (FindObject<UFunction>(FunctionObject, false, true) ? FindObject<UFunction>(FunctionObject, false, true)->get_native_function() : 0);        \
                                                                                                                                                                                                                     \
     REGISTER_FUNCTION_DETOUR(FunctionName, native_to_hook, FunctionDetour); }
+
+#define REGISTER_PROCESS_EVENT_HOOK(FunctionObject, FunctionDetour)                                                             \
+    { UObject* function_to_hook = FindObject<UObject>(FunctionObject) ?                                                         \
+        FindObject<UObject>(FunctionObject) : FindObject<UObject>(FunctionObject, false, true);                                 \
+                                                                                                                                \
+    hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
     inline ReturnType (* FunctionName##) FunctionDefinition;                \
                                                                             \
     ReturnType FunctionName##_Hook FunctionDefinition;
 
-class hook
-{
-public:
-    hook(void**& function_pointer, void* function_detour);
-
-    bool enable_hook();
-    bool disable_hook();
-    
-    void** function_pointer;
-    void* function_detour;
-};
-
 class hook_manager
 {
 public:
-    static void register_hook(hook* hook_to_add);
-    static void enable_all_hooks();
+    hook_manager();
 
-    inline static std::vector<hook*> hooks;
+    // Map of functions to hook
+    inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> hooked_functions;
 };
+
+namespace hook_manager_hooks
+{
+    // Called every time that ProcessEvent is called
+    DEFINE_FUNCTION_HOOK(void, ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+}

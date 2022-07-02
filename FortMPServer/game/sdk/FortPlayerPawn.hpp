@@ -14,6 +14,11 @@ public:
     {
         return Call<UObject*>(L"EquipWeaponDefinition", WeaponData, ItemEntryGuid);
     }
+
+    bool IsDBNO()
+    {
+        return Call<bool>(L"IsDBNO");
+    }
 };
 
 

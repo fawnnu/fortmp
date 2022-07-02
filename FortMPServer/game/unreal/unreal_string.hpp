@@ -81,6 +81,11 @@ struct FName
     {
         return this->ComparisonIndex == in_name.ComparisonIndex && this->Number == in_name.Number;
     }
+
+    FORCEINLINE bool operator<(FName in_name) const
+    {
+        return std::tie(this->ComparisonIndex, this->Number) < std::tie(in_name.ComparisonIndex, in_name.Number);
+    }
 };
 
 struct FURL

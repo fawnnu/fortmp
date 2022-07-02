@@ -3,6 +3,7 @@
 #include "components/ability_component.hpp"
 #include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
+#include "components/elimination_component.hpp"
 #include "components/inventory_component.hpp"
 #include "components/loader_component.hpp"
 #include "components/looting_component.hpp"
@@ -51,6 +52,8 @@ void Setup()
                         // block DLL thread until level starts to load
                     }
 
+                    new hook_manager();
+                    
                     new net_component();
                     new loader_component();
                     new patches_component();
@@ -61,6 +64,7 @@ void Setup()
                     new pickup_component();
                     new looting_component();
                     new building_component();
+                    new elimination_component();
                     
                     break;
                 }

@@ -163,6 +163,7 @@
     <ClInclude Include="components\ability_component.hpp" />
     <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
+    <ClInclude Include="components\elimination_component.hpp" />
     <ClInclude Include="components\inventory_component.hpp" />
     <ClInclude Include="components\loader_component.hpp" />
     <ClInclude Include="components\looting_component.hpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="game\sdk\FortVolume.hpp" />
     <ClInclude Include="game\sdk\FortWeapon.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
+    <ClInclude Include="game\sdk\GameplayTags.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />
     <ClInclude Include="game\sdk\NetConnection.hpp" />
     <ClInclude Include="game\sdk\NetDriver.hpp" />
@@ -305,6 +307,7 @@
       <AdditionalIncludeDirectories>E:\FortMP v2\fortmp-server\packages\Detours.4.0.1\build\native\..\..\lib\native\include\;E:\FortMP v2\fortmp-server\ext\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="components\elimination_component.cpp" />
     <ClCompile Include="components\inventory_component.cpp" />
     <ClCompile Include="components\loader_component.cpp" />
     <ClCompile Include="components\looting_component.cpp" />

@@ -138,6 +138,30 @@ public:
     }
 };
 
+class UEnum : public UObject
+{
+public:
+    uint8_t GetEnumIndex(std::wstring EnumName)
+    {
+        // Get list of all enums
+        TArray<TPair<FName, __int64>> NamesList = *reinterpret_cast<TArray<TPair<FName, __int64>>*>(__int64(this) + 0x40);
+
+        for (int i = 0; i < NamesList.Num(); i++)
+        {
+            // Enum name
+            std::wstring EnumKey = NamesList[i].Key.ToString();
+            
+            if (EnumKey.erase(EnumKey.find(this->GetName()), this->GetName().length() + 2) == EnumName)
+            {
+                // If given enum name matches the current enum name (with E[...]:: removed), return current index
+                return i;
+            }
+        }
+
+        return 0;
+    }
+};
+
 struct FFrame
 {
     unsigned char Unk00[0x10];
