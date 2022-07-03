@@ -103,3 +103,15 @@ public:
         return Default__KismetStringLibrary->Call<bool>(L"EqualEqual_StrStr", A, B);
     }
 };
+
+class UFortKismetLibrary : public UObject
+{
+public:
+    static bool EqualEqual_UniqueNetIdReplUniqueNetIdRepl(FUniqueNetIdRepl A, FUniqueNetIdRepl B)
+    {
+        // Static function to use default object
+        static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+        
+        return Default__FortKismetLibrary->Call<bool>(L"EqualEqual_UniqueNetIdReplUniqueNetIdRepl", A, B);
+    }
+};

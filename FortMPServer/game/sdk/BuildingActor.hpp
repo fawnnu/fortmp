@@ -86,3 +86,34 @@ public:
         Call(L"OnRep_bAlreadySearched");
     }
 };
+
+struct FRebootCardReplicatedState
+{
+    DEFINE_STRUCT_PROPERTY(float, ChipExpirationServerStartTime);
+    DEFINE_STRUCT_PROPERTY(AFortPlayerStateAthena*, PlayerState);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.RebootCardReplicatedState");
+};
+
+class ABuildingGameplayActorSpawnChip : public ABuildingActor
+{
+public:
+    DEFINE_PROPERTY(AFortPlayerController*, OwnerPlayerController);
+    DEFINE_PROPERTY(AFortPlayerStateAthena*, OwnerPlayerState);
+    DEFINE_PROPERTY(uint8_t, OwnerTeam);
+    DEFINE_PROPERTY(FUniqueNetIdRepl, OwnerPlayerId);
+
+    DEFINE_PROPERTY(FRebootCardReplicatedState, RebootCardReplicatedState);
+};
+
+class ABuildingGameplayActorSpawnMachine : public ABuildingActor
+{
+public:
+    DEFINE_PROPERTY(AActor*, ResurrectLocation);
+    DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
+
+    void SetSpawnMachineState(uint8_t NewState)
+    {
+        Call(L"SetSpawnMachineState", NewState);
+    }
+};

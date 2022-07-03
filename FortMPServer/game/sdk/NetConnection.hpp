@@ -10,4 +10,6 @@ class UNetConnection : public UPlayer
 {
 public:
     DEFINE_PROPERTY(AActor*, ViewTarget);
+    
+    DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
 };

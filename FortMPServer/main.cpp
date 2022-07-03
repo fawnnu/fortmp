@@ -11,6 +11,7 @@
 #include "components/patches_component.hpp"
 #include "components/pickup_component.hpp"
 #include "components/player_component.hpp"
+#include "components/reboot_component.hpp"
 #include "components/trap_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -67,6 +68,7 @@ void Setup()
                     new building_component();
                     new elimination_component();
                     new trap_component();
+                    new reboot_component();
                     
                     break;
                 }

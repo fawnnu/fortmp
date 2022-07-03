@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class UNetConnection;
+class UAthenaResurrectionComponent;
 
 class AController : public AActor
 {
@@ -27,6 +28,11 @@ public:
     void SwitchLevel(FString URL)
     {
         Call(L"SwitchLevel", URL);
+    }
+
+    void ClientGotoState(FName NewState)
+    {
+        Call(L"ClientGotoState", NewState);
     }
 };
 
@@ -85,6 +91,12 @@ public:
     }
 };
 
+class AFortPlayerControllerAthena : public AFortPlayerController
+{
+public:
+    DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
+};
+
 struct FFortPlayerDeathReport
 {
     DEFINE_STRUCT_PROPERTY(AFortPlayerStateAthena*, KillerPlayerState);
@@ -93,4 +105,10 @@ struct FFortPlayerDeathReport
     DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, Tags);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPlayerDeathReport");
+};
+
+class UAthenaResurrectionComponent : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
 };

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <deque>
+
 #define REGISTER_FUNCTION_DETOUR(FunctionName, FunctionPointer, FunctionDetour)        \
     INIT_POINTER(FunctionName, FunctionPointer);                                       \
                                                                                        \
@@ -38,6 +40,9 @@ public:
     // Map of functions to hook
     inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> hooked_functions;
 };
+
+// Queue of code to execute on game thread
+inline std::deque<std::function<void()>> game_thread_queue;
 
 namespace hook_manager_hooks
 {

@@ -60,3 +60,8 @@ struct FFastArraySerializer
         }
     }
 };
+
+struct FUniqueNetIdRepl
+{
+    char unk[0x0027];
+};
