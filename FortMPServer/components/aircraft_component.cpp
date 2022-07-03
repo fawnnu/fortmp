@@ -10,30 +10,19 @@ aircraft_component::aircraft_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
+
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerSetInAircraft, L"/Script/FortniteGame.FortPlayerStateAthena.ServerSetInAircraft", aircraft_component_hooks::ServerSetInAircraft_Hook);
     
     DetourTransactionCommit();
 }
 
-void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerController, AFortAircraft* Aircraft, FRotator ClientRotation)
 {
-    GET_PARAMETER(FRotator, ClientRotation);
-    
-    if ((*GWorld)->GameState()->Aircrafts().Num() < 0)
+    if (Aircraft)
     {
-        spdlog::error(L"Unable to exit the aircraft for player '{}', as no aircraft exists",
-            FortPlayerController->GetName().c_str());
-        
-        return;
-    }
-    
-    // TODO: Find a way to get the player's current aircraft
-    AActor* aircraft = (*GWorld)->GameState()->Aircrafts()[0];
-    
-    if (aircraft)
-    {
-        AFortPlayerPawn* player_pawn = player_component::create_player(FortPlayerController, aircraft->GetTransform());
+        AFortPlayerPawn* player_pawn = player_component::create_player(FortPlayerController, Aircraft->GetTransform());
         
         // Update rotation
         FortPlayerController->SetControlRotation(ClientRotation);
@@ -42,26 +31,45 @@ void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerControl
         {
             spdlog::error(L"Failed to spawn a pawn for player '{}' when exiting from aircraft '{}'",
                 player_pawn->GetName().c_str(),
-                aircraft->GetName().c_str());
+                Aircraft->GetName().c_str());
         }
-    }
+    }    
+}
+
+void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(FRotator, ClientRotation);
+    
+    aircraft_component::exit_aircraft(FortPlayerController, static_cast<AFortAircraft*>((*GWorld)->GameState()->Aircrafts()[0]), ClientRotation);
     
     return ServerAttemptAircraftJump(FortPlayerController, StackFrame);
 }
 
 void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena* GameMode, FFrame& StackFrame)
 {
+    GET_PARAMETER(AFortAircraft*, FortAthenaAircraft);
+
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
     {
         if (NetConnection->PlayerController()->IsInAircraft())
         {
             // Remove the player from the aircraft
-            NetConnection->PlayerController()->ServerAttemptAircraftJump(FRotator { 0, 0, 0 });
+            aircraft_component::exit_aircraft(NetConnection->PlayerController(), FortAthenaAircraft, FRotator{ 0, 0, 0 });
         }
     }
     
     return OnAircraftExitedDropZone(GameMode, StackFrame);
 }
+
+void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook(UFortControllerComponent_Aircraft* AircraftComponent, FFrame& StackFrame)
+{
+    GET_PARAMETER(FRotator, ClientRotation);
+        
+    aircraft_component::exit_aircraft(static_cast<AFortPlayerController*>(AircraftComponent->GetOwner()), AircraftComponent->CurrentAircraft(), ClientRotation);
+    
+    return UFortControllerComponent_Aircraft_ServerAttemptAircraftJump(AircraftComponent, StackFrame);
+}
+
 
 void aircraft_component_hooks::ServerSetInAircraft_Hook(AFortPlayerState* PlayerState, FFrame& StackFrame)
 {

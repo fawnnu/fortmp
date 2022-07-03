@@ -174,10 +174,12 @@
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\AbilitySystemComponent.hpp" />
     <ClInclude Include="game\sdk\Actor.hpp" />
+    <ClInclude Include="game\sdk\ActorComponent.hpp" />
     <ClInclude Include="game\sdk\BuildingActor.hpp" />
     <ClInclude Include="game\sdk\CurveTable.hpp" />
     <ClInclude Include="game\sdk\DataTable.hpp" />
     <ClInclude Include="game\sdk\FortAbility.hpp" />
+    <ClInclude Include="game\sdk\FortAircraft.hpp" />
     <ClInclude Include="game\sdk\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortGameState.hpp" />
     <ClInclude Include="game\sdk\FortItem.hpp" />

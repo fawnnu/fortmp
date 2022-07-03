@@ -15,7 +15,7 @@
 
 #define REGISTER_UFUNCTION_DETOUR(FunctionName, FunctionObject, FunctionDetour)                                                                                                                                     \
     { void* native_to_hook = FindObject<UFunction>(FunctionObject) ?                                                                                                                                                \
-        FindObject<UFunction>(FunctionObject)->get_native_function() : (FindObject<UFunction>(FunctionObject, false, true) ? FindObject<UFunction>(FunctionObject, false, true)->get_native_function() : 0);        \
+        FindObject<UFunction>(FunctionObject)->get_native_function() : 0;        \
                                                                                                                                                                                                                     \
     REGISTER_FUNCTION_DETOUR(FunctionName, native_to_hook, FunctionDetour); }
 

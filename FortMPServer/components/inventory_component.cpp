@@ -204,6 +204,11 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
 {
     GET_PARAMETER(FGuid, ItemGuid);
 
+    if (!PlayerController->Pawn())
+    {
+        return; //bad pawn
+    }
+
     // Get inventory item by GUID
     UFortItem* fort_item = PlayerController->HasFunction("K2_GetInventoryItemWithGuid") ?
         PlayerController->K2_GetInventoryItemWithGuid(ItemGuid) : PlayerController->BP_GetInventoryItemWithGuid(ItemGuid);

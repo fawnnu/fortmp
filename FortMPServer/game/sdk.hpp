@@ -77,3 +77,6 @@
 #include "sdk/FortLoot.hpp"
 #include "sdk/FortQuickbars.hpp"
 #include "sdk/FortWeapon.hpp"
+#include "sdk/FortAircraft.hpp"
+
+#include "sdk/ActorComponent.hpp"
