@@ -119,8 +119,10 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
     __int64 Parm[2];
     Parm[0] = 0;
     Parm[1] = 0;
+
+    __int64 Parm2;
     
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, (__int64)Parm)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, (__int64)Parm, (__int64)&Parm2)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
     {
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
         {
