@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class UGameplayAbility;
+
 struct FGameplayAbilitySpecHandle
 {
     int Handle;
@@ -32,8 +34,8 @@ struct FGameplayAbilitySpec : FFastArraySerializerItem
     char UnknownData_29_3 : 5;
     char UnknownData_2A[0x6];
     char pad[0x20];
-    TArray<UObject*> NonReplicatedInstances;
-    TArray<UObject*> ReplicatedInstances;
+    TArray<UGameplayAbility*> NonReplicatedInstances;
+    TArray<UGameplayAbility*> ReplicatedInstances;
     char pad2[0x8];
     char UnknownData_78[0x50];
 };

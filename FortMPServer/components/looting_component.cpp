@@ -5,6 +5,8 @@
 
 #include <random>
 
+#include "reviving_component.hpp"
+
 looting_component::looting_component()
 {
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingActor.OnDamageServer", looting_component_hooks::OnDamageServer_Hook);
@@ -238,8 +240,11 @@ void looting_component_hooks::ServerAttemptInteract_Hook(AFortPlayerController* 
         return; // Invalid ReceivingActor
     }
 
+    static UObject* BuildingContainerClass = FindObject(L"/Script/FortniteGame.BuildingContainer");
+    static UObject* PlayerPawnClass = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+    
     //Make sure our actor is a container (Chest, ammo box)
-    if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, FindObject(L"/Script/FortniteGame.BuildingContainer")))
+    if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, BuildingContainerClass))
     {
         FString SearchLootTierGroup = static_cast<ABuildingContainer*>(ReceivingActor)->SearchLootTierGroup().ToString().c_str();
 
@@ -285,6 +290,11 @@ void looting_component_hooks::ServerAttemptInteract_Hook(AFortPlayerController* 
 
         //onrep it
         static_cast<ABuildingContainer*>(ReceivingActor)->OnRep_bAlreadySearched();
+    }
+    else if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, PlayerPawnClass))
+    {
+        // Revive player
+        reviving_component::revive_player(FortPlayerController, reinterpret_cast<AFortPlayerPawn*>(ReceivingActor));
     }
     
     return ServerAttemptInteract(FortPlayerController, StackFrame);

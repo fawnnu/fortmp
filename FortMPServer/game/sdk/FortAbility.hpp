@@ -10,7 +10,10 @@ struct FFortAbilityCost
 class UGameplayAbility : public UObject
 {
 public:
-    
+    void K2_CancelAbility()
+    {
+        Call(L"K2_CancelAbility");
+    }
 };
 
 class UFortGameplayAbility : public UGameplayAbility

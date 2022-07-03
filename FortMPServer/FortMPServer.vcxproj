@@ -171,6 +171,7 @@
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\pickup_component.hpp" />
     <ClInclude Include="components\player_component.hpp" />
+    <ClInclude Include="components\reviving_component.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\AbilitySystemComponent.hpp" />
@@ -388,6 +389,7 @@
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\pickup_component.cpp" />
     <ClCompile Include="components\player_component.cpp" />
+    <ClCompile Include="components\reviving_component.cpp" />
     <ClCompile Include="components\trap_component.cpp" />
     <ClCompile Include="game\unreal.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>
