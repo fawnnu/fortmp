@@ -4,6 +4,7 @@
 building_component::building_component()
 {
     INIT_POINTER(ReplaceBuildingActor, memory_manager::find_function_by_string(L"STAT_Fort_BuildingSMActorReplaceBuildingActor"));
+    INIT_POINTER(CanPlaceBuildingActor, memory_manager::find_pattern("E8 ? ? ? ? 85 C0 0F 85 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? C6", true, 1));
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -34,7 +35,7 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                  building_actor->Team() = building_owner->PlayerState()->TeamIndex();
      
                  // Initialize building actor
-                 building_actor->Call(L"InitializeKismetSpawnedBuildingActor", building_actor, building_owner);
+                 building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
              }
      
              return true;
@@ -113,8 +114,13 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
         build_rotation = BuildRot;
         is_mirrored = bMirrored;
     }
+
+    //Initialize params for the C++ function below
+    __int64 Parm[2];
+    Parm[0] = 0;
+    Parm[1] = 0;
     
-    if (true) // TODO: Add double build check
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, (__int64)Parm)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
     {
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
         {

@@ -23,6 +23,20 @@ class ABuildingActor : public AActor
 {
 public:
     DEFINE_PROPERTY(uint8_t, Team);
+
+    void InitializeKismetSpawnedBuildingActor(ABuildingActor* BuildingOwner, AFortPlayerController* SpawningController)
+    {
+        static UObject* b_play_spawning_anim_property = FindObject(L"/Script/FortniteGame.BuildingActor.InitializeKismetSpawnedBuildingActor.bUsePlayerBuildAnimations");
+
+        if (b_play_spawning_anim_property)
+        {
+            Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController, true);
+        }
+        else
+        {
+            Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController);
+        }
+    }
 };
 
 class ABuildingSMActor : public ABuildingActor
