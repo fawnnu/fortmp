@@ -67,6 +67,7 @@
 #include "sdk/NetDriver.hpp"
 #include "sdk/World.hpp"
 #include "sdk/DataTable.hpp"
+#include "sdk/CurveTable.hpp"
 #include "sdk/KismetLibrary.hpp"
 
 #include "sdk/BuildingActor.hpp"

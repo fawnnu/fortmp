@@ -78,6 +78,11 @@ public:
     {
         return Call<UFortItem*>(L"K2_FindExistingItemForDefinition", ItemDefinition, bInStorageVault);
     }
+
+    void ClientReportDamagedResourceBuilding(class ABuildingSMActor* BuildingSMActor, uint8_t PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakpoint)
+    {
+        Call(L"ClientReportDamagedResourceBuilding", BuildingSMActor, PotentialResourceType, PotentialResourceCount, bDestroyed, bJustHitWeakpoint);
+    }
 };
 
 struct FFortPlayerDeathReport

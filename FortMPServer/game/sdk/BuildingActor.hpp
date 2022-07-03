@@ -37,11 +37,27 @@ public:
             Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController);
         }
     }
+
+    float GetHealth()
+    {
+        return Call<float>(L"GetHealth");
+    }
+
+    float GetMaxHealth()
+    {
+        return Call<float>(L"GetMaxHealth");
+    }
 };
 
 class ABuildingSMActor : public ABuildingActor
 {
 public:
+    DEFINE_PROPERTY(uint8_t, AttributeInitLevelSource);
+    
+    DEFINE_PROPERTY(struct FCurveTableRowHandle, BuildingResourceAmountOverride);
+    
+    DEFINE_PROPERTY(uint8_t, ResourceType);
+    
     void SetMirrored(bool bMirrored)
     {
         Call(L"SetMirrored", bMirrored);
