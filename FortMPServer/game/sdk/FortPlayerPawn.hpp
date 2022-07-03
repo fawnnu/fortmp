@@ -2,6 +2,7 @@
 
 class AFortPlayerController;
 class AFortWeapon;
+class AFortPickup;
 
 class AFortPawn : public AActor
 {
@@ -26,6 +27,11 @@ class AFortPlayerPawn : public AFortPawn
 {
 public:
     DEFINE_PROPERTY(UObject*, Owner);
+
+    void ServerHandlePickup(AFortPickup* Pickup, float InFlyTime, FVector InStartDirection, bool bPlayPickupSound)
+    {
+        Call(L"ServerHandlePickup", Pickup, InFlyTime, InStartDirection, bPlayPickupSound);
+    }
 };
 
 class AFortAIPawn : public UObject

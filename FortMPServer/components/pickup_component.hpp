@@ -12,6 +12,9 @@ namespace pickup_component_hooks
 {
     // Called when a player tries to pickup an item
     DEFINE_FUNCTION_HOOK(void, ServerHandlePickup, (AFortPlayerPawn* PlayerPawn, FFrame& StackFrame));
+
+    // Called when a player overlaps with a capsule component
+    DEFINE_FUNCTION_HOOK(void, OnCapsuleBeginOverlap, (UObject* Object, UObject* Function, void* Params));
 }
 
 // Used to play the "grab" animation for pickups

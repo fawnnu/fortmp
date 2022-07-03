@@ -70,6 +70,21 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
+        // All warmup floor loot actors in the sub-level
+        TArray<AActor*> warmup_floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_Warmup_C", false, true));
+        
+        for (AActor* floor_loot_actor : warmup_floor_loot_actors)
+        {
+            // TODO: Roll floor loot
+            std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot_Warmup");
+
+            for (const auto& [ item_definition, count ] : loot_to_spawn)
+            {
+                // Spawn pickup
+                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count);
+            }
+        }
+
         // Start match
         (*GWorld)->AuthorityGameMode()->StartMatch();
         

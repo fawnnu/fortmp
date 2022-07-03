@@ -19,7 +19,7 @@
                                                                                                                                                                                                                     \
     REGISTER_FUNCTION_DETOUR(FunctionName, native_to_hook, FunctionDetour); }
 
-#define REGISTER_PROCESS_EVENT_HOOK(FunctionObject, FunctionDetour)                                                             \
+#define REGISTER_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
     { UObject* function_to_hook = FindObject<UObject>(FunctionObject) ?                                                         \
         FindObject<UObject>(FunctionObject) : FindObject<UObject>(FunctionObject, false, true);                                 \
                                                                                                                                 \

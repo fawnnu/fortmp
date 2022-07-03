@@ -6,12 +6,14 @@
 pickup_component::pickup_component()
 {
     INIT_POINTER(GrabPickup, memory_manager::find_function_by_string(L"Attempted to spawn non-world item %s!"));
+
+    // REGISTER_PROCESS_EVENT_DETOUR(L"OnCapsuleBeginOverlap", pickup_component_hooks::OnCapsuleBeginOverlap_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
-
+    
     DetourTransactionCommit();
 }
 
@@ -109,4 +111,37 @@ void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn
     Pickup->bPickedUp() = true;
     
     return ServerHandlePickup(PlayerPawn, StackFrame);
+}
+
+void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor);
+
+    // Cast to pawn
+    AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(Object);
+    
+    // Filter overlap capsule
+    static UObject* fort_pickup_class = FindObject<UObject>(L"/Script/FortniteGame.FortPickupAthena");
+
+    if (UKismetMathLibrary::ClassIsChildOf(OtherActor->Class, fort_pickup_class))
+    {
+        // Cast overlap capsule to FortPickup instance
+        static AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
+
+        // Filter pickup classes
+        static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
+        static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
+        static UFortItemDefinition* trap_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortTrapItemDefinition");
+        
+        if (UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, ammo_definition) ||
+            UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, resource_definition) ||
+            UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, trap_definition))
+        {
+            if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
+            {
+                // Pickup item automatically if it is not currently being tossed
+                PlayerPawn->ServerHandlePickup(fort_pickup, 0.f, {}, false);
+            }
+        }
+    }
 }
