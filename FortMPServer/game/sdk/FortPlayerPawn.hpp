@@ -3,8 +3,15 @@
 class AFortPlayerController;
 class AFortWeapon;
 class AFortPickup;
+class UFortDecoItemDefinition;
 
-class AFortPawn : public AActor
+class APawn : public AActor
+{
+public:
+    DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
+};
+
+class AFortPawn : public APawn
 {
 public:
     DEFINE_PROPERTY(AFortPlayerController*, Controller);
@@ -19,6 +26,16 @@ public:
     bool IsDBNO()
     {
         return Call<bool>(L"IsDBNO");
+    }
+
+    bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition)
+    {
+        return Call<bool>(L"PickUpActor", PickupTarget, PlacementDecoItemDefinition);
+    }
+
+    void SetHealth(float NewHealthVal)
+    {
+        Call(L"SetHealth", NewHealthVal);
     }
 };
 
