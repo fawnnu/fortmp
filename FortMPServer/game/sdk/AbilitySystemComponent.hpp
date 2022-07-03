@@ -38,12 +38,15 @@ struct FGameplayAbilitySpec : FFastArraySerializerItem
     TArray<UGameplayAbility*> ReplicatedInstances;
     char pad2[0x8];
     char UnknownData_78[0x50];
+
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAbilitySpec");
 };
 
 struct FGameplayAbilitySpecContainer : public FFastArraySerializer
 {
-    TArray<struct FGameplayAbilitySpec> Items;
-    UObject*                            Owner;
+    DEFINE_STRUCT_PROPERTY(TArray<struct FGameplayAbilitySpec>, Items);
+
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAbilitySpecContainer");
 };
 
 struct FServerAbilityRPCBatch

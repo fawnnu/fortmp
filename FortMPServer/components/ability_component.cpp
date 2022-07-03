@@ -31,8 +31,10 @@ void ability_component::activate_ability(UAbilitySystemComponent* ability_system
     bool input_pressed, const FPredictionKey& prediction_key)
 {
     FGameplayAbilitySpec* ability_spec = nullptr;
+
+    auto items = TArrayManager<FGameplayAbilitySpec>(&ability_system_component->ActivatableAbilities().Items(), FGameplayAbilitySpec::GetStructSize());
     
-    for (FGameplayAbilitySpec& item : ability_system_component->ActivatableAbilities().Items)
+    for (FGameplayAbilitySpec& item : items)
     {
         if (item.Handle == ability_handle.Handle)
         {

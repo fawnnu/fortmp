@@ -30,7 +30,9 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDBNO", false);
 
-        for (FGameplayAbilitySpec& ability_spec : player_to_revive->AbilitySystemComponent()->ActivatableAbilities().Items)
+        auto items = TArrayManager<FGameplayAbilitySpec>(&player_to_revive->AbilitySystemComponent()->ActivatableAbilities().Items(), FGameplayAbilitySpec::GetStructSize());
+        
+        for (FGameplayAbilitySpec& ability_spec : items)
         {
             for (UGameplayAbility* replicated_instance : ability_spec.ReplicatedInstances)
             {

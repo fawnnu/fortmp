@@ -47,7 +47,7 @@ void Setup()
                 if (player_controller)
                 {
                     // load into level
-                    player_controller->SwitchLevel(FString(L"Athena_Terrain"));
+                    player_controller->SwitchLevel(FString(L"Apollo_Terrain"));
 
                     while ((*GWorld)->GetName().find(L"Frontend") != -1)
                     {
