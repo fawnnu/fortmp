@@ -147,8 +147,8 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             }
 
             // Cache array classes
-            static UObject* replicated_entries_property = FindObject(L"/Script/FortniteGame.FortItemList.ReplicatedEntries");
-            static UObject* item_instances_property = FindObject(L"/Script/FortniteGame.FortItemList.ItemInstances");
+            static void* replicated_entries_property = FindPropertyByName(FFortItemList::GetClass(), L"ReplicatedEntries");
+            static void* item_instances_property = FindPropertyByName(FFortItemList::GetClass(), L"ItemInstances");
 
             replicated_entries.Remove(i, replicated_entries_property);
             item_instances.Remove(i, item_instances_property);

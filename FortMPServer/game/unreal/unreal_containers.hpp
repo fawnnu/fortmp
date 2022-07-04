@@ -242,7 +242,7 @@ public:
         return TArr.Count - 1;
     }
     
-    void Remove(int Idx, UObject* ArrayProperty)
+    void Remove(int Idx, void* ArrayProperty)
     {
         GenericArray_Remove(Array, ArrayProperty, Idx);
     }
