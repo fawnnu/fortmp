@@ -13,7 +13,5 @@ public:
 
 namespace looting_component_hooks
 {
-    DEFINE_FUNCTION_HOOK(void, ServerAttemptInteract, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
-
     DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Object, UObject* Function, void* Params));
 }

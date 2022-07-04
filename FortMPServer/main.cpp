@@ -4,6 +4,7 @@
 #include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
 #include "components/elimination_component.hpp"
+#include "components/interact_component.hpp"
 #include "components/inventory_component.hpp"
 #include "components/loader_component.hpp"
 #include "components/looting_component.hpp"
@@ -69,6 +70,7 @@ void Setup()
                     new elimination_component();
                     new trap_component();
                     new reboot_component();
+                    new interact_component();
                     
                     break;
                 }

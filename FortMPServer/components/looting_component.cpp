@@ -10,13 +10,6 @@
 looting_component::looting_component()
 {
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingActor.OnDamageServer", looting_component_hooks::OnDamageServer_Hook);
-    
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    REGISTER_UFUNCTION_DETOUR(looting_component_hooks::ServerAttemptInteract, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInteract", looting_component_hooks::ServerAttemptInteract_Hook);
-    
-    DetourTransactionCommit();
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
@@ -229,75 +222,6 @@ UObject* looting_component::get_loot_tier_packages()
     }
     
     return loot_tier_packages;
-}
-
-void looting_component_hooks::ServerAttemptInteract_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
-{
-    GET_PARAMETER(AActor*, ReceivingActor);
-
-    if (ReceivingActor == nullptr)
-    {
-        return; // Invalid ReceivingActor
-    }
-
-    static UObject* BuildingContainerClass = FindObject(L"/Script/FortniteGame.BuildingContainer");
-    static UObject* PlayerPawnClass = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
-    
-    //Make sure our actor is a container (Chest, ammo box)
-    if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, BuildingContainerClass))
-    {
-        FString SearchLootTierGroup = static_cast<ABuildingContainer*>(ReceivingActor)->SearchLootTierGroup().ToString().c_str();
-
-        std::wstring final_search_loot_tier_group;
-        FString left_str;
-        FString right_str;
-
-        //split the string
-        UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
-
-        //build the string
-        final_search_loot_tier_group += left_str.c_str();
-        final_search_loot_tier_group += L"_Athena";
-        final_search_loot_tier_group += right_str.c_str();
-
-        if (right_str == L"Ammo")
-        {
-            final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
-        }
-
-        // get proper location for loot spawn
-        FVector ContainerLocation = ReceivingActor->K2_GetActorLocation();
-        FVector ContainerLocationOffset = static_cast<ABuildingContainer*>(ReceivingActor)->LootSpawnLocation_Athena();
-        
-        // Sum actor location and loot spawn location to get location to spawn loot
-        FVector LootSpawnLocation {};
-
-        LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
-        LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
-        LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
-
-        //generate and spawn the loot
-        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
-
-        for (const auto& [ item_definition, count ] : loot_to_spawn)
-        {
-            // Spawn pickup
-            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count);
-        }
-
-        //mark the container as open
-        UKismetSystemLibrary::SetBoolPropertyByName(ReceivingActor, L"bAlreadySearched", true);
-
-        //onrep it
-        static_cast<ABuildingContainer*>(ReceivingActor)->OnRep_bAlreadySearched();
-    }
-    else if (UKismetMathLibrary::ClassIsChildOf(ReceivingActor->Class, PlayerPawnClass))
-    {
-        // Revive player
-        reviving_component::revive_player(FortPlayerController, reinterpret_cast<AFortPlayerPawn*>(ReceivingActor));
-    }
-    
-    return ServerAttemptInteract(FortPlayerController, StackFrame);
 }
 
 void looting_component_hooks::OnDamageServer_Hook(UObject* Object, UObject* Function, void* Params)
