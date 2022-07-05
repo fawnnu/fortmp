@@ -70,13 +70,27 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
     LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
     LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
 
+    static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+    static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    
     // Generate and spawn the loot
     std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
 
     for (const auto& [ item_definition, count ] : loot_to_spawn)
     {
         // Spawn pickup
-        pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count);
+
+        // set loaded ammo to spawn the pickup with
+        int loaded_ammo = 0;
+
+        if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
+            !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
+        {
+            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
+            loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
+        }
+        
+        pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, loaded_ammo);
     }
 
     // Mark the container as open

@@ -132,6 +132,8 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
 {
+    //TODO: fix zipline magnet not disappearing if you re-enter zipline
+    
     GET_PARAMETER(FZiplinePawnState, InZiplineState);
 
     FortPlayerPawn->ZiplineState().Zipline() = InZiplineState.Zipline();

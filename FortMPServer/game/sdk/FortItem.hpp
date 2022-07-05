@@ -49,6 +49,12 @@ public:
     }
 };
 
+class UFortWeaponItemDefinition : public UFortWorldItemDefinition
+{
+public:
+    DEFINE_PROPERTY(struct FTableRowHandle, WeaponStatHandle);
+};
+
 struct FFortItemList : public FFastArraySerializer
 {
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, ReplicatedEntries);
@@ -77,6 +83,13 @@ struct FFortItemEntry : public FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(struct FGuid, ItemGuid);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
+};
+
+struct FFortBaseWeaponStats
+{
+    DEFINE_STRUCT_PROPERTY(int, ClipSize);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortBaseWeaponStats");
 };
 
 struct FItemAndCount

@@ -3,7 +3,7 @@
 struct FTableRowHandle
 {
     // Instance of current table
-    UObject* Table;
+    class UDataTable* Table;
 
     // Current row name
     FName RowName; 
