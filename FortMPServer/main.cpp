@@ -13,6 +13,7 @@
 #include "components/pickup_component.hpp"
 #include "components/player_component.hpp"
 #include "components/reboot_component.hpp"
+#include "components/team_component.hpp"
 #include "components/trap_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -54,7 +55,7 @@ void Setup()
                     {
                         // block DLL thread until level starts to load
                     }
-
+                    
                     new hook_manager();
                     
                     new net_component();
@@ -71,6 +72,7 @@ void Setup()
                     new trap_component();
                     new reboot_component();
                     new interact_component();
+                    new team_component();
                     
                     break;
                 }

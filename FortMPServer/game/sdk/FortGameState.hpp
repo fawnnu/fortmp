@@ -9,6 +9,16 @@ struct FFortLevelStreamingInfo
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortLevelStreamingInfo");
 };
 
+struct FGameMemberInfo : FFastArraySerializerItem
+{
+    uint8_t SquadId;
+    uint8_t TeamIndex;
+    char UnknownData00[0x2];
+    FUniqueNetIdRepl MemberUniqueId;
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfo");
+};
+
 struct FPlaylistPropertyArray
 {
     DEFINE_STRUCT_PROPERTY(int, PlaylistReplicationKey);
@@ -26,7 +36,28 @@ public:
     DEFINE_PROPERTY(TArray<FFortLevelStreamingInfo>, StreamedLevels);
 };
 
-class AFortGameStateAthena : public UObject
+class AFortTeamInfo : public UObject
+{
+public:
+    DEFINE_PROPERTY(uint8_t, Team);
+    
+    DEFINE_PROPERTY(TArray<AController*>, TeamMembers);
+};
+
+class AFortGameState : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);
+};
+
+struct FGameMemberInfoArray : FFastArraySerializer
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FGameMemberInfo>, Members);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfoArray");
+};
+
+class AFortGameStateAthena : public AFortGameState
 {
 public:
     DEFINE_PROPERTY(TArray<UObject*>, BuildingActorClasses);
@@ -41,6 +72,8 @@ public:
     DEFINE_PROPERTY(UFortPlaylistAthena*, CurrentPlaylistData);
 
     DEFINE_PROPERTY(FPlaylistPropertyArray, CurrentPlaylistInfo);
+
+    DEFINE_PROPERTY(FGameMemberInfoArray, GameMemberInfoArray);
     
     void OnRep_CurrentPlaylistInfo()
     {

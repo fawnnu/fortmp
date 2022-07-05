@@ -27,6 +27,7 @@ class AFortPlayerStateAthena : public AFortPlayerState
 {
 public:
     DEFINE_PROPERTY(uint8_t, TeamIndex);
+    DEFINE_PROPERTY(uint8_t, SquadId);
     
     DEFINE_PROPERTY(int, KillScore);
 

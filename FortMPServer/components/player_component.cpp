@@ -4,6 +4,7 @@
 #include "ability_component.hpp"
 #include "inventory_component.hpp"
 #include "net_component.hpp"
+#include "team_component.hpp"
 
 player_component::player_component()
 {
@@ -86,6 +87,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
                 // Grant default item
                 inventory_component::add_item(NetConnection->PlayerController(), starting_item.Item, starting_item.Count);
             }
+
+            // Assign team
+            team_component::set_team(NetConnection->PlayerController(), team_component::find_team(NetConnection->PlayerController()));
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
