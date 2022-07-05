@@ -37,23 +37,34 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         if (item_definition == replicated_entry.ItemDefinition())
         {
             const int last_count = replicated_entry.Count();
+            int MaxStackSize;
 
-            if (item_definition->MaxStackSize() - replicated_entry.Count() > 0)
+            // On chapter 2 MaxStackSize is a FScalableFloat. To avoid confusion within the UFortItemDefinition class, use this function instead
+            if (static UFunction* GetMaxStackSize = FindObject<UFunction>(L"/Script/FortniteGame.FortItem.GetMaxStackSize"))
+            {
+                MaxStackSize = item_instance->GetMaxStackSize(player_controller->Pawn()->AbilitySystemComponent());
+            }
+            else
+            {
+                MaxStackSize = item_definition->MaxStackSize();
+            }
+
+            if (MaxStackSize - replicated_entry.Count() > 0)
             {
                 // Update entry count
-                replicated_entry.Count() = item_count + item_instance->ItemEntry().Count() <= item_definition->MaxStackSize() ?
-                    item_count + item_instance->ItemEntry().Count() : item_definition->MaxStackSize();
+                replicated_entry.Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
+                    item_count + item_instance->ItemEntry().Count() : MaxStackSize;
 
                 // Update instance count
-                item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= item_definition->MaxStackSize() ?
-                    item_count + item_instance->ItemEntry().Count() : item_definition->MaxStackSize();
+                item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
+                    item_count + item_instance->ItemEntry().Count() : MaxStackSize;
 
-                if (item_count + last_count > item_definition->MaxStackSize())
+                if (item_count + last_count > MaxStackSize)
                 {
                     if (is_inventory_full(player_controller) || !has_item_type(player_controller, item_definition))
                     {
                         // Spawn item as pickup
-                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - item_definition->MaxStackSize(), replicated_entry.LoadedAmmo());
+                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo());
 
                         // Mark for replication
                         player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
@@ -62,7 +73,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                     }
 
                     // Spawn a new item
-                    world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(item_definition->MaxStackSize() - item_count, 1));
+                    world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(MaxStackSize - item_count, 1));
                 }
                 else
                 {
@@ -164,7 +175,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
 bool inventory_component::is_inventory_full(AFortPlayerController* player_controller)
 {
     int item_count = 0;
-    int maximum_item_count = 5;
+    constexpr int maximum_item_count = 6;
     
     // List of all replicated entries in inventory
     TArrayManager replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());

@@ -15,6 +15,11 @@ public:
     {
         return Call<FGuid>(L"GetItemGuid");
     }
+
+    int GetMaxStackSize(class UAbilitySystemComponent* AbilityComponent)
+    {
+        return Call<int>(L"GetMaxStackSize", AbilityComponent);
+    }
 };
 
 class UFortWorldItem : public UFortItem

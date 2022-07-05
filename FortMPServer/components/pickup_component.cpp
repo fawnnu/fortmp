@@ -85,11 +85,6 @@ void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn
 
     UFortWorldItem* spawned_item = inventory_component::add_item(PlayerPawn->Controller(), Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
 
-    if (spawned_item == nullptr)
-    {
-        return;
-    }
-
     if (inventory_component::is_inventory_full(PlayerPawn->Controller()))
     {
         static UObject* melee_item_definition_class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");

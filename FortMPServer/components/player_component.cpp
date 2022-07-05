@@ -71,13 +71,11 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
             AFortQuickBars*& player_quickbars = NetConnection->PlayerController()->HasProperty(L"QuickBars") ?
                 NetConnection->PlayerController()->QuickBars() : NetConnection->PlayerController()->ClientQuickBars();
 
-            if (player_quickbars)
-            {
-                player_quickbars = new_quickbars;
-                
-                // Set ownership
-                player_quickbars->SetOwner(NetConnection->PlayerController());
-            }
+            // Set quickbars
+            player_quickbars = new_quickbars;
+            
+            // Set ownership
+            player_quickbars->SetOwner(NetConnection->PlayerController());
 
             // Grant harvesting tool
             inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
