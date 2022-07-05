@@ -7,6 +7,13 @@ pickup_component::pickup_component()
 {
     INIT_POINTER(GrabPickup, memory_manager::find_function_by_string(L"Attempted to spawn non-world item %s!"));
 
+    // On chapter 2, the pickup anim function has been changed. We can now access it by its VTable index
+    if (uintptr_t grab_pickup_addr = memory_manager::find_pattern("FF 93 ? ? ? ? 49 63 8F ? ? ? ? 85 C9 0F 84 ? ? ? ? 49 8B 87 ? ? ? ? 48 89 AC 24 ? ? ? ? 48 89 B4 24 ? ? ? ? 48 8B F1"))
+    {
+        //Init the pickup anim function by accessing FortPickupAthena VTable at the obtained index
+        INIT_POINTER(GrabPickup, FindObject(L"/Script/FortniteGame.Default__FortPickupAthena")->VTable[*reinterpret_cast<int*>(grab_pickup_addr + 2) / 8] );
+    }
+    
     // REGISTER_PROCESS_EVENT_DETOUR(L"OnCapsuleBeginOverlap", pickup_component_hooks::OnCapsuleBeginOverlap_Hook);
     
     DetourTransactionBegin();
