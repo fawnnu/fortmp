@@ -17,6 +17,7 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_function_by_string(L"UNetConnection::SetClientLoginState: State same: %s"), player_component_hooks::SetClientLoginState_Hook);
 
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
 
     if (GetEngineVersionEasy() < 421)
     {
@@ -127,6 +128,32 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
     GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
     
     return ServerPlayEmoteItem(FortPlayerController, StackFrame);
+}
+
+void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
+{
+    GET_PARAMETER(FZiplinePawnState, InZiplineState);
+
+    FortPlayerPawn->ZiplineState().Zipline() = InZiplineState.Zipline();
+    FortPlayerPawn->ZiplineState().bIsZiplining() = InZiplineState.bIsZiplining();
+    FortPlayerPawn->ZiplineState().bJumped() = InZiplineState.bJumped();
+    FortPlayerPawn->ZiplineState().AuthoritativeValue() = InZiplineState.AuthoritativeValue();
+    FortPlayerPawn->ZiplineState().SocketOffset() = InZiplineState.SocketOffset();
+    FortPlayerPawn->ZiplineState().TimeZipliningBegan() = InZiplineState.TimeZipliningBegan();
+    FortPlayerPawn->ZiplineState().TimeZipliningEndedFromJump() = InZiplineState.TimeZipliningEndedFromJump();
+
+    if (FortPlayerPawn->ZiplineState().bIsZiplining())
+    {
+        // Set movement mode to ziplines
+        FortPlayerPawn->CharacterMovement()->SetMovementMode(6, 8); // MOVE_Custom , Ziplining
+    }
+    else
+    {
+        //Set movement mode back to normal
+        FortPlayerPawn->CharacterMovement()->MovementMode() = 1; //MOVE_Falling
+    }
+    
+    return ServerSendZiplineState(FortPlayerPawn, StackFrame);
 }
 
 

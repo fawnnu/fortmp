@@ -6,7 +6,7 @@ public:
     ability_component();
 
     // Directly activate an ability
-    static void activate_ability(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle ability_handle, bool input_pressed, const FPredictionKey& prediction_key);
+    static void activate_ability(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle ability_handle, bool input_pressed, const FPredictionKey& prediction_key, FGameplayEventData* event_data = nullptr);
 
     // Activate abilities from ability set
     static void apply_ability_set(UObject* player_pawn, UObject* ability_set);

@@ -197,6 +197,7 @@
     <ClInclude Include="game\sdk\FortQuickbars.hpp" />
     <ClInclude Include="game\sdk\FortVolume.hpp" />
     <ClInclude Include="game\sdk\FortWeapon.hpp" />
+    <ClInclude Include="game\sdk\FortZiplines.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
     <ClInclude Include="game\sdk\GameplayTags.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />

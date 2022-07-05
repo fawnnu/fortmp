@@ -28,7 +28,7 @@ ability_component::ability_component()
 }
 
 void ability_component::activate_ability(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle ability_handle,
-    bool input_pressed, const FPredictionKey& prediction_key)
+    bool input_pressed, const FPredictionKey& prediction_key, FGameplayEventData* event_data)
 {
     FGameplayAbilitySpec* ability_spec = nullptr;
 
@@ -55,7 +55,7 @@ void ability_component::activate_ability(UAbilitySystemComponent* ability_system
     // Mark ability as input pressed
     ability_spec->InputPressed = true;
 
-    if (!InternalTryActivateAbility(ability_system_component, ability_handle, prediction_key, &instanced_ability, nullptr, nullptr))
+    if (!InternalTryActivateAbility(ability_system_component, ability_handle, prediction_key, &instanced_ability, nullptr, event_data))
     {
         // Failed to activate ability
         ability_system_component->ClientActivateAbilityFailed(ability_handle, prediction_key.Current);
@@ -104,6 +104,13 @@ void ability_component_hooks::ServerTryActivateAbility_Hook(UAbilitySystemCompon
 
 void ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook(UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame)
 {
+    GET_PARAMETER(FGameplayAbilitySpecHandle, AbilityToActivate);
+    GET_PARAMETER(bool, InputPressed);
+    GET_PARAMETER(FPredictionKey, PredictionKey);
+    GET_PARAMETER(FGameplayEventData, TriggerEventData);
+    
+    ability_component::activate_ability(AbilitySystemComponent, AbilityToActivate, InputPressed, PredictionKey, &TriggerEventData); 
+    
     return ServerTryActivateAbilityWithEventData(AbilitySystemComponent, StackFrame);
 }
 

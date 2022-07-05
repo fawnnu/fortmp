@@ -61,6 +61,7 @@
 #include "sdk/FortPlaylist.hpp"
 #include "sdk/FortQuickbars.hpp"
 #include "sdk/FortAbility.hpp"
+#include "sdk/FortZiplines.hpp"
 
 #include "sdk/FortPickup.hpp"
 #include "sdk/NetConnection.hpp"

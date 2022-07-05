@@ -58,6 +58,11 @@ struct FServerAbilityRPCBatch
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.ServerAbilityRPCBatch");
 };
 
+struct FGameplayEventData
+{
+    
+};
+
 class UAbilitySystemComponent : public UObject
 {
 public:
