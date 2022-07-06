@@ -25,8 +25,13 @@ public:
     }
 };
 
-class AFortDecoTool_ContextTrap : public UObject
+class AFortDecoTool_ContextTrap : public AFortDecoTool
 {
 public:
     DEFINE_PROPERTY(UFortItemDefinition*, ContextTrapItemDefinition);
+
+    void SetContextTrapItemDefinition(UFortItemDefinition* InContextTrapItemDefinition)
+    {
+        Call(L"SetContextTrapItemDefinition", InContextTrapItemDefinition);
+    }
 };
