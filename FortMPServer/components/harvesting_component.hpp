@@ -10,9 +10,6 @@ public:
 
 namespace harvesting_component_hooks
 {
-    // Called when a player damages any building actor
-    DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Object, UObject* Function, void* Params));
-
-    // Called for blueprints to modify incoming damage on a building prop
-    DEFINE_FUNCTION_HOOK(void, BlueprintModifyIncomingDamage, (UObject* Object, UObject* Function, void* Params));
+    // Called when a player damages an actor
+    DEFINE_FUNCTION_HOOK(void, NetMulticast_Athena_BatchedDamageCues, (UObject* Object, UObject* Function, void* Params));
 }

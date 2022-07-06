@@ -5,8 +5,7 @@
 
 harvesting_component::harvesting_component()
 {
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingActor.OnDamageServer", harvesting_component_hooks::OnDamageServer_Hook);
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingProp.BlueprintModifyIncomingDamage", harvesting_component_hooks::BlueprintModifyIncomingDamage_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.NetMulticast_Athena_BatchedDamageCues", harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook);
 }
 
 void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage)
@@ -71,28 +70,28 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
     }
 }
 
-void harvesting_component_hooks::OnDamageServer_Hook(UObject* Object, UObject* Function, void* Params)
+void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
-    GET_PROCESS_EVENT_PARAMETER(float, Damage);
-    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);
+    GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues_Shared, SharedData);
+    GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues_NonShared, NonSharedData);
 
-    // Cast caller to ABuildingSMActor
-    ABuildingSMActor* BuildingActor = reinterpret_cast<ABuildingSMActor*>(Object);
+    // Get owner controller
+    AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerPawn*>(Object)->Controller();
+
+    // Filter by building actors
+    static UObject* building_actor_class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
     
-    // Handle harvesting materials
-    harvesting_component::handle_building_damaged(BuildingActor, InstigatedBy, DamageCauser, Damage);
-}
-
-void harvesting_component_hooks::BlueprintModifyIncomingDamage_Hook(UObject* Object, UObject* Function, void* Params)
-{
-    GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
-    GET_PROCESS_EVENT_PARAMETER(float, Damage);
-    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, EventInstigator);
-
-    // Cast caller to ABuildingSMActor
-    ABuildingSMActor* BuildingActor = reinterpret_cast<ABuildingSMActor*>(Object);
-    
-    // Handle harvesting materials
-    harvesting_component::handle_building_damaged(BuildingActor, EventInstigator, DamageCauser, Damage);
+    if (NonSharedData.HitActor())
+    {
+        if (UKismetMathLibrary::ClassIsChildOf(NonSharedData.HitActor()->Class, building_actor_class))
+        {
+            if (player_controller->Pawn()->CurrentWeapon())
+            {
+                ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(NonSharedData.HitActor());
+        
+                // Handle harvesting materials if we have a building actor and weapon
+                harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), SharedData.Magnitude());
+            }
+        }
+    }
 }
