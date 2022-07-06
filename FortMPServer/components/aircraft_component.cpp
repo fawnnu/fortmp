@@ -14,6 +14,7 @@ aircraft_component::aircraft_component()
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerSetInAircraft, L"/Script/FortniteGame.FortPlayerStateAthena.ServerSetInAircraft", aircraft_component_hooks::ServerSetInAircraft_Hook);
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerSetInAircraft, L"/Script/FortniteGame.FortPlayerStateZone.ServerSetInAircraft", aircraft_component_hooks::ServerSetInAircraft_Hook);
     
     DetourTransactionCommit();
 }
@@ -75,17 +76,18 @@ void aircraft_component_hooks::ServerSetInAircraft_Hook(AFortPlayerState* Player
 {
     if (PlayerState == nullptr)
     {
-        return; // bad playerstate
+        // No player state to use
+        return;
     }
     
     GET_PARAMETER(bool, bNewInAircraft);
     
     if (bNewInAircraft)
     {
-        auto PlayerController = static_cast<AFortPlayerController*>(PlayerState->GetOwner());
+        AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerController*>(PlayerState->GetOwner());
     
         // Get inventory
-        auto replicated_entries = TArrayManager<FFortItemEntry>(&PlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+        auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
     
         // List of items to remove
         std::vector<FGuid> items_to_remove;
@@ -109,7 +111,7 @@ void aircraft_component_hooks::ServerSetInAircraft_Hook(AFortPlayerState* Player
         for (FGuid item_to_remove : items_to_remove)
         {
             // Remove item
-            inventory_component::remove_item(PlayerController, item_to_remove, -1, false);
+            inventory_component::remove_item(player_controller, item_to_remove, -1, false);
         }
     }
     
