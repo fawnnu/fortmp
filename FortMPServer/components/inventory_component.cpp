@@ -213,15 +213,7 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
 
 void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {
-    static UObject* fort_trap_item_definition_class = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
-    static UObject* fort_deco_tool_context_trap_class = FindObject(L"FortDecoTool_ContextTrap", false, true);
-    
     GET_PARAMETER(FGuid, ItemGuid);
-
-    if (!PlayerController->Pawn())
-    {
-        return; //bad pawn
-    }
 
     // Get inventory item by GUID
     UFortItem* fort_item = PlayerController->HasFunction("K2_GetInventoryItemWithGuid") ?
@@ -233,40 +225,31 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     }
 
     // Get item definition from inventory item
-    UFortDecoItemDefinition* item_definition = static_cast<UFortDecoItemDefinition*>(fort_item->GetItemDefinitionBP());
+    UFortItemDefinition* item_definition = fort_item->GetItemDefinitionBP();
 
     if (item_definition == nullptr)
     {
         return;
     }
 
-    /** Checking if the item is a trap. */
-    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, fort_trap_item_definition_class))
-    {
-        /** Making sure the Pawn isn't null. */
-        if (PlayerController->Pawn() != nullptr)
-        {
-            /** Calling PickUpActor to start the trap placement process on the client. */
-            PlayerController->Pawn()->PickUpActor(nullptr, item_definition);
-            
-            /** Making sure CurrentWeapon object exists so we can set stuff in it. */
-            if (AFortWeapon* weapon = PlayerController->Pawn()->CurrentWeapon())
-            {
-                /** Set the GUID in deco tool */
-                weapon->ItemEntryGuid() = ItemGuid;
+    // Support trap logic
+    static UObject* trap_definition_class = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    static UObject* context_trap_class = FindObject(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
 
-                /** Verifying if the deco tool context trap class was found. */
-                if(fort_deco_tool_context_trap_class != nullptr)
-                {
-                    /** Making certain that the weapon's class is AFortDecoTool_ContextTrap. */
-                    if (UKismetMathLibrary::ClassIsChildOf(weapon->Class, fort_deco_tool_context_trap_class->Class))
-                    {
-                        /**   Assigning the context to our trap item definition */
-                        /* @ This allows the player to place context traps on the supported building pieces.
-                         * @ Eg. Bouncers, that trap can be applied on walls, floors, stairs and more with use of a single item definition. */
-                        static_cast<AFortDecoTool_ContextTrap*>(weapon)->ContextTrapItemDefinition() = item_definition;
-                    }   
-                }
+    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, trap_definition_class))
+    {
+        // Equip trap
+        PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(item_definition));
+
+        if (PlayerController->Pawn()->CurrentWeapon())
+        {
+            // Update entry GUID in current weapon
+            PlayerController->Pawn()->CurrentWeapon()->ItemEntryGuid() = ItemGuid;
+            
+            if (UKismetMathLibrary::ClassIsChildOf(PlayerController->Pawn()->CurrentWeapon()->Class, context_trap_class))
+            {
+                // Update item definition if we have a context trap
+                reinterpret_cast<AFortDecoTool_ContextTrap*>(PlayerController->Pawn()->CurrentWeapon())->ContextTrapItemDefinition() = item_definition;
             }
         }
     }

@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "hook.hpp"
 
+#include <fstream>
+
 hook_manager::hook_manager()
 {
     DetourTransactionBegin();
@@ -10,6 +12,8 @@ hook_manager::hook_manager()
 
     DetourTransactionCommit();
 }
+
+std::wofstream log_file("test.log");
 
 void hook_manager_hooks::ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
 {
@@ -22,6 +26,9 @@ void hook_manager_hooks::ProcessEvent_Hook(UObject* Object, UObject* Function, v
     
     if (Object && Function)
     {
+        log_file << Object->GetName() << std::endl;
+        log_file << Function->GetName() << std::endl << std::endl;
+        
         if (hook_manager::hooked_functions[Function])
         {
             // Call hooked function

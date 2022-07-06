@@ -9,7 +9,6 @@
 
 looting_component::looting_component()
 {
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingActor.OnDamageServer", looting_component_hooks::OnDamageServer_Hook);
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
@@ -223,72 +222,3 @@ UObject* looting_component::get_loot_tier_packages()
     
     return loot_tier_packages;
 }
-
-void looting_component_hooks::OnDamageServer_Hook(UObject* Object, UObject* Function, void* Params)
-{
-    GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
-    GET_PROCESS_EVENT_PARAMETER(float, Damage);
-    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);
-    
-    static UObject* BuildingSMActor_Class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
-    static UObject* FortWeapon_Class = FindObject(L"/Script/FortniteGame.FortWeapon");
-    static UObject* FortWeaponMeleeItemDefinition_Class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-    
-    auto BuildingActor = static_cast<ABuildingSMActor*>(Object);
-
-    if (UKismetMathLibrary::ClassIsChildOf(BuildingActor->Class, BuildingSMActor_Class))
-    {
-        //make sure a player is damaging the building with their pickaxe
-        if (BuildingActor->AttributeInitLevelSource() != 1 &&
-            UKismetMathLibrary::ClassIsChildOf(DamageCauser->Class, FortWeapon_Class) &&
-            UKismetMathLibrary::ClassIsChildOf(static_cast<AFortWeapon*>(DamageCauser)->WeaponData()->Class, FortWeaponMeleeItemDefinition_Class))
-        {
-            const bool bIsDestroyed = BuildingActor->GetHealth() - Damage < 1;
-            const bool bIsWeakSpot = Damage == 100;
-
-            //Make sure objects are valid
-            if (!BuildingActor || !BuildingActor->BuildingResourceAmountOverride().CurveTable)
-            {
-                return;
-            }
-
-            int Count = 0;
-
-            auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(BuildingActor->BuildingResourceAmountOverride().CurveTable) + 0x30);
-
-            //get the amount of materials to give from CurveTable
-            Count = FSimpleCurve::GetClass() ?
-                static_cast<FSimpleCurve*>(CurveTable[BuildingActor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value() :
-                static_cast<FRichCurve*>(CurveTable[BuildingActor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value();
-                
-            Count = round(Count / (round(BuildingActor->GetMaxHealth() / Damage)));
-
-            if (Count > 0)
-            {
-                //store resourcetype in a variable for performance purpose
-                const uint8_t ResourceType = BuildingActor->ResourceType();
-                
-                InstigatedBy->ClientReportDamagedResourceBuilding(BuildingActor, ResourceType, Count, bIsDestroyed, bIsWeakSpot); //Tell the client that they're farming
-
-                UFortItemDefinition* ResourceItemDefinition = nullptr;
-
-                //use static variable for performance purpose
-                static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
-                static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
-                static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
-
-                //convert ResourceType to ItemDefinition
-                if (ResourceType == 0) ResourceItemDefinition = WoodItemData;
-                if (ResourceType == 1) ResourceItemDefinition = StoneItemData;
-                if (ResourceType == 2) ResourceItemDefinition = MetalItemData;
-
-                if (ResourceItemDefinition)
-                {
-                    inventory_component::add_item(InstigatedBy, ResourceItemDefinition, Count); //give the resource to the player
-                }
-            }
-        }
-    }
-}
-
-

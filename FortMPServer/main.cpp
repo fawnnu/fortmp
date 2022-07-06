@@ -4,6 +4,7 @@
 #include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
 #include "components/elimination_component.hpp"
+#include "components/harvesting_component.hpp"
 #include "components/interact_component.hpp"
 #include "components/inventory_component.hpp"
 #include "components/loader_component.hpp"
@@ -73,6 +74,7 @@ void Setup()
                     new reboot_component();
                     new interact_component();
                     new team_component();
+                    new harvesting_component();
                     
                     break;
                 }
