@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "building_component.hpp"
 
+#include "inventory_component.hpp"
+
 building_component::building_component()
 {
     INIT_POINTER(ReplaceBuildingActor, memory_manager::find_function_by_string(L"STAT_Fort_BuildingSMActorReplaceBuildingActor"));
@@ -78,6 +80,25 @@ bool building_component::is_building_class_valid(UObject* building_class)
     return false;
 }
 
+UFortItemDefinition* building_component::get_building_resource(ABuildingSMActor* building_actor)
+{
+    static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+    static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+    static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+    switch (building_actor->ResourceType())
+    {
+    case 0:
+        return WoodItemData;
+    case 1:
+        return StoneItemData;
+    case 2:
+        return MetalItemData;
+    default:
+        return nullptr;
+    }
+}
+
 void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     // Support both legacy and new building
@@ -115,14 +136,14 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
         is_mirrored = bMirrored;
     }
 
-    //Initialize params for the C++ function below
-    __int64 Parm[2];
-    Parm[0] = 0;
-    Parm[1] = 0;
-
-    __int64 Parm2;
+    // Setup parameters for double building check
+    __int64 first_parameter[2];
+    __int64 second_parameter;
     
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, (__int64)Parm, (__int64)&Parm2)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
+    first_parameter[0] = 0;
+    first_parameter[1] = 0;
+    
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, reinterpret_cast<__int64>(first_parameter), reinterpret_cast<__int64>(&second_parameter))) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
     {
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
         {

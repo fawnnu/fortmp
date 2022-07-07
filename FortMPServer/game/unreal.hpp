@@ -234,6 +234,13 @@ T* SpawnDefaultActor(UWorld* World, UObject* Class)
 inline float GetEngineVersionEasy()
 {
     const std::wstring engine_version = GetEngineVersion().c_str();
-
+    
     return std::stod(engine_version.substr(0, 4)) * 100;
+}
+
+inline float GetFortniteVersionEasy()
+{
+    const std::wstring engine_version = GetEngineVersion().c_str();
+        
+    return std::stod(engine_version.substr(34, 4));
 }
