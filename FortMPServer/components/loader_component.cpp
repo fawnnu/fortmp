@@ -28,7 +28,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         if (in_playlist == nullptr)
         {
             // Use default playlist if none specified
-            in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultDuo.Playlist_DefaultDuo");
+            in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
         }
 
         if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistData"))

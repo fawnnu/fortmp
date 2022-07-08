@@ -9,6 +9,8 @@ public:
     static bool edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations);
 
     static bool is_building_class_valid(UObject* building_class);
+
+    static UFortItemDefinition* get_building_resource(ABuildingSMActor* building_actor);
 };
 
 namespace building_component_hooks

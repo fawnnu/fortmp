@@ -3,6 +3,17 @@
 
 elimination_component::elimination_component()
 {
+    if (GetFortniteVersionEasy() < 5.0)
+    {
+        // Setup function with original arguments if below version 5.00
+        INIT_POINTER(RemoveFromAlivePlayerList, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] removed"));
+    }
+    else
+    {
+        // Setup function with new arguments if on a newer build
+        INIT_POINTER(RemoveFromAlivePlayers, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] removed"));
+    }
+    
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerControllerZone.ClientOnPawnDied", elimination_component_hooks::ClientOnPawnDied_Hook);
 }
 
@@ -75,4 +86,27 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
     // Get death cause
     VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
+    
+    {
+        // Logic to remove players does not work on some builds
+        static bool should_remove_players = (GetFortniteVersionEasy() < 6.00) || (GetFortniteVersionEasy() > 11.00);
+
+        if (should_remove_players)
+        {
+            if (RemoveFromAlivePlayerList)
+            {
+                // Call original before proceeding
+                ProcessEvent(Object, Function, Params);
+                
+                // Remove player from alive list if function exists
+                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
+            }
+        
+            if (RemoveFromAlivePlayers)
+            {
+                // Remove player from alive list if function exists
+                RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+            }
+        }
+    }
 }

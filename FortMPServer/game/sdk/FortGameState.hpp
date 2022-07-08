@@ -74,6 +74,9 @@ public:
     DEFINE_PROPERTY(FPlaylistPropertyArray, CurrentPlaylistInfo);
 
     DEFINE_PROPERTY(FGameMemberInfoArray, GameMemberInfoArray);
+
+    DEFINE_PROPERTY(int, TotalPlayers);
+    DEFINE_PROPERTY(int, PlayersLeft);
     
     void OnRep_CurrentPlaylistInfo()
     {
