@@ -9,6 +9,11 @@ net_component::net_component()
     INIT_POINTER(InitListen, memory_manager::find_function_by_string(L"Failed to init net driver ListenURL: %s: %s"));
     INIT_POINTER(SetWorld, memory_manager::find_function_by_string(L"Demo playback failed: %s", { 0xE8 }, 1));
 
+    if (uintptr_t set_world_address = memory_manager::find_pattern("FF 90 ? ? ? ? 48 89 7D 9F 49 8D 57 28 48 89 7D A7 4C 8D 4D 9F 48 8B 03 4C 8D 45 C7 48 8B CB FF 90 ? ? ? ?"))
+    {
+        INIT_POINTER(SetWorld, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpNetDriver")->VTable[*reinterpret_cast<int*>(set_world_address + 2) / 8]);
+    }
+
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
