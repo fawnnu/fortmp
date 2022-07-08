@@ -49,8 +49,19 @@ void Setup()
                 
                 if (player_controller)
                 {
+                    FString server_level;
+
+                    if (GetEngineVersionEasy() > 423)
+                    {
+                        server_level = L"Apollo_Terrain";
+                    }
+                    else
+                    {
+                        server_level = L"Athena_Terrain";
+                    }
+                    
                     // load into level
-                    player_controller->SwitchLevel(FString(L"Apollo_Terrain"));
+                    player_controller->SwitchLevel(server_level);
 
                     while ((*GWorld)->GetName().find(L"Frontend") != -1)
                     {

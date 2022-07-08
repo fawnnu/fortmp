@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FortMPServer", "FortMPServer\FortMPServer.vcxproj", "{4567A7A0-01A1-4599-8B47-474EDA48B384}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FortMPClient", "FortMPClient\FortMPClient.vcxproj", "{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x64.Build.0 = Release|x64
 		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x86.ActiveCfg = Release|Win32
 		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x86.Build.0 = Release|Win32
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Debug|x64.ActiveCfg = Debug|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Debug|x64.Build.0 = Debug|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Debug|x86.ActiveCfg = Debug|Win32
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Debug|x86.Build.0 = Debug|Win32
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x64.ActiveCfg = Release|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x64.Build.0 = Release|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x86.ActiveCfg = Release|Win32
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
