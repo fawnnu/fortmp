@@ -8,6 +8,11 @@ public:
         return Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
     }
 
+    UObject* SpawnObject(UObject* Class, UObject* Outer)
+    {
+        return Call<UObject*>(L"SpawnObject", Class, Outer);
+    }
+
     TArray<AActor*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
     {
         static UFunction* function = FindObject<UFunction>(L"/Script/Engine.GameplayStatics.GetAllActorsOfClass");

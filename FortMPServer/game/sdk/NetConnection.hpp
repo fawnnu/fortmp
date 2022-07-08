@@ -3,7 +3,7 @@
 class UPlayer : public UObject
 {
 public:
-    DEFINE_PROPERTY(AFortPlayerController*, PlayerController);
+    DEFINE_PROPERTY(class AFortPlayerController*, PlayerController);
 };
 
 class UNetConnection : public UPlayer

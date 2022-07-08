@@ -3,6 +3,22 @@
 class UNetConnection;
 class UAthenaResurrectionComponent;
 
+class UFortClientSettingsRecord : public UObject
+{
+public:
+};
+
+class ULocalPlayer : public UPlayer
+{
+public:
+};
+
+class UFortLocalPlayer : public ULocalPlayer
+{
+public:
+    DEFINE_PROPERTY(UFortClientSettingsRecord*, ClientSettingsRecord);
+};
+
 class AController : public AActor
 {
 public:

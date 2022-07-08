@@ -8,7 +8,7 @@ public:
 
 namespace patches_component_hook
 {
-    DEFINE_FUNCTION_HOOK(void, GetPlayerViewPoint, (AController* PlayerController, FVector& out_Location, FRotator& out_Rotation));
+    DEFINE_FUNCTION_HOOK(UFortClientSettingsRecord*, GetClientSettingsRecord, (UFortLocalPlayer* LocalPlayer));
 
     DEFINE_FUNCTION_HOOK(int, GetNetMode, (UNetDriver* NetDriver));
     DEFINE_FUNCTION_HOOK(int, WorldGetNetMode, (UWorld* World));

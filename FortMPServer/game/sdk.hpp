@@ -52,6 +52,7 @@
 #include "sdk/Actor.hpp"
 #include "sdk/FortItem.hpp"
 #include "sdk/GameplayTags.hpp"
+#include "sdk/NetConnection.hpp"
 
 #include "sdk/FortPlayerState.hpp"
 #include "sdk/FortPlayerPawn.hpp"
@@ -64,7 +65,6 @@
 #include "sdk/FortZiplines.hpp"
 
 #include "sdk/FortPickup.hpp"
-#include "sdk/NetConnection.hpp"
 #include "sdk/NetDriver.hpp"
 #include "sdk/World.hpp"
 #include "sdk/DataTable.hpp"

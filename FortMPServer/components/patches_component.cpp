@@ -24,6 +24,12 @@ patches_component::patches_component()
         REGISTER_FUNCTION_DETOUR(patches_component_hook::LoadingScreenPatch, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 48 8B 01 48 8B F9 FF 90 ? ? ? ? 48 8B D8 48 85 C0 0F 84 ? ? ? ? 48 83 78 ? ? 0F 84 ? ? ? ? 48 8B 17 48 8B CF"), patches_component_hook::LoadingScreenPatch_Hook);
     }
 
+    // Patch issue caused by nomcp above S12 (UE 4.26+)
+    if (GetEngineVersionEasy() > 425)
+    {
+        REGISTER_FUNCTION_DETOUR(patches_component_hook::GetClientSettingsRecord, memory_manager::find_function_by_string(L"Advanced Options Enabled", {0xe8}, 1), patches_component_hook::GetClientSettingsRecord_Hook);
+    }
+
     {
         auto view_point_patch = memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6");
         if (!view_point_patch) view_point_patch = memory_manager::find_pattern("74 46 0F 57 C0 0F 2F 80 ? ? ? ? 73 3A 8B 9F ? ? ? ? 48 8B CF C1 EB 03");
@@ -84,4 +90,14 @@ int patches_component_hook::GetNetMode_Hook(UNetDriver* NetDriver)
 int patches_component_hook::WorldGetNetMode_Hook(UWorld* World)
 {
     return 1; // NM_DedicatedServer
+}
+
+UFortClientSettingsRecord* patches_component_hook::GetClientSettingsRecord_Hook(UFortLocalPlayer* LocalPlayer)
+{
+    if (!LocalPlayer->ClientSettingsRecord())
+    {
+        LocalPlayer->ClientSettingsRecord() = static_cast<UFortClientSettingsRecord*>(FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->SpawnObject(FindObject(L"/Script/FortniteGame.FortClientSettingsRecord"), LocalPlayer));
+    }
+
+    return LocalPlayer->ClientSettingsRecord();
 }
