@@ -1,6 +1,7 @@
 #include "include.hpp"
 
 #include "components/ssl_bypass_component.hpp"
+#include "components/patches_component.hpp"
 
 void Setup()
 {
@@ -23,6 +24,8 @@ void Setup()
                 {
                     //Create and set console
                     (*GEngine)->GameViewport()->ViewportConsole() = static_cast<UConsole*>(FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->SpawnObject(FindObject(L"/Script/Engine.Console"), (*GEngine)->GameViewport()));
+
+                    new patches_component();
                     
                     break;
                 }
