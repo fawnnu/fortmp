@@ -77,4 +77,9 @@ public:
     {
         Call(L"/Script/FortniteGame.FortAIPawn.AddFortAbilitySet", FortAbilitySet);
     }
+
+    void GrabPickupCustomized(AFortPickup* FortPickup, float FlyTime)
+    {
+        Call(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized", FortPickup, FlyTime);
+    }
 };

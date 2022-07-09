@@ -6,12 +6,17 @@ public:
     pickup_component();
     
     static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0);
+
+    static void handle_pickup(AFortPickup* pickup, AFortPlayerPawn* PlayerPawn);
 };
 
 namespace pickup_component_hooks
 {
     // Called when a player tries to pickup an item
     DEFINE_FUNCTION_HOOK(void, ServerHandlePickup, (AFortPlayerPawn* PlayerPawn, FFrame& StackFrame));
+
+    // Called when a player tries to pickup an item on season 13+
+    DEFINE_FUNCTION_HOOK(void, ServerHandlePickupInfo, (AFortPlayerPawn* PlayerPawn, FFrame& StackFrame));
 
     // Called when a player overlaps with a capsule component
     DEFINE_FUNCTION_HOOK(void, OnCapsuleBeginOverlap, (UObject* Object, UObject* Function, void* Params));

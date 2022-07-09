@@ -20,6 +20,7 @@ pickup_component::pickup_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
+    REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
     
     DetourTransactionCommit();
 }
@@ -65,13 +66,8 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     return fort_pickup;
 }
 
-void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)
+void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* PlayerPawn)
 {
-    GET_PARAMETER(AFortPickup*, Pickup);
-    GET_PARAMETER(float, InFlyTime);
-    GET_PARAMETER(FVector, InStartDirection);
-    GET_PARAMETER(bool, bPlayPickupSound);
-
     if (Pickup == nullptr)
     {
         return;
@@ -105,14 +101,39 @@ void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn
     }
 
     __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0]; //taken from IDA
-    
-    // Grab pickup
-    GrabPickup(Pickup, PlayerPawn, 0.4f, reinterpret_cast<__int64>(&grab_pickup_parameter));
 
+    static UFunction* GrabPickupCustomized = FindObject<UFunction>(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized");
+    
+    //Use fortnite UFunction when possible
+    if (GrabPickupCustomized)
+    {
+        reinterpret_cast<AFortAIPawn*>(PlayerPawn)->GrabPickupCustomized(Pickup, 0.4f);
+    }
+    else
+    {
+        GrabPickup(Pickup, PlayerPawn, 0.4f, reinterpret_cast<__int64>(&grab_pickup_parameter));
+    }
+    
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
-    
+}
+
+void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)
+{
+    GET_PARAMETER(AFortPickup*, Pickup);
+
+    pickup_component::handle_pickup(Pickup, PlayerPawn);
+
     return ServerHandlePickup(PlayerPawn, StackFrame);
+}
+
+void pickup_component_hooks::ServerHandlePickupInfo_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)
+{
+    GET_PARAMETER(AFortPickup*, Pickup);
+
+    pickup_component::handle_pickup(Pickup, PlayerPawn);
+
+    return ServerHandlePickupInfo(PlayerPawn, StackFrame);
 }
 
 void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject* Function, void* Params)

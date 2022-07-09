@@ -26,7 +26,9 @@ void unreal_manager::setup_unreal_engine()
     
     INIT_POINTER(GenericArray_Remove, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) ?
         memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) :
-        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1));
+        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) ?
+        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) :
+        memory_manager::find_pattern("48 85 C9 0F 84 ? ? ? ? 56 48 83 EC 70 4C 8B 4A 78 41 8B F0 8B 82 ? ? ? ? 45 8B 41 3C 89 44 24 64"));
     
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
 
