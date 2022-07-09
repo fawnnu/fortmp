@@ -3,7 +3,7 @@
 
 elimination_component::elimination_component()
 {
-    if (GetFortniteVersionEasy() < 5.0)
+    if (GetEngineVersionEasy() < 421)
     {
         // Setup function with original arguments if below version 5.00
         INIT_POINTER(RemoveFromAlivePlayerList, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] removed"));
@@ -89,7 +89,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     
     {
         // Logic to remove players does not work on some builds
-        static bool should_remove_players = (GetFortniteVersionEasy() < 6.00) || (GetFortniteVersionEasy() > 11.00);
+        static bool should_remove_players = GetEngineVersionEasy() < 422 || GetEngineVersionEasy() > 423;
 
         if (should_remove_players)
         {
