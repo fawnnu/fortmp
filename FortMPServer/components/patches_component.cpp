@@ -32,7 +32,7 @@ patches_component::patches_component()
 
     {
         auto view_point_patch = memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6");
-        if (!view_point_patch) view_point_patch = memory_manager::find_pattern("74 46 0F 57 C0 0F 2F 80 ? ? ? ? 73 3A 8B 9F ? ? ? ? 48 8B CF C1 EB 03");
+        if (!view_point_patch) view_point_patch = memory_manager::find_pattern("74 ? 0F 57 C0 0F 2F 80 ? ? ? ? 73 ? 8B 9F ? ? ? ? 48 8B CF C1 EB 03");
         
         if (view_point_patch)
         {
