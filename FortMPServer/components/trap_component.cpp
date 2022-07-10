@@ -2,6 +2,7 @@
 #include "trap_component.hpp"
 
 #include "ability_component.hpp"
+#include "inventory_component.hpp"
 
 trap_component::trap_component()
 {
@@ -61,7 +62,20 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFr
         // Apply any ability sets
         ability_component::apply_ability_set(FortDecoTool->GetOwner(), trap_actor->AbilitySet());
     }
-    
-    return ServerSpawnDeco(FortDecoTool, StackFrame);
+
+    // Remove used trap
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                 
+    for (int i = 0; i < replicated_entries.Num(); i++)
+    {
+        FFortItemEntry& replicated_entry = replicated_entries[i];
+
+        if (replicated_entry.ItemDefinition() == FortDecoTool->ItemDefinition())
+        {
+            inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), 1, false);
+
+            break;
+        }
+    }
 }
 

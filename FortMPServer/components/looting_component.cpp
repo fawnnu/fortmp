@@ -99,7 +99,21 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
     // Only call ToString once for performance
     std::wstring final_loot_package = final_loot_tier_data->LootPackage().ToString();
 
-    for (float i = 0; i < final_loot_tier_data->NumLootPackageDrops(); i++)
+    //fixes an issue with datatables' NumLootPackageDrops on chapter 2
+    static bool b_is_chapter_two = GetEngineVersionEasy() > 423;
+
+    float NumLootPackageDrops = 0;
+
+    if (b_is_chapter_two)
+    {
+        NumLootPackageDrops = final_loot_tier_data->NumLootPackageDrops() + 1;
+    }
+    else
+    {
+        NumLootPackageDrops = final_loot_tier_data->NumLootPackageDrops();
+    }
+
+    for (float i = 0; i < NumLootPackageDrops; i++)
     {
         auto name_iterator = category_row_names.begin();
 

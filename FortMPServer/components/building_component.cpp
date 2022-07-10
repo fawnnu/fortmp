@@ -38,6 +38,23 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
      
                  // Initialize building actor
                  building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
+
+                 // Pay building cost
+                 UFortItemDefinition* building_resource_definition = get_building_resource(building_actor);
+                 
+                 auto replicated_entries = TArrayManager<FFortItemEntry>(&building_owner->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                 
+                 for (int i = 0; i < replicated_entries.Num(); i++)
+                 {
+                     FFortItemEntry& replicated_entry = replicated_entries[i];
+
+                     if (replicated_entry.ItemDefinition() == building_resource_definition)
+                     {
+                         inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
+
+                         break;
+                     }
+                 }
              }
      
              return true;
@@ -147,7 +164,6 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
     {
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
         {
-            // TODO: Remove resource
         }
     } 
     
