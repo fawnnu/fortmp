@@ -9,6 +9,7 @@ vehicles_component::vehicles_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::EquipAbilityWeapon, L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
+    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerAttemptExitVehicle, L"/Script/FortniteGame.FortPlayerControllerZone.ServerAttemptExitVehicle", vehicles_component_hooks::ServerAttemptExitVehicle_Hook);
     
     DetourTransactionCommit();
 }
@@ -48,3 +49,14 @@ void vehicles_component_hooks::EquipAbilityWeapon_Hook(UFortGameplayAbility* For
 
     return EquipAbilityWeapon(FortGameplayAbility, StackFrame);
 }
+
+void vehicles_component_hooks::ServerAttemptExitVehicle_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+
+    //First entry is always pickaxe
+    FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
+        
+    return ServerAttemptExitVehicle(FortPlayerController, StackFrame);
+}
+

@@ -71,6 +71,11 @@ public:
         return Call<bool>(L"IsInAircraft");
     }
 
+    void ServerExecuteInventoryItem(FGuid ItemGuid)
+    {
+        Call(L"ServerExecuteInventoryItem", ItemGuid);
+    }
+
     void ServerAttemptAircraftJump(FRotator ClientRotation)
     {
         Call(L"ServerAttemptAircraftJump", ClientRotation);
