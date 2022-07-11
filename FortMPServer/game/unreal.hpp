@@ -35,6 +35,9 @@ inline UObject* (*StaticFindObject)(UObject* Class, void* Outer, const wchar_t* 
 // Load an object by name
 inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wchar_t*, int, void*, bool);
 
+// Get parameters from StackFrame.Code
+inline void (*Step)(struct FFrame*, UObject* Context, void* OutParam);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
@@ -174,6 +177,11 @@ struct FFrame
     
     // Pointer to parameters in frame
     uint8_t* Locals;
+
+    void Step(UObject* Context, void* OutParam)
+    {
+        ::Step(this, Context, OutParam);
+    }
 };
 
 template<typename T = UObject>

@@ -110,12 +110,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
-        // Start match
-        (*GWorld)->AuthorityGameMode()->StartMatch();
-        
         // Infinite warmup
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999999.f;
+        
+        // Start match
+        (*GWorld)->AuthorityGameMode()->StartMatch();
 
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
@@ -137,6 +137,20 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
     {
         if (World->GameState()->WorldManager())
         {
+            if (World->AuthorityGameMode())
+            {
+                // allows vehicles to spawn
+                if (static bool b_has_property = (*GWorld)->AuthorityGameMode()->HasProperty(L"bMapInfoInitialized"))
+                {
+                    bool& bMapInfoInitialized = (*GWorld)->AuthorityGameMode()->bMapInfoInitialized();
+                    
+                    if (!bMapInfoInitialized)
+                    {
+                        bMapInfoInitialized = true;
+                    }
+                }
+            }
+            
             for (auto& streamed_level : TArrayManager<FFortLevelStreamingInfo>(&World->GameState()->WorldManager()->StreamedLevels(), FFortLevelStreamingInfo::GetStructSize()))
             {
                 if (streamed_level.LevelState == 0)

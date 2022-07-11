@@ -37,6 +37,7 @@ class AFortGameModeAthena : public AFortGameModeZone
 public:
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
     DEFINE_PROPERTY(float, WarmupEarlyCountdownDuration);
+    DEFINE_PROPERTY(bool, bMapInfoInitialized);
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
 };

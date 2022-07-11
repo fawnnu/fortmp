@@ -16,6 +16,7 @@
 #include "components/reboot_component.hpp"
 #include "components/team_component.hpp"
 #include "components/trap_component.hpp"
+#include "components/vehicles_component.hpp"
 
 #include "gui/renderer.hpp"
 
@@ -86,6 +87,7 @@ void Setup()
                     new interact_component();
                     new team_component();
                     new harvesting_component();
+                    new vehicles_component();
                     
                     break;
                 }

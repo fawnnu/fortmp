@@ -32,6 +32,8 @@ void unreal_manager::setup_unreal_engine()
     
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
 
+    INIT_POINTER(Step, memory_manager::find_pattern("E8 ? ? ? ? EB 1C 4C 8B 82 ? ? ? ? 49 8B 40 28 48 89 82 ? ? ? ? 48 8D 54 24 ?", true, 1));
+
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
         GetEngineVersionEasy() == 419 ||
