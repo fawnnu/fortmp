@@ -5,6 +5,17 @@ class AFortWeapon;
 class AFortPickup;
 class UFortDecoItemDefinition;
 
+struct FReplicatedPhysicsPawnState
+{
+    struct FVector Translation;                                  
+    unsigned char UnknownData00[0x4];            
+    struct FQuat Rotation;                      
+    struct FVector LinearVelocity;                              
+    struct FVector AngularVelocity;                             
+    uint16_t SyncKey;                       
+    unsigned char UnknownData01[0x6];      
+};
+
 class UCharacterMovementComponent : public UObject
 {
 public:

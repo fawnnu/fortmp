@@ -3,6 +3,8 @@
 class AActor : public UObject
 {
 public:
+    DEFINE_PROPERTY(class USceneComponent*, RootComponent);
+    
     FTransform GetTransform()
     {
         return Call<FTransform>(L"GetTransform");
