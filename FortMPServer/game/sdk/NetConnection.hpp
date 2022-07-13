@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+class UNetDriver;
+class UChildConnection;
+
 class UPlayer : public UObject
 {
 public:
@@ -9,7 +12,22 @@ public:
 class UNetConnection : public UPlayer
 {
 public:
+    DEFINE_PROPERTY(TArray<UChildConnection*>, Children);
+    
     DEFINE_PROPERTY(AActor*, ViewTarget);
+    DEFINE_PROPERTY(AActor*, OwningActor);
+
+    DEFINE_PROPERTY(UNetDriver*, Driver);
     
     DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
+
+    DEFINE_PROPERTY(uint8_t, InternalAck);
+
+    DEFINE_PROPERTY(double, LastReceiveTime);
+};
+
+class UChildConnection : public UNetConnection
+{
+public:
+    DEFINE_PROPERTY(UNetConnection*, Parent);
 };

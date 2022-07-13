@@ -48,6 +48,12 @@ namespace CoreOffsets
     inline DWORD StructSize;
 }
 
+namespace NetworkOffsets
+{
+    inline DWORD ReplicationFrame;
+    inline DWORD NetworkObjectList;
+}
+
 class UObject
 {
 public:

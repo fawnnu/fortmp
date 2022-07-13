@@ -33,6 +33,11 @@ public:
     {
         Call(L"SetControlRotation", in_rotation);
     }
+
+    AActor* GetViewTarget()
+    {
+        return Call<AActor*>(L"GetViewTarget");
+    }
 };
 
 class APlayerController : public AController

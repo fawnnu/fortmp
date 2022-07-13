@@ -65,3 +65,8 @@ struct FUniqueNetIdRepl
 {
     char unk[0x0027];
 };
+
+struct FNetworkGUID
+{
+    uint32_t Value;
+};

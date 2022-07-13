@@ -150,7 +150,7 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
                     }
                 }
             }
-            
+
             for (auto& streamed_level : TArrayManager<FFortLevelStreamingInfo>(&World->GameState()->WorldManager()->StreamedLevels(), FFortLevelStreamingInfo::GetStructSize()))
             {
                 if (streamed_level.LevelState == 0)

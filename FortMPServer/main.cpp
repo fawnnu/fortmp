@@ -14,6 +14,7 @@
 #include "components/pickup_component.hpp"
 #include "components/player_component.hpp"
 #include "components/reboot_component.hpp"
+#include "components/replication_component.hpp"
 #include "components/team_component.hpp"
 #include "components/trap_component.hpp"
 #include "components/vehicles_component.hpp"
@@ -90,6 +91,7 @@ void Setup()
                     new harvesting_component();
                     new vehicles_component();
                     new storm_component();
+                    new replication_component();
                     
                     break;
                 }

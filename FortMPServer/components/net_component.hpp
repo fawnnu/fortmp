@@ -18,9 +18,6 @@ namespace net_component_hooks
     void TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds);  
 };
 
-// Replicates actors using the ReplicationGraph
-inline int (*ServerReplicateActors)(UObject* ReplicationDriver, float DeltaSeconds);
-
 // Create a net driver from name
 inline bool (*CreateNamedNetDriver)(UObject* Engine, UObject* World, FName NetDriverName, FName NetDriverDefinition);
 
