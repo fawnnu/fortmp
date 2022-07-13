@@ -57,6 +57,7 @@
 #include "sdk/FortPlayerState.hpp"
 #include "sdk/FortPlayerPawn.hpp"
 #include "sdk/FortPlayerController.hpp"
+#include "sdk/FortSafezone.hpp"
 #include "sdk/FortGameState.hpp"
 #include "sdk/FortGameMode.hpp"
 #include "sdk/FortPlaylist.hpp"

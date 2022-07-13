@@ -44,7 +44,13 @@ public:
     DEFINE_PROPERTY(TArray<AController*>, TeamMembers);
 };
 
-class AFortGameState : public UObject
+class AGameStateBase : public AActor
+{
+public:
+    DEFINE_PROPERTY(float, ReplicatedWorldTimeSeconds);
+};
+
+class AFortGameState : public AGameStateBase
 {
 public:
     DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);

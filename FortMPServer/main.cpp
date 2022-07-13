@@ -17,6 +17,7 @@
 #include "components/team_component.hpp"
 #include "components/trap_component.hpp"
 #include "components/vehicles_component.hpp"
+#include "components/storm_component.hpp"
 
 #include "gui/renderer.hpp"
 
@@ -88,6 +89,7 @@ void Setup()
                     new team_component();
                     new harvesting_component();
                     new vehicles_component();
+                    new storm_component();
                     
                     break;
                 }

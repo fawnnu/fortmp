@@ -175,6 +175,7 @@
     <ClInclude Include="components\player_component.hpp" />
     <ClInclude Include="components\reboot_component.hpp" />
     <ClInclude Include="components\reviving_component.hpp" />
+    <ClInclude Include="components\storm_component.hpp" />
     <ClInclude Include="components\team_component.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
     <ClInclude Include="components\vehicles_component.hpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="game\sdk\FortPlayerState.hpp" />
     <ClInclude Include="game\sdk\FortPlaylist.hpp" />
     <ClInclude Include="game\sdk\FortQuickbars.hpp" />
+    <ClInclude Include="game\sdk\FortSafezone.hpp" />
     <ClInclude Include="game\sdk\FortVolume.hpp" />
     <ClInclude Include="game\sdk\FortWeapon.hpp" />
     <ClInclude Include="game\sdk\FortZiplines.hpp" />
@@ -399,6 +401,7 @@
     <ClCompile Include="components\player_component.cpp" />
     <ClCompile Include="components\reboot_component.cpp" />
     <ClCompile Include="components\reviving_component.cpp" />
+    <ClCompile Include="components\storm_component.cpp" />
     <ClCompile Include="components\team_component.cpp" />
     <ClCompile Include="components\trap_component.cpp" />
     <ClCompile Include="components\vehicles_component.cpp" />
