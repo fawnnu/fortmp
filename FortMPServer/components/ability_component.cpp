@@ -171,6 +171,9 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
         {
             if (const auto ammo_item_definition = weapon_item_definition->GetAmmoWorldItemDefinition_BP())
             {
+                static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+                static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+                
                 const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
                 auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
@@ -183,7 +186,14 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
 
                     if (replicated_entry.ItemGuid() == FortWeapon->ItemEntryGuid())
                     {
-                        const auto new_loaded_ammo = FortWeapon->GetMagazineAmmoCount();
+                        int new_loaded_ammo = 0;
+                        
+                        if (UKismetMathLibrary::ClassIsChildOf(weapon_item_definition->Class, FortWeaponItemDefinition) &&
+                            !UKismetMathLibrary::ClassIsChildOf(weapon_item_definition->Class, FortTrapItemDefinition))
+                        {
+                            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(uintptr_t(static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().Table) + 0x30);
+                            new_loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
+                        }
                         
                         replicated_entry.LoadedAmmo() = new_loaded_ammo;
                         item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
