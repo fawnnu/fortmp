@@ -19,3 +19,9 @@ public:
 
     static bool is_bad_read_pointer(void* pointer_to_read);
 };
+
+// small UNWIND_INFO implementation
+typedef struct _UNWIND_INFO {
+    unsigned char Version : 3;
+    unsigned char Flags : 5;
+} UNWIND_INFO, *PUNWIND_INFO;

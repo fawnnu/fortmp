@@ -127,11 +127,19 @@ uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::ve
 		}
 	}
 
+	// clever way of finding out where a function starts (only works on Windows x64)
 	DWORD64 ImgBase = 0;
 	PRUNTIME_FUNCTION Function = nullptr;
 	for (auto Func = RtlLookupFunctionEntry(__int64(Bytes), &ImgBase, NULL); Func; Func = RtlLookupFunctionEntry(BaseAddress + (Func->BeginAddress-1), &ImgBase, NULL))
 	{
+		// make sure the RUNTIME_FUNCTION's unwind info is the primary unwind info of the function
+		if (reinterpret_cast<PUNWIND_INFO>(BaseAddress + Func->UnwindInfoAddress)->Flags & UNW_FLAG_CHAININFO) // if it has the CHAININFO flag, not a primary unwind info
+		{
+			continue; // look into the next function_entry from this point
+		}
+		
 		Function = Func;
+		break;
 	}
 
 	return Function ? BaseAddress + Function->BeginAddress : 0;
