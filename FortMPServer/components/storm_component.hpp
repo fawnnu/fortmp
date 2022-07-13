@@ -4,6 +4,8 @@ class storm_component
 {
 public:
     storm_component();
+
+    static TMap<FName, Struct*> get_game_data_table();
 };
 
 namespace storm_component_hooks
