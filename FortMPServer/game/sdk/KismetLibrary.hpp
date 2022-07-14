@@ -3,15 +3,6 @@
 class UKismetSystemLibrary : public UObject
 {
 public:
-    template<typename T = UObject>
-    static T* Conv_SoftObjectReferenceToObject(TSoftObjectPtr SoftObject)
-    {
-        // Static function so use default object
-        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
-        
-        return Default__KismetSystemLibrary->Call<T*>(L"Conv_SoftObjectReferenceToObject", SoftObject);
-    }
-
     static void SetBoolPropertyByName(UObject* Target, FName PropertyName, bool Value)
     {
         // Static function so use default object

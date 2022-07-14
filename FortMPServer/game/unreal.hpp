@@ -38,6 +38,9 @@ inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wc
 // Get parameters from StackFrame.Code
 inline void (*Step)(struct FFrame*, UObject* Context, void* OutParam);
 
+// Dereference a weak pointer
+inline UObject* (*Get)(struct FWeakObjectPtr*);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
@@ -221,9 +224,28 @@ public:
     }
 };
 
+struct FWeakObjectPtr
+{
+    UObject* Get()
+    {
+        return ::Get(this);
+    }
+    
+    int	ObjectIndex;
+    int ObjectSerialNumber;
+};
+
+template <typename T = UObject>
 struct TSoftObjectPtr
 {
-    char pad[0x28];
+    T* Get()
+    {
+        return static_cast<T*>(WeakPtr.Get());
+    }
+    
+    FWeakObjectPtr WeakPtr;
+    
+    char pad[0x20];
 };
 
 struct FActorSpawnParameters

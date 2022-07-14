@@ -5,6 +5,24 @@ class AFortWeapon;
 class AFortPickup;
 class UFortDecoItemDefinition;
 
+class UCustomCharacterPart : public UObject
+{
+public:
+    DEFINE_PROPERTY(uint8_t, CharacterPartType);
+};
+
+class UFortHeroSpecialization : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<TSoftObjectPtr<UCustomCharacterPart>>, CharacterParts);
+};
+
+class UFortHeroType : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<TSoftObjectPtr<UFortHeroSpecialization>>, Specializations);
+};
+
 struct FReplicatedPhysicsPawnState
 {
     struct FVector Translation;                                  
@@ -78,6 +96,11 @@ public:
     void ServerHandlePickup(AFortPickup* Pickup, float InFlyTime, FVector InStartDirection, bool bPlayPickupSound)
     {
         Call(L"ServerHandlePickup", Pickup, InFlyTime, InStartDirection, bPlayPickupSound);
+    }
+
+    void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)
+    {
+        Call(L"ServerChoosePart", Part, ChosenCharacterPart);
     }
 };
 

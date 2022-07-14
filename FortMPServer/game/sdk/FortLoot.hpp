@@ -19,7 +19,7 @@ struct FFortLootPackageData
     DEFINE_STRUCT_PROPERTY(int, Count);
     DEFINE_STRUCT_PROPERTY(float, Weight);
 
-    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr, ItemDefinition);
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<UFortItemDefinition>, ItemDefinition);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortLootPackageData");
 };

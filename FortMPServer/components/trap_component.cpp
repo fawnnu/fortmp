@@ -20,7 +20,7 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFr
     GET_PARAMETER(FRotator, Rotation);
     GET_PARAMETER(ABuildingSMActor*, AttachedActor);
 
-    UObject* actor_class = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject<UObject>(FortDecoTool->ItemDefinition()->BlueprintClass());
+    UObject* actor_class = FortDecoTool->ItemDefinition()->BlueprintClass().Get();
 
     if (actor_class == nullptr)
     {

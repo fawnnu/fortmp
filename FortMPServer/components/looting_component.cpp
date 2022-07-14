@@ -187,7 +187,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
     for (FName loot_package_name : loot_package_calls)
     {
         // Get the item definition to spawn for loot
-        UFortItemDefinition* item_definition = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject<UFortItemDefinition>(loot_tier_packages_map[loot_package_name].Value->ItemDefinition());
+        UFortItemDefinition* item_definition = loot_tier_packages_map[loot_package_name].Value->ItemDefinition().Get();
 
         if (item_definition == nullptr)
         {
@@ -215,7 +215,7 @@ UObject* looting_component::get_loot_tier_data()
         UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
-        if (UObject* playlist_loot_tier_data = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject(current_playlist->LootTierData()))
+        if (UObject* playlist_loot_tier_data = current_playlist->LootTierData().Get())
         {
             // Override loot tier data from playlist
             loot_tier_data = playlist_loot_tier_data;
@@ -237,7 +237,7 @@ UObject* looting_component::get_loot_tier_packages()
         UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
-        if (UObject* playlist_loot_tier_packages = UKismetSystemLibrary::Conv_SoftObjectReferenceToObject(current_playlist->LootPackages()))
+        if (UObject* playlist_loot_tier_packages = current_playlist->LootPackages().Get())
         {
             // Override loot tier packages from playlist
             loot_tier_packages = playlist_loot_tier_packages;

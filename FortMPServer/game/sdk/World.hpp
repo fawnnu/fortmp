@@ -26,6 +26,5 @@ public:
 class ULevelStreaming : public UObject
 {
 public:
-    DEFINE_PROPERTY(TSoftObjectPtr, WorldAsset);
     DEFINE_PROPERTY(FName, PackageNameToLoad);
 };

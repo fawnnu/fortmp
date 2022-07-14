@@ -22,7 +22,7 @@ TMap<FName, Struct*> storm_component::get_game_data_table()
         (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
     // Get game data table
-    static TMap<FName, Struct*> game_data_table = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(UKismetSystemLibrary::Conv_SoftObjectReferenceToObject(current_playlist->GameData())) + 0x30);
+    static TMap<FName, Struct*> game_data_table = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(current_playlist->GameData().Get()) + 0x30);
     
     return game_data_table;
 }

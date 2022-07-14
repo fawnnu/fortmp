@@ -3,8 +3,8 @@
 class UFortDecoItemDefinition : public UFortWorldItemDefinition
 {
 public:
-    DEFINE_PROPERTY(TSoftObjectPtr, BlueprintClass);
-    DEFINE_PROPERTY(TSoftObjectPtr, PlacementPreviewClass);
+    DEFINE_PROPERTY(TSoftObjectPtr<UObject>, BlueprintClass);
+    DEFINE_PROPERTY(TSoftObjectPtr<UObject>, PlacementPreviewClass);
 };
 
 class AFortDecoTool : public AFortWeapon
