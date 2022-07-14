@@ -18,11 +18,13 @@ void unreal_manager::setup_unreal_engine()
     INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
     INIT_POINTER(GWorld, memory_manager::find_pattern("48 8B 1D ? ? ? ? 48 85 DB 74 3B 41",true, 3));
     INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
+    INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"Failed to determine if OSS is server in PIE, OSS re", { 0x48, 0x8b, 0x1d }, 3));
 
     INIT_POINTER(ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 B0 ? ? ?"));
 
     INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
     INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", { 0xE8 }, 1, false));
+    INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_pattern("E8 ? ? ? ? 8B 45 48 85 C0 7E 3F 4C 8D 55 38 45 33 C9 ", true, 1));
     
     INIT_POINTER(GenericArray_Remove, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) ?
         memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) :
@@ -32,7 +34,7 @@ void unreal_manager::setup_unreal_engine()
     
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
 
-    INIT_POINTER(Step, memory_manager::find_pattern("E8 ? ? ? ? EB 1C 4C 8B 82 ? ? ? ? 49 8B 40 28 48 89 82 ? ? ? ? 48 8D 54 24 ?", true, 1));
+    INIT_POINTER(Step, memory_manager::find_pattern("E8 ? ? ? ? EB ? 4C 8B 82 ? ? ? ? 49 8B 40", true, 1));
 
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||

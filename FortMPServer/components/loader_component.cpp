@@ -11,6 +11,7 @@ loader_component::loader_component()
     DetourUpdateThread(GetCurrentThread());
     
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     
     DetourTransactionCommit();
 }
@@ -49,10 +50,13 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         else
         {
-            spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
-                in_playlist->GetName().c_str());
-        
-            return;
+            if (in_playlist)
+            {
+                spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
+                    in_playlist->GetName().c_str());
+                
+                return;
+            }
         }
 
         static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");

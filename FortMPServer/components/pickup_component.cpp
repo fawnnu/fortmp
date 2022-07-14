@@ -48,7 +48,10 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
 
-    if (fort_pickup->HasProperty("bServerStoppedSimulation"))
+    // make variables static for performance
+    static bool b_has_bserverstoppedsimulation = fort_pickup->HasProperty("bServerStoppedSimulation");
+    
+    if (b_has_bserverstoppedsimulation)
     {
         if (fort_pickup->bServerStoppedSimulation())
         {
@@ -56,10 +59,14 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
             fort_pickup->bServerStoppedSimulation() = false;
         }
     }
-    
-    // TODO: Add bServerStoppedSimulation, it might need a is_bad_read_ptr as the property does not exist on some builds
-    fort_pickup->bRandomRotation() = true;
 
+    static bool b_has_brandomrotation = fort_pickup->HasProperty(L"bRandomRotation");
+    
+    if (b_has_brandomrotation)
+    {
+        fort_pickup->bRandomRotation() = true;
+    }
+    
     // Toss pickup, prevents pickups from all spawning in the same location
     fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
 
