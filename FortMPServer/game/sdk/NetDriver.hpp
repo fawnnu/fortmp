@@ -8,4 +8,6 @@ public:
     DEFINE_PROPERTY(TArray<UNetConnection*>, ClientConnections);
 
     DEFINE_PROPERTY(float, Time);
+
+    DEFINE_PROPERTY(FName, NetDriverName);
 };

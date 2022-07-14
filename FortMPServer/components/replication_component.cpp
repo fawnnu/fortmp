@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "replication_component.hpp"
 
+#include <math.h>
+
 replication_component::replication_component()
 {
     INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
@@ -84,10 +86,105 @@ int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* Net
 
 void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime)
 {
-    int NumInitiallyDormant = 0;
-
     // List of actors to remove after building consider list
     std::vector<AActor*> ActorsToRemove;
+
+    for (int i = 0; i < 1; i++) // TODO: GetNetworkObjectList().GetActiveObjects()
+    {
+        FNetworkObjectInfo* ActorInfo = nullptr;
+        
+        if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
+        {
+            // Not time for the actor to update yet
+            continue;
+        }
+
+        AActor* Actor = ActorInfo->Actor;
+
+        // TODO: Actor->IsPendingKillPending()
+        // TODO: Actor->IsActorInitialized()
+        // TODO: Level->HasVisibilityChangeRequestPending()
+        
+        if (Actor->RemoteRole() == ENetRole::ROLE_None)
+        {
+            // Remove actors with no remote role
+            ActorsToRemove.push_back(Actor);
+
+            continue;
+        }
+
+        if (Actor->NetDriverName() != NetDriver->NetDriverName())
+        {
+            // Remove actor that belongs to a different net driver
+            ActorsToRemove.push_back(Actor);
+
+            continue;
+        }
+
+        if (Actor->NetDormancy() == ENetDormancy::DORM_Initial) // TODO: bNetStartup
+        {
+            // Remove actor if initially dormant
+            ActorsToRemove.push_back(Actor);
+
+            continue;
+        }
+
+        if (ActorInfo->LastNetReplicateTime == 0)
+        {
+            // Set defaults if this actor is replicating for the first time
+            ActorInfo->LastNetReplicateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds();
+            ActorInfo->OptimalNetUpdateDelta = 1.0f / Actor->NetUpdateFrequency();
+        }
+
+        const float ScaleDownStartTime = 2.0f;
+        const float ScaleDownTimeRange = 5.0f;
+
+        const float LastReplicateDelta = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() - ActorInfo->LastNetReplicateTime;
+
+        if (LastReplicateDelta > ScaleDownStartTime)
+        {
+            if (Actor->MinNetUpdateFrequency() == 0.0f)
+            {
+                Actor->MinNetUpdateFrequency() = 2.0f;
+            }
+
+            // Calculate min delta and max delta
+            const float MinOptimalDelta = 1.0f / Actor->NetUpdateFrequency();
+            const float MaxOptimalDelta = std::max(1.0f / Actor->MinNetUpdateFrequency(), MinOptimalDelta);
+
+            // Interpolate between MinOptimalDelta and MaxOptimalDelta
+            const float Alpha = std::clamp((LastReplicateDelta - ScaleDownStartTime) / ScaleDownTimeRange, 0.0f, 1.0f);
+
+            // Update optimal net delta
+            ActorInfo->OptimalNetUpdateDelta = MinOptimalDelta + Alpha * (MaxOptimalDelta - MinOptimalDelta);
+        }
+
+        if (!ActorInfo->bPendingNetUpdate)
+        {
+            const float NextUpdateDelta = ActorInfo->OptimalNetUpdateDelta;
+
+            // Set next update time
+            ActorInfo->NextUpdateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() + rand() * ServerTickTime + NextUpdateDelta;
+
+            // Mark when the actor first requested an update
+            ActorInfo->LastNetUpdateTime = NetDriver->Time();
+        }
+
+        // Clear pending update flag
+        ActorInfo->bPendingNetUpdate = false;
+
+        // Add to consider list
+        OutConsiderList.push_back(ActorInfo);
+
+        // TODO: Actor->CallPreReplication(NetDriver);
+    }
+
+    for (AActor* Actor : ActorsToRemove)
+    {
+        // TODO: Remove from NetworkObjectList
+    }
+
+    ActorsToRemove.clear();
 }
 
 int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float DeltaSeconds)
@@ -122,7 +219,10 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
     // Legacy builds should only run at 20 ticks per second
     float ServerTickTime = 1.f / 20.0f;
 
-    // TODO: ServerReplicateActors_BuildConsiderList
+    std::vector<FNetworkObjectInfo*> ConsiderList;
+    
+    // Build the actor consider list
+    ServerReplicateActors_BuildConsiderList(NetDriver, ConsiderList, ServerTickTime);
 
     for (int i = 0; i < NetDriver->ClientConnections().Num(); i++)
     {
@@ -136,13 +236,26 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
         if (i >= NumClientsToTick)
         {
-            // TODO: Add
+            for (int ConsiderIdx = 0; ConsiderIdx < ConsiderList.size(); ConsiderIdx++)
+            {
+                AActor* Actor = ConsiderList[ConsiderIdx]->Actor;
+
+                if (Actor != nullptr && !ConsiderList[ConsiderIdx]->bPendingNetUpdate)
+                {
+                    
+                }
+            }
+
+            // TODO: Connection->TimeSensitive
         }
         else if (Connection->ViewTarget())
         {
             // TODO: Add
         }
     }
+
+    // Clear consider list
+    ConsiderList.clear();
     
     return Updated;
 }

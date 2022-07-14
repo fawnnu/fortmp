@@ -1,9 +1,37 @@
 ﻿#pragma once
 
+enum class ENetRole : uint8_t
+{
+    ROLE_None                      = 0,
+    ROLE_SimulatedProxy            = 1,
+    ROLE_AutonomousProxy           = 2,
+    ROLE_Authority                 = 3,
+    ROLE_MAX                       = 4
+};
+
+enum class ENetDormancy : uint8_t
+{
+    DORM_Never                     = 0,
+    DORM_Awake                     = 1,
+    DORM_DormantAll                = 2,
+    DORM_DormantPartial            = 3,
+    DORM_Initial                   = 4,
+    DORM_MAX                       = 5
+};
+
 class AActor : public UObject
 {
 public:
     DEFINE_PROPERTY(class USceneComponent*, RootComponent);
+
+    DEFINE_PROPERTY(ENetRole, RemoteRole);
+    DEFINE_PROPERTY(ENetRole, Role);
+    DEFINE_PROPERTY(ENetDormancy, NetDormancy);
+
+    DEFINE_PROPERTY(FName, NetDriverName);
+
+    DEFINE_PROPERTY(float, NetUpdateFrequency);
+    DEFINE_PROPERTY(float, MinNetUpdateFrequency);
     
     FTransform GetTransform()
     {
