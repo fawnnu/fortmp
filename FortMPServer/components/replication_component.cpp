@@ -6,10 +6,36 @@
 replication_component::replication_component()
 {
     INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
+    INIT_POINTER(SendClientAdjustment, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 99 ? ? ? ? 48 39 99 ? ? ? ? 74 0A 48 83 B9 ? ? ? ? ?"));
+    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("E8 ? ? ? ? 49 8B CD E8 ? ? ? ? 41 83 7D ? ? 0F 84 ? ? ? ?", true, 1));
+    INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
+    INIT_POINTER(CreateChannel, memory_manager::find_function_by_string(L"AsyncLoadWorldOverride=", {0xe8}, 1));
+    INIT_POINTER(ReplicateActor, memory_manager::find_pattern("E8 ? ? ? ? 41 83 7D ? ? 0F 84 ? ? ? ? 45 33 C0", true, 1));
 
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
     NetworkOffsets::NetworkObjects = 0x490;
+}
+
+UChannel* replication_component::FindChannelByActor(UNetConnection* Connection, AActor* InActor)
+{
+    static UObject* ActorChannelClass = FindObject(L"/Script/Engine.ActorChannel");
+    
+    for (UChannel* OpenChannel : Connection->OpenChannels()) // check all open actor channels
+    { 
+        if (OpenChannel != nullptr) // make sure it's valid
+        {
+            if (UKismetMathLibrary::ClassIsChildOf(OpenChannel->Class, ActorChannelClass)) // make sure it's an UActorChannel
+            {
+                if (static_cast<UActorChannel*>(OpenChannel)->Actor() == InActor)
+                {
+                    return OpenChannel;
+                }
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds)
@@ -183,7 +209,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
         // Add to consider list
         OutConsiderList.push_back(ActorInfo);
 
-        // TODO: Actor->CallPreReplication(NetDriver);
+        CallPreReplication(ActorInfo->Actor, NetDriver);
     }
 
     for (AActor* Actor : ActorsToRemove)
@@ -242,15 +268,14 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         }
 
         if (i >= NumClientsToTick)
-        {
-            
+        {   
             for (int ConsiderIdx = 0; ConsiderIdx < ConsiderList.size(); ConsiderIdx++)
             {
                 AActor* Actor = ConsiderList[ConsiderIdx]->Actor;
 
                 if (Actor != nullptr && !ConsiderList[ConsiderIdx]->bPendingNetUpdate)
                 {
-                    
+                    // TODO: finish
                 }
             }
 
@@ -258,10 +283,70 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         }
         else if (Connection->ViewTarget())
         {
-            // TODO: Add
+            if (Connection->PlayerController())
+            {
+                SendClientAdjustment(Connection->PlayerController());
+            }
+
+            for ( int32_t ChildIdx = 0; ChildIdx < Connection->Children().Num(); ChildIdx++ )
+            {
+                if ( Connection->Children()[ChildIdx]->PlayerController() != NULL )
+                {
+                    SendClientAdjustment(Connection->Children()[ChildIdx]->PlayerController());
+                }
+            }
+
+            // TODO: ServerReplicateActors_PrioritizeActors
+            // TODO: ServerReplicateActors_ProcessPrioritizedActors
+            // TODO: relevant actors that could not be processed this frame are marked to be considered for next frame
         }
     }
 
+    // TODO: Remove (TESTING ONLY)
+    /*
+    static UObject* Athena_PlayerController_Class = FindObject(L"/Game/Athena/Athena_PlayerController.Athena_PlayerController_C", true);
+    
+    for (FNetworkObjectInfo* ActorInfo : ConsiderList)
+    {
+        for (UNetConnection* Connection : NetDriver->ClientConnections())
+        {
+            if (Connection)
+            {
+                if (Connection->PlayerController())
+                {
+                    if (UKismetMathLibrary::ClassIsChildOf(ActorInfo->Actor->Class, Athena_PlayerController_Class))
+                    {
+                        if (Connection->PlayerController() != ActorInfo->Actor)
+                        {
+                            // Do not replicate any controller that the connection does not own
+                            continue;
+                        }
+                    }
+
+                    auto Channel = FindChannelByActor(Connection, ActorInfo->Actor);
+
+                    if (!Channel)
+                    {
+                        Channel = CreateChannel(Connection, 2, true, -1);
+
+                        if (Channel)
+                        {
+                            SetChannelActor(Channel, ActorInfo->Actor);
+                        }
+                    }
+
+                    if (Channel)
+                    {
+                        if (ReplicateActor(Channel))
+                        {
+							
+                        }
+                    }
+                }
+            }
+        }
+    }*/
+    
     // Clear consider list
     ConsiderList.clear();
     

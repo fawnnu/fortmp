@@ -68,3 +68,16 @@ public:
         return Call<float>(L"GetDistanceTo", OtherActor);
     }
 };
+
+class UChannel : public UObject
+{
+public:
+};
+
+class UActorChannel : public UChannel
+{
+public:
+    DEFINE_PROPERTY(AActor*, Actor);
+};
+
+

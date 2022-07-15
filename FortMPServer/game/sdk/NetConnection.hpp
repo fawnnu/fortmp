@@ -24,6 +24,8 @@ public:
     DEFINE_PROPERTY(uint8_t, InternalAck);
 
     DEFINE_PROPERTY(double, LastReceiveTime);
+
+    DEFINE_PROPERTY(TArray<UChannel*>, OpenChannels);
 };
 
 class UChildConnection : public UNetConnection

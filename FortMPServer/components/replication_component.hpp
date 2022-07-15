@@ -7,6 +7,8 @@ class replication_component
 public:
     replication_component();
 
+    static UChannel* FindChannelByActor(UNetConnection* Connection, AActor* InActor);
+
     static int ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds);
     static void ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime);
     
@@ -95,3 +97,18 @@ struct FActorPriority
 
 // Replicates actors using the ReplicationGraph
 inline int (*ReplicationGraph_ServerReplicateActors)(UObject* ReplicationDriver, float DeltaSeconds);
+
+// Called on server at end of tick, to let client Pawns handle updates from the server.
+inline void (*SendClientAdjustment)(APlayerController*);
+
+// Called by the networking system to call PreReplication on this actor and its components using the given NetDriver to find or create RepChangedPropertyTrackers.
+inline void (*CallPreReplication)(AActor*, UNetDriver*);
+
+// Creates an actor channel
+inline UChannel* (*CreateChannel)(UNetConnection*, int, bool, int);
+
+// Sets the actor channel
+inline void (*SetChannelActor)(UChannel*, AActor*);
+
+// Called to replicate an actor
+inline bool (*ReplicateActor)(UChannel*);
