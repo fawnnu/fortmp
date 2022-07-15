@@ -42,6 +42,15 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         
         // Apply Athena ability set
         ability_component::apply_ability_set(player_pawn, ability_set);
+
+        static UFortHeroType* hero_definition = FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_556_Athena_Commando_F_RebirthDefaultA.HID_556_Athena_Commando_F_RebirthDefaultA", true) ? 
+            FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_556_Athena_Commando_F_RebirthDefaultA.HID_556_Athena_Commando_F_RebirthDefaultA", true) :
+            FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true);
+
+        for (TSoftObjectPtr<UCustomCharacterPart>& character_part : hero_definition->Specializations()[0]->CharacterParts())
+        {
+            player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
+        }
         
         return player_pawn;
     }

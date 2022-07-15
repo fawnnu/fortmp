@@ -240,12 +240,31 @@ struct TSoftObjectPtr
 {
     T* Get()
     {
-        return static_cast<T*>(WeakPtr.Get());
+        T* Object = static_cast<T*>(WeakPtr.Get());
+
+        if (!Object)
+        {
+            Object = FindObject<T>(ObjectID.AssetPathName.ToString().c_str(), true);
+        }
+
+        return Object;
+    }
+
+    FORCEINLINE T* operator->()
+    {
+        return Get();
     }
     
-    FWeakObjectPtr WeakPtr;
+    FORCEINLINE T* operator->() const
+    {
+        return Get();
+    }
     
-    char pad[0x20];
+    mutable FWeakObjectPtr WeakPtr;
+    
+    mutable int TagAtLastTest;
+
+    FSoftObjectPath ObjectID;
 };
 
 struct FActorSpawnParameters
