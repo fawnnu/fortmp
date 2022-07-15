@@ -54,7 +54,7 @@ namespace CoreOffsets
 namespace NetworkOffsets
 {
     inline DWORD ReplicationFrame;
-    inline DWORD NetworkObjectList;
+    inline DWORD NetworkObjects;
 }
 
 class UObject
@@ -265,6 +265,29 @@ struct TSoftObjectPtr
     mutable int TagAtLastTest;
 
     FSoftObjectPath ObjectID;
+};
+
+template<class T>
+struct TWeakObjectPtr : FWeakObjectPtr
+{
+    T* Get()
+    {
+        return static_cast<T*>(FWeakObjectPtr::Get());
+    }
+};
+
+template <typename T>
+struct TSharedPtr
+{
+    T* Object;
+
+    int32_t SharedReferenceCount;
+    int32_t WeakReferenceCount;
+
+    T* Get()
+    { 
+        return Object;
+    }
 };
 
 struct FActorSpawnParameters

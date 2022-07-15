@@ -6,6 +6,10 @@
 replication_component::replication_component()
 {
     INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
+
+    // TODO: Change per version
+    NetworkOffsets::ReplicationFrame = 0x2C8;
+    NetworkOffsets::NetworkObjects = 0x490;
 }
 
 int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds)
@@ -89,9 +93,12 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     // List of actors to remove after building consider list
     std::vector<AActor*> ActorsToRemove;
 
-    for (int i = 0; i < 1; i++) // TODO: GetNetworkObjectList().GetActiveObjects()
+    // List of all network objects
+    TSharedPtr<FNetworkObjectList>& NetworkObjects = *reinterpret_cast<TSharedPtr<FNetworkObjectList>*>(__int64(NetDriver) + NetworkOffsets::NetworkObjects);
+
+    for (TSetElement<TSharedPtr<FNetworkObjectInfo>>& NetworkObjectInfoPtr : NetworkObjects.Object->ActiveNetworkObjects)
     {
-        FNetworkObjectInfo* ActorInfo = nullptr;
+        FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Element.Get();
         
         if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
         {
@@ -183,7 +190,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     {
         // TODO: Remove from NetworkObjectList
     }
-
+    
     ActorsToRemove.clear();
 }
 
@@ -194,11 +201,11 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         return 0;
     }
 
-    if (NetDriver->ReplicationDriver())
+    if (NetDriver->HasProperty(L"ReplicationDriver") && NetDriver->ReplicationDriver())
     {
         // Handle replication with ReplicationGraph if it exists
         return ReplicationGraph_ServerReplicateActors(NetDriver->ReplicationDriver(), DeltaSeconds);
-    }
+    } 
 
     uint32_t& ReplicationFrame = *reinterpret_cast<uint32_t*>(__int64(NetDriver) + NetworkOffsets::ReplicationFrame);
     
@@ -223,7 +230,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
     
     // Build the actor consider list
     ServerReplicateActors_BuildConsiderList(NetDriver, ConsiderList, ServerTickTime);
-
+    
     for (int i = 0; i < NetDriver->ClientConnections().Num(); i++)
     {
         UNetConnection* Connection = NetDriver->ClientConnections()[i];
@@ -236,6 +243,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
         if (i >= NumClientsToTick)
         {
+            
             for (int ConsiderIdx = 0; ConsiderIdx < ConsiderList.size(); ConsiderIdx++)
             {
                 AActor* Actor = ConsiderList[ConsiderIdx]->Actor;

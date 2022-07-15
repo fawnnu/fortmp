@@ -267,15 +267,3 @@ private:
     PVOID Array;
     size_t ElementSize;
 };
-
-template<class T>
-struct TWeakObjectPtr
-{
-    T* Get() const
-    {
-        // TODO: Get from GObjects
-    }
-
-    int32_t ObjectIndex;
-    int32_t ObjectSerialNumber;
-};

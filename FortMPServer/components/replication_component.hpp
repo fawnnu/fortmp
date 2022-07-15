@@ -46,6 +46,15 @@ struct FNetworkObjectInfo
     TSet<TWeakObjectPtr<UNetConnection>> RecentlyDormantConnections;
 };
 
+struct FNetworkObjectList
+{
+    TSet<TSharedPtr<FNetworkObjectInfo>> AllNetworkObjects;
+    TSet<TSharedPtr<FNetworkObjectInfo>> ActiveNetworkObjects;
+    TSet<TSharedPtr<FNetworkObjectInfo>> ObjectsDormantOnAllConnections;
+
+    TMap<TWeakObjectPtr<UObject>, int32_t> NumDormantObjectsPerConnection;
+};
+
 struct FActorDestructionInfo
 {
     TWeakObjectPtr<UObject> Level;

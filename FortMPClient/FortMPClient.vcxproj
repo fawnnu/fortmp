@@ -23,7 +23,6 @@
     <ProjectGuid>{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FortMPClient</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
