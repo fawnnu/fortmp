@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+struct UNetConnection;
+
 enum class ENetRole : uint8_t
 {
     ROLE_None                      = 0,
@@ -33,9 +35,9 @@ public:
     DEFINE_PROPERTY(float, NetUpdateFrequency);
     DEFINE_PROPERTY(float, MinNetUpdateFrequency);
 
-    DEFINE_BIT_PROPERTY(bool, bTearOff);
-
     DEFINE_BIT_PROPERTY(bool, bNetStartup);
+    DEFINE_BIT_PROPERTY(bool, bOnlyRelevantToOwner);
+    DEFINE_BIT_PROPERTY(bool, bTearOff);
     
     FTransform GetTransform()
     {
@@ -81,7 +83,7 @@ public:
 class UChannel : public UObject
 {
 public:
-    DEFINE_PROPERTY(class UNetConnection*, Connection);
+    DEFINE_PROPERTY(UNetConnection*, Connection);
 };
 
 class UActorChannel : public UChannel

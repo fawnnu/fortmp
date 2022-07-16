@@ -27,6 +27,12 @@ public:
     DEFINE_PROPERTY(TArray<FNetViewer>, ReplicationViewers);
 };
 
+class ULevel : public UObject
+{
+public:
+    DEFINE_PROPERTY(AWorldSettings*, WorldSettings);
+};
+
 class UWorld : public UObject
 {
 public:
@@ -36,6 +42,8 @@ public:
     DEFINE_PROPERTY(UNetDriver*, NetDriver);
 
     DEFINE_PROPERTY(TArray<FLevelCollection>, LevelCollections);
+
+    DEFINE_PROPERTY(ULevel*, PersistentLevel);
 
     AWorldSettings* K2_GetWorldSettings()
     {

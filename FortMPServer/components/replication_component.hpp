@@ -10,6 +10,8 @@ public:
 
     static UChannel* FindChannelByActor(UNetConnection* Connection, AActor* InActor);
 
+    static bool IsActorRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers);
+    
     static int ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds);
     static void ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime);
     static int ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors);
@@ -124,6 +126,12 @@ inline bool (*IsPendingKillPending)(AActor*);
 
 // Close a UChannel
 inline void (*Close)(UChannel*);
+
+// Set destruction info for actor channel
+inline int64_t (*SetChannelActorForDestroy)(UActorChannel* Channel, FActorDestructionInfo* DestructInfo);
+
+// Is the actor relevant to the view target?
+inline bool (*IsNetRelevantFor)(AActor* Actor, AActor* RealViewer, AActor* ViewTarget, FVector& SrcLocation);
 
 // IsNetReady
 inline int (*IsNetReady)(UNetConnection*, bool);
