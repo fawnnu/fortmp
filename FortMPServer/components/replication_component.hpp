@@ -124,3 +124,6 @@ inline bool (*IsPendingKillPending)(AActor*);
 
 // Close a UChannel
 inline void (*Close)(UChannel*);
+
+// IsNetReady
+inline int (*IsNetReady)(UNetConnection*, bool);

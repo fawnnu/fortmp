@@ -14,6 +14,7 @@ replication_component::replication_component()
     INIT_POINTER(IsLevelInitializedForActor, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpNetDriver")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?") + 14) / 8]);
     INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 0F 85 ? ? ? ? 49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ?", true, 1));
     INIT_POINTER(Close, memory_manager::find_pattern("48 8B C4 53 48 83 EC 70 48 83 79 ? ? 48 8B D9 0F 84 ? ? ? ? 83 B9 ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 89 68 18 48 8D 48 10"));
+    INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8])
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
@@ -164,7 +165,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
             continue;
         }
 
-        if (Actor->NetDormancy() == ENetDormancy::DORM_Initial) // TODO: bNetStartup
+        if (Actor->NetDormancy() == ENetDormancy::DORM_Initial && Actor->bNetStartup())
         {
             // Remove actor if initially dormant
             ActorsToRemove.push_back(Actor);
@@ -306,7 +307,10 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
     int ActorUpdatesThisConnectionSent = 0;
     int FinalRelevantCount = 0;
 
-    // TODO: IsNetReady
+    if ( !IsNetReady(Connection, 0) )
+    {
+        return 0;
+    }
 
     for (int j = 0; j < FinalSortedCount; j++)
     {
@@ -341,9 +345,10 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
 
             if (bLevelInitializedForActor)
             {
-                if (true && (Channel != nullptr || NetDriver->Time() - Channel->RelevantTime() > 1.f)) // TODO: bTearOff
-                {
-                    // TODO: IsActorRelevantToConnection   
+                if (!Actor->bTearOff() && (Channel != nullptr || NetDriver->Time() - Channel->RelevantTime() > 1.f))
+                {   
+                    // TODO: IsActorRelevantToConnection
+                    bIsRelevant = true;
                 }
             }
 
@@ -382,7 +387,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                         Channel->RelevantTime() = NetDriver->Time() + 0.5f * rand();
                     }
 
-                    if (true) // TODO: IsNetReady
+                    if (IsNetReady(Channel->Connection(), 0)) 
                     {
                         if (ReplicateActor(Channel))
                         {
@@ -407,7 +412,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                         Actor->ForceNetUpdate();
                     }
 
-                    if (true) // TODO: IsNetReady
+                    if (!IsNetReady(Connection ,0))
                     {
                         // Stop now as connection is already saturated
                         return j;
@@ -415,11 +420,11 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                 }
             }
 
-            if ( (!bIsRecentlyRelevant || true) && Channel != nullptr) // TODO: bTearOff
+            if ( (!bIsRecentlyRelevant || Actor->bNetStartup()) && Channel != nullptr)
             {
-                if (!bLevelInitializedForActor || true) // TODO: IsNetStartupActor
+                if (!bLevelInitializedForActor || !Actor->bNetStartup()) 
                 {
-                    // TODO: CloseChannel
+                    Close(Channel);
                 }
             }
         }

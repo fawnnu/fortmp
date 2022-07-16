@@ -32,6 +32,10 @@ public:
 
     DEFINE_PROPERTY(float, NetUpdateFrequency);
     DEFINE_PROPERTY(float, MinNetUpdateFrequency);
+
+    DEFINE_BIT_PROPERTY(bool, bTearOff);
+
+    DEFINE_BIT_PROPERTY(bool, bNetStartup);
     
     FTransform GetTransform()
     {
@@ -77,6 +81,7 @@ public:
 class UChannel : public UObject
 {
 public:
+    DEFINE_PROPERTY(class UNetConnection*, Connection);
 };
 
 class UActorChannel : public UChannel
