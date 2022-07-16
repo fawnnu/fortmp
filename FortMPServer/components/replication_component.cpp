@@ -11,7 +11,10 @@ replication_component::replication_component()
     INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
     INIT_POINTER(CreateChannel, memory_manager::find_function_by_string(L"AsyncLoadWorldOverride=", {0xe8}, 1));
     INIT_POINTER(ReplicateActor, memory_manager::find_pattern("E8 ? ? ? ? 41 83 7D ? ? 0F 84 ? ? ? ? 45 33 C0", true, 1));
-
+    INIT_POINTER(IsLevelInitializedForActor, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpNetDriver")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?") + 14) / 8]);
+    INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 0F 85 ? ? ? ? 49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ?", true, 1));
+    INIT_POINTER(Close, memory_manager::find_pattern("48 8B C4 53 48 83 EC 70 48 83 79 ? ? 48 8B D9 0F 84 ? ? ? ? 83 B9 ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 89 68 18 48 8D 48 10"));
+    
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
     NetworkOffsets::NetworkObjects = 0x490;
@@ -25,7 +28,7 @@ UChannel* replication_component::FindChannelByActor(UNetConnection* Connection, 
     { 
         if (OpenChannel != nullptr) // make sure it's valid
         {
-            if (UKismetMathLibrary::ClassIsChildOf(OpenChannel->Class, ActorChannelClass)) // make sure it's an UActorChannel
+            if (OpenChannel->Class == ActorChannelClass) // make sure it's an UActorChannel
             {
                 if (static_cast<UActorChannel*>(OpenChannel)->Actor() == InActor)
                 {
@@ -134,9 +137,16 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
         AActor* Actor = ActorInfo->Actor;
 
-        // TODO: Actor->IsPendingKillPending()
         // TODO: Actor->IsActorInitialized()
         // TODO: Level->HasVisibilityChangeRequestPending()
+
+        if (IsPendingKillPending(Actor))
+        {
+            // Remove actors if pending kill pending
+            ActorsToRemove.push_back(Actor);
+
+            continue;
+        }
         
         if (Actor->RemoteRole() == ENetRole::ROLE_None)
         {
@@ -223,7 +233,6 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors)
 {
     // TODO: NetTag++
-    // TODO: TickCount++
 
     int FinalSortedCount = 0;
     int DeletedCount = 0;
@@ -242,7 +251,10 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
 
             if (Channel == nullptr)
             {
-                // TODO: IsLevelInitializedForActor
+                if (!IsLevelInitializedForActor(NetDriver, Actor, Connection))
+                {
+                    continue;
+                }
                 // TODO: IsActorRelevantToConnection
             }
 
@@ -259,7 +271,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 {
                     if (!bHasNullViewTarget && Channel != nullptr && NetDriver->Time() - Channel->RelevantTime() >= NetDriver->RelevantTimeout())
                     {
-                        // TODO: CloseChannel
+                        Close(Channel);
                     }
 
                     // This connection doesn't own this actor
@@ -324,7 +336,8 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
             AActor* Actor = ActorInfo->Actor;
 
             bool bIsRelevant = false;
-            bool bLevelInitializedForActor = false; // TODO: IsLevelInitializedForActor
+            
+            const bool bLevelInitializedForActor = IsLevelInitializedForActor(NetDriver, Actor, Connection);
 
             if (bLevelInitializedForActor)
             {

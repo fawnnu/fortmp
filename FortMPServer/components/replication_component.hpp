@@ -115,3 +115,12 @@ inline void (*SetChannelActor)(UChannel*, AActor*);
 
 // Called to replicate an actor
 inline bool (*ReplicateActor)(UChannel*);
+
+// IsLevelInitializedForActor
+inline bool (*IsLevelInitializedForActor)(UNetDriver*, AActor*, UNetConnection*);
+
+// IsPendingKillPending
+inline bool (*IsPendingKillPending)(AActor*);
+
+// Close a UChannel
+inline void (*Close)(UChannel*);
