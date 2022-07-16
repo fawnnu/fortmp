@@ -527,10 +527,20 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
     static auto net_viewer_property = FindPropertyByName(WorldSettings->Class, L"ReplicationViewers");
 
     bool bCPUSaturated = false;
-    
-    // Legacy builds should only run at 20 ticks per second
-    static float ServerTickTime = 1.f / 20.0f;
-    
+
+    // Default Fortnite tick rate for legacy replication
+    float ServerTickTime = 20.0f;
+
+    if (ServerTickTime == 0.f)
+    {
+        ServerTickTime = DeltaSeconds;
+    }
+    else
+    {
+        ServerTickTime = 1.f / ServerTickTime;
+        bCPUSaturated = DeltaSeconds > 1.2f * ServerTickTime;
+    }
+
     std::vector<FNetworkObjectInfo*> ConsiderList;
 
     // Build the actor consider list
@@ -575,14 +585,16 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
             {
                 GenericArray_Remove(&ConnectionViewers, net_viewer_property, j);
             }
-            
+
+            // Add connection to viewers
             ConnectionViewers.Add(*FNetViewer__FNetViewer(new FNetViewer(), Connection, DeltaSeconds));
 
             for (int ViewerIndex = 0; ViewerIndex < Connection->Children().Num(); ViewerIndex++)
             {
                 if (Connection->Children()[ViewerIndex]->ViewTarget() != nullptr)
                 {
-                    // TODO: new FNetViewer()
+                    // Add child connection to viewers
+                    ConnectionViewers.Add(*FNetViewer__FNetViewer(new FNetViewer(), Connection->Children()[ViewerIndex], DeltaSeconds));
                 }
             }
             
@@ -594,7 +606,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
             for ( int32_t ChildIdx = 0; ChildIdx < Connection->Children().Num(); ChildIdx++)
             {
-                if ( Connection->Children()[ChildIdx]->PlayerController() != NULL )
+                if (Connection->Children()[ChildIdx]->PlayerController() != nullptr)
                 {
                     // Send ClientAdjustment if necessary to any child player controllers
                     SendClientAdjustment(Connection->Children()[ChildIdx]->PlayerController());
@@ -627,10 +639,17 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
                     // Flag for net update
                     PriorityActors[k]->ActorInfo->bPendingNetUpdate = true;
                 }
+                else if (IsActorRelevantToConnection(Actor, ConnectionViewers))
+                {
+                    // Force another update for next frame
+                    PriorityActors[k]->ActorInfo->bPendingNetUpdate = true;
 
-                // TODO: IsActorRelevantToConnection
-
-                
+                    if (Channel != nullptr)
+                    {
+                        // Update relevant time
+                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * rand();
+                    }
+                }
             }
             
             for (int j = 0; j < ConnectionViewers.Num(); j++)

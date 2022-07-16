@@ -70,6 +70,7 @@ public:
     DEFINE_PROPERTY(TArray<UObject*>, AllPlayerBuildableClasses);
 
     DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
+    DEFINE_PROPERTY(AActor*, Aircraft);
 
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
 
