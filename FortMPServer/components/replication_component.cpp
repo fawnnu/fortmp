@@ -17,6 +17,7 @@ replication_component::replication_component()
     INIT_POINTER(SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s> Path: %s. Bits: %d"));
     INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
     INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
+    INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
@@ -148,7 +149,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
         if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
         {
             // Not time for the actor to update yet
-            continue;
+            //continue;
         }
 
         AActor* Actor = ActorInfo->Actor;
@@ -497,6 +498,8 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
     AWorldSettings* WorldSettings = (*GWorld)->PersistentLevel()->WorldSettings();
 
+    static auto net_viewer_property = FindPropertyByName(WorldSettings->Class, L"ReplicationViewers");
+
     bool bCPUSaturated = false;
     
     // Legacy builds should only run at 20 ticks per second
@@ -542,8 +545,12 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
             // List of viewers that the connection should consider
             TArray<FNetViewer>& ConnectionViewers = WorldSettings->ReplicationViewers();
 
-            // TODO: ConnectionViewers.Reset()
-            // TODO: new FNetViewer()
+            for (int j = 0; j < ConnectionViewers.Num(); j++)
+            {
+                GenericArray_Remove(&ConnectionViewers, net_viewer_property, j);
+            }
+            
+            ConnectionViewers.Add(*FNetViewer__FNetViewer(new FNetViewer(), Connection, DeltaSeconds));
 
             for (int ViewerIndex = 0; ViewerIndex < Connection->Children().Num(); ViewerIndex++)
             {
@@ -600,7 +607,10 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
                 
             }
             
-            // TODO: ConnectionViewers.Reset()
+            for (int j = 0; j < ConnectionViewers.Num(); j++)
+            {
+                GenericArray_Remove(&ConnectionViewers, net_viewer_property, j);
+            }
         }
     }
     

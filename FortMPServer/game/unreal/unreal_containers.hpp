@@ -60,6 +60,23 @@ struct TArray
         return false;
     }
 
+    int Slack()
+    {
+        return Max - Count;
+    }
+
+    void Reserve(int NumElements)
+    {
+        Data = Slack() >= NumElements ? Data : (T*)FMemory_Realloc(Data, (Max = Count + NumElements) * sizeof(T), 0);
+    }
+
+    void Add(T& InElement)
+    {
+        Reserve(1);
+        Data[Count] = InElement;
+        ++Count;
+    }
+
     // Pointer to array data
     T* Data;
 

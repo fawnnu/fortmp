@@ -140,3 +140,6 @@ inline bool (*IsNetRelevantFor)(AActor* Actor, AActor* RealViewer, AActor* ViewT
 
 // IsNetReady
 inline int (*IsNetReady)(UNetConnection*, bool);
+
+// Construct netviewer
+inline FNetViewer* (*FNetViewer__FNetViewer)(FNetViewer*, UNetConnection*, float);
