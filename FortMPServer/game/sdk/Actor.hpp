@@ -29,6 +29,7 @@ public:
     DEFINE_PROPERTY(ENetRole, RemoteRole);
     DEFINE_PROPERTY(ENetRole, Role);
     DEFINE_PROPERTY(ENetDormancy, NetDormancy);
+    DEFINE_PROPERTY(AActor*, Owner);
 
     DEFINE_PROPERTY(FName, NetDriverName);
 

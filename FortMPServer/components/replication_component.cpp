@@ -58,6 +58,32 @@ bool replication_component::IsActorRelevantToConnection(AActor* Actor, TArray<FN
     return false;
 }
 
+UNetConnection* replication_component::IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget)
+{
+    AActor* ActorOwner = Actor->Owner();
+
+    bOutHasNullViewTarget = false;
+
+    for (int i = 0; i < ConnectionViewers.Num(); i++)
+    {
+        UNetConnection* ViewerConnection = ConnectionViewers[i].Connection;
+
+        if (ViewerConnection->ViewTarget() == nullptr)
+        {
+            bOutHasNullViewTarget = true;
+        }
+
+        if (ActorOwner == ViewerConnection->PlayerController() ||
+            (ViewerConnection->PlayerController() && ActorOwner == ViewerConnection->PlayerController()->Pawn()) ||
+            (ViewerConnection->ViewTarget() && ActorOwner == ViewerConnection->ViewTarget()) )
+        {
+            return ViewerConnection;
+        }
+    }
+
+    return nullptr;
+}
+
 int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds)
 {
     int NumClientsToTick = NetDriver->ClientConnections().Num();
@@ -288,7 +314,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 // This actor should be owned by a particular connection
                 bool bHasNullViewTarget = false;
 
-                // TODO: PriorityConnection = IsActorOwnedByAndRelevantToConnection
+                //PriorityConnection = IsActorOwnedByAndRelevantToConnection(Actor, ConnectionViewers, bHasNullViewTarget);
 
                 if (PriorityConnection == nullptr)
                 {

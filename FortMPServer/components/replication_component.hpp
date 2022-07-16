@@ -11,6 +11,7 @@ public:
     static UChannel* FindChannelByActor(UNetConnection* Connection, AActor* InActor);
 
     static bool IsActorRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers);
+    static UNetConnection* IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget );
     
     static int ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds);
     static void ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime);
