@@ -98,6 +98,11 @@ struct FActorPriority
         Priority(0), ActorInfo(nullptr), Channel(nullptr), DestructionInfo(nullptr)
     {
     }
+    
+    FActorPriority(FNetworkObjectInfo* InActorInfo, UActorChannel* InChannel) :
+        Priority(0), ActorInfo(InActorInfo), Channel(InChannel), DestructionInfo(nullptr)
+    {
+    }
 };
 
 // Replicates actors using the ReplicationGraph

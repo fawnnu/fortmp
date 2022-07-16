@@ -16,7 +16,7 @@ replication_component::replication_component()
     INIT_POINTER(Close, memory_manager::find_pattern("48 8B C4 53 48 83 EC 70 48 83 79 ? ? 48 8B D9 0F 84 ? ? ? ? 83 B9 ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 89 68 18 48 8D 48 10"));
     INIT_POINTER(SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s> Path: %s. Bits: %d"));
     INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
-    INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
+    INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
@@ -257,8 +257,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
 
     if (MaxSortedActors > 0)
     {
-        // TODO: OutPriorityList - new FActorPriority
-        // TODO: OutPriorityActors - new FActorPriority
+        OutPriorityList = new FActorPriority[MaxSortedActors];
+        OutPriorityActors = new FActorPriority*[MaxSortedActors];
 
         for (FNetworkObjectInfo* ActorInfo : ConsiderList)
         {
@@ -310,8 +310,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             // TODO: UE uses a check for NetTag here
 
             {
-                // TODO: OutPriorityList
-                // TODO: OutPriorityActors
+                OutPriorityList[FinalSortedCount] = FActorPriority(ActorInfo, Channel);
+                OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
 
                 FinalSortedCount++;
             }
@@ -449,7 +449,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
 
             if ( (!bIsRecentlyRelevant || Actor->bTearOff()) && Channel != nullptr)
             {
-                if (!bLevelInitializedForActor || Actor->bNetStartup())
+                if (!bLevelInitializedForActor || !Actor->bNetStartup())
                 {
                     // Close channel for an actor that is no longer relevant
                     Close(Channel);
@@ -500,8 +500,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
     bool bCPUSaturated = false;
     
     // Legacy builds should only run at 20 ticks per second
-    //float ServerTickTime = 1.f / 20.0f;
-    float ServerTickTime = DeltaSeconds;
+    static float ServerTickTime = 1.f / 20.0f;
     
     std::vector<FNetworkObjectInfo*> ConsiderList;
 
