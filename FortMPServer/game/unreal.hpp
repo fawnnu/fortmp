@@ -242,7 +242,7 @@ struct TSoftObjectPtr
     {
         T* Object = static_cast<T*>(WeakPtr.Get());
 
-        if (!Object)
+        if (!Object && ObjectID.AssetPathName.ComparisonIndex != 0)
         {
             Object = FindObject<T>(ObjectID.AssetPathName.ToString().c_str(), true);
         }

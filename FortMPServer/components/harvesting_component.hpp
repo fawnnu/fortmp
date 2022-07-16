@@ -12,4 +12,7 @@ namespace harvesting_component_hooks
 {
     // Called when a player damages an actor
     DEFINE_FUNCTION_HOOK(void, NetMulticast_Athena_BatchedDamageCues, (UObject* Object, UObject* Function, void* Params));
+
+    // Same as above, but for older versions
+    DEFINE_FUNCTION_HOOK(void, NetMulticast_Athena_BatchedDamageCues_Old, (UObject* Object, UObject* Function, void* Params));
 }

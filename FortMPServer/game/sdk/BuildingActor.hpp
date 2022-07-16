@@ -76,6 +76,8 @@ public:
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
 
+    DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
+
     void OnRep_bAlreadySearched()
     {
         Call(L"OnRep_bAlreadySearched");

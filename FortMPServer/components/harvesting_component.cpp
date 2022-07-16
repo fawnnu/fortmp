@@ -6,6 +6,7 @@
 harvesting_component::harvesting_component()
 {
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.NetMulticast_Athena_BatchedDamageCues", harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerPawnAthena.NetMulticast_Athena_BatchedDamageCues", harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Old_Hook);
 }
 
 void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage)
@@ -65,6 +66,31 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     // Give the resource to the player
                     inventory_component::add_item(instigated_by, ResourceItemDefinition, Count);
                 }
+            }
+        }
+    }
+}
+
+void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Old_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues, BatchData);
+
+    // Get owner controller
+    AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerPawn*>(Object)->Controller();
+
+    // Filter by building actors
+    static UObject* building_actor_class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
+    
+    if (BatchData.HitActor())
+    {
+        if (UKismetMathLibrary::ClassIsChildOf(BatchData.HitActor()->Class, building_actor_class))
+        {
+            if (player_controller->Pawn()->CurrentWeapon())
+            {
+                ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(BatchData.HitActor());
+        
+                // Handle harvesting materials if we have a building actor and weapon
+                harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), BatchData.Magnitude());
             }
         }
     }
