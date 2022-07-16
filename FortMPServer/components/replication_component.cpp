@@ -121,7 +121,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
     // List of all network objects
     TSharedPtr<FNetworkObjectList>& NetworkObjects = *reinterpret_cast<TSharedPtr<FNetworkObjectList>*>(__int64(NetDriver) + NetworkOffsets::NetworkObjects);
-
+    
     for (TSetElement<TSharedPtr<FNetworkObjectInfo>>& NetworkObjectInfoPtr : NetworkObjects.Object->ActiveNetworkObjects)
     {
         FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Element.Get();
@@ -220,6 +220,201 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     ActorsToRemove.clear();
 }
 
+int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors)
+{
+    // TODO: NetTag++
+    // TODO: TickCount++
+
+    int FinalSortedCount = 0;
+    int DeletedCount = 0;
+
+    const int MaxSortedActors = ConsiderList.size();
+
+    if (MaxSortedActors > 0)
+    {
+        // TODO: OutPriorityList - new FActorPriority
+        // TODO: OutPriorityActors - new FActorPriority
+
+        for (FNetworkObjectInfo* ActorInfo : ConsiderList)
+        {
+            AActor* Actor = ActorInfo->Actor;
+            UActorChannel* Channel = reinterpret_cast<UActorChannel*>(FindChannelByActor(Connection, Actor));
+
+            if (Channel == nullptr)
+            {
+                // TODO: IsLevelInitializedForActor
+                // TODO: IsActorRelevantToConnection
+            }
+
+            UNetConnection* PriorityConnection = Connection;
+
+            if (true) // Actor->bOnlyRelevantToOwner
+            {
+                // This actor should be owned by a particular connection
+                bool bHasNullViewTarget = false;
+
+                // TODO: PriorityConnection = IsActorOwnedByAndRelevantToConnection
+
+                if (PriorityConnection == nullptr)
+                {
+                    if (!bHasNullViewTarget && Channel != nullptr && NetDriver->Time() - Channel->RelevantTime() >= NetDriver->RelevantTimeout())
+                    {
+                        // TODO: CloseChannel
+                    }
+
+                    // This connection doesn't own this actor
+                    continue;
+                }
+            }
+            else
+            {
+                // TODO: IsActorDormant
+                // TODO: ShouldActorGoDormant
+            }
+
+            // TODO: UE uses a check for NetTag here
+
+            {
+                // TODO: OutPriorityList
+                // TODO: OutPriorityActors
+
+                FinalSortedCount++;
+            }
+        }
+
+        // TODO: Sort by priority
+    }
+    
+    return FinalSortedCount;
+}
+
+int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, FActorPriority** PriorityActors, int FinalSortedCount, int& OutUpdated)
+{
+    int ActorUpdatesThisConnection = 0;
+    int ActorUpdatesThisConnectionSent = 0;
+    int FinalRelevantCount = 0;
+
+    // TODO: IsNetReady
+
+    for (int j = 0; j < FinalSortedCount; j++)
+    {
+        FNetworkObjectInfo* ActorInfo = PriorityActors[j]->ActorInfo;
+
+        if (ActorInfo == nullptr && PriorityActors[j]->DestructionInfo)
+        {
+            // TODO: Make sure client has streaming level loaded
+            
+            UActorChannel* Channel = reinterpret_cast<UActorChannel*>(CreateChannel(Connection, 2, true, -1));
+
+            if (Channel)
+            {
+                FinalRelevantCount++;
+
+                // TODO: Channel->SetChannelActorForDestroy
+                // TODO: Connection->DestroyStartupOrDormantActors.Remove
+            }
+
+            continue;
+        }
+
+        UActorChannel* Channel = PriorityActors[j]->Channel;
+
+        if (Channel == nullptr || Channel->Actor())
+        {
+            AActor* Actor = ActorInfo->Actor;
+
+            bool bIsRelevant = false;
+            bool bLevelInitializedForActor = false; // TODO: IsLevelInitializedForActor
+
+            if (bLevelInitializedForActor)
+            {
+                if (true && (Channel != nullptr || NetDriver->Time() - Channel->RelevantTime() > 1.f)) // TODO: bTearOff
+                {
+                    // TODO: IsActorRelevantToConnection   
+                }
+            }
+
+            const bool bIsRecentlyRelevant = bIsRelevant || (Channel && NetDriver->Time() - Channel->RelevantTime() < NetDriver->RelevantTimeout()) || ActorInfo->bForceRelevantNextUpdate;
+
+            // Do not mark as relevant for next update
+            ActorInfo->bForceRelevantNextUpdate = false;
+
+            if (bIsRecentlyRelevant)
+            {
+                FinalRelevantCount++;
+
+                if (Channel == nullptr) // TODO: && SupportsObject
+                {
+                    if (bLevelInitializedForActor)
+                    {
+                        // Create a new channel for this actor
+                        Channel = reinterpret_cast<UActorChannel*>(CreateChannel(Connection, 2, true, -1));
+
+                        if (Channel)
+                        {
+                            SetChannelActor(Channel, Actor);
+                        }
+                    }
+                    else if (Actor->NetUpdateFrequency() < 1.0f)
+                    {
+                        ActorInfo->NextUpdateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() + 0.2f * rand();
+                    }
+                }
+
+                if (Channel)
+                {
+                    if (bIsRelevant)
+                    {
+                        // Mark as relevant for a short amount of time
+                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * rand();
+                    }
+
+                    if (true) // TODO: IsNetReady
+                    {
+                        if (ReplicateActor(Channel))
+                        {
+                            ActorUpdatesThisConnectionSent++;
+
+                            // Calculate min and max delta
+                            const float MinOptimalDelta = 1.0f / Actor->NetUpdateFrequency();
+                            const float MaxOptimalDelta = std::max(1.0f / Actor->MinNetUpdateFrequency(), MinOptimalDelta);
+                            const float DeltaBetweenReplications = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() - ActorInfo->LastNetReplicateTime;
+
+                            // Choose an optimal time
+                            ActorInfo->OptimalNetUpdateDelta = std::clamp(DeltaBetweenReplications * 0.7f, MinOptimalDelta, MaxOptimalDelta);
+                            ActorInfo->LastNetReplicateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds();
+                        }
+
+                        ActorUpdatesThisConnection++;
+                        OutUpdated++;
+                    }
+                    else
+                    {
+                        // Force net update
+                        Actor->ForceNetUpdate();
+                    }
+
+                    if (true) // TODO: IsNetReady
+                    {
+                        // Stop now as connection is already saturated
+                        return j;
+                    }
+                }
+            }
+
+            if ( (!bIsRecentlyRelevant || true) && Channel != nullptr) // TODO: bTearOff
+            {
+                if (!bLevelInitializedForActor || true) // TODO: IsNetStartupActor
+                {
+                    // TODO: CloseChannel
+                }
+            }
+        }
+    }
+
+    return FinalSortedCount;
+}
+
 int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float DeltaSeconds)
 {
     if (NetDriver->ClientConnections().Num() == 0)
@@ -227,11 +422,16 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         return 0;
     }
 
-    if (NetDriver->HasProperty(L"ReplicationDriver") && NetDriver->ReplicationDriver())
+    static bool has_replication_driver = NetDriver->HasProperty(L"ReplicationDriver");
+
+    if (has_replication_driver)
     {
-        // Handle replication with ReplicationGraph if it exists
-        return ReplicationGraph_ServerReplicateActors(NetDriver->ReplicationDriver(), DeltaSeconds);
-    } 
+        if (NetDriver->ReplicationDriver())
+        {
+            // Handle replication with ReplicationGraph if it exists
+            return ReplicationGraph_ServerReplicateActors(NetDriver->ReplicationDriver(), DeltaSeconds);
+        }
+    }
 
     uint32_t& ReplicationFrame = *reinterpret_cast<uint32_t*>(__int64(NetDriver) + NetworkOffsets::ReplicationFrame);
     
@@ -249,11 +449,16 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         return 0;
     }
 
-    // Legacy builds should only run at 20 ticks per second
-    float ServerTickTime = 1.f / 20.0f;
+    AWorldSettings* WorldSettings = (*GWorld)->K2_GetWorldSettings();
 
-    std::vector<FNetworkObjectInfo*> ConsiderList;
+    bool bCPUSaturated = false;
     
+    // Legacy builds should only run at 20 ticks per second
+    //float ServerTickTime = 1.f / 20.0f;
+    float ServerTickTime = DeltaSeconds;
+    
+    std::vector<FNetworkObjectInfo*> ConsiderList;
+
     // Build the actor consider list
     ServerReplicateActors_BuildConsiderList(NetDriver, ConsiderList, ServerTickTime);
     
@@ -275,7 +480,13 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
                 if (Actor != nullptr && !ConsiderList[ConsiderIdx]->bPendingNetUpdate)
                 {
-                    // TODO: finish
+                    UActorChannel* Channel = reinterpret_cast<UActorChannel*>(FindChannelByActor(Connection, Actor));
+
+                    if (Channel != nullptr && Channel->LastUpdateTime() < ConsiderList[ConsiderIdx]->LastNetUpdateTime)
+                    {
+                        // Flag for a pending update
+                        ConsiderList[ConsiderIdx]->bPendingNetUpdate = true;
+                    }
                 }
             }
 
@@ -283,69 +494,68 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         }
         else if (Connection->ViewTarget())
         {
+            // List of viewers that the connection should consider
+            TArray<FNetViewer>& ConnectionViewers = WorldSettings->ReplicationViewers();
+
+            // TODO: ConnectionViewers.Reset()
+            // TODO: new FNetViewer()
+
+            for (int ViewerIndex = 0; ViewerIndex < Connection->Children().Num(); ViewerIndex++)
+            {
+                if (Connection->Children()[ViewerIndex]->ViewTarget() != nullptr)
+                {
+                    // TODO: new FNetViewer()
+                }
+            }
+            
             if (Connection->PlayerController())
             {
+                // Send ClientAdjustment if necessary
                 SendClientAdjustment(Connection->PlayerController());
             }
 
-            for ( int32_t ChildIdx = 0; ChildIdx < Connection->Children().Num(); ChildIdx++ )
+            for ( int32_t ChildIdx = 0; ChildIdx < Connection->Children().Num(); ChildIdx++)
             {
                 if ( Connection->Children()[ChildIdx]->PlayerController() != NULL )
                 {
+                    // Send ClientAdjustment if necessary to any child player controllers
                     SendClientAdjustment(Connection->Children()[ChildIdx]->PlayerController());
                 }
             }
 
-            // TODO: ServerReplicateActors_PrioritizeActors
-            // TODO: ServerReplicateActors_ProcessPrioritizedActors
-            // TODO: relevant actors that could not be processed this frame are marked to be considered for next frame
+            FActorPriority* PriorityList = nullptr;
+            FActorPriority** PriorityActors = nullptr;
+
+            // Get a sorted list of actors for this connection
+            const int FinalSortedCount = ServerReplicateActors_PrioritizeActors(NetDriver, Connection, ConnectionViewers, ConsiderList, bCPUSaturated, PriorityList, PriorityActors);
+
+            // Process the sorted list of actors for this connection
+            const int LastProcessedActor = ServerReplicateActors_ProcessPrioritizedActors(NetDriver, Connection, ConnectionViewers, PriorityActors, FinalSortedCount, Updated);
+
+            for (int k = LastProcessedActor; k < FinalSortedCount; k++)
+            {
+                if (!PriorityActors[k]->ActorInfo)
+                {
+                    // A deletion entry so skip
+                    continue;
+                }
+
+                // Get actor and channel from priority list
+                AActor* Actor = PriorityActors[k]->ActorInfo->Actor;
+                UActorChannel* Channel = PriorityActors[k]->Channel;
+
+                if (Channel != nullptr && NetDriver->Time() - Channel->RelevantTime() <= 1.f)
+                {
+                    // Flag for net update
+                    PriorityActors[k]->ActorInfo->bPendingNetUpdate = true;
+                }
+
+                // TODO: IsActorRelevantToConnection
+            }
+            
+            // TODO: ConnectionViewers.Reset()
         }
     }
-
-    // TODO: Remove (TESTING ONLY)
-    /*
-    static UObject* Athena_PlayerController_Class = FindObject(L"/Game/Athena/Athena_PlayerController.Athena_PlayerController_C", true);
-    
-    for (FNetworkObjectInfo* ActorInfo : ConsiderList)
-    {
-        for (UNetConnection* Connection : NetDriver->ClientConnections())
-        {
-            if (Connection)
-            {
-                if (Connection->PlayerController())
-                {
-                    if (UKismetMathLibrary::ClassIsChildOf(ActorInfo->Actor->Class, Athena_PlayerController_Class))
-                    {
-                        if (Connection->PlayerController() != ActorInfo->Actor)
-                        {
-                            // Do not replicate any controller that the connection does not own
-                            continue;
-                        }
-                    }
-
-                    auto Channel = FindChannelByActor(Connection, ActorInfo->Actor);
-
-                    if (!Channel)
-                    {
-                        Channel = CreateChannel(Connection, 2, true, -1);
-
-                        if (Channel)
-                        {
-                            SetChannelActor(Channel, ActorInfo->Actor);
-                        }
-                    }
-
-                    if (Channel)
-                    {
-                        if (ReplicateActor(Channel))
-                        {
-							
-                        }
-                    }
-                }
-            }
-        }
-    }*/
     
     // Clear consider list
     ConsiderList.clear();

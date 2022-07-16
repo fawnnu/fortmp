@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 struct FNetworkObjectInfo;
+struct FActorPriority;
 
 class replication_component
 {
@@ -11,6 +12,8 @@ public:
 
     static int ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds);
     static void ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime);
+    static int ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors);
+    static int ServerReplicateActors_ProcessPrioritizedActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, FActorPriority** PriorityActors, int FinalSortedCount, int& OutUpdated);
     
     static int ServerReplicateActors(UNetDriver* NetDriver, float DeltaSeconds);
 };;
@@ -84,7 +87,7 @@ struct FActorPriority
     FNetworkObjectInfo* ActorInfo;
 
     // Actor channel
-    UObject* Channel;
+    UActorChannel* Channel;
 
     // Destroy an actor
     FActorDestructionInfo* DestructionInfo;
