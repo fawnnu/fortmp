@@ -171,6 +171,11 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     for (TSetElement<TSharedPtr<FNetworkObjectInfo>>& NetworkObjectInfoPtr : NetworkObjects.Object->ActiveNetworkObjects)
     {
         FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Element.Get();
+
+        if (ActorInfo == nullptr)
+        {
+            continue;
+        }
         
         if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
         {
@@ -179,6 +184,11 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
         }
 
         AActor* Actor = ActorInfo->Actor;
+
+        if (Actor == nullptr)
+        {
+            continue;
+        }
 
         // TODO: Actor->IsActorInitialized()
         // TODO: Level->HasVisibilityChangeRequestPending()

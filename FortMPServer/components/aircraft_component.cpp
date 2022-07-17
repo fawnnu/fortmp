@@ -56,17 +56,18 @@ void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena
     // Fix as function does not contain the exiting aircraft on older builds
     AFortAircraft* FortAircraft = nullptr;
     
-    if (!StackFrame.Node->HasProperty(L"FortAthenaAircraft"))
-    {
-        // Update aircraft with one from GameState
-        FortAircraft = reinterpret_cast<AFortAircraft*>((*GWorld)->GameState()->Aircraft());
-    }
-    else
+    if ((*GWorld)->GameState()->HasProperty(L"Aircrafts"))
     {
         GET_PARAMETER(AFortAircraft*, FortAthenaAircraft);
 
         // Update aircraft with one from function
         FortAircraft = FortAthenaAircraft;
+        
+    }
+    else
+    {
+        // Update aircraft with one from GameState
+        FortAircraft = reinterpret_cast<AFortAircraft*>((*GWorld)->GameState()->Aircraft());
     }
 
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
