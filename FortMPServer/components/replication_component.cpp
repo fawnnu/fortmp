@@ -18,6 +18,7 @@ replication_component::replication_component()
     INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
     INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
     INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
+    INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
@@ -168,15 +169,10 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     // List of all network objects
     TSharedPtr<FNetworkObjectList>& NetworkObjects = *reinterpret_cast<TSharedPtr<FNetworkObjectList>*>(__int64(NetDriver) + NetworkOffsets::NetworkObjects);
     
-    for (TSetElement<TSharedPtr<FNetworkObjectInfo>>& NetworkObjectInfoPtr : NetworkObjects.Object->ActiveNetworkObjects)
+    for (TSharedPtr<FNetworkObjectInfo>& NetworkObjectInfoPtr : NetworkObjects.Object->ActiveNetworkObjects)
     {
-        FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Element.Get();
+        FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Get();
 
-        if (ActorInfo == nullptr)
-        {
-            continue;
-        }
-        
         if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
         {
             // Not time for the actor to update yet
@@ -184,12 +180,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
         }
 
         AActor* Actor = ActorInfo->Actor;
-
-        if (Actor == nullptr)
-        {
-            continue;
-        }
-
+        
         // TODO: Actor->IsActorInitialized()
         // TODO: Level->HasVisibilityChangeRequestPending()
 
@@ -277,7 +268,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
     for (AActor* Actor : ActorsToRemove)
     {
-        // TODO: Remove from NetworkObjectList
+        Remove(NetworkObjects.Get(), Actor);
     }
     
     ActorsToRemove.clear();

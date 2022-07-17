@@ -52,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
@@ -138,7 +138,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>include.hpp</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)ext\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -219,6 +219,7 @@
     <ClInclude Include="gui\tabs\player_tab.hpp" />
     <ClInclude Include="gui\window.hpp" />
     <ClInclude Include="include.hpp" />
+    <ClInclude Include="utils\Containers.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
   </ItemGroup>
@@ -278,7 +279,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MinimalRebuild>false</MinimalRebuild>
       <ModuleDependenciesFile>x64\Release\</ModuleDependenciesFile>
@@ -289,7 +290,7 @@
       <Optimization>MaxSpeed</Optimization>
       <ObjectFileName>x64\Release\</ObjectFileName>
       <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Release\vc142.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>x64\Release\vc143.pdb</ProgramDataBaseFileName>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>include.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>x64\Release\FortMPServer.pch</PrecompiledHeaderOutputFile>
@@ -353,7 +354,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MinimalRebuild>false</MinimalRebuild>
       <ModuleDependenciesFile>x64\Release\</ModuleDependenciesFile>
@@ -364,7 +365,7 @@
       <Optimization>MaxSpeed</Optimization>
       <ObjectFileName>x64\Release\</ObjectFileName>
       <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Release\vc142.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>x64\Release\vc143.pdb</ProgramDataBaseFileName>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>include.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>x64\Release\FortMPServer.pch</PrecompiledHeaderOutputFile>
@@ -432,7 +433,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MinimalRebuild>false</MinimalRebuild>
       <ModuleDependenciesFile>x64\Release\</ModuleDependenciesFile>
@@ -443,7 +444,7 @@
       <Optimization>MaxSpeed</Optimization>
       <ObjectFileName>x64\Release\</ObjectFileName>
       <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Release\vc142.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>x64\Release\vc143.pdb</ProgramDataBaseFileName>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>include.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>x64\Release\FortMPServer.pch</PrecompiledHeaderOutputFile>
@@ -509,7 +510,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MinimalRebuild>false</MinimalRebuild>
       <ModuleDependenciesFile>x64\Release\</ModuleDependenciesFile>
@@ -520,7 +521,7 @@
       <Optimization>MaxSpeed</Optimization>
       <ObjectFileName>x64\Release\</ObjectFileName>
       <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>x64\Release\vc142.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>x64\Release\vc143.pdb</ProgramDataBaseFileName>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>include.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>x64\Release\FortMPServer.pch</PrecompiledHeaderOutputFile>

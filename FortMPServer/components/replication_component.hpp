@@ -48,19 +48,19 @@ struct FNetworkObjectInfo
     uint32_t bForceRelevantNextUpdate : 1;
 
     // List of connections that this actor is dormant on
-    TSet<TWeakObjectPtr<UNetConnection>> DormantConnections;
+    UE::TSet<TWeakObjectPtr<UNetConnection>> DormantConnections;
 
     // List of connections this actor has recently been dormant on
-    TSet<TWeakObjectPtr<UNetConnection>> RecentlyDormantConnections;
+    UE::TSet<TWeakObjectPtr<UNetConnection>> RecentlyDormantConnections;
 };
 
 struct FNetworkObjectList
 {
-    TSet<TSharedPtr<FNetworkObjectInfo>> AllNetworkObjects;
-    TSet<TSharedPtr<FNetworkObjectInfo>> ActiveNetworkObjects;
-    TSet<TSharedPtr<FNetworkObjectInfo>> ObjectsDormantOnAllConnections;
+    UE::TSet<TSharedPtr<FNetworkObjectInfo>> AllNetworkObjects;
+    UE::TSet<TSharedPtr<FNetworkObjectInfo>> ActiveNetworkObjects;
+    UE::TSet<TSharedPtr<FNetworkObjectInfo>> ObjectsDormantOnAllConnections;
 
-    TMap<TWeakObjectPtr<UObject>, int32_t> NumDormantObjectsPerConnection;
+    UE::TMap<TWeakObjectPtr<UObject>, int32_t> NumDormantObjectsPerConnection;
 };
 
 struct FActorDestructionInfo
@@ -144,3 +144,6 @@ inline int (*IsNetReady)(UNetConnection*, bool);
 
 // Construct netviewer
 inline FNetViewer* (*FNetViewer__FNetViewer)(FNetViewer*, UNetConnection*, float);
+
+// Remove from consider list
+inline void (*Remove)(FNetworkObjectList*, AActor*);

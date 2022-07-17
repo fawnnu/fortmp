@@ -4,13 +4,11 @@ struct FVector
 {
     FVector() = default;
     
-    /*
     FVector(float InX, float InY, float InZ) :
         X(InX), Y(InY), Z(InZ)
     {
     }
-    */
-    
+        
     // Vector's X component
     float X;
 

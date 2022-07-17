@@ -30,3 +30,5 @@
 #include "game/sdk.hpp"
 
 #include "utils/hook.hpp"
+
+#include "utils/Containers.hpp"
