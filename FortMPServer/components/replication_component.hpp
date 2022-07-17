@@ -12,6 +12,9 @@ public:
     static UChannel* FindChannelByActor(UNetConnection* Connection, AActor* InActor);
 
     static bool IsActorRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers);
+    static bool IsActorDormant(FNetworkObjectInfo* ActorInfo, TWeakObjectPtr<UNetConnection>& Connection);
+    static bool ShouldActorGoDormant(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, UActorChannel* Channel, float Time, bool bLowNetBandwidth);
+    
     static UNetConnection* IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget );
 
     static void SetChannelActorForDestroy(UChannel* Channel, FActorDestructionInfo* InDestructionInfo);
@@ -161,3 +164,9 @@ inline bool (*WriteObject)(UPackageMap*, char*, UObject*, FNetworkGUID, FString*
 
 // SendBunch
 inline void* (*SendBunch)(UChannel*, uintptr_t*, char*, bool);
+
+// Get an actor's dormancy state
+inline bool (*GetNetDormancy)(AActor* Actor, FVector& ViewPos, FVector& ViewDir, AActor* Viewer, AActor* ViewTarget, UActorChannel* InChannel, float Time, bool bLowBandwidth);
+
+// Start dormancy on channel
+inline void (*StartBecomingDormant)(UActorChannel* ActorChannel);

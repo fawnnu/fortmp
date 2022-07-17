@@ -21,6 +21,7 @@ replication_component::replication_component()
     INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
     INIT_POINTER(WriteObject, memory_manager::find_function_by_string(L"WroteObject %s NetGUID <%s>"));
     INIT_POINTER(SendBunch, memory_manager::find_function_by_string(L"SendBunch: Reliable"));
+    INIT_POINTER(StartBecomingDormant, memory_manager::find_function_by_string(L"StartBecomingDormant: %s"));
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
@@ -61,6 +62,33 @@ bool replication_component::IsActorRelevantToConnection(AActor* Actor, TArray<FN
     }
 
     return false;
+}
+
+bool replication_component::IsActorDormant(FNetworkObjectInfo* ActorInfo, TWeakObjectPtr<UNetConnection>& Connection)
+{
+    return ActorInfo->DormantConnections.Contains(Connection);
+}
+
+bool replication_component::ShouldActorGoDormant(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, UActorChannel* Channel, float Time, bool bLowNetBandwidth)
+{
+    if (Actor->NetDormancy() <= ENetDormancy::DORM_Awake || Channel == nullptr || Channel->BitField().bPendingDormancy || Channel->BitField().Dormant)
+    {
+        // Either shouldn't go dormant, or is already dormant
+        return false;
+    }
+
+    if (Actor->NetDormancy() == ENetDormancy::DORM_DormantPartial)
+    {
+        for (int ViewerIdx = 0; ViewerIdx < ConnectionViewers.Num(); ViewerIdx++)
+        {
+            if (!GetNetDormancy(Actor, ConnectionViewers[ViewerIdx].ViewLocation, ConnectionViewers[ViewerIdx].ViewDir, ConnectionViewers[ViewerIdx].InViewer, ConnectionViewers[ViewerIdx].ViewTarget, Channel, Time, bLowNetBandwidth))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 UNetConnection* replication_component::IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget)
@@ -299,10 +327,15 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     int FinalSortedCount = 0;
     int DeletedCount = 0;
 
+    // TODO: Make weak ptr once for IsActorDormantCall
+    TWeakObjectPtr<UNetConnection> WeakConnection;
+
+    const bool bLowNetBandwidth = false;
+    
     UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
-
+    
     const int MaxSortedActors = ConsiderList.size() + DestroyedStartupOrDormantActors.Num();
-
+    
     if (MaxSortedActors > 0)
     {
         OutPriorityList = new FActorPriority[MaxSortedActors];
@@ -351,8 +384,17 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             }
             else
             {
-                // TODO: IsActorDormant
-                // TODO: ShouldActorGoDormant
+                if (IsActorDormant(ActorInfo, WeakConnection))
+                {
+                    // Skip actor if dormant
+                    continue;
+                }
+
+                if (ShouldActorGoDormant(Actor, ConnectionViewers, Channel, NetDriver->Time(), bLowNetBandwidth))
+                {
+                    // Channel is marked to go dormant now once all properties have been replicated
+                    StartBecomingDormant(Channel);
+                }
             }
 
             // TODO: UE uses a check for NetTag here

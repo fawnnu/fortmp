@@ -81,10 +81,25 @@ public:
     }
 };
 
+struct UChannelBitField
+{
+    uint8_t OpenAcked : 1;
+    uint8_t Closing : 1;
+    uint8_t	Dormant : 1;
+    uint8_t	bIsReplicationPaused : 1;
+    uint8_t	OpenTemporary : 1;
+    uint8_t	Broken : 1;
+    uint8_t bTornOff : 1;
+    uint8_t bPendingDormancy : 1;
+};
+
 class UChannel : public UObject
 {
 public:
     DEFINE_PROPERTY(UNetConnection*, Connection);
+
+    // Fix for non-UProperty bit field
+    DEFINE_PROPERTY_BY_OFFSET(UChannelBitField, BitField, 0x30);
 };
 
 class UActorChannel : public UChannel
