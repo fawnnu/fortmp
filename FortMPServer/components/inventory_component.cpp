@@ -116,6 +116,9 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     
     // Mark for replication
     player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
+
+    // has to be done on older builds
+    player_controller->QuickBars()->ServerAddItemInternal(item_definition, world_item->ItemEntry().ItemGuid());
     
     return world_item;
 }
@@ -211,6 +214,19 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
     return quickbar_slots[quickbar_slot].AcceptedItemTypes().Find(item_definition->ItemType());
 }
 
+UFortItem* inventory_component::get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid)
+{
+    for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
+    {
+        if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemGuid() == item_guid)
+        {
+            return ItemInstance;
+        }
+    }
+
+    return nullptr;
+}
+
 void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(FGuid, ItemGuid);
@@ -222,7 +238,8 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
 
     // Get inventory item by GUID
     UFortItem* fort_item = PlayerController->HasFunction("K2_GetInventoryItemWithGuid") ?
-        PlayerController->K2_GetInventoryItemWithGuid(ItemGuid) : PlayerController->BP_GetInventoryItemWithGuid(ItemGuid);
+        PlayerController->K2_GetInventoryItemWithGuid(ItemGuid) : PlayerController->HasFunction("BP_GetInventoryItemWithGuid") ?
+        PlayerController->BP_GetInventoryItemWithGuid(ItemGuid) : inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid);
 
     if (fort_item == nullptr)
     {

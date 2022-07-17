@@ -11,6 +11,8 @@ public:
     
     static bool is_inventory_full(AFortPlayerController* player_controller);
     static bool has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
+
+    static UFortItem* get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid);
 };
 
 namespace inventory_component_hooks
