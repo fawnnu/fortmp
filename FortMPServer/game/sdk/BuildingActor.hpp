@@ -70,6 +70,23 @@ public:
     DEFINE_PROPERTY(ABuildingSMActor*, EditActor);
 };
 
+
+class AFortWeap_BuildingTool : public AActor
+{
+public:
+    DEFINE_PROPERTY(class UBuildingEditModeMetadata*, DefaultMetadata);
+
+    void OnRep_DefaultMetadata()
+    {
+        Call(L"OnRep_DefaultMetadata");
+    }
+};
+
+class UBuildingEditModeMetadata : public UObject
+{
+public:
+};
+
 class ABuildingContainer : public ABuildingSMActor
 {
 public:

@@ -21,6 +21,7 @@ ability_component::ability_component()
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
     
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_pattern("89 54 24 10 55 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 80 B9 ? ? ? ? ? 4C 8B F1 0F 85 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 49 8B CE 48 89 BC 24 ? ? ? ? E8 ? ? ? ? 48 89 45 7F"), ability_component_hooks::AbilityCost_Hook);
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Failed to remove item %s during reload, item duplic"), ability_component_hooks::AbilityCost_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Weapon [%s] - Failed to find an Inventory Owner"), ability_component_hooks::AbilityCost_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::CheckCost, memory_manager::find_function_by_string(L"UFortGameplayAbility::CheckCost for %s"), ability_component_hooks::CheckCost_Hook);
     

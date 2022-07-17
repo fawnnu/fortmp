@@ -278,6 +278,43 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     
     // Equip weapon
     PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+
+    if (AFortWeapon* CurrentWeapon = PlayerController->Pawn()->CurrentWeapon())
+    {
+        if (CurrentWeapon->HasProperty(L"DefaultMetadata"))
+        {
+            UBuildingEditModeMetadata*& Metadata = reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->DefaultMetadata();
+
+            static UFortItemDefinition* Roof = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS");
+            static UFortItemDefinition* Stairs = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W");
+            static UFortItemDefinition* Floor = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor");
+            static UFortItemDefinition* Wall = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall");
+
+            static UBuildingEditModeMetadata* RoofMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Roof/EMP_Roof_RoofS.EMP_Roof_RoofS");
+            static UBuildingEditModeMetadata* StairsMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Stair/EMP_Stair_StairW.EMP_Stair_StairW");
+            static UBuildingEditModeMetadata* FloorMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Floor/EMP_Floor_Floor.EMP_Floor_Floor");
+            static UBuildingEditModeMetadata* WallMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Wall/EMP_Wall_Solid.EMP_Wall_Solid");
+
+            if (fort_item->GetItemDefinitionBP() == Wall)
+            {
+                Metadata = WallMetadata;
+            }
+            else if (fort_item->GetItemDefinitionBP() == Floor)
+            {
+                Metadata = FloorMetadata;
+            }
+            else if (fort_item->GetItemDefinitionBP() == Stairs)
+            {
+                Metadata = StairsMetadata;
+            }
+            else if (fort_item->GetItemDefinitionBP() == Roof)
+            {
+                Metadata = RoofMetadata;
+            }
+
+            reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->OnRep_DefaultMetadata();
+        }
+    }
     
     return ServerExecuteInventoryItem(PlayerController, StackFrame);
 }
