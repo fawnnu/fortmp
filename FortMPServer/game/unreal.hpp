@@ -41,6 +41,9 @@ inline void (*Step)(struct FFrame*, UObject* Context, void* OutParam);
 // Dereference a weak pointer
 inline UObject* (*Get)(struct FWeakObjectPtr*);
 
+// Initialize an FWeakObjectPtr with an Object
+inline void (*SetFWeakObjectPtr)(struct FWeakObjectPtr*, UObject*);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
@@ -228,6 +231,13 @@ public:
 
 struct FWeakObjectPtr
 {
+    FWeakObjectPtr() = default;
+
+    FWeakObjectPtr(UObject* in_object)
+    {
+        SetFWeakObjectPtr(this, in_object);
+    }
+    
     UObject* Get()
     {
         return ::Get(this);
@@ -272,9 +282,21 @@ struct TSoftObjectPtr
 template<class T>
 struct TWeakObjectPtr : FWeakObjectPtr
 {
+    TWeakObjectPtr() = default;
+
+    TWeakObjectPtr(T* in_object)
+    {
+        SetFWeakObjectPtr(this, in_object);
+    }
+    
     T* Get()
     {
         return static_cast<T*>(FWeakObjectPtr::Get());
+    }
+
+    bool operator==(TWeakObjectPtr<T> cmp)
+    {
+        return ObjectIndex == cmp.ObjectIndex && ObjectSerialNumber == cmp.ObjectSerialNumber;
     }
 };
 

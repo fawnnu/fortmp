@@ -38,6 +38,8 @@ void unreal_manager::setup_unreal_engine()
 
     INIT_POINTER(Get, memory_manager::find_pattern("E8 ? ? ? ? 0F 10 73 10 48 8D 53 20 48 8B F8 48 8D 4C 24 ? E8 ? ? ? ?", true, 1));
 
+    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 48 85 D2 74 1A 8B 52 0C 89 11"));
+
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
         GetEngineVersionEasy() == 419 ||

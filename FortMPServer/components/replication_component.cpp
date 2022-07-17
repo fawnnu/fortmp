@@ -81,6 +81,8 @@ bool replication_component::ShouldActorGoDormant(AActor* Actor, TArray<FNetViewe
     {
         for (int ViewerIdx = 0; ViewerIdx < ConnectionViewers.Num(); ViewerIdx++)
         {
+            GetNetDormancy = decltype(GetNetDormancy)(Actor->VTable[0x71]); // Initialize GetNetDormancy from the Actor's VTable
+            
             if (!GetNetDormancy(Actor, ConnectionViewers[ViewerIdx].ViewLocation, ConnectionViewers[ViewerIdx].ViewDir, ConnectionViewers[ViewerIdx].InViewer, ConnectionViewers[ViewerIdx].ViewTarget, Channel, Time, bLowNetBandwidth))
             {
                 return false;
@@ -327,8 +329,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     int FinalSortedCount = 0;
     int DeletedCount = 0;
 
-    // TODO: Make weak ptr once for IsActorDormantCall
-    TWeakObjectPtr<UNetConnection> WeakConnection;
+    // Make weak ptr once for IsActorDormantCall
+    TWeakObjectPtr<UNetConnection> WeakConnection(Connection);
 
     const bool bLowNetBandwidth = false;
     
@@ -384,7 +386,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             }
             else
             {
-                if (IsActorDormant(ActorInfo, WeakConnection))
+                // TODO: Fix time, this doesn't work properly
+                /*if (IsActorDormant(ActorInfo, WeakConnection)) //TODO: fix this returning false even when actor is dormant
                 {
                     // Skip actor if dormant
                     continue;
@@ -394,7 +397,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 {
                     // Channel is marked to go dormant now once all properties have been replicated
                     StartBecomingDormant(Channel);
-                }
+                }*/
             }
 
             // TODO: UE uses a check for NetTag here
