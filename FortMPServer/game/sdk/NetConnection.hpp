@@ -9,6 +9,11 @@ public:
     DEFINE_PROPERTY(class AFortPlayerController*, PlayerController);
 };
 
+class UPackageMap : public UObject
+{
+public:
+};
+
 class UNetConnection : public UPlayer
 {
 public:
@@ -26,6 +31,8 @@ public:
     DEFINE_PROPERTY(double, LastReceiveTime);
 
     DEFINE_PROPERTY(TArray<UChannel*>, OpenChannels);
+
+    DEFINE_PROPERTY(UPackageMap*, PackageMap);
 };
 
 class UChildConnection : public UNetConnection

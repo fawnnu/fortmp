@@ -55,6 +55,8 @@ namespace NetworkOffsets
 {
     inline DWORD ReplicationFrame;
     inline DWORD NetworkObjects;
+    inline DWORD DestroyedStartupOrDormantActors;
+    inline DWORD DestroyedStartupOrDormantActors_NetDriver;
 }
 
 class UObject

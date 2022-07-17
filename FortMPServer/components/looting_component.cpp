@@ -13,8 +13,8 @@ looting_component::looting_component()
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
 {
-    static UObject* loot_tier_data = get_loot_tier_data();
-    static UObject* loot_tier_packages = get_loot_tier_packages();
+    UObject* loot_tier_data = get_loot_tier_data();
+    UObject* loot_tier_packages = get_loot_tier_packages();
     
     // A map of all loot rolled to spawn in the world
     std::map<UFortItemDefinition*, int> loot_to_spawn;

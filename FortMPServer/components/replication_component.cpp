@@ -14,15 +14,19 @@ replication_component::replication_component()
     INIT_POINTER(IsLevelInitializedForActor, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpNetDriver")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?") + 14) / 8]);
     INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 0F 85 ? ? ? ? 49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ?", true, 1));
     INIT_POINTER(Close, memory_manager::find_pattern("48 8B C4 53 48 83 EC 70 48 83 79 ? ? 48 8B D9 0F 84 ? ? ? ? 83 B9 ? ? ? ? ? 0F 84 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 89 68 18 48 8D 48 10"));
-    INIT_POINTER(SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s> Path: %s. Bits: %d"));
     INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
     INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
     INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
     INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
+    INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
+    INIT_POINTER(WriteObject, memory_manager::find_function_by_string(L"WroteObject %s NetGUID <%s>"));
+    INIT_POINTER(SendBunch, memory_manager::find_function_by_string(L"SendBunch: Reliable"));
     
     // TODO: Change per version
     NetworkOffsets::ReplicationFrame = 0x2C8;
     NetworkOffsets::NetworkObjects = 0x490;
+    NetworkOffsets::DestroyedStartupOrDormantActors = 0x33678;
+    NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = 0x228;
 }
 
 UChannel* replication_component::FindChannelByActor(UNetConnection* Connection, AActor* InActor)
@@ -83,6 +87,20 @@ UNetConnection* replication_component::IsActorOwnedByAndRelevantToConnection(AAc
     }
 
     return nullptr;
+}
+
+void replication_component::SetChannelActorForDestroy(UChannel* Channel, FActorDestructionInfo* InDestructionInfo)
+{
+    // We don't need to know the exact size of the FOutBunch struct, we just need to make sure we allocate enough memory for its constructor
+    char CloseBunch[1024];
+                
+    FOutBunch__FOutBunch(CloseBunch, Channel, true);
+
+    WriteObject(Channel->Connection()->PackageMap(), CloseBunch, InDestructionInfo->ObjOuter.Get(), InDestructionInfo->NetGUID, &InDestructionInfo->PathName);
+
+    uintptr_t SendBunchParameter = _mm_unpacklo_ps({}, {}).m128_u64[0];
+                
+    SendBunch(Channel, &SendBunchParameter, CloseBunch, false);
 }
 
 int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds)
@@ -281,7 +299,9 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     int FinalSortedCount = 0;
     int DeletedCount = 0;
 
-    const int MaxSortedActors = ConsiderList.size();
+    UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
+
+    const int MaxSortedActors = ConsiderList.size() + DestroyedStartupOrDormantActors.Num();
 
     if (MaxSortedActors > 0)
     {
@@ -345,6 +365,17 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             }
         }
 
+        // Add destroyed actors
+        for (FNetworkGUID NetworkGuid : *reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors))
+        {
+            FActorDestructionInfo& DInfo = DestroyedStartupOrDormantActors[NetworkGuid];
+            
+            OutPriorityList[FinalSortedCount] = FActorPriority(&DInfo);
+            OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
+
+            FinalSortedCount++;
+        }
+
         // TODO: Sort by priority
     }
     
@@ -377,10 +408,10 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
             {
                 FinalRelevantCount++;
 
-                // Mark actor channel for destruction
+                // Re-implemented SetChannelActorForDestroy
                 SetChannelActorForDestroy(Channel, PriorityActors[j]->DestructionInfo);
                 
-                // TODO: Connection->DestroyStartupOrDormantActors.Remove
+                reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors)->Remove(PriorityActors[j]->DestructionInfo->NetGUID);
             }
 
             continue;

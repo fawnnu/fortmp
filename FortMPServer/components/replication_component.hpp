@@ -2,6 +2,7 @@
 
 struct FNetworkObjectInfo;
 struct FActorPriority;
+struct FActorDestructionInfo;
 
 class replication_component
 {
@@ -12,6 +13,8 @@ public:
 
     static bool IsActorRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers);
     static UNetConnection* IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget );
+
+    static void SetChannelActorForDestroy(UChannel* Channel, FActorDestructionInfo* InDestructionInfo);
     
     static int ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds);
     static void ServerReplicateActors_BuildConsiderList(UNetDriver* NetDriver, std::vector<FNetworkObjectInfo*>& OutConsiderList, float ServerTickTime);
@@ -104,6 +107,11 @@ struct FActorPriority
         Priority(0), ActorInfo(InActorInfo), Channel(InChannel), DestructionInfo(nullptr)
     {
     }
+    
+    FActorPriority(FActorDestructionInfo* InDestructionInfo) :
+        Priority(0), ActorInfo(nullptr), Channel(nullptr), DestructionInfo(InDestructionInfo)
+    {
+    }
 };
 
 // Replicates actors using the ReplicationGraph
@@ -133,9 +141,6 @@ inline bool (*IsPendingKillPending)(AActor*);
 // Close a UChannel
 inline void (*Close)(UChannel*);
 
-// Set destruction info for actor channel
-inline int64_t (*SetChannelActorForDestroy)(UActorChannel* Channel, FActorDestructionInfo* DestructInfo);
-
 // Is the actor relevant to the view target?
 inline bool (*IsNetRelevantFor)(AActor* Actor, AActor* RealViewer, AActor* ViewTarget, FVector& SrcLocation);
 
@@ -147,3 +152,12 @@ inline FNetViewer* (*FNetViewer__FNetViewer)(FNetViewer*, UNetConnection*, float
 
 // Remove from consider list
 inline void (*Remove)(FNetworkObjectList*, AActor*);
+
+// Construct an FOutBunch
+inline char* (*FOutBunch__FOutBunch)(char*, UChannel* InChannel, bool bInClose);
+
+// WriteObject
+inline bool (*WriteObject)(UPackageMap*, char*, UObject*, FNetworkGUID, FString*);
+
+// SendBunch
+inline void* (*SendBunch)(UChannel*, uintptr_t*, char*, bool);

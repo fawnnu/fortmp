@@ -69,4 +69,9 @@ struct FUniqueNetIdRepl
 struct FNetworkGUID
 {
     uint32_t Value;
+
+    bool operator==(FNetworkGUID cmp)
+    {
+        return Value == cmp.Value;
+    }
 };
