@@ -44,6 +44,9 @@ inline UObject* (*Get)(struct FWeakObjectPtr*);
 // Initialize an FWeakObjectPtr with an Object
 inline void (*SetFWeakObjectPtr)(struct FWeakObjectPtr*, UObject*);
 
+// SRand
+inline float (*SRand)();
+
 namespace CoreOffsets
 {
     inline DWORD Children;

@@ -45,6 +45,8 @@ public:
 
     DEFINE_PROPERTY(ULevel*, PersistentLevel);
 
+    DEFINE_PROPERTY_BY_OFFSET(float, TimeSeconds, 0x900);
+    
     AWorldSettings* K2_GetWorldSettings()
     {
         return Call<AWorldSettings*>(L"K2_GetWorldSettings");

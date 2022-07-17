@@ -221,10 +221,10 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
     {
         FNetworkObjectInfo* ActorInfo = NetworkObjectInfoPtr.Get();
 
-        if (!ActorInfo->bPendingNetUpdate && (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() <= ActorInfo->NextUpdateTime)
+        if (!ActorInfo->bPendingNetUpdate && (*GWorld)->TimeSeconds() <= ActorInfo->NextUpdateTime)
         {
             // Not time for the actor to update yet
-            //continue;
+            continue;
         }
 
         AActor* Actor = ActorInfo->Actor;
@@ -267,14 +267,14 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
         if (ActorInfo->LastNetReplicateTime == 0)
         {
             // Set defaults if this actor is replicating for the first time
-            ActorInfo->LastNetReplicateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds();
+            ActorInfo->LastNetReplicateTime = (*GWorld)->TimeSeconds();
             ActorInfo->OptimalNetUpdateDelta = 1.0f / Actor->NetUpdateFrequency();
         }
 
         const float ScaleDownStartTime = 2.0f;
         const float ScaleDownTimeRange = 5.0f;
 
-        const float LastReplicateDelta = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() - ActorInfo->LastNetReplicateTime;
+        const float LastReplicateDelta = (*GWorld)->TimeSeconds() - ActorInfo->LastNetReplicateTime;
 
         if (LastReplicateDelta > ScaleDownStartTime)
         {
@@ -299,7 +299,7 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
             const float NextUpdateDelta = ActorInfo->OptimalNetUpdateDelta;
 
             // Set next update time
-            ActorInfo->NextUpdateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() + rand() * ServerTickTime + NextUpdateDelta;
+            ActorInfo->NextUpdateTime = (*GWorld)->TimeSeconds() + SRand() * ServerTickTime + NextUpdateDelta;
 
             // Mark when the actor first requested an update
             ActorInfo->LastNetUpdateTime = NetDriver->Time();
@@ -506,7 +506,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                     }
                     else if (Actor->NetUpdateFrequency() < 1.0f)
                     {
-                        ActorInfo->NextUpdateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() + 0.2f * rand();
+                        ActorInfo->NextUpdateTime = (*GWorld)->TimeSeconds() + 0.2f * SRand();
                     }
                 }
 
@@ -515,7 +515,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                     if (bIsRelevant)
                     {
                         // Mark as relevant for a short amount of time
-                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * rand();
+                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * SRand();
                     }
 
                     if (IsNetReady(Channel->Connection(), 0))
@@ -527,11 +527,11 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                             // Calculate min and max delta
                             const float MinOptimalDelta = 1.0f / Actor->NetUpdateFrequency();
                             const float MaxOptimalDelta = std::max(1.0f / Actor->MinNetUpdateFrequency(), MinOptimalDelta);
-                            const float DeltaBetweenReplications = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() - ActorInfo->LastNetReplicateTime;
+                            const float DeltaBetweenReplications = (*GWorld)->TimeSeconds() - ActorInfo->LastNetReplicateTime;
 
                             // Choose an optimal time
                             ActorInfo->OptimalNetUpdateDelta = std::clamp(DeltaBetweenReplications * 0.7f, MinOptimalDelta, MaxOptimalDelta);
-                            ActorInfo->LastNetReplicateTime = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds();
+                            ActorInfo->LastNetReplicateTime = (*GWorld)->TimeSeconds();
                         }
 
                         ActorUpdatesThisConnection++;
@@ -724,7 +724,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
                     if (Channel != nullptr)
                     {
                         // Update relevant time
-                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * rand();
+                        Channel->RelevantTime() = NetDriver->Time() + 0.5f * SRand();
                     }
                 }
             }
