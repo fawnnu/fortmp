@@ -73,8 +73,13 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
         if (DeathReport.KillerPawn())
         {
-            // Get distance from killer pawn to eliminated pawn
-            VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
+            static bool b_has_distance = FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"Distance");
+            
+            if (b_has_distance)
+            {
+                // Get distance from killer pawn to eliminated pawn
+                VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
+            }
         }
 
         // Update finisher/downer in kill feed
@@ -95,9 +100,6 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         {
             if (RemoveFromAlivePlayerList)
             {
-                // Call original before proceeding
-                ProcessEvent(Object, Function, Params);
-                
                 // Remove player from alive list if function exists
                 RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
             }

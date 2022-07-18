@@ -556,7 +556,9 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                 if (!bLevelInitializedForActor || !Actor->bNetStartup())
                 {
                     // Close channel for an actor that is no longer relevant
-                    Close(Channel);
+
+                    // TODO: figure out why this crashes on death
+                    //Close(Channel); 
                 }
             }
         }
