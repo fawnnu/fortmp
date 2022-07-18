@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "elimination_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
 #include "pickup_component.hpp"
@@ -126,6 +127,14 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Server is ready
         is_server_ready = true;
+
+        // Remove the server player from AlivePlayers on older builds TODO: Fix first player being on a team
+        if (GetEngineVersionEasy() < 421)
+        {
+            APlayerController* player_controller = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetPlayerController(*GWorld, 0);
+
+            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), player_controller, 0);
+        }
         
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
