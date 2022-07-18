@@ -8,12 +8,9 @@ team_component::team_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    if (GetEngineVersionEasy() > 419)
-    {
-        REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%d], actual: [%d]"), team_component_hooks::PickTeam_Hook);
-        REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%s], actual: [%s]"), team_component_hooks::PickTeam_Hook);
-    }
-    
+    REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%d], actual: [%d]"), team_component_hooks::PickTeam_Hook);
+    REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%s], actual: [%s]"), team_component_hooks::PickTeam_Hook);
+        
     DetourTransactionCommit();
 }
 
@@ -62,11 +59,16 @@ uint8_t team_component::find_team(AFortPlayerController* player_controller)
 
 int team_component::get_team_size()
 {
+    constexpr int max_team_size_override = 1;
+    
     // Get current playlist
     UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
-        (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
+        (*GWorld)->GameState()->CurrentPlaylistData() :
+        (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
+        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
+        nullptr;
 
-    return current_playlist->MaxTeamSize();
+    return current_playlist ? current_playlist->MaxTeamSize() : max_team_size_override;
 }
 
 uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)

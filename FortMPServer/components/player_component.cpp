@@ -100,6 +100,8 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
             // Assign team
             team_component::set_team(NetConnection->PlayerController(), team_component::find_team(NetConnection->PlayerController()));
 
+            UKismetSystemLibrary::SetBoolPropertyByName(NetConnection->PlayerController()->Pawn(), L"bIsInvulnerable", true);
+
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
         }

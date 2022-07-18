@@ -40,64 +40,67 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
     ABuildingContainer* building_container)
 {
-    FString SearchLootTierGroup = building_container->SearchLootTierGroup().ToString().c_str();
-
-    std::wstring final_search_loot_tier_group;
-    FString left_str;
-    FString right_str;
-
-    // Split the string
-    UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
-
-    // Build the string
-    final_search_loot_tier_group += left_str.c_str();
-    final_search_loot_tier_group += L"_Athena";
-    final_search_loot_tier_group += right_str.c_str();
-
-    if (right_str == L"Ammo")
+    if (!building_container->bAlreadySearched())
     {
-        final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
-    }
+        FString SearchLootTierGroup = building_container->SearchLootTierGroup().ToString().c_str();
 
-    // Get proper location for loot spawn
-    FVector ContainerLocation = building_container->K2_GetActorLocation();
-    FVector ContainerLocationOffset = building_container->LootSpawnLocation_Athena();
-        
-    // Sum actor location and loot spawn location to get location to spawn loot
-    FVector LootSpawnLocation {};
+        std::wstring final_search_loot_tier_group;
+        FString left_str;
+        FString right_str;
 
-    LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
-    LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
-    LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
+        // Split the string
+        UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
 
-    static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
-    static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
-    
-    // Generate and spawn the loot
-    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
+        // Build the string
+        final_search_loot_tier_group += left_str.c_str();
+        final_search_loot_tier_group += L"_Athena";
+        final_search_loot_tier_group += right_str.c_str();
 
-    for (const auto& [ item_definition, count ] : loot_to_spawn)
-    {
-        // Spawn pickup
-
-        // set loaded ammo to spawn the pickup with
-        int loaded_ammo = 0;
-
-        if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
-            !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
+        if (right_str == L"Ammo")
         {
-            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
-            loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
+            final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
         }
+
+        // Get proper location for loot spawn
+        FVector ContainerLocation = building_container->K2_GetActorLocation();
+        FVector ContainerLocationOffset = building_container->LootSpawnLocation_Athena();
         
-        pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, loaded_ammo);
+        // Sum actor location and loot spawn location to get location to spawn loot
+        FVector LootSpawnLocation {};
+
+        LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
+        LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
+        LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
+
+        static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+        static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    
+        // Generate and spawn the loot
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
+
+        for (const auto& [ item_definition, count ] : loot_to_spawn)
+        {
+            // Spawn pickup
+
+            // set loaded ammo to spawn the pickup with
+            int loaded_ammo = 0;
+
+            if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
+                !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
+            {
+                auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
+                loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
+            }
+        
+            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, loaded_ammo);
+        }
+
+        // Mark the container as open
+        UKismetSystemLibrary::SetBoolPropertyByName(building_container, L"bAlreadySearched", true);
+
+        // Update on server
+        building_container->OnRep_bAlreadySearched();
     }
-
-    // Mark the container as open
-    UKismetSystemLibrary::SetBoolPropertyByName(building_container, L"bAlreadySearched", true);
-
-    // Update on server
-    building_container->OnRep_bAlreadySearched();
 }
 
 void interact_component::handle_player_pawn_interaction(AFortPlayerController* player_controller,
