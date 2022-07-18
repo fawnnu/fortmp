@@ -115,7 +115,7 @@ struct FURL
     FString Portal;
 
     FURL(FString InMap, int InPort) :
-        Map(InMap), Port(InPort), Protocol(L"unreal"), Host(nullptr), RedirectUrl(nullptr), Portal(nullptr)
+        Map(InMap), Port(InPort), Protocol(XOR(L"unreal")), Host(nullptr), RedirectUrl(nullptr), Portal(nullptr)
     {
     }
 };

@@ -9,8 +9,8 @@
     }                                                                                  \
     else                                                                               \
     {                                                                                  \
-        spdlog::error("Failed to setup hook '{}', invalid function pointer provided",  \
-            #FunctionName);                                                            \
+        spdlog::error(XOR("Failed to setup hook '{}', invalid function pointer provided"),  \
+            XOR(#FunctionName));                                                            \
     }
 
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \

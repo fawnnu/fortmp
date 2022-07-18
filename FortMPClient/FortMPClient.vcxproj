@@ -182,6 +182,7 @@
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
+    <ClInclude Include="utils\xorstr.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

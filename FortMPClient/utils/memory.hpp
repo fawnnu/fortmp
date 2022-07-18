@@ -7,8 +7,8 @@
     if (PointerAddress)                                                                     \
         PointerName = reinterpret_cast<decltype(PointerName)>(PointerAddress);              \
     else                                                                                    \
-        spdlog::error("Failed to setup pointer '{}', invalid pointer address provided",     \
-            #PointerName);
+        spdlog::error(XOR("Failed to setup pointer '{}', invalid pointer address provided"),     \
+            XOR(#PointerName));
 
 static std::map<void*, bool> pointer_cache;
 
