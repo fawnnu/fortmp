@@ -97,6 +97,13 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
             // Swap item
             inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1);
 
+            static bool b_legacy_quickbars = PlayerPawn->Controller()->HasProperty(L"QuickBars");
+    
+            if (b_legacy_quickbars)
+            {
+                PlayerPawn->Controller()->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
+            }
+            
             // Equip item on client
             PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
         }

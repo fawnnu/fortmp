@@ -36,6 +36,23 @@ public:
     DEFINE_PROPERTY(FQuickBar, SecondaryQuickBar);
     DEFINE_PROPERTY(FQuickBar, CreativeQuickBar);
 
+    void ServerRemoveItemInternal(FGuid InGuid)
+    {
+        auto primary_quickbar_slots = TArrayManager<FQuickBarSlot>(&PrimaryQuickBar().Slots(), FQuickBarSlot::GetStructSize());
+
+        for (int i = 0; i < primary_quickbar_slots.Num(); i++)
+        {
+            if (primary_quickbar_slots[i].Items().Find(InGuid))
+            {
+                static void* items = FindPropertyByName(FQuickBarSlot::GetClass(), L"Items");
+                
+                GenericArray_Remove(&primary_quickbar_slots[i].Items(), items, 0);
+                       
+                break;
+            }
+        }
+    }
+
     void ServerAddItemInternal(UFortItemDefinition* in_item_definition, FGuid& InGuid)
     {
         static UFunction* server_add_item_internal_func_function = FindObject<UFunction>(L"/Script/FortniteGame.FortQuickBars.ServerAddItemInternal");

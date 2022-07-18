@@ -11,6 +11,7 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryItem, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryItem", inventory_component_hooks::ServerExecuteInventoryItem_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
+    REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     
     DetourTransactionCommit();
 }
@@ -117,8 +118,13 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Mark for replication
     player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
 
-    // has to be done on older builds
-    player_controller->QuickBars()->ServerAddItemInternal(item_definition, world_item->ItemEntry().ItemGuid());
+    // has to be done on older builds (items aren't added to quickbars by default)
+    static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
+    
+    if (b_legacy_quickbars)
+    {
+        player_controller->QuickBars()->ServerAddItemInternal(item_definition, world_item->ItemEntry().ItemGuid());
+    }
     
     return world_item;
 }
@@ -169,6 +175,14 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
+
+            // has to be done on older builds
+            static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
+            
+            if (b_legacy_quickbars)
+            {
+                player_controller->QuickBars()->ServerRemoveItemInternal(item_guid);
+            }
 
             break;
         }
