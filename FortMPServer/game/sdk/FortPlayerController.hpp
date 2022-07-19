@@ -40,11 +40,19 @@ public:
     }
 };
 
+class APlayerCameraManager : public AActor
+{
+public:
+    DEFINE_PROPERTY(float, ViewRollMin);
+    DEFINE_PROPERTY(float, ViewRollMax);
+};
+
 class APlayerController : public AController
 {
 public:
     DEFINE_PROPERTY(UObject*, AcknowledgedPawn);
     DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
+    DEFINE_PROPERTY(APlayerCameraManager*, PlayerCameraManager);
 
     void SwitchLevel(FString URL)
     {
@@ -121,6 +129,11 @@ class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
+
+    void SpectateOnDeath()
+    {
+        Call(L"SpectateOnDeath");
+    }
 };
 
 struct FFortPlayerDeathReport

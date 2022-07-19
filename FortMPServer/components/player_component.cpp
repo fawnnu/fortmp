@@ -100,7 +100,12 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
             // Assign team
             team_component::set_team(NetConnection->PlayerController(), team_component::find_team(NetConnection->PlayerController()));
 
+            // Make pawn invulnerable on spawn island
             UKismetSystemLibrary::SetBoolPropertyByName(NetConnection->PlayerController()->Pawn(), L"bIsInvulnerable", true);
+
+            // Prevent camera from shaking while spectating or when using the guided missile
+            NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMin() = 0.f;
+            NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMax() = 0.f;
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;

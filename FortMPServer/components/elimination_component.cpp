@@ -55,6 +55,16 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
     return death_cause_enum->GetEnumIndex(L"Unspecified");
 }
 
+void elimination_component::spectate_on_death(AFortPlayerController* player_controller)
+{
+    Sleep(3000); 
+    
+    if (player_controller)
+    {
+        static_cast<AFortPlayerControllerAthena*>(player_controller)->SpectateOnDeath();
+    }
+}   
+
 void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(FFortPlayerDeathReport, DeathReport);
@@ -109,6 +119,9 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 // Remove player from alive list if function exists
                 RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
             }
+
+            // Spectate after 3 seconds
+            CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&elimination_component::spectate_on_death), VictimPlayerController, 0, nullptr);
         }
     }
 }

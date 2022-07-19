@@ -6,6 +6,8 @@ public:
     elimination_component();
 
     static uint8_t to_death_cause(AFortPlayerStateAthena* player_state, FGameplayTagContainer gameplay_tags, bool was_dbno);
+
+    static void spectate_on_death(AFortPlayerController* player_controller);
 };
 
 namespace elimination_component_hooks

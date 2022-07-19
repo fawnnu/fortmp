@@ -411,7 +411,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
         }
 
         // Add destroyed actors
-        for (FNetworkGUID NetworkGuid : *reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors))
+        //TODO: fix crashes caused by destroying (most likely by FOutBunch size)
+        /*for (FNetworkGUID NetworkGuid : *reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors))
         {
             FActorDestructionInfo& DInfo = DestroyedStartupOrDormantActors[NetworkGuid];
             
@@ -419,7 +420,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
 
             FinalSortedCount++;
-        }
+        }*/
 
         // TODO: Sort by priority
     }
