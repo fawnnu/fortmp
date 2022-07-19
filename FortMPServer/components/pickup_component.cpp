@@ -95,7 +95,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         if (!PlayerPawn->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
         {
             // Swap item
-            inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1);
+            inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
 
             static bool b_legacy_quickbars = PlayerPawn->Controller()->HasProperty(L"QuickBars");
     

@@ -129,7 +129,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     return world_item;
 }
 
-void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item)
+void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item, bool b_is_swapping)
 {
     if (!player_controller->Pawn() && should_drop_item)
     {
@@ -181,7 +181,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             
             if (b_legacy_quickbars)
             {
-                player_controller->QuickBars()->ServerRemoveItemInternal(item_guid);
+                player_controller->QuickBars()->ServerRemoveItemInternal(item_guid, b_is_swapping);
             }
 
             break;

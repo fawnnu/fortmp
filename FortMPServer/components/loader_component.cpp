@@ -68,7 +68,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         for (AActor* floor_loot_actor : floor_loot_actors)
         {
-            // TODO: Roll floor loot
             std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot");
 
             for (const auto& [ item_definition, count ] : loot_to_spawn)
@@ -94,7 +93,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         for (AActor* floor_loot_actor : warmup_floor_loot_actors)
         {
-            // TODO: Roll floor loot
             std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot_Warmup");
 
             for (const auto& [ item_definition, count ] : loot_to_spawn)

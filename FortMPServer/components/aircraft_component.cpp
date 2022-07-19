@@ -13,8 +13,7 @@ aircraft_component::aircraft_component()
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
 
-    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerSetInAircraft, L"/Script/FortniteGame.FortPlayerStateAthena.ServerSetInAircraft", aircraft_component_hooks::ServerSetInAircraft_Hook);
-    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerSetInAircraft, L"/Script/FortniteGame.FortPlayerStateZone.ServerSetInAircraft", aircraft_component_hooks::ServerSetInAircraft_Hook);
+    REGISTER_FUNCTION_DETOUR(aircraft_component_hooks::EnterAircraft, memory_manager::find_function_by_string(L"EnterAircraft: %s"), aircraft_component_hooks::EnterAircraft_Hook);
     
     DetourTransactionCommit();
 }
@@ -34,6 +33,11 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
                 player_pawn->GetName().c_str(),
                 Aircraft->GetName().c_str());
         }
+
+        // Auto equip pickaxe, missing on old builds
+        auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+
+        FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
     }    
 }
 
@@ -93,48 +97,29 @@ void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAi
 }
 
 
-void aircraft_component_hooks::ServerSetInAircraft_Hook(AFortPlayerState* PlayerState, FFrame& StackFrame)
+void aircraft_component_hooks::EnterAircraft_Hook(AFortPlayerControllerAthena* FortPlayerControllerAthena, AFortAircraft* Aircraft)
 {
-    if (PlayerState == nullptr)
+    // Get inventory
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerControllerAthena->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    
+    // Item definitions to filter by
+    static UObject* building_item_definition = FindObject(L"/Script/FortniteGame.FortBuildingItemDefinition");
+    static UObject* melee_item_definition = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+    static UObject* edit_tool_definition = FindObject(L"/Script/FortniteGame.FortEditToolItemDefinition");
+    
+    // Backwards loop to remove items from inventory
+    for (int i = replicated_entries.Num() - 1; i >= 0; i--)
     {
-        // No player state to use
-        return;
-    }
-    
-    GET_PARAMETER(bool, bNewInAircraft);
-    
-    if (bNewInAircraft)
-    {
-        AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerController*>(PlayerState->GetOwner());
-    
-        // Get inventory
-        auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-    
-        // List of items to remove
-        std::vector<FGuid> items_to_remove;
-
-        // Item definitions to filter by
-        static UObject* building_item_definition = FindObject(L"/Script/FortniteGame.FortBuildingItemDefinition");
-        static UObject* melee_item_definition = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-        static UObject* edit_tool_definition = FindObject(L"/Script/FortniteGame.FortEditToolItemDefinition");
-
-        for (FFortItemEntry& item_entry : replicated_entries)
+        FFortItemEntry& item_entry = replicated_entries[i];
+        
+        if (!item_entry.ItemDefinition()->IsA(building_item_definition) &&
+            !item_entry.ItemDefinition()->IsA(melee_item_definition) &&
+            !item_entry.ItemDefinition()->IsA(edit_tool_definition))
         {
-            if (!item_entry.ItemDefinition()->IsA(building_item_definition) &&
-                !item_entry.ItemDefinition()->IsA(melee_item_definition) &&
-                !item_entry.ItemDefinition()->IsA(edit_tool_definition))
-            {
-                // Remove any items from the inventory that do not match
-                items_to_remove.push_back(item_entry.ItemGuid());
-            }
-        }
-
-        for (FGuid item_to_remove : items_to_remove)
-        {
-            // Remove item
-            inventory_component::remove_item(player_controller, item_to_remove, -1, false);
+            // Remove any items from the inventory that do not match
+            inventory_component::remove_item(FortPlayerControllerAthena, item_entry.ItemGuid(), -1, false);
         }
     }
     
-    return ServerSetInAircraft(PlayerState, StackFrame);
+    return EnterAircraft(FortPlayerControllerAthena, Aircraft);
 }
