@@ -59,6 +59,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 return;
             }
         }
+        
+        if ((*GWorld)->AuthorityGameMode()->GameSession())
+        {
+            // Update max player count
+            (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers() = 101;
+        }
 
         static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
         static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");

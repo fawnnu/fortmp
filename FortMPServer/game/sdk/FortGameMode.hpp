@@ -1,8 +1,16 @@
 ﻿#pragma once
 
+class AGameSession : public UObject
+{
+public:
+    DEFINE_PROPERTY(int, MaxPlayers);
+};
+
 class AGameModeBase : public UObject
 {
 public:
+    DEFINE_PROPERTY(AGameSession*, GameSession);
+    
     AFortPlayerPawn* SpawnDefaultPawnAtTransform(APlayerController* NewPlayer, FTransform SpawnTransform)
     {
         return Call<AFortPlayerPawn*>(L"SpawnDefaultPawnAtTransform", NewPlayer, SpawnTransform);
