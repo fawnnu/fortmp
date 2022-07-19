@@ -107,8 +107,8 @@ class UActorChannel : public UChannel
 public:
     DEFINE_PROPERTY(AActor*, Actor);
 
-    DEFINE_PROPERTY_BY_OFFSET(double, RelevantTime, 0x80);
-    DEFINE_PROPERTY_BY_OFFSET(double, LastUpdateTime, 0x88);
+    DEFINE_PROPERTY_BY_OFFSET(double, RelevantTime, 0x78);
+    DEFINE_PROPERTY_BY_OFFSET(double, LastUpdateTime, 0x80);
 };
 
 

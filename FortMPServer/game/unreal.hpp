@@ -63,6 +63,7 @@ namespace NetworkOffsets
     inline DWORD NetworkObjects;
     inline DWORD DestroyedStartupOrDormantActors;
     inline DWORD DestroyedStartupOrDormantActors_NetDriver;
+    inline DWORD TimeSeconds;
 }
 
 class UObject
