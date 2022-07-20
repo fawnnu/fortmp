@@ -170,3 +170,6 @@ inline bool (*GetNetDormancy)(AActor* Actor, FVector& ViewPos, FVector& ViewDir,
 
 // Start dormancy on channel
 inline void (*StartBecomingDormant)(UActorChannel* ActorChannel);
+
+// SetChannelActorForDestroy (The function isn't stripped after 2.5)
+inline void (*SetChannelActorForDestroy)(UChannel*, struct FActorDestructionInfo*);

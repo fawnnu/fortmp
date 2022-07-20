@@ -43,9 +43,13 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         // Apply Athena ability set
         ability_component::apply_ability_set(player_pawn, ability_set);
 
+        // Take a hero definition and apply its character parts
         static UFortHeroType* hero_definition = FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_556_Athena_Commando_F_RebirthDefaultA.HID_556_Athena_Commando_F_RebirthDefaultA", true) ? 
             FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_556_Athena_Commando_F_RebirthDefaultA.HID_556_Athena_Commando_F_RebirthDefaultA", true) :
             FindObject<UFortHeroType>(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true);
+
+        // Set the hero type for season 3 (otherwise characterparts wouldn't show)
+        player_controller->PlayerState()->HeroType() = hero_definition;
 
         for (TSoftObjectPtr<UCustomCharacterPart>& character_part : hero_definition->Specializations()[0]->CharacterParts())
         {

@@ -7,22 +7,27 @@ replication_component::replication_component()
 {
     INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
     INIT_POINTER(SendClientAdjustment, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 99 ? ? ? ? 48 39 99 ? ? ? ? 74 0A 48 83 B9 ? ? ? ? ?"));
-    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("E8 ? ? ? ? ? 8B ? E8 ? ? ? ? 83 ? ? ? 0F 84 ? ? ? ?", true, 1));
-    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("E8 ? ? ? ? 49 8B CD E8 ? ? ? ? 41 83 7D ? ? 0F 84 ? ? ? ?", true, 1));
+    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("49 8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8", true, 8));
     INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
     INIT_POINTER(CreateChannel, memory_manager::find_function_by_string(L"AsyncLoadWorldOverride=", {0xe8}, 1));
     INIT_POINTER(ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"));
-    INIT_POINTER(IsLevelInitializedForActor, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpNetDriver")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?") ? memory_manager::find_pattern("49 8B ? 4C 8B ? 49 8B ? 49 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?") + 14 : memory_manager::find_pattern("FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ? 45 8B CE 41 B0 01 BA ? ? ? ? 49 8B CD") + 2) / 8]);
+    INIT_POINTER(IsLevelInitializedForActor, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 81 ? ? ? ? 49 8B D8 48 8B FA"));
     INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 17 48 8B 07 48 8B CF 48 8B 74 24 ? 48 83 C4 50", true, 1));
     INIT_POINTER(Close, memory_manager::find_function_by_string(L"UActorChannel::Close: ChIndex: %d, Actor: %s"));
     INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
-    INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") ? memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 48 8B ? 48 8B ? FF 90 ? ? ? ? 48 85 C0") + 2 : memory_manager::find_pattern("FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? 49 8B 45 00 49 8B CD FF 90 ? ? ? ? 48 85 C0") + 2) / 8]);
     INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
     INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
     INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
     INIT_POINTER(WriteObject, memory_manager::find_function_by_string(L"WroteObject %s NetGUID <%s>"));
     INIT_POINTER(SendBunch, memory_manager::find_function_by_string(L"SendBunch: Reliable"));
     INIT_POINTER(StartBecomingDormant, memory_manager::find_function_by_string(L"StartBecomingDormant: %s"));
+    INIT_POINTER(::SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s>"))
+
+    // make sure the address is valid to prevent crashes
+    if (uintptr_t is_net_ready_address = memory_manager::find_pattern("33 D2 ? 8B ? FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? ? 8B"))
+    {
+        INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(is_net_ready_address + 7) / 8]);
+    }
     
     NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(memory_manager::find_pattern("8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8 ? ? ? ?") - 5);
     NetworkOffsets::NetworkObjects = *reinterpret_cast<int*>(memory_manager::find_pattern("48 8B 8B ? ? ? ? 33 C0 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? E8 ? ? ? ? 48 85 FF") + 3);

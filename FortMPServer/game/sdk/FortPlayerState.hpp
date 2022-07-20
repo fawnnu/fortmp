@@ -8,7 +8,7 @@ class APlayerState : public AActor
 class AFortPlayerState : public APlayerState
 {
 public:
-    DEFINE_PROPERTY(UObject*, HeroType);
+    DEFINE_PROPERTY(class UFortHeroType*, HeroType);
 };
 
 struct FDeathInfo
