@@ -14,7 +14,6 @@ replication_component::replication_component()
     INIT_POINTER(IsLevelInitializedForActor, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 81 ? ? ? ? 49 8B D8 48 8B FA"));
     INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 17 48 8B 07 48 8B CF 48 8B 74 24 ? 48 83 C4 50", true, 1));
     INIT_POINTER(Close, memory_manager::find_function_by_string(L"UActorChannel::Close: ChIndex: %d, Actor: %s"));
-    INIT_POINTER(IsNetRelevantFor, memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)"));
     INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
     INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
     INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
@@ -34,6 +33,28 @@ replication_component::replication_component()
     NetworkOffsets::DestroyedStartupOrDormantActors = *reinterpret_cast<int*>(memory_manager::find_pattern("48 8D ? ? ? ? ? 45 33 C9 48 8D 55 ? 4C 8B E8 4C 8D 40 1C E8 ? ? ? ? 48 8B 55 6F 48 8D 4D ? E8 ? ? ? ?") + 3);
     NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = *reinterpret_cast<int*>(memory_manager::find_pattern("48 ? ? ? ? ? ? 8B 43 08 3B 43 34 74 69 8B 43 48 4C 8D 4B 38") + 3);
     NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(memory_manager::find_pattern("8B 88 ? ? ? ? 48 8B 03 89 8B ? ? ? ? 48 8B CB FF 90 ? ? ? ? 80 3D ? ? ? ? ?") + 2);
+
+    // Retrieve the VTable index of IsNetRelevantFor dynamically
+    for (int TableIdx = 0; TableIdx < INT_MAX; TableIdx++)
+    {
+        static auto ActorTable = FindObject(L"/Script/Engine.Default__Actor")->VTable;
+
+        static uintptr_t IsNetRelevantBaseFunction = memory_manager::find_function_by_string(L"Actor %s / %s has no root component in AActor::IsNetRelevantFor. (Make bAlwaysRelevant=true?)");
+
+        if (auto Function = ActorTable[TableIdx])
+        {
+            if (reinterpret_cast<uintptr_t>(Function) == IsNetRelevantBaseFunction)
+            {
+                NetworkOffsets::IsNetRelevantForVTableIdx = TableIdx;
+                
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 UChannel* replication_component::FindChannelByActor(UNetConnection* Connection, AActor* InActor)
@@ -61,7 +82,8 @@ bool replication_component::IsActorRelevantToConnection(AActor* Actor, TArray<FN
 {
     for (int ViewerIdx = 0; ViewerIdx < ConnectionViewers.Num(); ViewerIdx++)
     {
-        if (IsNetRelevantFor(Actor, ConnectionViewers[ViewerIdx].InViewer, ConnectionViewers[ViewerIdx].ViewTarget, ConnectionViewers[ViewerIdx].ViewLocation))
+        // Call function by VFTable index due to existing overrides
+        if (reinterpret_cast<bool(*)(AActor*, AActor*, AActor*, FVector&)>(Actor->VTable[NetworkOffsets::IsNetRelevantForVTableIdx])(Actor, ConnectionViewers[ViewerIdx].InViewer, ConnectionViewers[ViewerIdx].ViewTarget, ConnectionViewers[ViewerIdx].ViewLocation))
         {
             return true;
         }
