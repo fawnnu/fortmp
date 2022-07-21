@@ -5,6 +5,9 @@ patches_component::patches_component()
 {
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
+
+    // Limit the tickrate
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetMaxTickRate, memory_manager::find_function_by_string(L"Hitching by request!"), patches_component_hook::GetMaxTickRate_Hook);
     
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("48 8B C4 57 48 81 EC ? ? ? ? 4C 8B 82 ? ? ? ? 48 8B F9 0F 29 70 E8 0F 29 78 D8 44 0F 29 40 ? F3 45 0F 10 80 ? ? ? ? F3 41 0F 10 B0 ? ? ? ? F3 41 0F 10 88 ? ? ? ? F3 41 0F 10 A0 ? ? ? ? 44 0F 29 58 ? 44 0F 29 60 ? 45 0F 57 E4"), patches_component_hook::GetTagsFromPawnLocation_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_function_by_string(L"STAT_PoiVolume_GetTagsForPawnLocation", { 0xE8, 0x100, 0x100, 0x100, 0x0 }, 1, false), patches_component_hook::GetTagsFromPawnLocation_Hook);
@@ -53,6 +56,17 @@ patches_component::patches_component()
     }
     
     DetourTransactionCommit();
+}
+
+float patches_component_hook::GetMaxTickRate_Hook(UObject* Engine, float DeltaTime, bool bAllowSmoothing)
+{
+    // Force this function to act like this server an actual dedicated server
+    if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
+    {
+        return NetDriver->NetServerMaxTickRate();
+    }
+
+    return 30.f;
 }
 
 void patches_component_hook::UpdateNetStats_Hook(UObject* NetDebugWidget)

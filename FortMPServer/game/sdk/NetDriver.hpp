@@ -11,4 +11,6 @@ public:
     DEFINE_PROPERTY(float, Time);
 
     DEFINE_PROPERTY(FName, NetDriverName);
+
+    DEFINE_PROPERTY(int, NetServerMaxTickRate);
 };
