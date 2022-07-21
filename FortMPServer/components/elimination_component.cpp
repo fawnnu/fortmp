@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "elimination_component.hpp"
 
+#include "pickup_component.hpp"
+
 elimination_component::elimination_component()
 {
     if (GetEngineVersionEasy() < 421)
@@ -101,6 +103,21 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
     // Get death cause
     VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
+
+    // Spawn dead player loot
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&VictimPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+
+    static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
+    
+    for (FFortItemEntry& item_entry : replicated_entries)
+    {
+        if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible"))
+        {
+            continue;
+        }
+
+        pickup_component::spawn_pickup(item_entry.ItemDefinition(), VictimPlayerController->Pawn()->K2_GetActorLocation(), item_entry.Count(), item_entry.LoadedAmmo());
+    }
     
     {
         // Logic to remove players does not work on some builds

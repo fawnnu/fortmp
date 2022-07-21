@@ -14,7 +14,7 @@ renderer::renderer()
     }
     
     // Always create window initially
-    glfw_window = create_window("FortMP", 1280, 940);
+    glfw_window = create_window("FortMP", 800, 800);
 
     if (glfw_window == nullptr)
     {

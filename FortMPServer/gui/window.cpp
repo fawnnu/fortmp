@@ -23,21 +23,34 @@ void window::render(GLFWwindow* in_window)
     
     if (loader_component::is_server_ready)
     {
+        if (ImGui::Begin("MainBar", nullptr, ImGuiWindowFlags_NoTitleBar))
         {
-            if (ImGui::Begin("World", nullptr, ImGuiWindowFlags_None))
+            if (ImGui::BeginTabBar("MainTabBar"))
             {
-                if (ImGui::Button("Start Game"))
+                // Initialize tabs
+                if (ImGui::BeginTabItem("World"))
                 {
-                    // Reduce warmup time
-                    (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
-                    (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
+                    if (ImGui::Button("Start Game"))
+                    {
+                        // Reduce warmup time
+                        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
+                        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
+                    }
+                    
+                    ImGui::EndTabItem();
                 }
-            }
 
-            ImGui::End();
+                if (ImGui::BeginTabItem("Players"))
+                {
+                    player_tab::render();
+                    
+                    ImGui::EndTabItem();
+                }
+                
+                ImGui::EndTabBar();
+            }
         }
-        
-        // Render player tab
-        player_tab::render();
+
+        ImGui::End();
     }
 }

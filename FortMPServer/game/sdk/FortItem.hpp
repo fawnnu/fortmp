@@ -33,6 +33,7 @@ class UFortItemDefinition : public UObject
 public:
     DEFINE_PROPERTY(int, MaxStackSize);
     DEFINE_PROPERTY(uint8_t, ItemType);
+    DEFINE_PROPERTY(uint8_t, FilterOverride);
     
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)
     {

@@ -4,7 +4,6 @@ class player_tab
 {
 public:
     static void render();
-    static void render_player_list();
     
     static void render_player(AFortPlayerController* player_controller);
 
