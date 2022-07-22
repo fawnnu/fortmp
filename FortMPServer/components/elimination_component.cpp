@@ -108,15 +108,18 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     auto replicated_entries = TArrayManager<FFortItemEntry>(&VictimPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
     static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
-    
-    for (FFortItemEntry& item_entry : replicated_entries)
-    {
-        if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible"))
-        {
-            continue;
-        }
 
-        pickup_component::spawn_pickup(item_entry.ItemDefinition(), VictimPlayerController->Pawn()->K2_GetActorLocation(), item_entry.Count(), item_entry.LoadedAmmo());
+    if (VictimPlayerController->WorldInventory())
+    {
+        for (FFortItemEntry& item_entry : replicated_entries)
+        {
+            if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible"))
+            {
+                continue;
+            }
+
+            pickup_component::spawn_pickup(item_entry.ItemDefinition(), VictimPlayerController->Pawn()->K2_GetActorLocation(), item_entry.Count(), item_entry.LoadedAmmo());
+        }
     }
     
     {

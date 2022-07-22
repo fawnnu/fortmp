@@ -136,20 +136,23 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
 void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UObject*, EmoteAsset);
-    
-    auto new_ability_spec = FGameplayAbilitySpec();
 
-    new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C"); // set the ability in the newly created struct
-    new_ability_spec.SourceObject = EmoteAsset; // set the sourceobject, in this case the emote we want to execute
-    new_ability_spec.Level = 1; 
-    new_ability_spec.InputID = 1;
+    if (FortPlayerController->Pawn() && FortPlayerController->Pawn()->AbilitySystemComponent())
+    {
+        auto new_ability_spec = FGameplayAbilitySpec();
 
-    const auto unk = new DWORD();
+        new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C"); // set the ability in the newly created struct
+        new_ability_spec.SourceObject = EmoteAsset; // set the sourceobject, in this case the emote we want to execute
+        new_ability_spec.Level = 1; 
+        new_ability_spec.InputID = 1;
 
-    // plays the emote by activating the ability.
-    // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
-    // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
-    GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
+        const auto unk = new DWORD();
+
+        // plays the emote by activating the ability.
+        // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
+        // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
+        GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
+    }
     
     return ServerPlayEmoteItem(FortPlayerController, StackFrame);
 }
