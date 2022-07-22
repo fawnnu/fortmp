@@ -10,6 +10,7 @@ aircraft_component::aircraft_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerController.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
 
@@ -97,8 +98,12 @@ void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAi
 }
 
 
-void aircraft_component_hooks::EnterAircraft_Hook(AFortPlayerControllerAthena* FortPlayerControllerAthena, AFortAircraft* Aircraft)
+void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft* Aircraft)
 {
+    AFortPlayerControllerAthena* FortPlayerControllerAthena = _this->HasProperty(L"CurrentAircraft") ?
+        static_cast<AFortPlayerControllerAthena*>(static_cast<UFortControllerComponent_Aircraft*>(_this)->GetOwner()) :
+        static_cast<AFortPlayerControllerAthena*>(_this);
+    
     // Get inventory
     auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerControllerAthena->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
     
@@ -121,5 +126,5 @@ void aircraft_component_hooks::EnterAircraft_Hook(AFortPlayerControllerAthena* F
         }
     }
     
-    return EnterAircraft(FortPlayerControllerAthena, Aircraft);
+    return EnterAircraft(_this, Aircraft);
 }

@@ -18,7 +18,7 @@ namespace aircraft_component_hooks
     DEFINE_FUNCTION_HOOK(void, OnAircraftExitedDropZone, (AFortGameModeAthena* GameMode, FFrame& StackFrame));
 
     // Native function called when a player enters the aircraft. Exists on any build
-    DEFINE_FUNCTION_HOOK(void, EnterAircraft, (AFortPlayerControllerAthena* FortPlayerControllerAthena, AFortAircraft* FortAircraft));
+    DEFINE_FUNCTION_HOOK(void, EnterAircraft, (UObject*, AFortAircraft* FortAircraft));
 };
 
 // Used to choose a player start for the player exiting the aircraft

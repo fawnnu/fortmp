@@ -6,6 +6,7 @@
 replication_component::replication_component()
 {
     INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
+    
     INIT_POINTER(SendClientAdjustment, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 99 ? ? ? ? 48 39 99 ? ? ? ? 74 0A 48 83 B9 ? ? ? ? ?"));
     INIT_POINTER(CallPreReplication, memory_manager::find_pattern("49 8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8", true, 8));
     INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
@@ -23,17 +24,32 @@ replication_component::replication_component()
     INIT_POINTER(::SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s>"))
 
     // make sure the address is valid to prevent crashes
-    if (uintptr_t is_net_ready_address = memory_manager::find_pattern("33 D2 ? 8B ? FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? ? 8B"))
+    if (const uintptr_t is_net_ready_address = memory_manager::find_pattern("33 D2 ? 8B ? FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? ? 8B"))
     {
         INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(is_net_ready_address + 7) / 8]);
     }
-    
-    NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(memory_manager::find_pattern("8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8 ? ? ? ?") - 5);
-    NetworkOffsets::NetworkObjects = *reinterpret_cast<int*>(memory_manager::find_pattern("48 8B 8B ? ? ? ? 33 C0 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? E8 ? ? ? ? 48 85 FF") + 3);
-    NetworkOffsets::DestroyedStartupOrDormantActors = *reinterpret_cast<int*>(memory_manager::find_pattern("48 8D ? ? ? ? ? 45 33 C9 48 8D 55 ? 4C 8B E8 4C 8D 40 1C E8 ? ? ? ? 48 8B 55 6F 48 8D 4D ? E8 ? ? ? ?") + 3);
-    NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = *reinterpret_cast<int*>(memory_manager::find_pattern("48 ? ? ? ? ? ? 8B 43 08 3B 43 34 74 69 8B 43 48 4C 8D 4B 38") + 3);
-    NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(memory_manager::find_pattern("8B 88 ? ? ? ? 48 8B 03 89 8B ? ? ? ? 48 8B CB FF 90 ? ? ? ? 80 3D ? ? ? ? ?") + 2);
 
+    if (const uintptr_t replication_frame_address = memory_manager::find_pattern("8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8 ? ? ? ?"))
+    {
+        NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(replication_frame_address - 5);
+    }
+    if (const uintptr_t network_objects_address = memory_manager::find_pattern("48 8B 8B ? ? ? ? 33 C0 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? E8 ? ? ? ? 48 85 FF"))
+    {
+        NetworkOffsets::NetworkObjects = *reinterpret_cast<int*>(network_objects_address + 3);
+    }
+    if (const uintptr_t destroyed_startup_or_dormant_actors_address = memory_manager::find_pattern("48 8D ? ? ? ? ? 45 33 C9 48 8D 55 ? 4C 8B E8 4C 8D 40 1C E8 ? ? ? ? 48 8B 55 6F 48 8D 4D ? E8 ? ? ? ?"))
+    {
+        NetworkOffsets::DestroyedStartupOrDormantActors = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_address + 3);
+    }
+    if (const uintptr_t destroyed_startup_or_dormant_actors_netdriver_address = memory_manager::find_pattern("48 ? ? ? ? ? ? 8B 43 08 3B 43 34 74 69 8B 43 48 4C 8D 4B 38"))
+    {
+        NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_netdriver_address + 3);
+    }
+    if (const uintptr_t time_seconds_address = memory_manager::find_pattern("8B 88 ? ? ? ? 48 8B 03 89 8B ? ? ? ? 48 8B CB FF 90 ? ? ? ? 80 3D ? ? ? ? ?"))
+    {
+        NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(time_seconds_address + 2);
+    }
+    
     // Retrieve the VTable index of IsNetRelevantFor dynamically
     for (int TableIdx = 0; TableIdx < INT_MAX; TableIdx++)
     {
