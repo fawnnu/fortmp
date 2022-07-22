@@ -12,9 +12,12 @@ renderer::renderer()
     {
         return;
     }
+
+    // Disable window resize
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     
     // Always create window initially
-    glfw_window = create_window("FortMP", 800, 800);
+    glfw_window = create_window("FortMP", 800, 600);
 
     if (glfw_window == nullptr)
     {
@@ -28,11 +31,11 @@ renderer::renderer()
     }
 }
 
-GLFWwindow* renderer::create_window(std::string window_name, int window_height, int window_width)
+GLFWwindow* renderer::create_window(std::string window_name, int window_width, int window_height)
 {
     GLFWwindow* new_window = glfwCreateWindow(
         window_width,
-        window_width,
+        window_height,
         window_name.c_str(),
         nullptr,
         nullptr);

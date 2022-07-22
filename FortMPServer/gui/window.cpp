@@ -7,6 +7,7 @@
 
 #include "../components/loader_component.hpp"
 
+#include "tabs/world_tab.hpp"
 #include "tabs/player_tab.hpp"
 
 void window::render(GLFWwindow* in_window)
@@ -30,12 +31,7 @@ void window::render(GLFWwindow* in_window)
                 // Initialize tabs
                 if (ImGui::BeginTabItem("World"))
                 {
-                    if (ImGui::Button("Start Game"))
-                    {
-                        // Reduce warmup time
-                        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
-                        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
-                    }
+                    world_tab::render();
                     
                     ImGui::EndTabItem();
                 }

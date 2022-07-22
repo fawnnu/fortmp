@@ -7,7 +7,7 @@ public:
     renderer();
     
     // Creates a new OpenGL window
-    GLFWwindow* create_window(std::string window_name, int window_height, int window_width);
+    GLFWwindow* create_window(std::string window_name, int window_width, int window_height);
 
     // Called every frame to render
     void render();

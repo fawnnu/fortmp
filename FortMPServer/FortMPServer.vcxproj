@@ -217,6 +217,7 @@
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="gui\renderer.hpp" />
     <ClInclude Include="gui\tabs\player_tab.hpp" />
+    <ClInclude Include="gui\tabs\world_tab.hpp" />
     <ClInclude Include="gui\window.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\Containers.hpp" />
@@ -479,6 +480,7 @@
     </ClCompile>
     <ClCompile Include="gui\renderer.cpp" />
     <ClCompile Include="gui\tabs\player_tab.cpp" />
+    <ClCompile Include="gui\tabs\world_tab.cpp" />
     <ClCompile Include="gui\window.cpp" />
     <ClCompile Include="include.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

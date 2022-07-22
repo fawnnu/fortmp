@@ -10,6 +10,13 @@ public:
 
         Default__KismetSystemLibrary->Call(L"SetBoolPropertyByName", Target, PropertyName, Value);
     }
+
+    static void ExecuteConsoleCommand(FString Command)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        
+        Default__KismetSystemLibrary->Call(L"ExecuteConsoleCommand", *GWorld, Command, nullptr);
+    }
 };
 
 class UKismetMathLibrary : public UObject
