@@ -342,8 +342,11 @@ void inventory_component_hooks::ServerExecuteInventoryWeapon_Hook(AFortPlayerCon
 {
     GET_PARAMETER(AFortWeapon*, Weapon);
 
-    // Equip weapon
-    PlayerController->Pawn()->EquipWeaponDefinition(Weapon->WeaponData(), Weapon->ItemEntryGuid());
+    if(Weapon != nullptr && Weapon->WeaponData() != nullptr && PlayerController->Pawn() != nullptr)
+    {
+        // Equip weapon
+        PlayerController->Pawn()->EquipWeaponDefinition(Weapon->WeaponData(), Weapon->ItemEntryGuid());   
+    }
     
     return ServerExecuteInventoryWeapon(PlayerController, StackFrame);
 }
