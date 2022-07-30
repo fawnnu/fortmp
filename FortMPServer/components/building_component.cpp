@@ -34,8 +34,12 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
              
              if (building_owner)
              {
+                 uint8_t new_team = building_owner->PlayerState()->TeamIndex();
+                 
                  // Only allow members of the team to edit the building actor
-                 building_actor->Team() = building_owner->PlayerState()->TeamIndex();
+                 building_actor->Team() = new_team;
+
+                 building_actor->SetTeam(new_team);
      
                  // Initialize building actor
                  building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);

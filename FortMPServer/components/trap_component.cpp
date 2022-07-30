@@ -16,66 +16,28 @@ trap_component::trap_component()
 
 void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFrame& StackFrame)
 {
-    GET_PARAMETER(FVector, Location);
-    GET_PARAMETER(FRotator, Rotation);
     GET_PARAMETER(ABuildingSMActor*, AttachedActor);
 
-    UObject* actor_class = FortDecoTool->ItemDefinition()->BlueprintClass().Get();
+    // Call native function to properly spawn the trap
+    ServerSpawnDeco(FortDecoTool, StackFrame);
 
-    if (actor_class == nullptr)
-    {
-        // No class to spawn trap actor
-        return;
-    }
+    AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
 
-    // Spawn trap actor in world
-    ABuildingTrap* trap_actor = reinterpret_cast<ABuildingTrap*>(SpawnActor(*GWorld, actor_class, &Location, &Rotation, FActorSpawnParameters {}));
+    // Take the most recent attached actor (new trap)
+    ABuildingSMActor* trap_actor = AttachedActor->AttachedBuildingActors()[AttachedActor->AttachedBuildingActors().Num() - 1];
 
-    if (trap_actor == nullptr)
-    {
-        // No trap actor spawned
-        return;
-    }
-
-    AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller();
-
-    if (player_controller == nullptr)
-    {
-        // Invalid owner of deco tool
-        return;
-    }
+    uint8_t new_team = player_controller->PlayerState()->TeamIndex();
     
-    // Setup trap
-    trap_actor->InitializeKismetSpawnedBuildingActor(trap_actor, player_controller);
-    
-    // Attach trap to given building actor
-    trap_actor->AttachedTo() = AttachedActor;
-
-    // Update attached actor on server
-    trap_actor->OnRep_AttachedTo();
-
     // Set trap team
-    trap_actor->Team() = player_controller->PlayerState()->TeamIndex();
+    trap_actor->Team() = new_team;
 
-    if (trap_actor->AbilitySet())
+    // Set trap team on newer builds
+    trap_actor->SetTeam(new_team);
+
+    // Pay trap cost
+    if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_definition(player_controller, FortDecoTool->ItemDefinition()))
     {
-        // Apply any ability sets
-        ability_component::apply_ability_set(FortDecoTool->GetOwner(), trap_actor->AbilitySet());
-    }
-
-    // Remove used trap
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-                 
-    for (int i = 0; i < replicated_entries.Num(); i++)
-    {
-        FFortItemEntry& replicated_entry = replicated_entries[i];
-
-        if (replicated_entry.ItemDefinition() == FortDecoTool->ItemDefinition())
-        {
-            inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), 1, false);
-
-            break;
-        }
+        inventory_component::remove_item(player_controller, static_cast<UFortWorldItem*>(item_to_remove)->ItemEntry().ItemGuid(), 1, false);
     }
 }
 

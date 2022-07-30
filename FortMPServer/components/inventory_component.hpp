@@ -13,6 +13,7 @@ public:
     static bool has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
 
     static UFortItem* get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid);
+    static UFortItem* get_inventory_item_by_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
 };
 
 namespace inventory_component_hooks

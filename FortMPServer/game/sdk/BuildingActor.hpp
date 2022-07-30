@@ -42,6 +42,11 @@ public:
     {
         return Call<float>(L"GetMaxHealth");
     }
+
+    void SetTeam(uint8_t TeamIndex)
+    {
+        Call(L"SetTeam", TeamIndex);
+    }
 };
 
 class ABuildingSMActor : public ABuildingActor
@@ -52,6 +57,8 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, BuildingResourceAmountOverride);
     
     DEFINE_PROPERTY(uint8_t, ResourceType);
+
+    DEFINE_PROPERTY(TArray<ABuildingSMActor*>, AttachedBuildingActors);
     
     void SetMirrored(bool bMirrored)
     {
