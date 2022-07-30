@@ -123,23 +123,22 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     }
     
     {
-        // Logic to remove players does not work on some builds
-        static bool should_remove_players = GetEngineVersionEasy() < 422 || GetEngineVersionEasy() > 423;
-
-        if (should_remove_players)
+        if (RemoveFromAlivePlayerList)
         {
-            if (RemoveFromAlivePlayerList)
-            {
-                // Remove player from alive list if function exists
-                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
-            }
+            // Remove player from alive list if function exists
+            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
+        }
         
-            if (RemoveFromAlivePlayers)
-            {
-                // Remove player from alive list if function exists
-                RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
-            }
+        if (RemoveFromAlivePlayers)
+        {
+            // Remove player from alive list if function exists
+            RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+        }
 
+        static bool b_should_spectate = GetEngineVersionEasy() < 422;
+        
+        if (b_should_spectate)
+        {
             // Spectate after 3 seconds
             CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&elimination_component::spectate_on_death), VictimPlayerController, 0, nullptr);
         }
