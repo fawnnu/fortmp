@@ -3,6 +3,8 @@
 
 #include "pickup_component.hpp"
 
+#include "ability_component.hpp"
+
 inventory_component::inventory_component()
 {
     DetourTransactionBegin();
@@ -107,11 +109,43 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         // Update loaded ammo in item entry
         world_item->ItemEntry().LoadedAmmo() = loaded_ammo;
     }
+    
+    // Gadgets implementation
+    static UObject* gadget_definition_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true);
+    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, gadget_definition_class))
+    {
+        UFortGadgetItemDefinition* gadget_item_definition = static_cast<UFortGadgetItemDefinition*>(item_definition);
+        
+        // Apply characrer parts
+        for (UCustomCharacterPart* character_part : gadget_item_definition->CharacterParts())
+        {
+            player_controller->Pawn()->ServerChoosePart(character_part->CharacterPartType(), character_part);
+        }
 
+        // Apply Gadget Ability set
+        UObject* ability_set = gadget_item_definition->AbilitySet().Get();
+        
+        if(ability_set)
+        {
+            ability_component::apply_ability_set(player_controller->Pawn(), ability_set);
+        }
+    }
+    
     // Add to inventory
     replicated_entries.Add(&world_item->ItemEntry());
     item_instances.Add(&world_item);
 
+    // Support force quickbar focus when item gets added to inventory
+    UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(world_item->ItemEntry().ItemDefinition());
+
+    if(world_item_definition != nullptr)
+    {
+        if(world_item_definition->bForceFocusWhenAdded() == true)
+        {
+            player_controller->ClientEquipItem(world_item->GetItemGuid(), true);
+        }
+    }
+    
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
     
@@ -131,6 +165,8 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
 void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item, bool b_is_swapping)
 {
+    // TODO: Add logic for character parts reverting, if player is removing a gadget from inventory.
+    
     if (!player_controller->Pawn() && should_drop_item)
     {
         // No pawn to spawn item at
@@ -284,7 +320,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     // Support trap logic
     static UObject* trap_definition_class = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
     static UObject* context_trap_class = FindObject(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
-
+    
     if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, trap_definition_class))
     {
         // Equip trap
@@ -302,9 +338,20 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
             }
         }
     }
+
+    // Support gadgets logic
+    static UObject* gadget_definition_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition");
     
-    // Equip weapon
-    PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, gadget_definition_class))
+    {
+        // If item is a gadget, equip it's deco item definition
+        PlayerController->Pawn()->EquipWeaponDefinition(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition(), ItemGuid); // TODO: Add a check to use GetWeaponItemDefinition on later builds
+    }
+    else
+    {
+        // Equip Weapon
+        PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+    }
 
     static bool b_set_metadata = GetEngineVersionEasy() < 420;
 

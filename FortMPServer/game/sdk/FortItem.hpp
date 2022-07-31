@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../utils/Containers.hpp"
 
 struct FFortItemEntry;
 class UFortItemDefinition;
@@ -41,9 +42,32 @@ public:
     }
 };
 
+class UFortGadgetItemDefinition : public UFortItemDefinition
+{
+public:
+
+    DEFINE_PROPERTY(TArray<class UCustomCharacterPart*>, CharacterParts)
+    DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AbilitySet)
+
+    // Used on early versions
+    UFortItemDefinition* GetDecoItemDefinition()
+    {
+        return Call<UFortItemDefinition*>(L"GetDecoItemDefinition");
+    }
+
+    // Used on later versions
+    UFortItemDefinition* GetWeaponItemDefinition()
+    {
+        return Call<UFortItemDefinition*>(L"GetWeaponItemDefinition");
+    }
+};
+
 class UFortWorldItemDefinition : public UFortItemDefinition
 {
 public:
+
+    DEFINE_BIT_PROPERTY(bool, bForceFocusWhenAdded);
+
     UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()
     {
         return Call<UFortWorldItemDefinition*>(L"GetAmmoWorldItemDefinition_BP");
