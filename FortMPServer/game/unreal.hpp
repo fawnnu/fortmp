@@ -105,7 +105,6 @@ public:
 
     bool IsA(UObject* in_class)
     {
-        // TODO: Implement inheritance
         return in_class == Class;
     }
     

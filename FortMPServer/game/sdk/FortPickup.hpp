@@ -3,11 +3,12 @@
 struct FFortPickupLocationData
 {
     DEFINE_STRUCT_PROPERTY(uint8_t, TossState);
+    DEFINE_STRUCT_PROPERTY(AFortPawn*, PickupTarget);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPickupLocationData");
 };
 
-class AFortPickup : public UObject
+class AFortPickup : public AActor
 {
 public:
     DEFINE_PROPERTY(bool, bServerStoppedSimulation);

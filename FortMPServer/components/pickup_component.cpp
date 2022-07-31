@@ -21,6 +21,8 @@ pickup_component::pickup_component()
 
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
+
+    REGISTER_FUNCTION_DETOUR(pickup_component_hooks::NotifyActorDestroyed, memory_manager::find_function_by_string(L"NotifyActorDestroyed %s - StartupActor"), pickup_component_hooks::NotifyActorDestroyed_Hook);
     
     DetourTransactionCommit();
 }
@@ -85,35 +87,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         // Prevent duplication
         return;
     }
-
-    UFortWorldItem* spawned_item = inventory_component::add_item(PlayerPawn->Controller(), Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
-
-    if (inventory_component::is_inventory_full(PlayerPawn->Controller()))
-    {
-        static UObject* melee_item_definition_class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-
-        if (!PlayerPawn->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
-        {
-            // Swap item
-            inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
-
-            static bool b_legacy_quickbars = PlayerPawn->Controller()->HasProperty(L"QuickBars");
     
-            if (b_legacy_quickbars)
-            {
-                PlayerPawn->Controller()->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
-            }
-            
-            // Equip item on client
-            PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
-        }
-        else
-        {
-            // Unable to swap
-            inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);
-        }
-    }
-
     __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0]; //taken from IDA
 
     static UFunction* GrabPickupCustomized = FindObject<UFunction>(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized");
@@ -130,6 +104,56 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
+
+    // Set PickupTarget for later
+    Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
+}
+
+void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor* ThisActor, bool bSeamlessTravel)
+{
+    static UObject* FortPickupAthena_Class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+
+    // Pickup delay
+    if (ThisActor->IsA(FortPickupAthena_Class))
+    {
+        AFortPickup* Pickup = static_cast<AFortPickup*>(ThisActor);
+        AFortPawn* PlayerPawn = Pickup->PickupLocationData().PickupTarget();
+
+        if (!PlayerPawn)
+        {
+            return;
+        }
+        
+        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerPawn->Controller(), Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
+
+        if (inventory_component::is_inventory_full(PlayerPawn->Controller()))
+        {
+            static UObject* melee_item_definition_class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+
+            if (!PlayerPawn->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
+            {
+                // Swap item
+                inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
+
+                static bool b_legacy_quickbars = PlayerPawn->Controller()->HasProperty(L"QuickBars");
+    
+                if (b_legacy_quickbars)
+                {
+                    PlayerPawn->Controller()->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
+                }
+            
+                // Equip item on client
+                PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+            }
+            else
+            {
+                // Unable to swap
+                inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);
+            }
+        }
+    }
+
+    NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
 }
 
 void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)
