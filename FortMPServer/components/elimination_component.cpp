@@ -104,6 +104,14 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     // Get death cause
     VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
 
+    // Mark death report as initialized
+    static bool b_has_binitialized = FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"bInitialized");
+
+    if (b_has_binitialized)
+    {
+        VictimPlayerController->PlayerState()->DeathInfo().bInitialized() = true;
+    }
+    
     // Spawn dead player loot
     auto replicated_entries = TArrayManager<FFortItemEntry>(&VictimPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 

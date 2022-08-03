@@ -140,9 +140,12 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
     if(world_item_definition != nullptr)
     {
-        if(world_item_definition->bForceFocusWhenAdded() == true)
+        if (static bool b_has_property = world_item_definition->HasProperty(L"bForceFocusWhenAdded"))
         {
-            player_controller->ClientEquipItem(world_item->GetItemGuid(), true);
+            if(world_item_definition->bForceFocusWhenAdded() == true)
+            {
+                player_controller->ClientEquipItem(world_item->GetItemGuid(), true);
+            }
         }
     }
     
