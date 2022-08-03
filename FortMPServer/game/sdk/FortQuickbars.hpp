@@ -56,17 +56,20 @@ public:
                 if (!bIsSwapping)
                 {
                     // Fix dropping issue with focus
-                    if (AFortWeapon* current_weapon = static_cast<AFortPlayerController*>(GetOwner())->Pawn()->CurrentWeapon())
+                    if (AFortPawn* player_pawn = static_cast<AFortPlayerController*>(GetOwner())->Pawn())
                     {
-                        for (int j = 0; j < primary_quickbar_slots.Num(); j++)
+                        if (AFortWeapon* current_weapon = player_pawn->CurrentWeapon())
                         {
-                            if (primary_quickbar_slots[j].Items().Num())
+                            for (int j = 0; j < primary_quickbar_slots.Num(); j++)
                             {
-                                if (primary_quickbar_slots[j].Items()[0] == current_weapon->ItemEntryGuid())
+                                if (primary_quickbar_slots[j].Items().Num())
                                 {
-                                    if (j < i)
+                                    if (primary_quickbar_slots[j].Items()[0] == current_weapon->ItemEntryGuid())
                                     {
-                                        return;
+                                        if (j < i)
+                                        {
+                                            return;
+                                        }
                                     }
                                 }
                             }
