@@ -30,6 +30,14 @@ public:
         return Default__KismetMathLibrary->Call<float>(L"RandomFloatInRange", Min, Max);
     }
     
+    static int RandomIntegerInRange(int Min, int Max)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<int>(L"RandomIntegerInRange", Min, Max);
+    }
+    
     static bool RandomBool()
     {
         // Static function to use default object

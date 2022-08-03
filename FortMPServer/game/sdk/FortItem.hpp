@@ -80,6 +80,12 @@ public:
     DEFINE_PROPERTY(struct FTableRowHandle, WeaponStatHandle);
 };
 
+class UAthenaCharacterItemDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
+};
+
 struct FFortItemList : public FFastArraySerializer
 {
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, ReplicatedEntries);

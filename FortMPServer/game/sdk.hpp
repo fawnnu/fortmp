@@ -81,6 +81,7 @@
 #include "sdk/World.hpp"
 #include "sdk/DataTable.hpp"
 #include "sdk/CurveTable.hpp"
+#include "sdk/GameData.hpp"
 #include "sdk/KismetLibrary.hpp"
 
 #include "sdk/BuildingActor.hpp"
