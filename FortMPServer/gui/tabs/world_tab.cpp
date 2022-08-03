@@ -27,6 +27,15 @@ void world_tab::render()
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.0f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.0f;
     }
+
+    if (ImGui::Button("Set Christmas Bus"))
+    {
+        // Enable christmas bus
+        if (UObject* BattleBus = FindObject(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus", true))
+        {
+            (*GWorld)->GameState()->DefaultBattleBus() = BattleBus;
+        }
+    }
 }
 
 void world_tab::execute_command()

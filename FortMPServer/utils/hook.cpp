@@ -15,13 +15,6 @@ hook_manager::hook_manager()
 
 void hook_manager_hooks::ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    while (!game_thread_queue.empty())
-    {
-        // Execute code on game thread
-        game_thread_queue.front()();
-        game_thread_queue.pop_front();
-    }
-    
     if (Object && Function)
     {
         if (hook_manager::hooked_functions[Function])

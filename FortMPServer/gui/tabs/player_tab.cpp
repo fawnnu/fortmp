@@ -14,14 +14,17 @@ void player_tab::render()
     {
         UNetConnection* client_connection = ClientConnections[connection_idx];
 
-        if (client_connection == nullptr)
+        if (client_connection == nullptr || client_connection->PlayerController()->MyPlayerInfo() == nullptr)
         {
             continue;
         }
 
-        // TODO: Get real player name
-        const char* player_name = "Player";
-            
+        const wchar_t* player_name_wide = client_connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str();
+        
+        char player_name[255];
+
+        WideCharToMultiByte(CP_UTF8, 0, player_name_wide, lstrlenW(player_name_wide) - 1, player_name, sizeof player_name, nullptr, nullptr);
+        
         if (ImGui::Selectable(player_name, connection_idx == selected_player_idx))
         {
             // Update player index
@@ -49,4 +52,11 @@ void player_tab::render()
 
 void player_tab::render_player(AFortPlayerController* player_controller)
 {
+    ImGui::BeginGroup();
+    ImGui::BeginChild("player_info_view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+
+    if (ImGui::Button("Kick"))
+    {
+        player_controller->ClientReturnToMainMenu(L"Kicked by an operator.");
+    }
 }

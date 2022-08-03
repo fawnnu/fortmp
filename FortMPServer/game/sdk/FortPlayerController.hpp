@@ -3,6 +3,12 @@
 class UNetConnection;
 class UAthenaResurrectionComponent;
 
+class UFortRegisteredPlayerInfo : public UObject
+{
+public:
+    DEFINE_PROPERTY(FString, PlayerName);
+};
+
 class UFortClientSettingsRecord : public UObject
 {
 public:
@@ -71,6 +77,7 @@ class AFortPlayerController : public APlayerController
 {
 public:
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
+    DEFINE_PROPERTY(UFortRegisteredPlayerInfo*, MyPlayerInfo);
     
     DEFINE_PROPERTY(bool, bHasServerFinishedLoading);
 
@@ -97,6 +104,11 @@ public:
     void ClientEquipItem(FGuid ItemGuid, bool bForceExecution)
     {
         Call(L"ClientEquipItem", ItemGuid, bForceExecution);
+    }
+
+    void ClientReturnToMainMenu(FString in_reason)
+    {
+        Call(L"ClientReturnToMainMenu", in_reason);
     }
 
     UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)

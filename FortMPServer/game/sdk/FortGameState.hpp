@@ -82,6 +82,8 @@ public:
 
     DEFINE_PROPERTY(FGameMemberInfoArray, GameMemberInfoArray);
 
+    DEFINE_PROPERTY(UObject*, DefaultBattleBus);
+    
     DEFINE_PROPERTY(int, TotalPlayers);
     DEFINE_PROPERTY(int, PlayersLeft);
     

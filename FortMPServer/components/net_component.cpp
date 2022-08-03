@@ -64,6 +64,13 @@ bool net_component::listen(FURL in_url)
 
 void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds)
 {
+    while (!game_thread_queue.empty())
+    {
+        // Execute code on game thread
+        game_thread_queue.front()();
+        game_thread_queue.pop_front();
+    }
+    
     if (NetDriver->ClientConnections().Num() > 0 && !NetDriver->ClientConnections()[0]->InternalAck())
     {
         // Update all clients

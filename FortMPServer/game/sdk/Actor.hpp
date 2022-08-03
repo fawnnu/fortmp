@@ -79,6 +79,11 @@ public:
     {
         Call(L"ForceNetUpdate");
     }
+
+    void K2_DestroyActor()
+    {
+        Call(L"K2_DestroyActor");
+    }
 };
 
 struct UChannelBitField
