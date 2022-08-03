@@ -194,17 +194,27 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
                         {
                             auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(uintptr_t(static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().Table) + 0x30);
                             new_loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
+
+                            for (int j = 0; j < replicated_entries.Num(); j++)
+                            {
+                                if (replicated_entries[j].ItemDefinition() == ammo_item_definition)
+                                {
+                                    if (replicated_entries[j].Count() - Amount == 0)
+                                    {
+                                        new_loaded_ammo = replicated_entry.LoadedAmmo() + Amount;
+                                    }
+                                    
+                                    inventory_component::remove_item(player_controller, replicated_entries[j].ItemGuid(), Amount, false);
+                                    
+                                    break;
+                                }
+                            }
                         }
                         
                         replicated_entry.LoadedAmmo() = new_loaded_ammo;
                         item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
 
                         player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
-                    }
-
-                    if (replicated_entry.ItemDefinition() == ammo_item_definition)
-                    {
-                        inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), Amount, false);
                     }
                 }
             }

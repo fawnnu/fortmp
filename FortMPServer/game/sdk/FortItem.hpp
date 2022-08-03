@@ -21,6 +21,11 @@ public:
     {
         return Call<int>(L"GetMaxStackSize", AbilityComponent);
     }
+
+    int GetRemainingAmmo()
+    {
+        return Call<int>(L"GetRemainingAmmo");
+    }
 };
 
 class UFortWorldItem : public UFortItem

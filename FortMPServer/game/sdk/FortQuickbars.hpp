@@ -53,22 +53,37 @@ public:
                 
                 GenericArray_Remove(&primary_quickbar_slots[i].Items(), items, 0);
 
-                for (; i < primary_quickbar_slots.Num(); i++)
+                if (!bIsSwapping)
                 {
-                    if (primary_quickbar_slots[i].Items().Num())
+                    // Fix dropping issue with focus
+                    if (AFortWeapon* current_weapon = static_cast<AFortPlayerController*>(GetOwner())->Pawn()->CurrentWeapon())
                     {
-                        if (!bIsSwapping)
+                        for (int j = 0; j < primary_quickbar_slots.Num(); j++)
+                        {
+                            if (primary_quickbar_slots[j].Items().Num())
+                            {
+                                if (primary_quickbar_slots[j].Items()[0] == current_weapon->ItemEntryGuid())
+                                {
+                                    if (j < i)
+                                    {
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    for (; i < primary_quickbar_slots.Num(); i++)
+                    {
+                        if (primary_quickbar_slots[i].Items().Num())
                         {
                             // Activate this slot
                             ServerActivateSlotInternal(0, i);
-                        }
                         
-                        return;
+                            return;
+                        }
                     }
-                }
 
-                if (!bIsSwapping)
-                {
                     // If not slot was found, activate the first slot
                     ServerActivateSlotInternal(0, 0);
                 }

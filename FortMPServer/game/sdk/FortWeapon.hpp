@@ -10,6 +10,11 @@ public:
     {
         return Call<int>(L"GetMagazineAmmoCount");
     }
+    
+    int GetRemainingAmmo()
+    {
+        return Call<int>(L"GetRemainingAmmo");
+    }
 };
 
 struct FAthenaBatchedDamageGameplayCues_Shared

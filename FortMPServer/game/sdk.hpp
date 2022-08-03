@@ -72,7 +72,6 @@
 #include "sdk/FortGameState.hpp"
 #include "sdk/FortGameMode.hpp"
 #include "sdk/FortPlaylist.hpp"
-#include "sdk/FortQuickbars.hpp"
 #include "sdk/FortAbility.hpp"
 #include "sdk/FortZiplines.hpp"
 
@@ -89,8 +88,8 @@
 #include "sdk/FortVolume.hpp"
 #include "sdk/AbilitySystemComponent.hpp"
 #include "sdk/FortLoot.hpp"
-#include "sdk/FortQuickbars.hpp"
 #include "sdk/FortWeapon.hpp"
+#include "sdk/FortQuickbars.hpp"
 #include "sdk/FortAircraft.hpp"
 #include "sdk/FortDecoTool.hpp"
 
