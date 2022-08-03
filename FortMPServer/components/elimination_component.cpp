@@ -5,6 +5,8 @@
 
 elimination_component::elimination_component()
 {
+    spectators_array.Reserve(100); 
+    
     if (GetEngineVersionEasy() < 421)
     {
         // Setup function with original arguments if below version 5.00
@@ -63,7 +65,19 @@ void elimination_component::spectate_on_death(AFortPlayerController* player_cont
     
     if (player_controller)
     {
+        for (AFortPlayerController* spectator : spectators_array)
+        {
+            if (!spectator)
+            {
+                continue;
+            }
+                
+            static_cast<AFortPlayerControllerAthena*>(spectator)->SpectateOnDeath();
+        }
+        
         static_cast<AFortPlayerControllerAthena*>(player_controller)->SpectateOnDeath();
+
+        spectators_array.Add(player_controller);
     }
 }   
 
