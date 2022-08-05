@@ -121,6 +121,8 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
 
         if (!PlayerPawn || !PlayerPawn->Controller()->WorldInventory())
         {
+            spdlog::error(L"Played attempted to pickup actor with invalid PlayerPawn or WorldInventory.");
+            
             return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
         }
         

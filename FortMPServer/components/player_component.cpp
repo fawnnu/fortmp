@@ -93,6 +93,16 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
         if (player_pawn)
         {
+            // Make sure the player is joining for the first time
+            if (NetConnection->PlayerController()->PlayerState()->NumRejoins() > 0)
+            {
+                spdlog::error(L"Player {} attempted to rejoin. Kicking...", NetConnection->PlayerController()->MyPlayerInfo()->PlayerName().c_str());
+                
+                NetConnection->PlayerController()->ClientReturnToMainMenu(L"You aren't allowed to rejoin. Please restart the game with a different name and try again.");
+
+                return SetClientLoginState(NetConnection, 0);
+            }
+            
             // Spawn QuickBars
             AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
             

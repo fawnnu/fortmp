@@ -77,6 +77,13 @@ void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena
 
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
     {
+        if (NetConnection == nullptr || NetConnection->PlayerController() == nullptr)
+        {
+            spdlog::error(L"Player attempted to jump from aircraft with invalid NetConnection or PlayerController");
+            
+            continue;
+        }
+        
         if (NetConnection->PlayerController()->IsInAircraft())
         {
             // Remove the player from the aircraft
