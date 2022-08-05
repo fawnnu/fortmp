@@ -119,9 +119,16 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
         AFortPickup* Pickup = static_cast<AFortPickup*>(ThisActor);
         AFortPawn* PlayerPawn = Pickup->PickupLocationData().PickupTarget();
 
-        if (!PlayerPawn || !PlayerPawn->Controller()->WorldInventory())
+        if (!PlayerPawn)
         {
-            spdlog::error(L"Played attempted to pickup actor with invalid PlayerPawn or WorldInventory.");
+            spdlog::error(L"Played attempted to pickup actor with invalid PlayerPawn.");
+            
+            return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
+        }
+        
+        if (!PlayerPawn->Controller()->WorldInventory())
+        {
+            spdlog::error(L"Played attempted to pickup actor with invalid WorldInventory.");
             
             return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
         }
@@ -153,6 +160,8 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
                 inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);
             }
         }
+
+        Pickup->PickupLocationData().PickupTarget() = nullptr;
     }
 
     NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
