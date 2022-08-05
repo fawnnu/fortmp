@@ -61,14 +61,14 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
 
 void elimination_component::spectate_on_death()
 {
-    for (AFortPlayerController* spectator : spectators_array)
+    for (TWeakObjectPtr<AFortPlayerController>& spectator : spectators_array)
     {
-        if (memory_manager::is_bad_read_pointer(spectator) || !spectator)
+        if (!spectator.Get())
         {
             continue;
         }
                 
-        static_cast<AFortPlayerControllerAthena*>(spectator)->SpectateOnDeath();
+        static_cast<AFortPlayerControllerAthena*>(spectator.Get())->SpectateOnDeath();
     }
 }   
 
@@ -150,7 +150,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
         static bool b_should_spectate = GetEngineVersionEasy() < 422;
         
-        if (b_should_spectate)
+        if (b_should_spectate && !VictimPlayerController->bIsDisconnecting())
         {
             // Spectate after 3 seconds
             elimination_component::spectators_array.push_back(VictimPlayerController);

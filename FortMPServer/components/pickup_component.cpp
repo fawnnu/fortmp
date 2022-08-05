@@ -119,9 +119,9 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
         AFortPickup* Pickup = static_cast<AFortPickup*>(ThisActor);
         AFortPawn* PlayerPawn = Pickup->PickupLocationData().PickupTarget();
 
-        if (!PlayerPawn)
+        if (!PlayerPawn || !PlayerPawn->Controller()->WorldInventory())
         {
-            return;
+            return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
         }
         
         UFortWorldItem* spawned_item = inventory_component::add_item(PlayerPawn->Controller(), Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());

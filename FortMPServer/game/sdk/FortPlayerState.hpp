@@ -34,6 +34,8 @@ public:
     DEFINE_PROPERTY(int, KillScore);
 
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
+
+    DEFINE_PROPERTY(int, NumRejoins);
     
     void ClientReportKill(AFortPlayerStateAthena* Player)
     {

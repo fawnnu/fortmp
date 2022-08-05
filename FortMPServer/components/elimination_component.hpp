@@ -9,7 +9,7 @@ public:
 
     static void spectate_on_death();
 
-    inline static std::vector<AFortPlayerController*> spectators_array;
+    inline static std::vector<TWeakObjectPtr<AFortPlayerController>> spectators_array;
 };
 
 namespace elimination_component_hooks
