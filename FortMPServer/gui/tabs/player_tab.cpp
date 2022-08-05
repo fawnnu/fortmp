@@ -14,7 +14,7 @@ void player_tab::render()
     {
         UNetConnection* client_connection = ClientConnections[connection_idx];
 
-        if (client_connection == nullptr || client_connection->PlayerController()->MyPlayerInfo() == nullptr)
+        if (client_connection == nullptr || client_connection->PlayerController() == nullptr ||client_connection->PlayerController()->MyPlayerInfo() == nullptr)
         {
             continue;
         }

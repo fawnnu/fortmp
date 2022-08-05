@@ -5,7 +5,7 @@
 
 elimination_component::elimination_component()
 {
-    spectators_array.Reserve(100); 
+    spectators_array.reserve(100); 
     
     if (GetEngineVersionEasy() < 421)
     {
@@ -153,12 +153,12 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         if (b_should_spectate)
         {
             // Spectate after 3 seconds
-            elimination_component::spectators_array.Add(VictimPlayerController);
+            elimination_component::spectators_array.push_back(VictimPlayerController);
             
-            CreateThread(nullptr, 0, [](LPVOID) -> DWORD { Sleep(3000); game_thread_queue.push_back([]
+            CreateThread(nullptr, 0, [](LPVOID) -> DWORD { Sleep(3000);
             {
                 elimination_component::spectate_on_death();
-            }); return 0; }, VictimPlayerController, 0, nullptr);
+            } return 0; }, VictimPlayerController, 0, nullptr);
         }
     }
 }

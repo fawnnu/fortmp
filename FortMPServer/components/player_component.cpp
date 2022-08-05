@@ -43,6 +43,16 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         // Apply Athena ability set
         ability_component::apply_ability_set(player_pawn, ability_set);
 
+        // Check if the player state already had some characterparts
+        for (int i = 0; i < 5; i++)
+        {
+            if ((&player_controller->PlayerState()->CharacterParts())[i] != nullptr)
+            {
+                // Found a valid character part, no need to set them again.
+                return player_pawn;
+            }
+        }
+
         // Take a random character
         static UAthenaGameData* athena_game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
             FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) :
