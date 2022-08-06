@@ -129,6 +129,27 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         {
             ability_component::apply_ability_set(player_controller->Pawn(), ability_set);
         }
+
+        // Grant attributes
+        UObject* attribute_set = gadget_item_definition->AttributeSet().Get();
+
+        bool b_has_attribute_set = false;
+        
+        for (const auto Attribute : player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes())
+        {
+            if (Attribute->IsA(attribute_set)) //TODO: Make sure the attribute belongs to the item (Guid check)
+            {
+                b_has_attribute_set = true;
+                break;
+            }
+        }
+
+        if (!b_has_attribute_set)
+        {
+            auto new_attribute = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->SpawnObject(attribute_set, world_item);
+        
+            player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
+        }
     }
     
     // Add to inventory

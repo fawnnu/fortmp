@@ -58,6 +58,22 @@ struct FServerAbilityRPCBatch
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.ServerAbilityRPCBatch");
 };
 
+struct FGameplayAttribute
+{
+    DEFINE_STRUCT_PROPERTY(FString, AttributeName);
+    DEFINE_STRUCT_PROPERTY(UObject*, AttributeOwner);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAttribute");
+};
+
+struct FGameplayAttributeData
+{
+    DEFINE_STRUCT_PROPERTY(float, BaseValue);
+    DEFINE_STRUCT_PROPERTY(float, CurrentValue);
+    
+    DEFINE_STRUCT_CLASS(L"GameplayAbilities.GameplayAttributeData");
+};
+
 struct FGameplayEventData
 {
     
@@ -67,6 +83,8 @@ class UAbilitySystemComponent : public UObject
 {
 public:
     DEFINE_PROPERTY(FGameplayAbilitySpecContainer, ActivatableAbilities);
+
+    DEFINE_PROPERTY(TArray<UObject*>, SpawnedAttributes);
 
     void ClientActivateAbilityFailed(FGameplayAbilitySpecHandle AbilityToActivate, int16_t PredictionKey)
     {
