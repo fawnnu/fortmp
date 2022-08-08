@@ -101,6 +101,7 @@ public:
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
 
     DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
+    DEFINE_BIT_PROPERTY(bool, bStartAlreadySearched_Athena);
 
     void OnRep_bAlreadySearched()
     {

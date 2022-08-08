@@ -92,6 +92,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 
                 pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, loaded_ammo);
             }
+
+            // Set as searched if needed
+            UKismetSystemLibrary::SetBoolPropertyByName(floor_loot_actor, L"bAlreadySearched", static_cast<ABuildingContainer*>(floor_loot_actor)->bStartAlreadySearched_Athena());
+
+            // Actor might be dormant
+            floor_loot_actor->ForceNetUpdate();
         }
 
         // All warmup floor loot actors in the sub-level
@@ -117,6 +123,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 
                 pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, loaded_ammo);
             }
+
+            // Set as searched if needed
+            UKismetSystemLibrary::SetBoolPropertyByName(floor_loot_actor, L"bAlreadySearched", static_cast<ABuildingContainer*>(floor_loot_actor)->bStartAlreadySearched_Athena());
+
+            // Actor might be dormant
+            floor_loot_actor->ForceNetUpdate();
         }
 
         // Infinite warmup
