@@ -222,6 +222,7 @@
     <ClInclude Include="gui\window.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\Containers.hpp" />
+    <ClInclude Include="utils\dll_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
   </ItemGroup>
@@ -487,6 +488,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils\dll_utils.cpp" />
     <ClCompile Include="utils\hook.cpp" />
     <ClCompile Include="utils\memory.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>

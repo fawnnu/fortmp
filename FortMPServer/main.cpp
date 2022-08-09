@@ -24,7 +24,8 @@
 
 void Setup()
 {
-    AllocConsole();
+    // Create a file sink
+    dll_utils::create_spdlog_sink();
     
     // setup Unreal Engine
     unreal_manager::setup_unreal_engine();

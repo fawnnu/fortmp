@@ -25,6 +25,7 @@
 #include <Detours.h>
 
 #include "utils/memory.hpp"
+#include "utils/dll_utils.hpp"
 
 #include "game/unreal.hpp"
 #include "game/sdk.hpp"

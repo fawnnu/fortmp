@@ -44,9 +44,13 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         ability_component::apply_ability_set(player_pawn, ability_set);
 
         // Check if the player state already had some characterparts
+        UCustomCharacterPart*& character_parts_static_array = player_controller->PlayerState()->HasProperty(L"LocalCharacterParts") ?
+            player_controller->PlayerState()->LocalCharacterParts() :
+            player_controller->PlayerState()->CharacterParts();
+        
         for (int i = 0; i < 5; i++)
         {
-            if ((&player_controller->PlayerState()->CharacterParts())[i] != nullptr)
+            if ((&character_parts_static_array)[i] != nullptr)
             {
                 // Found a valid character part, no need to set them again.
                 return player_pawn;
