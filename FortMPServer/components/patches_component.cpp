@@ -33,25 +33,26 @@ patches_component::patches_component()
     }
 
     {
-        auto view_point_patch = memory_manager::find_pattern("74 1C 0F 57 C0 0F 2F 81 ? ? ? ? 73 10 4D 8B C6 48 8B D6");
-        if (!view_point_patch) view_point_patch = memory_manager::find_pattern("74 ? 0F 57 C0 0F 2F 80 ? ? ? ? 73 ? 8B 9F ? ? ? ? 48 8B CF C1 EB 03");
+        // FLASHING FIX
         
-        if (view_point_patch)
-        {
-            DWORD d2;
-            DWORD d12;
+        const UObject* DefaultCameraObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") ?
+            FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") :
+            FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraBase");
+        
+        const UObject* DefaultCameraObject_Replace = FindObject(L"/Script/Engine.Default__PlayerCameraManager");
 
-            VirtualProtect(reinterpret_cast<LPVOID>(view_point_patch), 1, PAGE_EXECUTE_READWRITE, &d2);
+        const int target_patch_index = *reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? F2 0F 10 44 24 ? 8B 44 24 28 48 8B 8C 24 ? ? ? ?") + 2) / 8;
 
-            // Patch GetPlayerViewPoint function to prevent replication issues
-            reinterpret_cast<char*>(view_point_patch)[0] = 0x75;
+        DWORD old_protect, new_protect;
+    
+        VirtualProtect(DefaultCameraObject->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
 
-            VirtualProtect(reinterpret_cast<LPVOID>(view_point_patch), 1, d2, &d12);
-        }
-        else
-        {
-            spdlog::critical("Failed to setup patch 'GetPlayerViewPoint', invalid patch address provided");
-        }
+        DefaultCameraObject->VTable[target_patch_index - 2] = DefaultCameraObject_Replace->VTable[target_patch_index - 2];
+        DefaultCameraObject->VTable[target_patch_index - 1] = DefaultCameraObject_Replace->VTable[target_patch_index - 1];
+        DefaultCameraObject->VTable[target_patch_index] = DefaultCameraObject_Replace->VTable[target_patch_index];
+        DefaultCameraObject->VTable[target_patch_index + 1] = DefaultCameraObject_Replace->VTable[target_patch_index + 1];
+    
+        VirtualProtect(DefaultCameraObject->VTable, 4096, old_protect, &new_protect);
     }
     
     DetourTransactionCommit();

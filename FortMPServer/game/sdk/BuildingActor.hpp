@@ -26,10 +26,10 @@ public:
 
     void InitializeKismetSpawnedBuildingActor(ABuildingActor* BuildingOwner, AFortPlayerController* SpawningController)
     {
-        static bool has_spawning_anim = FindObject(L"/Script/FortniteGame.BuildingActor.InitializeKismetSpawnedBuildingActor")->HasProperty(L"bUsePlayerBuildAnimations");
+        static bool has_spawning_anim_arg = FindPropertyByName(FindObject(L"/Script/FortniteGame.BuildingActor.InitializeKismetSpawnedBuildingActor"), L"bUsePlayerBuildAnimations") != nullptr;
         
         // Spawn building actor depending on property
-        has_spawning_anim ?
+        has_spawning_anim_arg ?
             Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController, true) : Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController);
     }
 
