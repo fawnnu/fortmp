@@ -7,9 +7,11 @@ ability_component::ability_component()
 {
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_pattern("4C 89 4C 24 ? 4C 89 44 24 ? 89 54 24 10 55 53 56 57 41 54 41 57 48 8D AC 24 ? ? ? ?"));
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_function_by_string(L"InternalTryActivateAbility called with invalid"));
+    INIT_POINTER(InternalTryActivateAbility, memory_manager::find_pattern("4C 89 4C 24 ? 4C 89 44 24 ? 89 54 24 10 55 56 41 54 41 55 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ?"));
 
     INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("48 89 5C 24 ? 48 89 7C 24 ? 41 56 48 83 EC 20 48 8B 01 41 0F B6 ? 4C 8B F2 48 8B ? FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ?"));
     INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 80 B9 ? ? ? ? ? 48 8B FA 48 8B D9 75 4A C6 81 ? ? ? ? ? 48 81 C1 ? ? ? ? 83 3A FF 75 16 FF 41 50"));
+    INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 86 ? ? ? ? 48 85 C0 75 08 48 8B CE E8 ? ? ? ? 8B 80 ? ? ? ? 89 86 ? ? ? ? B0 01", true, 1));
 
     INIT_POINTER(GiveAbilityAndActivateOnce, memory_manager::find_function_by_string(L"GiveAbilityAndActivateOnce called on ability %s that"));
     

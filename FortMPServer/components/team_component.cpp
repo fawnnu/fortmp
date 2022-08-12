@@ -18,7 +18,11 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
 {
     // Set team
     player_controller->PlayerState()->TeamIndex() = team_index;
-    player_controller->PlayerState()->SquadId() = team_index;
+
+    if (player_controller->PlayerState()->HasProperty(L"SquadId"))
+    {
+        player_controller->PlayerState()->SquadId() = team_index;
+    }
     
     if (FGameMemberInfo::GetClass())
     {
