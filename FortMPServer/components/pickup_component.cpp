@@ -156,8 +156,11 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
             }
             else
             {
-                // Unable to swap
-                inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);
+                if(PlayerPawn->Controller() != nullptr && spawned_item != nullptr)
+                {
+                    // Unable to swap
+                    inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);   
+                }
             }
         }
 
