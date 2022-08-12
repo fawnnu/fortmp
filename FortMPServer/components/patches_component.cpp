@@ -34,33 +34,74 @@ patches_component::patches_component()
 
     {
         // FLASHING FIX
+
+        if (const uintptr_t target_address = memory_manager::find_pattern("FF 90 ? ? ? ? F2 0F 10 44 24 ? 8B 44 24 28 48 8B 8C 24 ? ? ? ?"))
+        {
+            const UObject* DefaultCameraObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") ?
+                FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") :
+                FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraBase");
         
-        const UObject* DefaultCameraObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") ?
-            FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraZone") :
-            FindObject(L"/Script/FortniteGame.Default__FortPlayerCameraBase");
-        
-        const UObject* DefaultCameraObject_Replace = FindObject(L"/Script/Engine.Default__PlayerCameraManager");
+            const UObject* DefaultCameraObject_Replace = FindObject(L"/Script/Engine.Default__PlayerCameraManager");
 
-        const int target_patch_index = *reinterpret_cast<int*>(memory_manager::find_pattern("FF 90 ? ? ? ? F2 0F 10 44 24 ? 8B 44 24 28 48 8B 8C 24 ? ? ? ?") + 2) / 8;
+            const int target_patch_index = *reinterpret_cast<int*>(target_address + 2) / 8;
 
-        DWORD old_protect, new_protect;
+            DWORD old_protect, new_protect;
     
-        VirtualProtect(DefaultCameraObject->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+            VirtualProtect(DefaultCameraObject->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
 
-        DefaultCameraObject->VTable[target_patch_index - 2] = DefaultCameraObject_Replace->VTable[target_patch_index - 2];
-        DefaultCameraObject->VTable[target_patch_index - 1] = DefaultCameraObject_Replace->VTable[target_patch_index - 1];
-        DefaultCameraObject->VTable[target_patch_index] = DefaultCameraObject_Replace->VTable[target_patch_index];
-        DefaultCameraObject->VTable[target_patch_index + 1] = DefaultCameraObject_Replace->VTable[target_patch_index + 1];
+            DefaultCameraObject->VTable[target_patch_index - 2] = DefaultCameraObject_Replace->VTable[target_patch_index - 2];
+            DefaultCameraObject->VTable[target_patch_index - 1] = DefaultCameraObject_Replace->VTable[target_patch_index - 1];
+            DefaultCameraObject->VTable[target_patch_index] = DefaultCameraObject_Replace->VTable[target_patch_index];
+            DefaultCameraObject->VTable[target_patch_index + 1] = DefaultCameraObject_Replace->VTable[target_patch_index + 1];
     
-        VirtualProtect(DefaultCameraObject->VTable, 4096, old_protect, &new_protect);
+            VirtualProtect(DefaultCameraObject->VTable, 4096, old_protect, &new_protect);
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch DefaultCameraObject's VFTable, pattern not found.");
+        }
+    }
+
+    {
+        // NOMCP BEHAVIOUR ON PRE 1.10
+
+        if (const uintptr_t target_address = memory_manager::find_pattern("FF 97 ? ? ? ? 48 8B 8D ? ? ? ? 84 C0 0F 94 C3 48 85 C9 74 05 E8 ? ? ? ?"))
+        {
+            const UFortLocalPlayer* DefaultLocalPlayer = FindObject<UFortLocalPlayer>(L"/Script/FortniteGame.Default__FortLocalPlayer");
+
+            const int target_hook_idx = *reinterpret_cast<int*>(target_address + 2) / 8;
+
+            INIT_POINTER(patches_component_hook::SpawnPlayActor, DefaultLocalPlayer->VTable[target_hook_idx]);
+            
+            DWORD old_protect, new_protect;
+
+            VirtualProtect(DefaultLocalPlayer->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+
+            DefaultLocalPlayer->VTable[target_hook_idx] = patches_component_hook::SpawnPlayActor_Hook;
+            
+            VirtualProtect(DefaultLocalPlayer->VTable, 4096, old_protect, &new_protect);
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch UFortLocalPlayer::SpawnPlayActor, pattern not found");
+        }
     }
     
     DetourTransactionCommit();
 }
 
+bool patches_component_hook::SpawnPlayActor_Hook(ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World)
+{
+    // Call native function
+    SpawnPlayActor(LocalPlayer, URL, Error, World);
+
+    // Force return true
+    return true;
+}
+
 float patches_component_hook::GetMaxTickRate_Hook(UObject* Engine, float DeltaTime, bool bAllowSmoothing)
 {
-    // Force this function to act like this server an actual dedicated server
+    // Force this function to act like on an actual dedicated server
     if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
     {
         return NetDriver->NetServerMaxTickRate();

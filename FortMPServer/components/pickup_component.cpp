@@ -152,11 +152,14 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
                 }
             
                 // Equip item on client
-                PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                if (spawned_item != nullptr)
+                {
+                    PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                }
             }
             else
             {
-                if(PlayerPawn->Controller() != nullptr && spawned_item != nullptr)
+                if (spawned_item != nullptr)
                 {
                     // Unable to swap
                     inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);   

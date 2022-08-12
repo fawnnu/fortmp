@@ -10,6 +10,8 @@ namespace patches_component_hook
 {
     DEFINE_FUNCTION_HOOK(UFortClientSettingsRecord*, GetClientSettingsRecord, (UFortLocalPlayer* LocalPlayer));
 
+    DEFINE_FUNCTION_HOOK(bool, SpawnPlayActor, (ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World));
+    
     DEFINE_FUNCTION_HOOK(int, GetNetMode, (UNetDriver* NetDriver));
     DEFINE_FUNCTION_HOOK(int, WorldGetNetMode, (UWorld* World));
 
