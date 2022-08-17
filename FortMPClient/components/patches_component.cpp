@@ -6,7 +6,10 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    REGISTER_FUNCTION_DETOUR(patches_component_hooks::SendInventoryChangedNotification, memory_manager::find_function_by_string(XOR(L"STAT_FortInventory_SendInventoryChangedNotification")), patches_component_hooks::SendInventoryChangedNotification_Hook);
+    if (GetEngineVersionEasy() > 423)
+    {
+        REGISTER_FUNCTION_DETOUR(patches_component_hooks::SendInventoryChangedNotification, memory_manager::find_function_by_string(XOR(L"STAT_FortInventory_SendInventoryChangedNotification")), patches_component_hooks::SendInventoryChangedNotification_Hook);
+    }
     
     DetourTransactionCommit();
 }

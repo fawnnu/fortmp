@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="components\api_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />
@@ -166,6 +167,12 @@
     <ClCompile Include="utils\memory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="API\auth.hpp" />
+    <ClInclude Include="API\cloudstorage.hpp" />
+    <ClInclude Include="API\fortnitegame.hpp" />
+    <ClInclude Include="API\lightswitch.hpp" />
+    <ClInclude Include="API\profile.hpp" />
+    <ClInclude Include="components\api_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />

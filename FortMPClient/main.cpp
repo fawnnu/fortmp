@@ -2,12 +2,21 @@
 
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
+#include "components/api_component.hpp"
 
 void Setup()
 {
     unreal_manager::setup_unreal_engine();
 
-    ssl_bypass_component::redirect_url = XOR("http://127.0.0.1:3551");
+    ssl_bypass_component::redirect_url = XOR("http://127.0.0.1:5555");
+
+    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
+    {
+        // Start the API on another thread
+        new api_component();
+        
+        return 0;
+    }, nullptr, 0, nullptr);
     
     //Instantly start the SSL bypass
     new ssl_bypass_component();
@@ -17,7 +26,6 @@ void Setup()
         {
             if (*GWorld)
             {
-                // TODO: maybe move? 
                 UObject* player_controller = FindObject<UGameplayStatics>(XOR(L"/Script/Engine.Default__GameplayStatics"))->GetPlayerController(*GWorld, 0);
                 
                 if (player_controller)
