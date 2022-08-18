@@ -55,5 +55,33 @@ public:
         {
            res.set_content("[]", "application/json"); 
         });
+
+        in_app.Get("/account/api/public/account", [](const httplib::Request& req, httplib::Response& res)
+        {
+            std::string ID;
+
+            if (req.has_param("accountId"))
+            {
+                ID = req.get_param_value("accountId");
+            }
+
+            const nlohmann::json response = {{
+                {"id", ID},
+                {"displayName", local_username},
+                {"externalAuths", nlohmann::json({})}
+            }};
+
+            res.set_content(response.dump(), "application/json");
+        });
+
+        in_app.Delete("/account/api/oauth/sessions/kill", [](const httplib::Request&, httplib::Response& res)
+        {
+            res.status = 204;
+        });
+        
+        in_app.Delete(R"(/account/api/oauth/sessions/kill/(.*))", [](const httplib::Request&, httplib::Response& res)
+        {
+            res.status = 204;
+        });
     }
 };
