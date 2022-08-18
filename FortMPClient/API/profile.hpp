@@ -115,13 +115,26 @@ public:
 					"favorite":false
 				},
 				"quantity":1
+			},
+			"AthenaCharacter:CID_001_Athena_Commando_F_Default": {
+				"templateId": "AthenaCharacter:CID_001_Athena_Commando_F_Default",
+				"attributes": {
+					"max_level_bonus": 0,
+					"level": 1,
+					"item_seen": true,
+					"xp": 0,
+					"variants": [],
+					"favorite": false
+				},
+				"quantity": 1
 			}
 		},
 		"stats":{
 			"attributes":{
+				"favorite_character": "AthenaCharacter:CID_001_Athena_Commando_F_Default",
 				"season_match_boost":0,
 				"loadouts":[
-					"puma"
+					null
 				],
 				"rested_xp_overflow":0,
 				"mfa_reward_claimed":true,
@@ -142,16 +155,16 @@ public:
 				
 				],
 				"rested_xp_exchange":0,
-				"level":0,
+				"level":100,
 				"xp_overflow":0,
 				"rested_xp":0,
 				"rested_xp_mult":0,
-				"accountLevel":0,
+				"accountLevel":100,
 				"competitive_identity":{
 				
 				},
 				"inventory_limit_bonus":0,
-				"last_applied_loadout":"puma",
+				"last_applied_loadout":null,
 				"daily_rewards":{
 				
 				},
@@ -170,7 +183,6 @@ public:
     {
         in_app.Post(R"(/fortnite/api/game/v2/profile/(.*)/client/(.*))", [](const httplib::Request& req, httplib::Response& res)
         {
-        	nlohmann::json response_profile;
         	nlohmann::json profile_changes = {};
         	std::string default_profile_id = "common_core";
         	int default_revision = -1;
@@ -184,35 +196,20 @@ public:
         		default_revision = std::stoi(req.get_param_value("rvn"));
         	}
 
-        	if (default_profile_id == "athena")
+        	if (default_revision != 0)
         	{
-        		response_profile = athena_profile;
-        	}
-
-        	if (response_profile["rvn"].is_null())
-        	{
-        		response_profile["rvn"] = 0;
-        	}
-        	
-        	if (response_profile["commandRevision"].is_null())
-        	{
-        		response_profile["commandRevision"] = 0;
-        	}
-
-        	if (response_profile["rvn"] != default_revision)
-        	{
-        		profile_changes = {
+        		profile_changes = {{
         			{"changeType", "fullProfileUpdate"},
-        			{"profile", response_profile}
-        		};
+        			{"profile", athena_profile}
+        		}};
         	}
 
         	const nlohmann::json response = {
-        		{"profileRevision", response_profile["rvn"]},
+        		{"profileRevision", 1},
 				{"profileId", default_profile_id},
-				{"profileChangesBaseRevision", default_revision},
+				{"profileChangesBaseRevision", 0},
         		{"profileChanges", profile_changes},
-				{"profileCommandRevision", response_profile["commandRevision"]},
+				{"profileCommandRevision", 1},
 				{"responseVersion", 1}
         	};
 

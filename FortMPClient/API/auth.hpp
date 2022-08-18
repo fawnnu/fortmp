@@ -5,38 +5,13 @@ class auth
 public:
     inline static std::string local_username;
     
-    inline static nlohmann::json response_client_credentials = R"(
-        [{
-            "access_token": "gWHSKIlhPMbpZqFmt95MsuB6RH6BgAHC",
-            "expires_in": 28800,
-            "expires_at": "9999-12-31T23:59:59.999Z",
-            "token_type": "bearer",
-            "client_id": "FMP",
-            "internal_client": true,
-            "client_service": "fortnite"
-        }]
-    )"_json;
-    
     auth() = default;
 
     auth(httplib::Server& in_app)
     {
         in_app.Post("/account/api/oauth/token", [](const httplib::Request& req, httplib::Response& res)
         {
-            if (req.has_param("grant_type"))
-            {
-                if (req.get_param_value("grant_type") == "client_credentials")
-                {
-                    res.set_content(response_client_credentials.dump(), "application/json");
-                }
-                else
-                {
-                    std::string email = req.get_param_value("username");
-
-                    // make the username be the first part of the email
-                    local_username = email.substr(0, email.find("@"));
-
-                    const nlohmann::json response{
+            const nlohmann::json response{
                             {"access_token", "gWHSKIlhPMbpZqFmt95MsuB6RH6BgAHC"},
                             {"expires_in", 28800},
                             {"expires_at", "9999-12-31T23:59:59.999Z"},
@@ -51,13 +26,7 @@ public:
                             {"device_id", "FMP"}
                     };
 
-                    res.set_content(response.dump(), "application/json");
-                }
-            }
-            else
-            {
-                res.status = 400;
-            }
+            res.set_content(response.dump(), "application/json");
         });
 
         in_app.Get(R"(/account/api/public/account/(.*))", [](const httplib::Request& req, httplib::Response& res)
@@ -67,10 +36,24 @@ public:
             const nlohmann::json response = {
                 {"id", account_id},
                 {"displayName", local_username},
-                {"externalAuths", nlohmann::json({})}
+                {"name", "FortMP"},
+                {"lastName", "User"},
+                {"email", "fortmp@erafn.org"},
+                {"failedLoginAttempts", 0},
+                {"numberOfDisplayNameChanges", 0},
+                {"ageGroup", "UNKNOWN"},
+                {"headless", false},
+                {"country", "GB"},
+                {"preferredLanguage", "en"},
+                {"tfaEnabled", false}
             };
 
             res.set_content(response.dump(), "application/json");
+        });
+
+        in_app.Get(R"(/account/api/public/account/(.*)/externalAuths)", [](const httplib::Request& req, httplib::Response& res)
+        {
+           res.set_content("[]", "application/json"); 
         });
     }
 };
