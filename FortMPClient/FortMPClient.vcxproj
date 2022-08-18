@@ -163,11 +163,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils\api_utils.cpp" />
     <ClCompile Include="utils\hook.cpp" />
     <ClCompile Include="utils\memory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\auth.hpp" />
+    <ClInclude Include="API\calendar.hpp" />
     <ClInclude Include="API\cloudstorage.hpp" />
     <ClInclude Include="API\fortnitegame.hpp" />
     <ClInclude Include="API\lightswitch.hpp" />
@@ -188,6 +190,7 @@
     <ClInclude Include="game\unreal\unreal_net.hpp" />
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="include.hpp" />
+    <ClInclude Include="utils\api_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
     <ClInclude Include="utils\xorstr.hpp" />

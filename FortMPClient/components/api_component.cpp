@@ -3,6 +3,7 @@
 
 #include "../API/lightswitch.hpp"
 #include "../API/auth.hpp"
+#include "../API/calendar.hpp"
 #include "../API/cloudstorage.hpp"
 #include "../API/fortnitegame.hpp"
 #include "../API/profile.hpp"
@@ -18,6 +19,7 @@ api_component::api_component()
     new profile(server_app);
     new lightswitch(server_app);
     new storefront(server_app);
+    new calendar(server_app);
     
     server_app.listen("127.0.0.1", 5555);
 }
