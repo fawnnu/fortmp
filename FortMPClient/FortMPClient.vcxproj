@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="components\api_component.cpp" />
+    <ClCompile Include="components\matchmaking_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="API\profile.hpp" />
     <ClInclude Include="API\storefront.hpp" />
     <ClInclude Include="components\api_component.hpp" />
+    <ClInclude Include="components\matchmaking_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />

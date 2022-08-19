@@ -3,6 +3,18 @@
 
 patches_component::patches_component()
 {
+    // Patch out encryption token
+    while (uintptr_t encryption_token_ref = memory_manager::find_pattern(XOR("45 00 6E 00 63 00 72 00 79 00 70 00 74 00 69 00 6F 00 6E 00 54 00 6F 00 6B 00 65 00 6E 00")))
+    {
+        DWORD old_protect, new_protect;
+        
+        VirtualProtect(reinterpret_cast<LPVOID>(encryption_token_ref), 30, PAGE_EXECUTE_READWRITE, &old_protect);
+
+        ZeroMemory(reinterpret_cast<LPVOID>(encryption_token_ref), 30);
+        
+        VirtualProtect(reinterpret_cast<LPVOID>(encryption_token_ref), 30, old_protect, &new_protect);
+    }
+        
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 

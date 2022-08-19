@@ -3,6 +3,7 @@
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
 #include "components/api_component.hpp"
+#include "components/matchmaking_component.hpp"
 
 void Setup()
 {
@@ -14,6 +15,14 @@ void Setup()
     {
         // Start the API on another thread
         new api_component();
+        
+        return 0;
+    }, nullptr, 0, nullptr);
+
+    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
+    {
+        // Start the matchmaker on another thread
+        new matchmaking_component();
         
         return 0;
     }, nullptr, 0, nullptr);
