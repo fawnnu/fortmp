@@ -6,12 +6,15 @@
 #include "../API/calendar.hpp"
 #include "../API/cloudstorage.hpp"
 #include "../API/fortnitegame.hpp"
+#include "../API/matchmaking.hpp"
 #include "../API/profile.hpp"
 #include "../API/storefront.hpp"
 
 api_component::api_component()
 {
     auth::local_username = "FortMP User";
+    matchmaking::gameserver_addr = "127.0.0.1";
+    matchmaking::gameserver_port = 7777;
     
     new auth(server_app);
     new fortnitegame(server_app);
@@ -20,6 +23,7 @@ api_component::api_component()
     new lightswitch(server_app);
     new storefront(server_app);
     new calendar(server_app);
+    new matchmaking(server_app);
     
     server_app.listen("127.0.0.1", 5555);
 }
