@@ -5,7 +5,7 @@ class matchmaking
 public:
     static inline nlohmann::json matchmaking_response = R"({
         "id": "",
-        "ownerId": "FMP",
+        "ownerId": "",
         "ownerName": "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
         "serverName": "[DS]fortnite-liveeugcec1c2e30ubrcore0a-z8hj-1968",
         "serverAddress": "",
@@ -25,7 +25,7 @@ public:
           "STORMSHIELDDEFENSETYPE_i": 0,
           "HOTFIXVERSION_i": 0,
           "PLAYLISTNAME_s": "Playlist_DefaultSolo",
-          "SESSIONKEY_s": "FMP",
+          "SESSIONKEY_s": "",
           "TENANT_s": "Fortnite",
           "BEACONPORT_i": 15009
         },
@@ -80,12 +80,18 @@ public:
         
         in_app.Get(R"(/fortnite/api/matchmaking/session/(.*))", [](const httplib::Request& req, httplib::Response& res)
         {
+            // we'll use the current timestamp to generate ownerId and session key
+            const int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            
             matchmaking_response["serverAddress"] = gameserver_addr;
             matchmaking_response["serverPort"] = gameserver_port;
 
             matchmaking_response["id"] = req.matches[1];
             matchmaking_response["buildUniqueId"] = current_build_id;
 
+            matchmaking_response["ownerId"] = std::to_string(std::hash<std::string>{}(std::to_string(current_timestamp)));
+            matchmaking_response["attributes"]["SESSIONKEY_s"] = std::to_string(std::hash<std::string>{}(std::to_string(current_timestamp + 1)));
+                
             res.set_content(matchmaking_response.dump(), "application/json");
         });
 

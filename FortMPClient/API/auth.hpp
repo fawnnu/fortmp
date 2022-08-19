@@ -11,19 +11,22 @@ public:
     {
         in_app.Post("/account/api/oauth/token", [](const httplib::Request& req, httplib::Response& res)
         {
+            // we'll use the current timestamp to generate random IDs
+            const int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            
             const nlohmann::json response{
                             {"access_token", "gWHSKIlhPMbpZqFmt95MsuB6RH6BgAHC"},
                             {"expires_in", 28800},
                             {"expires_at", "9999-12-31T23:59:59.999Z"},
                             {"token_type", "bearer"},
-                            {"account_id", "FMP"},
-                            {"client_id", "FMP"},
+                            {"account_id", std::to_string(std::hash<std::string>{}(std::to_string(current_timestamp)))},
+                            {"client_id", std::to_string(std::hash<std::string>{}(std::to_string(current_timestamp + 1)))},
                             {"internal_client", true},
                             {"client_service", "fortnite"},
                             {"displayName", local_username},
                             {"app", "fortnite"},
                             {"in_app_id", local_username},
-                            {"device_id", "FMP"}
+                            {"device_id", std::to_string(std::hash<std::string>{}(std::to_string(current_timestamp + 2)))}
                     };
 
             res.set_content(response.dump(), "application/json");
