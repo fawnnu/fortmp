@@ -17,6 +17,7 @@
 #include "utils/memory.hpp"
 #include "utils/xorstr.hpp"
 #include "nlohmann/json.hpp"
+#include "toml++/toml.h"
 #include "httplib/httplib.h"
 #include "websocketpp/config/asio_no_tls.hpp"
 #include "websocketpp/server.hpp"
@@ -26,3 +27,4 @@
 
 #include "utils/hook.hpp"
 #include "utils/api_utils.hpp"
+#include "utils/dll_utils.hpp"

@@ -12,9 +12,10 @@
 
 api_component::api_component()
 {
-    auth::local_username = "FortMP User";
-    matchmaking::gameserver_addr = "127.0.0.1";
-    matchmaking::gameserver_port = 7777;
+    // Parse information from config
+    auth::local_username = dll_utils::get_local_username();
+    matchmaking::gameserver_addr = dll_utils::get_gameserver_addr();
+    matchmaking::gameserver_port = dll_utils::get_gameserver_port();
     
     new auth(server_app);
     new fortnitegame(server_app);
@@ -25,5 +26,5 @@ api_component::api_component()
     new calendar(server_app);
     new matchmaking(server_app);
     
-    server_app.listen("127.0.0.1", 5555);
+    server_app.listen(XOR("127.0.0.1"), 5555);
 }

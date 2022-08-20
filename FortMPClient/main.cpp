@@ -9,7 +9,7 @@ void Setup()
 {
     unreal_manager::setup_unreal_engine();
 
-    ssl_bypass_component::redirect_url = XOR("http://127.0.0.1:5555");
+    ssl_bypass_component::redirect_url = dll_utils::get_redirect_url();
 
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {

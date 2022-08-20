@@ -165,6 +165,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="utils\api_utils.cpp" />
+    <ClCompile Include="utils\dll_utils.cpp" />
     <ClCompile Include="utils\hook.cpp" />
     <ClCompile Include="utils\memory.cpp" />
   </ItemGroup>
@@ -194,6 +195,7 @@
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\api_utils.hpp" />
+    <ClInclude Include="utils\dll_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
     <ClInclude Include="utils\xorstr.hpp" />
