@@ -15,6 +15,8 @@ pickup_component::pickup_component()
     }
     
     // REGISTER_PROCESS_EVENT_DETOUR(L"OnCapsuleBeginOverlap", pickup_component_hooks::OnCapsuleBeginOverlap_Hook);
+
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPickupEffect.OnAboutToEnterBackpack", pickup_component_hooks::OnAboutToEnterBackpack_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -22,8 +24,6 @@ pickup_component::pickup_component()
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
 
-    REGISTER_FUNCTION_DETOUR(pickup_component_hooks::NotifyActorDestroyed, memory_manager::find_function_by_string(L"NotifyActorDestroyed %s - StartupActor"), pickup_component_hooks::NotifyActorDestroyed_Hook);
-    
     DetourTransactionCommit();
 }
 
@@ -36,9 +36,10 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     }
     
     static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+    static UObject* fort_pickup_effect_class = FindObject(L"/Script/FortniteGame.FortPickupEffect");
 
     // Spawn pickup in world
-    AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, fort_pickup_class, &pickup_location, nullptr, FActorSpawnParameters {})); // <--- crashes
+    AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, fort_pickup_class, &pickup_location, nullptr, FActorSpawnParameters {}));
 
     if (fort_pickup == nullptr)
     {
@@ -67,6 +68,20 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     if (b_has_brandomrotation)
     {
         fort_pickup->bRandomRotation() = true;
+    }
+
+    // Set pickup effect
+    static bool b_has_effect_property = fort_pickup->HasProperty(L"PickupEffectBlueprint");
+
+    if (b_has_effect_property)
+    {
+        fort_pickup->PickupEffectBlueprint() = TWeakObjectPtr(
+            static_cast<AActor*>(SpawnActor(*GWorld,
+            fort_pickup_effect_class,
+            &pickup_location, nullptr,
+            FActorSpawnParameters{})));
+
+        fort_pickup->PickupEffectBlueprint().Get()->SetOwner(fort_pickup);
     }
     
     // Toss pickup, prevents pickups from all spawning in the same location
@@ -104,57 +119,54 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
-
-    // Set PickupTarget for later
-    Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
 }
 
-void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor* ThisActor, bool bSeamlessTravel)
+void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    static UObject* FortPickupAthena_Class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+    GET_PROCESS_EVENT_PARAMETER(AFortPlayerPawn*, PickupTarget);
 
-    // Pickup delay
-    if (ThisActor->IsA(FortPickupAthena_Class))
+    if (PickupTarget)
     {
-        AFortPickup* Pickup = static_cast<AFortPickup*>(ThisActor);
-        AFortPawn* PlayerPawn = Pickup->PickupLocationData().PickupTarget();
+        AFortPickup* Pickup = static_cast<AFortPickup*>(static_cast<AActor*>(Object)->GetOwner());
 
-        if (!PlayerPawn)
+        AFortPlayerController* PlayerController = PickupTarget->Controller();
+
+        if (!PlayerController)
         {
-            spdlog::error(L"Played attempted to pickup actor with invalid PlayerPawn.");
-            
-            return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
+            spdlog::error(L"Player attempted to pickup actor with invalid PlayerController.");
+
+            return;
         }
         
-        if (!PlayerPawn->Controller()->WorldInventory())
+        if (!PlayerController->WorldInventory())
         {
-            spdlog::error(L"Played attempted to pickup actor with invalid WorldInventory.");
+            spdlog::error(L"Player attempted to pickup actor with invalid WorldInventory.");
             
-            return NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
+            return;
         }
         
-        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerPawn->Controller(), Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
+        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
 
-        if (inventory_component::is_inventory_full(PlayerPawn->Controller()))
+        if (inventory_component::is_inventory_full(PlayerController))
         {
             static UObject* melee_item_definition_class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
 
-            if (!PlayerPawn->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
+            if (!PickupTarget->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
             {
                 // Swap item
-                inventory_component::remove_item(PlayerPawn->Controller(), PlayerPawn->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
+                inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
 
-                static bool b_legacy_quickbars = PlayerPawn->Controller()->HasProperty(L"QuickBars");
+                static bool b_legacy_quickbars = PlayerController->HasProperty(L"QuickBars");
     
                 if (b_legacy_quickbars)
                 {
-                    PlayerPawn->Controller()->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
+                    PlayerController->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
                 }
             
                 // Equip item on client
                 if (spawned_item != nullptr)
                 {
-                    PlayerPawn->Controller()->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                    PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
                 }
             }
             else
@@ -162,15 +174,15 @@ void pickup_component_hooks::NotifyActorDestroyed_Hook(UNetDriver* _this, AActor
                 if (spawned_item != nullptr)
                 {
                     // Unable to swap
-                    inventory_component::remove_item(PlayerPawn->Controller(), spawned_item->ItemEntry().ItemGuid(), -1);   
+                    inventory_component::remove_item(PlayerController, spawned_item->ItemEntry().ItemGuid(), -1);   
                 }
             }
         }
-
-        Pickup->PickupLocationData().PickupTarget() = nullptr;
     }
-
-    NotifyActorDestroyed(_this, ThisActor, bSeamlessTravel);
+    else
+    {
+        spdlog::error(L"Player attempted to pickup actor with invalid PickupTarget.");
+    }
 }
 
 void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)

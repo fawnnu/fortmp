@@ -20,9 +20,9 @@ namespace pickup_component_hooks
 
     // Called when a player overlaps with a capsule component
     DEFINE_FUNCTION_HOOK(void, OnCapsuleBeginOverlap, (UObject* Object, UObject* Function, void* Params));
-
-    // Called when an actor is destroyed, hooked for pickup delay
-    DEFINE_FUNCTION_HOOK(void, NotifyActorDestroyed, (UNetDriver*, AActor*, bool));
+    
+    // Called when a pickup should be added to a player's inventory
+    DEFINE_FUNCTION_HOOK(void, OnAboutToEnterBackpack, (UObject* Object, UObject* Function, void* Params));
 }
 
 // Used to play the "grab" animation for pickups

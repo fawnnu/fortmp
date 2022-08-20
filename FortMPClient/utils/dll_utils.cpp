@@ -58,7 +58,7 @@ std::string dll_utils::get_redirect_url()
     redirect_url.append(XOR("http://"));
     redirect_url.append(config[XOR("client")][XOR("backend_address")].value_or(XOR("127.0.0.1")));
     redirect_url.append(XOR(":"));
-    redirect_url.append(std::to_string(config[XOR("client")][XOR("backen_port")].value_or(5555)));
+    redirect_url.append(std::to_string(config[XOR("client")][XOR("backend_port")].value_or(5555)));
 
     return redirect_url;
 }
