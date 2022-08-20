@@ -23,7 +23,7 @@ void player_tab::render()
         
         char player_name[255];
 
-        WideCharToMultiByte(CP_UTF8, 0, player_name_wide, lstrlenW(player_name_wide) - 1, player_name, sizeof player_name, nullptr, nullptr);
+        WideCharToMultiByte(CP_UTF8, 0, player_name_wide, -1, player_name, sizeof player_name, nullptr, nullptr);
         
         if (ImGui::Selectable(player_name, connection_idx == selected_player_idx))
         {

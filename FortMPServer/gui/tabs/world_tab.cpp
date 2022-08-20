@@ -36,6 +36,11 @@ void world_tab::render()
             (*GWorld)->GameState()->DefaultBattleBus() = BattleBus;
         }
     }
+
+    ImGui::Separator();
+
+    // Display number of alive players
+    ImGui::Text("Alive players: %d", (*GWorld)->AuthorityGameMode()->AlivePlayers().Num());
 }
 
 void world_tab::execute_command()

@@ -132,8 +132,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
 
         // Infinite warmup
-        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999999.f;
-        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999999.f;
+        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
+        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
         
         // Start match
         (*GWorld)->AuthorityGameMode()->StartMatch();
@@ -144,7 +144,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Server is ready
         is_server_ready = true;
 
-        // Remove the server player from AlivePlayers on older builds TODO: Fix first player being on a team
+        // Remove the server player from AlivePlayers on older builds
         if (GetEngineVersionEasy() < 421)
         {
             APlayerController* player_controller = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetPlayerController(*GWorld, 0);

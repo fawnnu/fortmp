@@ -43,34 +43,31 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         // Apply Athena ability set
         ability_component::apply_ability_set(player_pawn, ability_set);
 
-        // Check if the player state already had some characterparts
-        UCustomCharacterPart*& character_parts_static_array = player_controller->PlayerState()->HasProperty(L"LocalCharacterParts") ?
-            player_controller->PlayerState()->LocalCharacterParts() :
-            player_controller->PlayerState()->CharacterParts();
-        
-        for (int i = 0; i < 5; i++)
-        {
-            if ((&character_parts_static_array)[i] != nullptr)
-            {
-                // Found a valid character part, no need to set them again.
-                return player_pawn;
-            }
-        }
-
         // Take a random character
         static UAthenaGameData* athena_game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
             FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) :
             FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true);
 
         // Randomly pick a cosmetic
-        UFortHeroType* hero_definition = athena_game_data->RandomCharacters()[UKismetMathLibrary::RandomIntegerInRange(0, 7)]->HeroDefinition();
-        
-        // Set the hero type for season 3 (otherwise characterparts wouldn't show)
-        player_controller->PlayerState()->HeroType() = hero_definition;
+        UFortHeroType* hero_definition = nullptr;
 
-        for (TSoftObjectPtr<UCustomCharacterPart>& character_part : hero_definition->Specializations()[0]->CharacterParts())
+        if (athena_game_data)
         {
-            player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
+            if (athena_game_data->HasProperty("RandomCharacters"))
+            {
+                hero_definition = athena_game_data->RandomCharacters()[UKismetMathLibrary::RandomIntegerInRange(0, 7)]->HeroDefinition();
+            }
+        }
+
+        if (player_controller->PlayerState()->HeroType() == nullptr && hero_definition)
+        {
+            // Set the hero type for season 3 (otherwise characterparts wouldn't show)
+            player_controller->PlayerState()->HeroType() = hero_definition;
+
+            for (TSoftObjectPtr<UCustomCharacterPart>& character_part : hero_definition->Specializations()[0]->CharacterParts())
+            {
+                player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
+            }
         }
         
         return player_pawn;
@@ -140,6 +137,8 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
+
+            spdlog::info(L"Player '{}' joined and spawned", NetConnection->PlayerController()->MyPlayerInfo()->PlayerName().c_str());
         }
     }
 
@@ -154,6 +153,11 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     {
         // Failed to find hero definition
         spdlog::error(L"Failed to override hero definition for hero '{}', as specified hero definition does not exist",
+            Hero->GetName().c_str());
+    }
+    else
+    {
+        spdlog::info(L"Successfully overridden hero definition for hero '{}'",
             Hero->GetName().c_str());
     }
 
