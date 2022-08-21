@@ -102,20 +102,13 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         // Prevent duplication
         return;
     }
-    
-    __int64 grab_pickup_parameter = _mm_unpacklo_ps({}, {}).m128_u64[0]; //taken from IDA
 
-    static UFunction* GrabPickupCustomized = FindObject<UFunction>(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized");
-    
-    //Use fortnite UFunction when possible
-    if (GrabPickupCustomized)
-    {
-        reinterpret_cast<AFortAIPawn*>(PlayerPawn)->GrabPickupCustomized(Pickup, 0.4f);
-    }
-    else
-    {
-        GrabPickup(Pickup, PlayerPawn, 0.4f, reinterpret_cast<__int64>(&grab_pickup_parameter));
-    }
+    // Set the pickup target and fly time
+    Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
+    Pickup->PickupLocationData().FlyTime() = 0.4f;
+
+    // Trigger the pickup anim
+    Pickup->OnRep_PickupLocationData();
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;

@@ -3,6 +3,8 @@
 struct FFortPickupLocationData
 {
     DEFINE_STRUCT_PROPERTY(uint8_t, TossState);
+    DEFINE_STRUCT_PROPERTY(float, FlyTime);
+    DEFINE_STRUCT_PROPERTY(AFortPawn*, ItemOwner);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, PickupTarget);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPickupLocationData");
@@ -26,5 +28,10 @@ public:
         b_has_toss_argument ?
             Call(L"TossPickup", FinalLocation, ItemOwner, OverrideMaxStackCount, bToss) :
             Call(L"TossPickup", FinalLocation, ItemOwner, OverrideMaxStackCount);
+    }
+
+    void OnRep_PickupLocationData()
+    {
+        Call(L"OnRep_PickupLocationData");
     }
 };
