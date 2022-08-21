@@ -102,11 +102,15 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         // Prevent duplication
         return;
     }
-
+    
     // Set the pickup target and fly time
     Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
     Pickup->PickupLocationData().FlyTime() = 0.4f;
-
+    Pickup->PickupLocationData().ItemOwner() = PlayerPawn;
+    
+    // Net update
+    Pickup->ForceNetUpdate();
+    
     // Trigger the pickup anim
     Pickup->OnRep_PickupLocationData();
     

@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "player_tab.hpp"
 
+#include "../../components/inventory_component.hpp"
 #include "imgui/imgui.h"
 
 void player_tab::render()
@@ -55,8 +56,45 @@ void player_tab::render_player(AFortPlayerController* player_controller)
     ImGui::BeginGroup();
     ImGui::BeginChild("player_info_view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
 
+    if (ImGui::InputTextWithHint("", "Grant an item. Format: '<item> <count>'", item_to_give, sizeof item_to_give, ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        give_item(player_controller);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Give"))
+    {
+        give_item(player_controller);
+    }
+    
     if (ImGui::Button("Kick"))
     {
         player_controller->ClientReturnToMainMenu(L"Kicked by an operator.");
     }
+}
+
+void player_tab::give_item(AFortPlayerController* player_controller)
+{
+    std::string item_info(item_to_give);
+
+    if (item_info.find(" ") != std::string::npos)
+    {
+        std::string item_definition = item_info.substr(0, item_info.find(" "));
+
+        if (item_info.find(" ") + 1 != item_info.length())
+        {
+            std::string item_count = item_info.substr(item_info.find(" ") + 1, item_info.length());
+
+            if (UFortItemDefinition* item = FindObject<UFortItemDefinition>(std::wstring(item_definition.begin(), item_definition.end()).c_str(), false, true))
+            {
+                if (int count = std::stoi(item_count))
+                {
+                    inventory_component::add_item(player_controller, item, count);
+                }
+            }
+        }
+    }
+    
+    memset(item_to_give, 0, sizeof item_to_give); // resets the string
 }

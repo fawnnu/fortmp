@@ -9,6 +9,8 @@
 
 looting_component::looting_component()
 {
+    blacklisted_item_definitions = {};
+    blacklisted_classes = {};
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
@@ -194,7 +196,30 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
             continue;
         }
 
-        // TODO: Add configurable item vaulting
+        bool b_found_blacklisted_item = false;
+
+        for (UFortItemDefinition* blacklisted_item : blacklisted_item_definitions)
+        {
+            if (blacklisted_item == item_definition)
+            {
+                b_found_blacklisted_item = true;
+                break;
+            }
+        }
+
+        for (UObject* blacklisted_class : blacklisted_classes)
+        {
+            if (item_definition->IsA(blacklisted_class))
+            {
+                b_found_blacklisted_item = true;
+                break;
+            }
+        }
+
+        if (b_found_blacklisted_item)
+        {
+            continue;
+        }
 
         // Add chosen item to rolled loot
         loot_to_spawn[item_definition] = loot_tier_packages_map[loot_package_name].Value->Count();
