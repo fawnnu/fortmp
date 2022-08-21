@@ -63,7 +63,7 @@ uintptr_t memory_manager::find_pattern(const char* signature, bool bRelative, ui
 	return NULL;
 }
 
-uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards)
+uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards, bool bRelative)
 {
     __int64 BaseAddress = (__int64)GetModuleHandle(NULL);
 
@@ -116,7 +116,12 @@ uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::ve
 				{
 					if (i+1 == Opcodes.size())
 					{
-						return Addr + Offset + 4 + *(__int32*)(Addr + Offset);
+						if (bRelative)
+						{
+							return Addr + Offset + 4 + *(__int32*)(Addr + Offset);
+						}
+
+						return *reinterpret_cast<int*>(Addr + Offset);
 					}
 				}
 				else

@@ -8,10 +8,17 @@
 
 player_component::player_component()
 {
+    // Initialize serverchoosepart
+    if (const uintptr_t index = memory_manager::find_function_by_string(L"ServerChoosePart_Validate", {0xff, 0x90}, 2, false, false))
+    {
+        INIT_POINTER(ServerChoosePart_Implementation, FindObject(L"/Script/FortniteGame.Default__FortPlayerPawn")->VTable[index/8]);
+    }
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAcknowledgePossession, L"/Script/Engine.PlayerController.ServerAcknowledgePossession", player_component_hooks::ServerAcknowledgePossession_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerChoosePart, L"/Script/FortniteGame.FortPlayerPawn.ServerChoosePart", player_component_hooks::ServerChoosePart_Hook);
     
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 40 8B DA 48 8B F9 39 91 ? ? ? ? 0F 85 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 85 D2 74 41 83 EB 01 74 33 83 EB 01"), player_component_hooks::SetClientLoginState_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 8B A9 ? ? ? ? 8B F2 48 8B F9 3B EA 75 ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ?"), player_component_hooks::SetClientLoginState_Hook);
@@ -84,6 +91,11 @@ void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController*
     PlayerController->AcknowledgedPawn() = P;
     
     return ServerAcknowledgePossession(PlayerController, StackFrame);
+}
+
+void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn*, FFrame&)
+{
+    // Do nothing    
 }
 
 void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnection, int State)

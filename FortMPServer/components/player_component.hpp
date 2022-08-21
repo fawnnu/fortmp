@@ -24,5 +24,7 @@ namespace player_component_hooks
 
     // Called when a player attempts to enter a ziplines
     DEFINE_FUNCTION_HOOK(void, ServerSendZiplineState, (AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame));
-    
+
+    // Called to set a CharacterPart, we hook it to null it
+    DEFINE_FUNCTION_HOOK(void, ServerChoosePart, (AFortPlayerPawn*, FFrame&));
 }

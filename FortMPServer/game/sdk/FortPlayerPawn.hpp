@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+inline uintptr_t (*ServerChoosePart_Implementation)(class AFortPlayerPawn*, int, UCustomCharacterPart*);
+
 class AFortPlayerController;
 class AFortWeapon;
 class AFortPickup;
@@ -100,7 +102,7 @@ public:
 
     void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)
     {
-        Call(L"ServerChoosePart", Part, ChosenCharacterPart);
+        ServerChoosePart_Implementation(this, Part, ChosenCharacterPart);
     }
 };
 

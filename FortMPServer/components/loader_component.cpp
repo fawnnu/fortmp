@@ -134,6 +134,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Infinite warmup
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
+        (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;
         
         // Start match
         (*GWorld)->AuthorityGameMode()->StartMatch();
@@ -162,7 +163,7 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
     // Call original function first
     UpdateLevelStreaming(World);
     
-    if (World->GameState())
+    if (World->GameState() && !loader_component::is_server_ready)
     {
         if (World->GameState()->WorldManager())
         {
