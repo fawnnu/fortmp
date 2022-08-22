@@ -20,7 +20,11 @@ const char* dll_utils::get_current_path()
 
 toml::table dll_utils::get_current_config()
 {
-    std::string config_path(get_current_path());
+    std::string config_path(std::string(get_current_path()) + XOR("/Settings"));
+
+    // Create directory if one doesn't exist
+    std::filesystem::create_directories(config_path);
+    
     config_path.append(XOR("/FortMPConfig.toml"));
 
     if (std::filesystem::exists(config_path))
