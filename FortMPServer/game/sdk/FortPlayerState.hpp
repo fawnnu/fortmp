@@ -15,6 +15,9 @@ public:
 
     // Used on newer builds
     DEFINE_PROPERTY(UCustomCharacterPart*, LocalCharacterParts);
+
+    //IP
+    DEFINE_PROPERTY(FString, SavedNetworkAddress);
 };
 
 struct FDeathInfo

@@ -72,6 +72,26 @@ void player_tab::render_player(AFortPlayerController* player_controller)
     {
         player_controller->ClientReturnToMainMenu(L"Kicked by an operator.");
     }
+
+    if (ImGui::Button("Ban"))
+    {
+        auto ban_list = dll_utils::get_banlist();
+
+        char player_ip[255];
+        WideCharToMultiByte(CP_UTF8, 0, player_controller->PlayerState()->SavedNetworkAddress().c_str(), -1, player_ip, sizeof player_ip, nullptr, nullptr);
+
+        ban_list["Bans"].push_back(std::string(player_ip));
+
+        std::ofstream ban_file;
+
+        ban_file.open(std::string(dll_utils::get_current_path()) + "/FortMP/Bans.json");
+
+        ban_file << std::setw(4) << ban_list << std::endl;
+
+        ban_file.close();
+        
+        player_controller->ClientReturnToMainMenu(L"Banned by an operator.");
+    }
 }
 
 void player_tab::give_item(AFortPlayerController* player_controller)

@@ -38,3 +38,29 @@ void dll_utils::create_spdlog_sink()
 
     spdlog::default_logger()->flush_on(spdlog::level::debug);
 }
+
+nlohmann::json dll_utils::get_banlist()
+{
+    std::string ban_list_path = std::string(get_current_path()) + "/FortMP";
+
+    // Create directory if it doesn't exist
+    std::filesystem::create_directories(ban_list_path);
+
+    if (!std::filesystem::exists(ban_list_path + "/Bans.json"))
+    {
+        std::ofstream new_file;
+
+        new_file.open(ban_list_path + "/Bans.json");
+
+        nlohmann::json new_list;
+        new_list["Bans"] = {""};
+        
+        new_file << std::setw(4) << new_list << std::endl;
+
+        new_file.close();
+    }
+
+    std::ifstream table(ban_list_path + "/Bans.json");
+    
+    return nlohmann::json::parse(table);
+}

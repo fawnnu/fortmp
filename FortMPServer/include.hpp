@@ -23,7 +23,9 @@
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>
+#include <nlohmann/json.hpp>
 
+#include "fstream"
 #include "utils/memory.hpp"
 #include "utils/dll_utils.hpp"
 

@@ -23,6 +23,21 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
 {
     if (Aircraft)
     {
+        auto ban_list = dll_utils::get_banlist();
+
+        for (auto& elem : ban_list["Bans"].items())
+        {
+            std::string IP = elem.value();
+
+            if (std::wstring(IP.begin(), IP.end()) ==
+                std::wstring(FortPlayerController->PlayerState()->SavedNetworkAddress().c_str()))
+            {
+                FortPlayerController->ClientReturnToMainMenu(L"");
+
+                return;
+            }
+        }
+        
         AFortPlayerPawn* player_pawn = player_component::create_player(FortPlayerController, Aircraft->GetTransform());
         
         // Update rotation
