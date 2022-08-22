@@ -167,7 +167,10 @@
     <ClCompile Include="utils\api_utils.cpp" />
     <ClCompile Include="utils\dll_utils.cpp" />
     <ClCompile Include="utils\hook.cpp" />
+    <ClCompile Include="utils\md5.cpp" />
     <ClCompile Include="utils\memory.cpp" />
+    <ClCompile Include="utils\sha1.cpp" />
+    <ClCompile Include="utils\sha256.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\auth.hpp" />
@@ -197,7 +200,10 @@
     <ClInclude Include="utils\api_utils.hpp" />
     <ClInclude Include="utils\dll_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
+    <ClInclude Include="utils\md5.h" />
     <ClInclude Include="utils\memory.hpp" />
+    <ClInclude Include="utils\sha1.h" />
+    <ClInclude Include="utils\sha256.h" />
     <ClInclude Include="utils\xorstr.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 #define JM_XORSTR_DISABLE_AVX_INTRINSICS
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #define XOR(STR) xorstr(STR).crypt_get()
 
@@ -28,3 +29,6 @@
 #include "utils/hook.hpp"
 #include "utils/api_utils.hpp"
 #include "utils/dll_utils.hpp"
+#include "utils/sha1.h"
+#include "utils/sha256.h"
+#include "utils/md5.h"

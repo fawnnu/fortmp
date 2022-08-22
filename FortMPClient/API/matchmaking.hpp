@@ -83,7 +83,7 @@ public:
             // we'll use the current timestamp to generate ownerId and session key
             const int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             
-            matchmaking_response["serverAddress"] = gameserver_addr;
+            matchmaking_response["serverAddress"] = api_utils::get_ip_from_hostname(gameserver_addr);
             matchmaking_response["serverPort"] = gameserver_port;
 
             matchmaking_response["id"] = req.matches[1];

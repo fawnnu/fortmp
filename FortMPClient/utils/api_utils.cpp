@@ -112,3 +112,15 @@ int api_utils::get_season_number(std::string user_agent)
     
     return season_number;
 }
+
+std::string api_utils::get_ip_from_hostname(std::string hostname_str)
+{
+    hostent* hostname = gethostbyname(hostname_str.c_str());
+    
+    if(hostname)
+    {
+        return std::string(inet_ntoa(**(in_addr**)hostname->h_addr_list));
+    }
+
+    return hostname_str;
+}

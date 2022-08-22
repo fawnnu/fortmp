@@ -21,9 +21,11 @@ matchmaking_component::matchmaking_component()
 
 void matchmaking_component::on_connected(websocketpp::connection_hdl handle)
 {
-    ticket_id = XOR("a3fa48aa72167f7018e7e4ac29b45e02");
-    session_id = XOR("ac6a98e4b4927c2cc4818d9280b6d135");
-    match_id = XOR("d7fdfa5c90b2486c5b92a6852252e2e7");
+    const int64_t current_timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    ticket_id = MD5{}(std::to_string(current_timestamp));
+    session_id = MD5{}(std::to_string(current_timestamp + 1));
+    match_id = MD5{}(std::to_string(current_timestamp + 2));
     
     send_connecting(handle);
     send_waiting(handle);

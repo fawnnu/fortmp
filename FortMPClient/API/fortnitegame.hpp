@@ -269,7 +269,7 @@ public:
     	{
     		// Set login message
     		content_pages["loginmessage"]["loginmessage"]["message"]["title"] = "FortMP";
-    		content_pages["loginmessage"]["loginmessage"]["message"]["body"] = XOR("Welcome to FortMP, a Fortnite Battle Royale private multiplayer experience");
+    		content_pages["loginmessage"]["loginmessage"]["message"]["body"] = XOR("Welcome to FortMP, a Fortnite Battle Royale private multiplayer experience\n\nCredits to Jake and Lawin for some of the responses used by FMP API");
 
     		// Set news
     		content_pages["battleroyalenews"]["news"]["messages"][0]["title"] = "FortMP";
