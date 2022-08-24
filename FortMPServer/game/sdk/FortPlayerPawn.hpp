@@ -76,6 +76,11 @@ public:
         return Call<bool>(L"IsDBNO");
     }
 
+    bool IsDead()
+    {
+        return Call<bool>(L"IsDead");
+    }
+
     bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition)
     {
         return Call<bool>(L"PickUpActor", PickupTarget, PlacementDecoItemDefinition);

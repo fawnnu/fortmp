@@ -3,6 +3,11 @@
 class UNetConnection;
 class UAthenaResurrectionComponent;
 
+struct FViewTargetTransitionParams
+{
+    uint8_t data[0x10];
+};
+
 class UFortRegisteredPlayerInfo : public UObject
 {
 public:
@@ -69,6 +74,11 @@ public:
     {
         Call(L"ClientGotoState", NewState);
     }
+
+    void ClientSetViewTarget(AActor* Target)
+    {
+        Call(L"ClientSetViewTarget", Target, FViewTargetTransitionParams{});
+    }
 };
 
 class AFortInventory;
@@ -86,6 +96,8 @@ public:
     DEFINE_PROPERTY(class AFortQuickBars*, ClientQuickBars);
 
     DEFINE_PROPERTY(AFortInventory*, WorldInventory);
+
+    DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
 
     bool IsInAircraft()
     {

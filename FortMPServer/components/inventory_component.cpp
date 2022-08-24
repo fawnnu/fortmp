@@ -15,7 +15,7 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     
-    REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_function_by_string(L"AFortPlayerControllerZone::OnGamepadAbilityRelease: Item", {0xe8}, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
+    REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_function_by_string(L"AFortPlayerControllerZone::OnGamepadAbilityRelease: Item", {0xe8,0x100,0x100,0x100,0xff}, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
 
     if (!inventory_component_hooks::UnknownQuickbarFunction)
     {

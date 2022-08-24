@@ -132,12 +132,27 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             // Remove player from alive list if function exists
             RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
         }
-
-        static bool b_should_spectate = GetEngineVersionEasy() < 422;
-        
-        if (b_should_spectate && !VictimPlayerController->bIsDisconnecting())
+ 
+        if (static bool b_should_spectate = GetEngineVersionEasy() < 422)
         {
-            // TODO: Re-add spectating
+            for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
+                
+                if (ClientConnection == nullptr || ClientConnection->PlayerController() == nullptr)
+                {
+                    continue;
+                }
+
+                if (ClientConnection->PlayerController()->Pawn() == nullptr)
+                {
+                    static_cast<AFortPlayerControllerAthena*>(ClientConnection->PlayerController())->SpectateOnDeath();
+                }
+            }
+            
+            VictimPlayerController->ClientSetViewTarget(VictimPlayerController->PlayerToSpectateOnDeath());
+
+            static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->SpectateOnDeath();
         }
     }
 }
