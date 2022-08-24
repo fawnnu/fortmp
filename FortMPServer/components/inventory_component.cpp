@@ -14,8 +14,13 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
-
+    
     REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_function_by_string(L"AFortPlayerControllerZone::OnGamepadAbilityRelease: Item", {0xe8}, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
+
+    if (!inventory_component_hooks::UnknownQuickbarFunction)
+    {
+        REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B F0 48 85 C0 0F 84 ? ? ? ? 44 8B 15 ? ? ? ?", true, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
+    }
     
     DetourTransactionCommit();
 }
@@ -448,16 +453,16 @@ void inventory_component_hooks::ServerAttemptInventoryDrop_Hook(AFortPlayerContr
     return ServerAttemptInventoryDrop(PlayerController, StackFrame);
 }
 
-void* inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot)
+uintptr_t inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot)
 {
-    void* return_value = UnknownQuickbarFunction(FortQuickBars, QuickbarIndex, QuickbarSlot);
-
-    if (memory_manager::is_bad_read_pointer(return_value))
+    const uintptr_t return_value = UnknownQuickbarFunction(FortQuickBars, QuickbarIndex, QuickbarSlot);
+    
+    if (return_value && memory_manager::is_bad_read_pointer(reinterpret_cast<LPVOID>(return_value)))
     {
-        spdlog::error(L"UnknownQuickbarFunction returned a bad pointer.");
+        spdlog::error(L"UnknownQuickbarFunction attempted to return a bad pointer.");
         
-        return nullptr;
+        return 0;
     }
-
+    
     return return_value;
 }
