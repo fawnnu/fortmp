@@ -21,6 +21,11 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFr
     // Call native function to properly spawn the trap
     ServerSpawnDeco(FortDecoTool, StackFrame);
 
+    if (AttachedActor == nullptr || AttachedActor->AttachedBuildingActors().Num() < 1)
+    {
+        return;
+    }
+
     AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
 
     // Take the most recent attached actor (new trap)
