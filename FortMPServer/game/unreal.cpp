@@ -76,6 +76,9 @@ void unreal_manager::setup_unreal_engine()
         CoreOffsets::ElementSize = 0x3C;
         CoreOffsets::PropertyFlags = 0x40;
     }
+
+    spdlog::info(L"Server successfully initialized. Module FortniteClient-Win64-Shipping.exe base address is {}",
+        reinterpret_cast<void*>(GetModuleHandle(nullptr)));
 }
 
 bool FString::operator==(FString in_str)

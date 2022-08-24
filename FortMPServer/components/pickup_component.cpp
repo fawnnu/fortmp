@@ -153,16 +153,16 @@ void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObjec
                 // Swap item
                 inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
 
-                static bool b_legacy_quickbars = PlayerController->HasProperty(L"QuickBars");
-    
-                if (b_legacy_quickbars)
-                {
-                    PlayerController->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
-                }
-            
-                // Equip item on client
                 if (spawned_item != nullptr)
                 {
+                    static bool b_legacy_quickbars = PlayerController->HasProperty(L"QuickBars");
+    
+                    if (b_legacy_quickbars && PlayerController->QuickBars())
+                    {
+                        PlayerController->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
+                    }
+            
+                    // Equip item on client
                     PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
                 }
             }
@@ -175,10 +175,6 @@ void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObjec
                 }
             }
         }
-    }
-    else
-    {
-        spdlog::error(L"Player attempted to pickup actor with invalid PickupTarget.");
     }
 }
 

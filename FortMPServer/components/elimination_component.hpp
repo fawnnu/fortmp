@@ -6,10 +6,6 @@ public:
     elimination_component();
 
     static uint8_t to_death_cause(AFortPlayerStateAthena* player_state, FGameplayTagContainer gameplay_tags, bool was_dbno);
-
-    static void spectate_on_death();
-
-    inline static std::vector<TWeakObjectPtr<AFortPlayerController>> spectators_array;
 };
 
 namespace elimination_component_hooks

@@ -5,8 +5,6 @@
 
 elimination_component::elimination_component()
 {
-    spectators_array.reserve(100); 
-    
     if (GetEngineVersionEasy() < 421)
     {
         // Setup function with original arguments if below version 5.00
@@ -58,19 +56,6 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
 
     return death_cause_enum->GetEnumIndex(L"Unspecified");
 }
-
-void elimination_component::spectate_on_death()
-{
-    for (TWeakObjectPtr<AFortPlayerController>& spectator : spectators_array)
-    {
-        if (!spectator.Get())
-        {
-            continue;
-        }
-                
-        static_cast<AFortPlayerControllerAthena*>(spectator.Get())->SpectateOnDeath();
-    }
-}   
 
 void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject* Function, void* Params)
 {
@@ -152,13 +137,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         
         if (b_should_spectate && !VictimPlayerController->bIsDisconnecting())
         {
-            // Spectate after 3 seconds
-            elimination_component::spectators_array.push_back(VictimPlayerController);
-            
-            CreateThread(nullptr, 0, [](LPVOID) -> DWORD { Sleep(3000);
-            {
-                elimination_component::spectate_on_death();
-            } return 0; }, VictimPlayerController, 0, nullptr);
+            // TODO: Re-add spectating
         }
     }
 }

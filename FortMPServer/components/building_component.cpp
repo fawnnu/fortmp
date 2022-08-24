@@ -195,6 +195,20 @@ void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerC
 {
     GET_PARAMETER(ABuildingSMActor*, BuildingActorToEdit);
 
+    if (!FortPlayerController)
+    {
+        spdlog::error(L"Invalid PlayerController tried to edit building actor.");
+        
+        return;
+    }
+
+    if (!FortPlayerController->Pawn())
+    {
+        spdlog::error(L"Player '{}' tried to edit building actor with invalid pawn.", FortPlayerController->MyPlayerInfo()->PlayerName().c_str());
+
+        return;
+    }
+
     if (BuildingActorToEdit)
     {
         // Edit tool item definition
