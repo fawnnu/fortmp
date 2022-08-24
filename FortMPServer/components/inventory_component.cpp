@@ -14,6 +14,8 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
+
+    REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_function_by_string(L"AFortPlayerControllerZone::OnGamepadAbilityRelease: Item", {0xe8}, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
     
     DetourTransactionCommit();
 }
@@ -179,7 +181,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // has to be done on older builds (items aren't added to quickbars by default)
     static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
     
-    if (b_legacy_quickbars)
+    if (b_legacy_quickbars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
     {
         player_controller->QuickBars()->ServerAddItemInternal(item_definition, world_item->ItemEntry().ItemGuid());
     }
@@ -239,7 +241,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // has to be done on older builds
             static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
             
-            if (b_legacy_quickbars)
+            if (b_legacy_quickbars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
             {
                 player_controller->QuickBars()->ServerRemoveItemInternal(item_guid, b_is_swapping);
             }
@@ -444,4 +446,18 @@ void inventory_component_hooks::ServerAttemptInventoryDrop_Hook(AFortPlayerContr
     inventory_component::remove_item(PlayerController, ItemGuid, Count);
     
     return ServerAttemptInventoryDrop(PlayerController, StackFrame);
+}
+
+void* inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot)
+{
+    void* return_value = UnknownQuickbarFunction(FortQuickBars, QuickbarIndex, QuickbarSlot);
+
+    if (memory_manager::is_bad_read_pointer(return_value))
+    {
+        spdlog::error(L"UnknownQuickbarFunction returned a bad pointer.");
+        
+        return nullptr;
+    }
+
+    return return_value;
 }

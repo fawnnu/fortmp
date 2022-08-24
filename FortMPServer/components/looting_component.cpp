@@ -10,7 +10,7 @@
 looting_component::looting_component()
 {
     blacklisted_item_definitions = {};
-    blacklisted_classes = {};
+    blacklisted_classes = {FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true)};
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
@@ -218,6 +218,8 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
 
         if (b_found_blacklisted_item)
         {
+            spdlog::info(L"Found blacklisted item '{}', not spawning.", item_definition->GetName().c_str());
+            
             continue;
         }
 

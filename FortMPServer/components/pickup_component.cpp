@@ -157,7 +157,7 @@ void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObjec
                 {
                     static bool b_legacy_quickbars = PlayerController->HasProperty(L"QuickBars");
     
-                    if (b_legacy_quickbars && PlayerController->QuickBars())
+                    if (b_legacy_quickbars && PlayerController->QuickBars() && GetEngineVersionEasy() < 420)
                     {
                         PlayerController->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
                     }
