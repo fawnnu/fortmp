@@ -46,15 +46,23 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
         if (player_pawn == nullptr)
         {
             spdlog::error(L"Failed to spawn a pawn for player '{}' when exiting from aircraft '{}'",
-                player_pawn->GetName().c_str(),
+                FortPlayerController->GetName().c_str(),
                 Aircraft->GetName().c_str());
+
+            return;
         }
 
-        // Auto equip pickaxe, missing on old builds
-        auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+        if (FortPlayerController != nullptr && FortPlayerController->WorldInventory() != nullptr)
+        {
+            // Auto equip pickaxe, missing on old builds
+            auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
-        FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
-    }    
+            if (replicated_entries.Num() > 0)
+            {
+                FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
+            }
+        }
+    }
 }
 
 void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
