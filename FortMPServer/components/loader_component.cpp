@@ -127,6 +127,22 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
             RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), player_controller, 0);
         }
+
+        // Notify the era server once the server is up
+        const nlohmann::json req_body = R"({
+            "content": null,
+            "embeds": [
+             {
+                 "title": "Server Status",
+                  "description": "Servers are up on 4.2, press play or open erafn.org to join :white_check_mark:",
+                  "color": null
+               }
+            ],
+            "attachments": []
+        })"_json;
+        
+        dll_utils::send_webhook_message(dll_utils::general_chat_webhook, req_body.dump());
+        dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, req_body.dump());
         
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());

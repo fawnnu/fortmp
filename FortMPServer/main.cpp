@@ -24,31 +24,28 @@
 
 void Setup()
 {
+    // Initialize utils
+    new dll_utils();
+    
     // Create a file sink
     dll_utils::create_spdlog_sink();
     
-    // setup Unreal Engine
+    // Setup Unreal Engine
     unreal_manager::setup_unreal_engine();
 
+    // Setup rendered on another thread
+    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
-        auto renderer_thread = [](LPVOID) -> DWORD
-        {
-            // Render on a new thread as to not block everything
-            new renderer();
-
-            return 0;
-        };
-
-        // TODO: Check if renderer has been enabled through the command line before doing anything
-        CreateThread(nullptr, 0, renderer_thread, nullptr, 0, nullptr);
-    }
+        new renderer();
+            
+        return 0;    
+    }, nullptr, 0, nullptr);
 
     {
         while (true)
         {
             if (*GWorld)
             {
-                // TODO: maybe move? 
                 APlayerController* player_controller = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetPlayerController(*GWorld, 0);
                 
                 if (player_controller)

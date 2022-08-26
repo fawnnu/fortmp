@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 
 #include <Windows.h>
 #include <Psapi.h>
@@ -20,10 +21,13 @@
 #pragma warning(disable: 4100)
 
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "openssl/libcrypto.lib")
+#pragma comment(lib, "openssl/libssl.lib")
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>
 #include <nlohmann/json.hpp>
+#include <httplib/httplib.h>
 
 #include "fstream"
 #include "utils/memory.hpp"

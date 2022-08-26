@@ -3,7 +3,15 @@
 
 #include "spdlog/sinks/basic_file_sink.h"
 
+#define SILENCE_WEBHOOKS
+
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
+dll_utils::dll_utils()
+{
+    general_chat_webhook = "/api/webhooks/1012005016950812722/3XTunDV6Hk-CuaT-KRL45MNVgQxHYbWz9wXGUlLaS8OY5HfhjImEkufnbMeT9SLreYeL";   
+    multiplayer_news_webhook = "/api/webhooks/1012756591176589374/TnSPZPBx-LLp-WR74Q6xppZ4KfzVia4qO18UWWBgbk5598L83KmZOeODMvxnCy6ynzQs";   
+}
 
 const char* dll_utils::get_current_path()
 {
@@ -63,4 +71,13 @@ nlohmann::json dll_utils::get_banlist()
     std::ifstream table(ban_list_path + "/Bans.json");
     
     return nlohmann::json::parse(table);
+}
+
+void dll_utils::send_webhook_message(std::string target_webhook, std::string message)
+{
+#ifndef SILENCE_WEBHOOKS
+    httplib::Client client("https://discord.com");
+    
+    client.Post(target_webhook, message, "application/json");
+#endif
 }
