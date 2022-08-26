@@ -9,6 +9,7 @@ public:
 
     static void handle_container_interaction(AFortPlayerController* player_controller, ABuildingContainer* building_container);
     static void handle_player_pawn_interaction(AFortPlayerController* player_controller, AFortPlayerPawn* player_pawn);
+    static void handle_supply_drop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop);
 };
 
 namespace interact_component_hooks

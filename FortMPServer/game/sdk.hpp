@@ -74,6 +74,7 @@
 #include "sdk/FortPlaylist.hpp"
 #include "sdk/FortAbility.hpp"
 #include "sdk/FortZiplines.hpp"
+#include "sdk/FortAthenaSupplyDrop.hpp"
 
 #include "sdk/FortPickup.hpp"
 #include "sdk/NetDriver.hpp"

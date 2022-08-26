@@ -65,9 +65,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             // Update max player count
             (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers() = 101;
         }
-
-        static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
-        static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
         
         // All floor loot actors in the sub-level
         TArray<AActor*> floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true));
@@ -79,18 +76,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             for (const auto& [ item_definition, count ] : loot_to_spawn)
             {
                 // Spawn pickup
-                
-                // set loaded ammo to spawn the pickup with
-                int loaded_ammo = 0;
-
-                if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
-                    !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
-                {
-                    auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
-                    loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
-                }
-                
-                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, loaded_ammo);
+                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
             }
 
             // Set as searched if needed
@@ -110,18 +96,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             for (const auto& [ item_definition, count ] : loot_to_spawn)
             {
                 // Spawn pickup
-                
-                // set loaded ammo to spawn the pickup with
-                int loaded_ammo = 0;
-
-                if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
-                    !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
-                {
-                    auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
-                    loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
-                }
-                
-                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, loaded_ammo);
+                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
             }
 
             // Set as searched if needed

@@ -146,9 +146,13 @@ void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObjec
 
         if (inventory_component::is_inventory_full(PlayerController))
         {
-            static UObject* melee_item_definition_class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+            static UObject* melee_item_definition = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+            static UObject* building_item_definition = FindObject(L"/Script/FortniteGame.FortBuildingItemDefinition");
+            static UObject* edit_tool_definition = FindObject(L"/Script/FortniteGame.FortEditToolItemDefinition");
 
-            if (!PickupTarget->CurrentWeapon()->WeaponData()->IsA(melee_item_definition_class))
+            if (!PickupTarget->CurrentWeapon()->WeaponData()->IsA(melee_item_definition) &&
+                !PickupTarget->CurrentWeapon()->WeaponData()->IsA(building_item_definition) &&
+                !PickupTarget->CurrentWeapon()->WeaponData()->IsA(edit_tool_definition))
             {
                 // Swap item
                 inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);

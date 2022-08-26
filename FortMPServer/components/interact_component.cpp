@@ -19,6 +19,7 @@ interact_component::interact_component()
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor)
 {
     static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
+    static UObject* supply_drop_class = FindObject(L"/Script/FortniteGame.FortAthenaSupplyDrop");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
     spdlog::info(L"handle_interaction: player_controller: {}, receiving_actor: {}",
@@ -34,6 +35,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interactions with player pawns
         handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
+    }
+    else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, supply_drop_class))
+    {
+        // Handle any interactions with supply drops
+        handle_supply_drop_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
     }
 }
 
@@ -71,28 +77,14 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
         LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
         LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
-
-        static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
-        static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
-    
+        
         // Generate and spawn the loot
         std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
 
         for (const auto& [ item_definition, count ] : loot_to_spawn)
         {
             // Spawn pickup
-
-            // set loaded ammo to spawn the pickup with
-            int loaded_ammo = 0;
-
-            if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortWeaponItemDefinition) &&
-                !UKismetMathLibrary::ClassIsChildOf(item_definition->Class, FortTrapItemDefinition))
-            {
-                auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().Table) + 0x30);
-                loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
-            }
-        
-            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, loaded_ammo);
+            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, looting_component::get_default_loaded_ammo(item_definition));
         }
 
         // Mark the container as open
@@ -108,6 +100,18 @@ void interact_component::handle_player_pawn_interaction(AFortPlayerController* p
 {
     // Revive player
     reviving_component::revive_player(player_controller, player_pawn);
+}
+
+void interact_component::handle_supply_drop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
+{
+    // Spawn loot for supply drop
+    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaSupplyDrop");
+
+    for (const auto& [ item_definition, count ] : loot_to_spawn)
+    {
+        // Spawn pickup
+        pickup_component::spawn_pickup(item_definition, supply_drop->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
+    }
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
