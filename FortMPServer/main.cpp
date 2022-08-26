@@ -67,7 +67,7 @@ void Setup()
                     // load into level
                     player_controller->SwitchLevel(server_level);
 
-                    while ((*GWorld)->GetName().find(L"Frontend") != -1)
+                    while ((*GWorld)->GetName().find(L"Frontend") != std::string::npos)
                     {
                         // block DLL thread until level starts to load
                     }

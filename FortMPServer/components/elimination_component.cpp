@@ -135,24 +135,26 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
  
         if (static bool b_should_spectate = GetEngineVersionEasy() < 422)
         {
+            // Start spectating after 5 seconds
+            UKismetSystemLibrary::K2_SetTimer(VictimPlayerController, L"SpectateOnDeath", 5, false);
+
+            // Spectate on other clients
             for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
             {
-                UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
-                
-                if (ClientConnection == nullptr || ClientConnection->PlayerController() == nullptr)
+                UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                if (Connection == nullptr || Connection->PlayerController() == nullptr)
                 {
                     continue;
                 }
 
-                if (ClientConnection->PlayerController()->Pawn() == nullptr)
+                if (!(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()) &&
+                    Connection->PlayerController() != VictimPlayerController)
                 {
-                    static_cast<AFortPlayerControllerAthena*>(ClientConnection->PlayerController())->SpectateOnDeath();
+                    // If the player is dead, update spectating
+                    UKismetSystemLibrary::K2_SetTimer(Connection->PlayerController(), L"SpectateOnDeath", 5, false);
                 }
             }
-            
-            VictimPlayerController->ClientSetViewTarget(VictimPlayerController->PlayerToSpectateOnDeath());
-
-            static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->SpectateOnDeath();
         }
     }
 }

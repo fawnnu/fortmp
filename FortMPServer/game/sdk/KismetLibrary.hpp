@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+struct FTimerHandle
+{
+    uint64_t Handle;
+};
+
 class UKismetSystemLibrary : public UObject
 {
 public:
@@ -16,6 +21,34 @@ public:
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
         
         Default__KismetSystemLibrary->Call(L"ExecuteConsoleCommand", *GWorld, Command, nullptr);
+    }
+
+    static FTimerHandle K2_SetTimer(UObject* Target, FString FunctionName, float Time, bool bLooping)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        static UFunction* SetTimer = FindObject<UFunction>(L"/Script/Engine.KismetSystemLibrary.K2_SetTimer");
+        
+        struct
+        {
+            UObject* Target;
+            FString FunctionName;
+            float Time;
+            bool bLooping;
+            float InitialStartDelay;
+            float InitialStartDelayVariance;
+            FTimerHandle ReturnValue;
+        } params;
+
+        params.Target = Target;
+        params.FunctionName = FunctionName;
+        params.Time = Time;
+        params.bLooping = bLooping;
+        params.InitialStartDelay = 0;
+        params.InitialStartDelayVariance = 0;
+
+        ProcessEvent(Default__KismetSystemLibrary, SetTimer, &params);
+
+        return params.ReturnValue;
     }
 };
 
