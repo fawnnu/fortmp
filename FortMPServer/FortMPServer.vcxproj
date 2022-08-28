@@ -169,6 +169,7 @@
     <ClInclude Include="components\inventory_component.hpp" />
     <ClInclude Include="components\loader_component.hpp" />
     <ClInclude Include="components\looting_component.hpp" />
+    <ClInclude Include="components\modules_component.hpp" />
     <ClInclude Include="components\net_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\pickup_component.hpp" />
@@ -333,6 +334,7 @@
     <ClCompile Include="components\inventory_component.cpp" />
     <ClCompile Include="components\loader_component.cpp" />
     <ClCompile Include="components\looting_component.cpp" />
+    <ClCompile Include="components\modules_component.cpp" />
     <ClCompile Include="components\net_component.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>x64\Release\</AssemblerListingLocation>

@@ -19,6 +19,7 @@
 #include "components/trap_component.hpp"
 #include "components/vehicles_component.hpp"
 #include "components/storm_component.hpp"
+#include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
 
@@ -32,6 +33,9 @@ void Setup()
     
     // Setup Unreal Engine
     unreal_manager::setup_unreal_engine();
+
+    // Disable unwanted modules TODO: Check commit name
+    //new modules_component();
 
     // Setup rendered on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
