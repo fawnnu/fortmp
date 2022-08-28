@@ -56,6 +56,8 @@ public:
 class ACharacter : public APawn
 {
 public:
+    DEFINE_BIT_PROPERTY(bool, bIsInvulnerable);
+    
     DEFINE_PROPERTY(UCharacterMovementComponent*, CharacterMovement);
 };
 

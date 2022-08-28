@@ -2,6 +2,7 @@
 #include "player_tab.hpp"
 
 #include "../../components/inventory_component.hpp"
+#include "../../components/looting_component.hpp"
 #include "imgui/imgui.h"
 
 void player_tab::render()
@@ -67,6 +68,12 @@ void player_tab::render_player(AFortPlayerController* player_controller)
     {
         give_item(player_controller);
     }
+
+    if (ImGui::Button("God"))
+    {
+        // Make pawn invulnerable
+        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", !player_controller->Pawn()->bIsInvulnerable());
+    }
     
     if (ImGui::Button("Kick"))
     {
@@ -110,7 +117,7 @@ void player_tab::give_item(AFortPlayerController* player_controller)
             {
                 if (int count = std::stoi(item_count))
                 {
-                    inventory_component::add_item(player_controller, item, count);
+                    inventory_component::add_item(player_controller, item, count, looting_component::get_default_loaded_ammo(item));
                 }
             }
         }
