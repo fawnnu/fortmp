@@ -1,5 +1,16 @@
 ﻿#pragma once
 
+class anti_tampering_bypass
+{
+public:
+    anti_tampering_bypass();
+};
+
+namespace anti_tampering_bypass_hooks
+{
+    DEFINE_FUNCTION_HOOK(uintptr_t, AntiTamper, ());
+}
+
 class patches_component
 {
 public:

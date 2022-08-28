@@ -30,11 +30,14 @@ void Setup()
     
     // Create a file sink
     dll_utils::create_spdlog_sink();
+
+    // Bypass anti tampering TODO: Check commit name
+    //new anti_tampering_bypass();
     
     // Setup Unreal Engine
     unreal_manager::setup_unreal_engine();
 
-    // Disable unwanted modules TODO: Check commit name
+    // Disable unwanted modules
     //new modules_component();
 
     // Setup rendered on another thread

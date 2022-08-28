@@ -1,6 +1,24 @@
 ﻿#include "include.hpp"
 #include "patches_component.hpp"
 
+anti_tampering_bypass::anti_tampering_bypass()
+{
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    // Disable anti tampering
+    REGISTER_FUNCTION_DETOUR(anti_tampering_bypass_hooks::AntiTamper, memory_manager::find_pattern("E8 ? ? ? ? 48 8D 4C 24 ? FF 15 ? ? ? ? 0F 57 C0 F2 48 0F 2A 44 24 ? F2 0F 59 05 ? ? ? ? F2 0F 58 05 ? ? ? ? F2 0F 11 05 ? ? ? ? 48 83 C4 28 C3", true, 1), anti_tampering_bypass_hooks::AntiTamper_Hook);
+    
+    DetourTransactionCommit();
+}
+
+uintptr_t anti_tampering_bypass_hooks::AntiTamper_Hook()
+{
+    spdlog::info(L"AntiTamper called, bypassing.");
+
+    return 0;
+}
+
 patches_component::patches_component()
 {
     DetourTransactionBegin();

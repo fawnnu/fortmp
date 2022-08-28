@@ -29,7 +29,6 @@ void* modules_component_hooks::LoadModuleWithFailureReason_Hook(void* ModuleMana
     {
         if (Module==ModuleNameStr)
         {
-            spdlog::info(L"Successfully disabled module '{}'", ModuleNameStr.c_str());
             return nullptr;
         }
     }
