@@ -109,7 +109,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Infinite warmup
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
-        (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;
+
+        if ((*GWorld)->AuthorityGameMode()->HasProperty(L"EndGameKickPlayersDelay"))
+        {
+            (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;   
+        }
         
         // Start match
         (*GWorld)->AuthorityGameMode()->StartMatch();
