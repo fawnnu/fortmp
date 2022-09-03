@@ -22,8 +22,5 @@ namespace pickup_component_hooks
     DEFINE_FUNCTION_HOOK(void, OnCapsuleBeginOverlap, (UObject* Object, UObject* Function, void* Params));
     
     // Called when a pickup should be added to a player's inventory
-    DEFINE_FUNCTION_HOOK(void, OnAboutToEnterBackpack, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(bool, OnAboutToEnterBackpack, (AFortPickup* Pickup));
 }
-
-// Used to play the "grab" animation for pickups
-inline void (*GrabPickup)(UObject*, UObject*, float InFlyTime, __int64 a4);

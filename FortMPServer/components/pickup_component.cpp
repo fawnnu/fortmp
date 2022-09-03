@@ -5,22 +5,10 @@
 
 pickup_component::pickup_component()
 {
-    INIT_POINTER(GrabPickup, memory_manager::find_function_by_string(L"Attempted to spawn non-world item %s!"));
-
-    // On chapter 2, the pickup anim function has been changed. We can now access it by its VTable index
-    if (uintptr_t grab_pickup_addr = memory_manager::find_pattern("FF 93 ? ? ? ? 49 63 8F ? ? ? ? 85 C9 0F 84 ? ? ? ? 49 8B 87 ? ? ? ? 48 89 AC 24 ? ? ? ? 48 89 B4 24 ? ? ? ? 48 8B F1"))
-    {
-        //Init the pickup anim function by accessing FortPickupAthena VTable at the obtained index
-        INIT_POINTER(GrabPickup, FindObject(L"/Script/FortniteGame.Default__FortPickupAthena")->VTable[*reinterpret_cast<int*>(grab_pickup_addr + 2) / 8] );
-    }
-    
-    // REGISTER_PROCESS_EVENT_DETOUR(L"OnCapsuleBeginOverlap", pickup_component_hooks::OnCapsuleBeginOverlap_Hook);
-
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPickupEffect.OnAboutToEnterBackpack", pickup_component_hooks::OnAboutToEnterBackpack_Hook);
-    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    REGISTER_FUNCTION_DETOUR(pickup_component_hooks::OnAboutToEnterBackpack, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B 96 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 8E ? ? ? ? E8 ? ? ? ?")), pickup_component_hooks::OnAboutToEnterBackpack_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
 
@@ -36,8 +24,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     }
     
     static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
-    static UObject* fort_pickup_effect_class = FindObject(L"/Script/FortniteGame.FortPickupEffect");
-
+    
     // Spawn pickup in world
     AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, fort_pickup_class, &pickup_location, nullptr, FActorSpawnParameters {}));
 
@@ -51,10 +38,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
 
-    // make variables static for performance
-    static bool b_has_bserverstoppedsimulation = fort_pickup->HasProperty("bServerStoppedSimulation");
-    
-    if (b_has_bserverstoppedsimulation)
+    if (static bool HasProperty = fort_pickup->HasProperty("bServerStoppedSimulation"))
     {
         if (fort_pickup->bServerStoppedSimulation())
         {
@@ -63,25 +47,9 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         }
     }
 
-    static bool b_has_brandomrotation = fort_pickup->HasProperty(L"bRandomRotation");
-    
-    if (b_has_brandomrotation)
+    if (static bool HasProperty = fort_pickup->HasProperty(L"bRandomRotation"))
     {
         fort_pickup->bRandomRotation() = true;
-    }
-
-    // Set pickup effect
-    static bool b_has_effect_property = fort_pickup->HasProperty(L"PickupEffectBlueprint");
-
-    if (b_has_effect_property)
-    {
-        fort_pickup->PickupEffectBlueprint() = TWeakObjectPtr(
-            static_cast<AActor*>(SpawnActor(*GWorld,
-            fort_pickup_effect_class,
-            &pickup_location, nullptr,
-            FActorSpawnParameters{})));
-
-        fort_pickup->PickupEffectBlueprint().Get()->SetOwner(fort_pickup);
     }
     
     // Toss pickup, prevents pickups from all spawning in the same location
@@ -118,28 +86,29 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     Pickup->bPickedUp() = true;
 }
 
-void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObject* Function, void* Params)
+bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
 {
-    GET_PROCESS_EVENT_PARAMETER(AFortPlayerPawn*, PickupTarget);
-
-    if (PickupTarget)
+    if (Pickup == nullptr)
     {
-        AFortPickup* Pickup = static_cast<AFortPickup*>(static_cast<AActor*>(Object)->GetOwner());
-
+        return false;
+    }
+    
+    if (AFortPawn* PickupTarget = Pickup->PickupLocationData().PickupTarget())
+    {
         AFortPlayerController* PlayerController = PickupTarget->Controller();
 
         if (!PlayerController)
         {
             spdlog::error(L"Player attempted to pickup actor with invalid PlayerController.");
 
-            return;
+            return false;
         }
         
         if (!PlayerController->WorldInventory())
         {
             spdlog::error(L"Player attempted to pickup actor with invalid WorldInventory.");
             
-            return;
+            return false;
         }
         
         UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
@@ -180,6 +149,8 @@ void pickup_component_hooks::OnAboutToEnterBackpack_Hook(UObject* Object, UObjec
             }
         }
     }
+
+    return OnAboutToEnterBackpack(Pickup);
 }
 
 void pickup_component_hooks::ServerHandlePickup_Hook(AFortPlayerPawn* PlayerPawn, FFrame& StackFrame)
