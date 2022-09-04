@@ -230,6 +230,112 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
     return loot_to_spawn;
 }
 
+void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* vending_machine)
+{
+    // get our datatables at first
+    UObject* loot_tier_data = get_loot_tier_data();
+    UObject* loot_tier_packages = get_loot_tier_packages();
+    
+    if (loot_tier_data == nullptr || loot_tier_packages == nullptr)
+    {
+        return;
+    }
+
+    UE::TMap<FName, FFortLootTierData*> loot_tier_data_map = *reinterpret_cast<UE::TMap<FName, FFortLootTierData*>*>(__int64(loot_tier_data) + 0x30);
+    UE::TMap<FName, FFortLootPackageData*> loot_tier_packages_map = *reinterpret_cast<UE::TMap<FName, FFortLootPackageData*>*>(__int64(loot_tier_packages) + 0x30);
+
+    // Save all the Loot_AthenaVending instances
+    std::vector<FName> Loot_AthenaVendings;
+    std::vector<FFortLootTierData*> Loot_AthenaVendings_WithTier;
+    
+    // filter the loot_tier_data_map with Loot_AthenaVending with a valid weight
+    for (auto element : loot_tier_data_map)
+    {
+        FFortLootTierData* category_loot_tier_data = element.Value();
+        
+        if (category_loot_tier_data->TierGroup() == L"Loot_AthenaVending")
+        {
+            if (category_loot_tier_data->Weight() > 0.f)
+            {
+                Loot_AthenaVendings.push_back(element.Key());
+            }
+        }
+    }
+
+    // Now pick a random row to get a random Tier
+    int picked_tier = 0;
+
+    {
+        float max_weight = 0.f;
+
+        for (FName row : Loot_AthenaVendings)
+        {
+            max_weight += loot_tier_data_map[row]->Weight();
+        }
+
+        // Random weight
+        float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
+
+        for (FName row : Loot_AthenaVendings)
+        {
+            if (random_weight < loot_tier_data_map[row]->Weight())
+            {
+                picked_tier = loot_tier_data_map[row]->LootTier();
+            
+                break;
+            }
+
+            random_weight -= loot_tier_data_map[row]->Weight();
+        }
+    }
+
+    // Now filter the Loot_AthenaVendings to get only one different tier
+    for (FName row : Loot_AthenaVendings)
+    {
+        if (loot_tier_data_map[row]->LootTier() == picked_tier)
+        {
+            Loot_AthenaVendings_WithTier.push_back(loot_tier_data_map[row]);
+        }
+    }
+
+    // now pick three loot tier datas from Loot_AthenaVendings_WithTier
+    std::vector<FFortLootTierData*> PickedLootTierData;
+
+    auto PickRandomLootTierData = [&]
+    {
+        float max_weight = 0.f;
+
+        for (FName row : Loot_AthenaVendings)
+        {
+            max_weight += loot_tier_data_map[row]->Weight();
+        }
+
+        // Random weight
+        float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
+
+        for (int i = 0; i < Loot_AthenaVendings_WithTier.size(); i++)
+        {
+            if (random_weight < Loot_AthenaVendings_WithTier[i]->Weight())
+            {
+                PickedLootTierData.push_back(Loot_AthenaVendings_WithTier[i]);
+
+                Loot_AthenaVendings_WithTier.erase(Loot_AthenaVendings_WithTier.begin() + i);
+            
+                break;
+            }
+
+            random_weight -= Loot_AthenaVendings_WithTier[i]->Weight();
+        }
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        PickRandomLootTierData();
+    }
+
+    // Now set everything we got in the vending machine
+}   
+
 UObject* looting_component::get_loot_tier_data()
 {
     UObject* loot_tier_data = FindObject(L"/Game/Items/Datatables/AthenaLootTierData_Client.AthenaLootTierData_Client", true);

@@ -74,7 +74,6 @@ public:
 class ABuildingItemCollectorActor : public ABuildingSMActor
 {
 public:
-
     DEFINE_PROPERTY(int, StartingGoalLevel);
 };
 

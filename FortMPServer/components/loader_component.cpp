@@ -154,6 +154,8 @@ void loader_component::initialize_vending_machines()
     for (AActor* vending_machine_actor : vending_machine_actors)
     {
         auto vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine_actor);
+
+        looting_component::set_vending_machine_loot(vending_machine);
     }
 }
 

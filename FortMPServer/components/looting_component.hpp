@@ -7,6 +7,8 @@ public:
 
     static std::map<UFortItemDefinition*, int> spawn_loot(FString loot_category);
 
+    static void set_vending_machine_loot(ABuildingItemCollectorActor* vending_machine);
+
     static UObject* get_loot_tier_data();
     static UObject* get_loot_tier_packages();
     static int get_default_loaded_ammo(UFortItemDefinition* in_item_definition);
