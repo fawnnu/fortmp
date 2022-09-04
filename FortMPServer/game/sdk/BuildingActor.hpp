@@ -71,6 +71,24 @@ public:
     }
 };
 
+class ABuildingItemCollectorActor : public ABuildingSMActor
+{
+public:
+
+    DEFINE_PROPERTY(int, StartingGoalLevel);
+};
+
+class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor
+{
+public:
+    DEFINE_PROPERTY(uint8_t, OverrideVendingMachineRarity);
+    
+    void SetRarityColors(FColor Color)
+    {
+        Call(L"SetRarityColors", Color);
+    }
+};
+
 class AFortWeap_EditingTool : public UObject
 {
 public:

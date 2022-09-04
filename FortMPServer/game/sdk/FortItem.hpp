@@ -40,6 +40,7 @@ public:
     DEFINE_PROPERTY(int, MaxStackSize);
     DEFINE_PROPERTY(uint8_t, ItemType);
     DEFINE_PROPERTY(uint8_t, FilterOverride);
+    DEFINE_PROPERTY(uint8_t, Rarity);
     
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)
     {

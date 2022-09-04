@@ -19,6 +19,23 @@ struct FVector
     float Z;
 };
 
+struct FColor
+{
+    FColor() = default;
+    
+    FColor(float InR, float InG, float InB, float InA) :
+        R(InR), G(InG), B(InB), A(InA)
+    {
+    }
+    
+    float R;
+    
+    float G;
+
+    float B;
+
+    float A;
+};
 struct FRotator
 {
     FRotator() = default;

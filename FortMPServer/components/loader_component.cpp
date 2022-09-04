@@ -106,6 +106,19 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             floor_loot_actor->ForceNetUpdate();
         }
 
+        TArray<AActor*> vending_machine_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
+        
+        for (AActor* vending_machine_actor : vending_machine_actors)
+        {
+            auto vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine_actor);
+
+            // Choose a rarity for the vending machine
+            std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaVending");
+
+            // Set the starting vending machine rarity
+            vending_machine->StartingGoalLevel() = loot_to_spawn.begin()->first->Rarity();
+        }
+        
         // Infinite warmup
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
