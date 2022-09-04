@@ -19,6 +19,28 @@ struct FBuildingClassData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.BuildingClassData");
 };
 
+struct FCollectorUnitInfo
+{
+    DEFINE_STRUCT_PROPERTY(UFortWorldItemDefinition*, InputItem);
+    DEFINE_STRUCT_PROPERTY(UFortWorldItemDefinition*, OutputItem);
+
+    DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, OutputItemEntry);
+    
+    static UObject* GetClass()                                                                         
+    {                                                                                                  
+        static UObject* class_ptr = FindObject(L"/Script/FortniteGame.CollectorUnitInfo") ?
+            FindObject(L"/Script/FortniteGame.CollectorUnitInfo") :
+            FindObject(L"/Script/FortniteGame.ColletorUnitInfo");                                             
+       
+        return class_ptr;                                                                              
+    }                                                                                                  
+    
+    static int GetStructSize()                                                                         
+    {                                                                                                  
+        return *reinterpret_cast<int*>(__int64(GetClass()) + CoreOffsets::StructSize);                 
+    }
+};
+
 class ABuildingActor : public AActor
 {
 public:
@@ -75,6 +97,8 @@ class ABuildingItemCollectorActor : public ABuildingSMActor
 {
 public:
     DEFINE_PROPERTY(int, StartingGoalLevel);
+
+    DEFINE_PROPERTY(TArray<FCollectorUnitInfo>, ItemCollections);
 };
 
 class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor

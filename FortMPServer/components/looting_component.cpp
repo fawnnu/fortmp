@@ -305,9 +305,9 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
     {
         float max_weight = 0.f;
 
-        for (FName row : Loot_AthenaVendings)
+        for (FFortLootTierData* tier_data : Loot_AthenaVendings_WithTier)
         {
-            max_weight += loot_tier_data_map[row]->Weight();
+            max_weight += tier_data->Weight();
         }
 
         // Random weight
@@ -328,12 +328,60 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
         }
     };
 
-    for (int i = 0; i < 3; i++)
-    {
-        PickRandomLootTierData();
-    }
+    // Set the vending machine's rarity
+    vending_machine->StartingGoalLevel() = picked_tier;
 
     // Now set everything we got in the vending machine
+    auto ItemCollections = TArrayManager<FCollectorUnitInfo>(&vending_machine->ItemCollections(), FCollectorUnitInfo::GetStructSize());
+
+    for (int i = 0; i < ItemCollections.Num(); i++)
+    {
+        PickRandomLootTierData();
+        
+        auto CurrentLoot = PickedLootTierData[i];
+
+        if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldList"))
+        {
+            for (auto WorldList : loot_tier_packages_map)
+            {
+                FFortLootPackageData* category_loot_package_data = WorldList.Value();
+        
+                if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
+                {
+                    auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+                    OutputItemEntries.Add(&static_cast<UFortWorldItem*>(category_loot_package_data->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(category_loot_package_data->Count(), 1))->ItemEntry());
+                }
+            }
+        }
+        else if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldPKG"))
+        {
+            for (auto WorldPackage : loot_tier_packages_map)
+            {
+                FFortLootPackageData* category_loot_package_data = WorldPackage.Value();
+        
+                if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
+                {
+                    for (auto WorldList : loot_tier_packages_map)
+                    {
+                        FFortLootPackageData* world_list_package = WorldList.Value();
+
+                        if (world_list_package->LootPackageID() == FName(category_loot_package_data->LootPackageCall().c_str()))
+                        {
+                            auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+                            OutputItemEntries.Add(&static_cast<UFortWorldItem*>(world_list_package->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(world_list_package->Count(), 1))->ItemEntry());
+                        }
+                    }
+                }
+            }
+        }
+
+        // get the first item from the item entries and put it on display
+        auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+        ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
+    }
 }   
 
 UObject* looting_component::get_loot_tier_data()
