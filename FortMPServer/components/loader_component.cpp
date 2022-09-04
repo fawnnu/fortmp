@@ -33,93 +33,34 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
         }
 
-        if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistData"))
+        // Initialize playlist
+        if (initialize_playlist(in_playlist) == false)
         {
-            (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
-
-            // Load playlist on the server
-            (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
-        }
-        else if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo"))
-        {
-            (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
-            (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
-            (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
-
-            // Load playlist on the server
-            (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
-        }
-        else
-        {
-            if (in_playlist)
-            {
-                spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
-                    in_playlist->GetName().c_str());
-                
-                return;
-            }
+            spdlog::error(L"loader_component::start_match failed: failed to initialize playlist.");
+            
+            return;
         }
         
-        if ((*GWorld)->AuthorityGameMode()->GameSession())
-        {
-            // Update max player count
-            (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers() = 101;
-        }
+        // Update max players
+        update_max_players(101);
         
-        // All floor loot actors in the sub-level
-        TArray<AActor*> floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true));
+        // Spawn all floor loot
+        spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true), L"Loot_AthenaFloorLoot");
+        spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_Warmup_C", false, true), L"Loot_AthenaFloorLoot_Warmup");
+
+        // initialize vending machines
+        initialize_vending_machines();
         
-        for (AActor* floor_loot_actor : floor_loot_actors)
+        // Update default pawn class
+        (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+        
+        // Remove the server player from AlivePlayers on older builds
+        if (GetEngineVersionEasy() < 421)
         {
-            std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot");
-
-            for (const auto& [ item_definition, count ] : loot_to_spawn)
-            {
-                // Spawn pickup
-                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
-            }
-
-            // Set as searched if needed
-            UKismetSystemLibrary::SetBoolPropertyByName(floor_loot_actor, L"bAlreadySearched", static_cast<ABuildingContainer*>(floor_loot_actor)->bStartAlreadySearched_Athena());
-
-            // Actor might be dormant
-            floor_loot_actor->ForceNetUpdate();
+            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), UGameplayStatics::GetPlayerController(*GWorld, 0), 0);
         }
 
-        // All warmup floor loot actors in the sub-level
-        TArray<AActor*> warmup_floor_loot_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"Tiered_Athena_FloorLoot_Warmup_C", false, true));
-        
-        for (AActor* floor_loot_actor : warmup_floor_loot_actors)
-        {
-            std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaFloorLoot_Warmup");
-
-            for (const auto& [ item_definition, count ] : loot_to_spawn)
-            {
-                // Spawn pickup
-                pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
-            }
-
-            // Set as searched if needed
-            UKismetSystemLibrary::SetBoolPropertyByName(floor_loot_actor, L"bAlreadySearched", static_cast<ABuildingContainer*>(floor_loot_actor)->bStartAlreadySearched_Athena());
-
-            // Actor might be dormant
-            floor_loot_actor->ForceNetUpdate();
-        }
-
-        TArray<AActor*> vending_machine_actors = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetAllActorsOfClass(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
-        
-        for (AActor* vending_machine_actor : vending_machine_actors)
-        {
-            auto vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine_actor);
-
-            // Choose a rarity for the vending machine
-            std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaVending");
-
-            // Set the starting vending machine rarity
-            vending_machine->StartingGoalLevel() = loot_to_spawn.begin()->first->Rarity();
-        }
-        
-        // Infinite warmup
+        // setup warmup time
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
 
@@ -131,38 +72,88 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Start match
         (*GWorld)->AuthorityGameMode()->StartMatch();
 
-        // Update default pawn class
-        (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
-
-        // Server is ready
-        is_server_ready = true;
-
-        // Remove the server player from AlivePlayers on older builds
-        if (GetEngineVersionEasy() < 421)
-        {
-            APlayerController* player_controller = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetPlayerController(*GWorld, 0);
-
-            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), player_controller, 0);
-        }
-
         // Notify the era server once the server is up
-        const nlohmann::json req_body = R"({
-            "content": null,
-            "embeds": [
-             {
-                 "title": "Server Status",
-                  "description": "Servers are up on 4.2, press play or open erafn.org to join :white_check_mark:",
-                  "color": null
-               }
-            ],
-            "attachments": []
-        })"_json;
-        
         dll_utils::send_webhook_message(dll_utils::general_chat_webhook, req_body.dump());
         dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, req_body.dump());
         
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
+
+        // Server is ready
+        is_server_ready = true;
+    }
+}
+
+bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
+{
+    if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistData"))
+    {
+        (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
+
+        // Load playlist on the server
+        (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
+    }
+    else if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo"))
+    {
+        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
+        (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
+        (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
+
+        // Load playlist on the server
+        (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
+    }
+    else
+    {
+        if (in_playlist)
+        {
+            spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
+                in_playlist->GetName().c_str());
+                
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void loader_component::update_max_players(int MaxPlayers)
+{
+    if ((*GWorld)->AuthorityGameMode()->GameSession())
+    {
+        // Update max player count
+        (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers() = MaxPlayers;
+    }
+}
+
+void loader_component::spawn_floor_loot(UObject* Class, FString LootTier)
+{
+    TArray<AActor*> floor_loot_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, Class);
+        
+    for (AActor* floor_loot_actor : floor_loot_actors)
+    {
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(LootTier);
+
+        for (const auto& [ item_definition, count ] : loot_to_spawn)
+        {
+            // Spawn pickup
+            pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
+        }
+
+        // Set as searched if needed
+        UKismetSystemLibrary::SetBoolPropertyByName(floor_loot_actor, L"bAlreadySearched", static_cast<ABuildingContainer*>(floor_loot_actor)->bStartAlreadySearched_Athena());
+
+        // Actor might be dormant
+        floor_loot_actor->ForceNetUpdate();
+    }
+}
+
+void loader_component::initialize_vending_machines()
+{
+    TArray<AActor*> vending_machine_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
+        
+    for (AActor* vending_machine_actor : vending_machine_actors)
+    {
+        auto vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine_actor);
     }
 }
 

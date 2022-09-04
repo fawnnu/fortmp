@@ -153,7 +153,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
         if (!b_has_attribute_set)
         {
-            auto new_attribute = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->SpawnObject(attribute_set, world_item);
+            auto new_attribute = UGameplayStatics::SpawnObject(attribute_set, world_item);
         
             player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
         }

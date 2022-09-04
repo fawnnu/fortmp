@@ -3,18 +3,24 @@
 class UGameplayStatics : public UObject
 {
 public:
-    APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
+    static APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
     {
-        return Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+        
+        return Default__GameplayStatics->Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
     }
 
-    UObject* SpawnObject(UObject* Class, UObject* Outer)
+    static UObject* SpawnObject(UObject* Class, UObject* Outer)
     {
-        return Call<UObject*>(L"SpawnObject", Class, Outer);
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+        
+        return Default__GameplayStatics->Call<UObject*>(L"SpawnObject", Class, Outer);
     }
 
-    TArray<AActor*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
+    static TArray<AActor*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
     {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+        
         static UFunction* function = FindObject<UFunction>(L"/Script/Engine.GameplayStatics.GetAllActorsOfClass");
         
         struct params
@@ -32,8 +38,7 @@ public:
         function_params.WorldContextObject = WorldContextObject;
         function_params.ActorClass = ActorClass;
 
-        // TODO: use Call
-        ProcessEvent(this, function, &function_params);
+        ProcessEvent(Default__GameplayStatics, function, &function_params);
 
         return function_params.OutActors;
     }

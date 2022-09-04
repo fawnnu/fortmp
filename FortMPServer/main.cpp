@@ -53,7 +53,7 @@ void Setup()
         {
             if (*GWorld)
             {
-                APlayerController* player_controller = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics")->GetPlayerController(*GWorld, 0);
+                APlayerController* player_controller = UGameplayStatics::GetPlayerController(*GWorld, 0);
                 
                 if (player_controller)
                 {
