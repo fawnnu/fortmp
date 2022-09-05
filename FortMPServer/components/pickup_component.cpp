@@ -10,6 +10,7 @@ pickup_component::pickup_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    REGISTER_FUNCTION_DETOUR(pickup_component_hooks::OnAboutToEnterBackpack, memory_manager::get_function_start(memory_manager::find_pattern("74 48 48 8D 8B ? ? ? ? E8 ? ? ? ? 48 8B 93 ? ? ? ? 48 8B C8")), pickup_component_hooks::OnAboutToEnterBackpack_Hook);
     REGISTER_FUNCTION_DETOUR(pickup_component_hooks::OnAboutToEnterBackpack, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B 96 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8D 8E ? ? ? ? E8 ? ? ? ?")), pickup_component_hooks::OnAboutToEnterBackpack_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickup, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickup", pickup_component_hooks::ServerHandlePickup_Hook);
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
