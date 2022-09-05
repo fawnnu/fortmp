@@ -70,7 +70,7 @@ struct TArray
         Data = Slack() >= NumElements ? Data : (T*)FMemory_Realloc(Data, (Max = Count + NumElements) * sizeof(T), 0);
     }
 
-    void Add(T& InElement)
+    void Add(const T& InElement)
     {
         Reserve(1);
         Data[Count] = InElement;

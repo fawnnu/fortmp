@@ -5,6 +5,8 @@
 
 pickup_component::pickup_component()
 {
+    INIT_POINTER(Toss, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B CB 48 8B 5C 24 ? 48 83 C4 20 5F")));
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
@@ -16,7 +18,7 @@ pickup_component::pickup_component()
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
-                                            int loaded_ammo)
+                                            int loaded_ammo, bool bToss)
 {
     if (item_definition == nullptr)
     {
@@ -51,11 +53,60 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     {
         fort_pickup->bRandomRotation() = true;
     }
-    
-    // Toss pickup, prevents pickups from all spawning in the same location
-    fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
 
+    if (bToss == true)
+    {
+        // Toss pickup, prevents pickups from all spawning in the same location
+        fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
+    }
+    
     return fort_pickup;
+}
+
+void pickup_component::toss_pickup(AFortPickup* fort_pickup, ABuildingActor* container, FRotator toss_direction, float toss_angle, float toss_speed)
+{
+    if (fort_pickup == nullptr || container == nullptr)
+    {
+        spdlog::error(L"pickup_component::toss_pickup failed: invalid parameters.");
+        
+        return;
+    }
+
+    // prevent blocking the pickup
+    fort_pickup->TouchCapsule()->MoveIgnoreActors().Add(container);
+    
+    // First of all, start replicating movement
+    UKismetSystemLibrary::SetBoolPropertyByName(fort_pickup, L"bReplicateMovement", true);
+
+    // Convert the toss direction to a vector
+    FRotator TossDirection_Rotator(container->K2_GetActorRotation().Pitch + toss_direction.Pitch,
+        container->K2_GetActorRotation().Yaw + toss_direction.Yaw,
+        container->K2_GetActorRotation().Roll + toss_direction.Roll);
+
+    FVector TossDirection = UKismetMathLibrary::Conv_RotatorToVector(TossDirection_Rotator);
+
+    // Now get a random unit vector
+    FVector RandomUnitVector = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(TossDirection, toss_angle);
+
+    // Setup the movement component for tossing
+    fort_pickup->MovementComponent()->Velocity() = FVector(RandomUnitVector.X * toss_speed,
+        RandomUnitVector.Y * toss_speed,
+        RandomUnitVector.Z * toss_speed);
+
+    fort_pickup->MovementComponent()->MaxSpeed() = sqrtf(fort_pickup->MovementComponent()->Velocity().X * fort_pickup->MovementComponent()->Velocity().X +
+        fort_pickup->MovementComponent()->Velocity().Y * fort_pickup->MovementComponent()->Velocity().Y +
+        fort_pickup->MovementComponent()->Velocity().Z * fort_pickup->MovementComponent()->Velocity().Z);
+
+    // Now setup the pickup
+    fort_pickup->bTossedFromContainer() = true;
+
+    if (fort_pickup->HasProperty("bCombinePickupsWhenTossCompletes"))
+    {
+        fort_pickup->bCombinePickupsWhenTossCompletes() = false;
+    }
+                            
+    // Toss
+    Toss(fort_pickup);
 }
 
 void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* PlayerPawn)

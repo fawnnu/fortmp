@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "interact_component.hpp"
 
+#include "inventory_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
 #include "reviving_component.hpp"
@@ -20,6 +21,7 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
 {
     static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
     static UObject* supply_drop_class = FindObject(L"/Script/FortniteGame.FortAthenaSupplyDrop");
+    static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
     spdlog::info(L"handle_interaction: player_controller: {}, receiving_actor: {}",
@@ -40,6 +42,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interactions with supply drops
         handle_supply_drop_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
+    }
+    else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, vending_machine_class))
+    {
+        // Handle any interactions with vending machines
+        handle_vending_machine_interaction(player_controller, reinterpret_cast<ABuildingItemCollectorActor*>(receiving_actor));
     }
 }
 
@@ -111,6 +118,57 @@ void interact_component::handle_supply_drop_interaction(AFortPlayerController* p
     {
         // Spawn pickup
         pickup_component::spawn_pickup(item_definition, supply_drop->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
+    }
+}
+
+void interact_component::handle_vending_machine_interaction(AFortPlayerController* player_controller, ABuildingItemCollectorActor* vending_machine)
+{
+    UFortItemDefinition* deposit_item_definition = vending_machine->ActiveInputItem();
+    
+    // now get the item collection that takes the current deposit item
+    auto ItemCollections = TArrayManager<FCollectorUnitInfo>(&vending_machine->ItemCollections(), FCollectorUnitInfo::GetStructSize());
+
+    for (int i = 0; i < ItemCollections.Num(); i++)
+    {
+        if (ItemCollections[i].InputItem() == deposit_item_definition)
+        {
+            auto CurveTable = *reinterpret_cast<UE::TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(ItemCollections[i].InputCount().Curve().CurveTable) + 0x30);
+
+            // Get the amount of materials to give from CurveTable
+            int deposit_amount = FSimpleCurve::GetClass() ?
+                static_cast<FSimpleCurve*>(CurveTable[ItemCollections[i].InputCount().Curve().RowName])->Keys()[0].Value() :
+                static_cast<FRichCurve*>(CurveTable[ItemCollections[i].InputCount().Curve().RowName])->Keys()[0].Value();
+
+            if (UFortWorldItem* deposit_item_instance = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(player_controller, deposit_item_definition));
+                deposit_item_instance != nullptr || deposit_amount == 0)
+            {
+                // Pay the item cost
+
+                if (deposit_item_instance != nullptr)
+                {
+                    inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                }
+                
+                // Now spawn all the item entries
+                auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+                for (FFortItemEntry& item_entry : OutputItemEntries)
+                {
+                    FVector LootSpawnLocation = vending_machine->K2_GetActorLocation();
+                    LootSpawnLocation.Z += vending_machine->LootSpawnLocation().Z; // Change the Z axis not to have the pickup stuck in the floor
+                    
+                    AFortPickup* new_pickup = pickup_component::spawn_pickup(item_entry.ItemDefinition(), LootSpawnLocation, item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()), false);
+
+                    if (new_pickup)
+                    {
+                        // Custom directional tossing
+                        pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
+                    }
+                }
+            }
+            
+            break;
+        }
     }
 }
 

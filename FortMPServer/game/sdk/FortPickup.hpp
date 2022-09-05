@@ -21,6 +21,12 @@ public:
     DEFINE_PROPERTY(FFortItemEntry, PrimaryPickupItemEntry);
     DEFINE_PROPERTY(FFortPickupLocationData, PickupLocationData);
 
+    DEFINE_PROPERTY(class UProjectileMovementComponent*, MovementComponent);
+    DEFINE_PROPERTY(class UPrimitiveComponent*, TouchCapsule);
+
+    DEFINE_PROPERTY(bool, bTossedFromContainer);
+    DEFINE_PROPERTY(bool, bCombinePickupsWhenTossCompletes);
+
     void TossPickup(FVector FinalLocation, AFortPlayerPawn* ItemOwner, int OverrideMaxStackCount, bool bToss)
     {
         static bool b_has_toss_argument = FindPropertyByName(FindObject(L"/Script/FortniteGame.FortPickup.TossPickup"), L"bToss") != nullptr;

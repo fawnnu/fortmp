@@ -315,20 +315,19 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
 
         for (int i = 0; i < Loot_AthenaVendings_WithTier.size(); i++)
         {
-            if (random_weight > 0)
+            if (random_weight < Loot_AthenaVendings_WithTier[i]->Weight())
             {
-                if (random_weight < Loot_AthenaVendings_WithTier[i]->Weight())
-                {
-                    PickedLootTierData.push_back(Loot_AthenaVendings_WithTier[i]);
+                PickedLootTierData.push_back(Loot_AthenaVendings_WithTier[i]);
 
-                    Loot_AthenaVendings_WithTier.erase(Loot_AthenaVendings_WithTier.begin() + i);
+                Loot_AthenaVendings_WithTier.erase(Loot_AthenaVendings_WithTier.begin() + i);
             
-                    break;
-                }   
+                return true;
             }
-
+            
             random_weight -= Loot_AthenaVendings_WithTier[i]->Weight();
         }
+
+        return false;
     };
 
     // Set the vending machine's rarity
@@ -339,57 +338,104 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
 
     for (int i = 0; i < ItemCollections.Num(); i++)
     {
-        PickRandomLootTierData();
-        
-        auto CurrentLoot = PickedLootTierData[i];
-
-        if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldList"))
+        if (PickRandomLootTierData())
         {
-            for (auto WorldList : loot_tier_packages_map)
-            {
-                FFortLootPackageData* category_loot_package_data = WorldList.Value();
-        
-                if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
-                {
-                    auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+            auto CurrentLoot = PickedLootTierData[i];
 
-                    if(category_loot_package_data->Weight() > 0)
+            if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldList"))
+            {
+                std::vector<FFortLootPackageData*> possible_world_lists;
+            
+                for (auto WorldList : loot_tier_packages_map)
+                {
+                    FFortLootPackageData* category_loot_package_data = WorldList.Value();
+        
+                    if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
                     {
-                        OutputItemEntries.Add(&static_cast<UFortWorldItem*>(category_loot_package_data->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(category_loot_package_data->Count(), 1))->ItemEntry());   
+                        if (category_loot_package_data->Weight() > 0.f)
+                        {
+                            possible_world_lists.push_back(category_loot_package_data);
+                        }
                     }
                 }
-            }
-        }
-        else if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldPKG"))
-        {
-            for (auto WorldPackage : loot_tier_packages_map)
-            {
-                FFortLootPackageData* category_loot_package_data = WorldPackage.Value();
-        
-                if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
-                {
-                    for (auto WorldList : loot_tier_packages_map)
-                    {
-                        FFortLootPackageData* world_list_package = WorldList.Value();
 
-                        if (world_list_package->LootPackageID() == FName(category_loot_package_data->LootPackageCall().c_str()))
+                float max_weight = 0.f;
+            
+                for (auto possible_world_list : possible_world_lists)
+                {
+                    max_weight += possible_world_list->Weight();
+                }
+
+                float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
+
+                for (auto possible_world_list : possible_world_lists)
+                {
+                    if (random_weight < possible_world_list->Weight())
+                    {
+                        auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+                        OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(possible_world_list->Count(), 1))->ItemEntry());   
+                    
+                        break;
+                    }
+
+                    random_weight -= possible_world_list->Weight();
+                }
+            }
+            else if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldPKG"))
+            {
+                for (auto WorldPackage : loot_tier_packages_map)
+                {
+                    FFortLootPackageData* category_loot_package_data = WorldPackage.Value();
+        
+                    if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
+                    {
+                        std::vector<FFortLootPackageData*> possible_world_lists;
+                    
+                        for (auto WorldList : loot_tier_packages_map)
                         {
-                            auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
-                            
-                            if(world_list_package->Weight() > 0)
+                            FFortLootPackageData* world_list_package = WorldList.Value();
+
+                            if (world_list_package->LootPackageID() == FName(category_loot_package_data->LootPackageCall().c_str()))
                             {
-                                OutputItemEntries.Add(&static_cast<UFortWorldItem*>(world_list_package->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(world_list_package->Count(), 1))->ItemEntry());   
+                                if (world_list_package->Weight() > 0.f)
+                                {
+                                    possible_world_lists.push_back(world_list_package);
+                                }
                             }
+                        }
+
+                        float max_weight = 0.f;
+                    
+                        for (auto possible_world_list : possible_world_lists)
+                        {
+                            max_weight += possible_world_list->Weight();
+                        }
+
+                        float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
+
+                        for (auto possible_world_list : possible_world_lists)
+                        {
+                            if (random_weight < possible_world_list->Weight())
+                            {
+                                auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+                        
+                                OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(possible_world_list->Count(), 1))->ItemEntry());   
+                                                    
+                                break;
+                            }
+
+                            random_weight -= possible_world_list->Weight();
                         }
                     }
                 }
             }
+
+            // get the first item from the item entries and put it on display
+            auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+            ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
         }
-
-        // get the first item from the item entries and put it on display
-        auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
-
-        ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
     }
 }   
 

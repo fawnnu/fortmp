@@ -71,12 +71,19 @@ struct FGameplayAttributeData
     DEFINE_STRUCT_PROPERTY(float, BaseValue);
     DEFINE_STRUCT_PROPERTY(float, CurrentValue);
     
-    DEFINE_STRUCT_CLASS(L"GameplayAbilities.GameplayAttributeData");
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAttributeData");
 };
 
 struct FGameplayEventData
 {
     
+};
+
+struct FScalableFloat
+{
+    DEFINE_STRUCT_PROPERTY(FCurveTableRowHandle, Curve);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.ScalableFloat");
 };
 
 class UAbilitySystemComponent : public UObject

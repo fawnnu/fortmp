@@ -5,7 +5,9 @@ class pickup_component
 public:
     pickup_component();
     
-    static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0);
+    static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0, bool bToss = true);
+
+    static void toss_pickup(AFortPickup* fort_pickup, ABuildingActor* from_container, FRotator toss_direction, float toss_angle, float toss_speed);
 
     static void handle_pickup(AFortPickup* pickup, AFortPlayerPawn* PlayerPawn);
 };
@@ -24,3 +26,5 @@ namespace pickup_component_hooks
     // Called when a pickup should be added to a player's inventory
     DEFINE_FUNCTION_HOOK(bool, OnAboutToEnterBackpack, (AFortPickup* Pickup));
 }
+
+inline void (*Toss)(AFortPickup*);

@@ -33,3 +33,21 @@ public:
         Call(L"SetPhysicsAngularVelocityInRadians", AngularVelocity, bAddToCurrent, BoneName);
     }
 };
+
+class UMovementComponent : public UActorComponent
+{
+public:
+    DEFINE_PROPERTY(FVector, Velocity);
+};
+
+class UProjectileMovementComponent : public UMovementComponent
+{
+public:
+    DEFINE_PROPERTY(float, MaxSpeed);
+};
+
+class UPrimitiveComponent : public UActorComponent
+{
+public:
+    DEFINE_PROPERTY(TArray<AActor*>, MoveIgnoreActors);
+};

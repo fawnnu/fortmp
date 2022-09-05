@@ -25,6 +25,7 @@ struct FCollectorUnitInfo
     DEFINE_STRUCT_PROPERTY(UFortWorldItemDefinition*, OutputItem);
 
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, OutputItemEntry);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, InputCount);
     
     static UObject* GetClass()                                                                         
     {                                                                                                  
@@ -99,6 +100,18 @@ public:
     DEFINE_PROPERTY(int, StartingGoalLevel);
 
     DEFINE_PROPERTY(TArray<FCollectorUnitInfo>, ItemCollections);
+
+    DEFINE_PROPERTY(UFortItemDefinition*, ActiveInputItem);
+
+    DEFINE_PROPERTY(FVector, LootSpawnLocation);
+    DEFINE_PROPERTY(FRotator, LootTossDirection);
+    DEFINE_PROPERTY(float, LootTossConeHalfAngle);
+    DEFINE_PROPERTY(float, LootTossSpeed);
+
+    int GetDepositAmount(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
+    {
+        return Call<int>(L"GetDepositAmount", FortPlayerController, InInputItem);
+    }
 };
 
 class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor

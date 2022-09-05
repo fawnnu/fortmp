@@ -55,6 +55,30 @@ public:
 class UKismetMathLibrary : public UObject
 {
 public:
+    static FVector Conv_RotatorToVector(FRotator InRotator)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<FVector>(L"Conv_RotatorToVector", InRotator);
+    }
+    
+    static FVector RandomUnitVectorInConeInDegrees(FVector InDir, float ConeHalfAngle)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<FVector>(L"RandomUnitVectorInConeInDegrees", InDir, ConeHalfAngle);
+    }
+
+    static FVector Add_VectorVector(FVector A, FVector B)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<FVector>(L"Add_VectorVector", A, B); 
+    }
+    
     static float RandomFloatInRange(float Min, float Max)
     {
         // Static function to use default object
