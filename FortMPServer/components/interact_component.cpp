@@ -132,21 +132,21 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
     {
         if (ItemCollections[i].InputItem() == deposit_item_definition)
         {
-            auto CurveTable = *reinterpret_cast<UE::TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(ItemCollections[i].InputCount().Curve().CurveTable) + 0x30);
-
             // Get the amount of materials to give from CurveTable
-            int deposit_amount = FSimpleCurve::GetClass() ?
-                static_cast<FSimpleCurve*>(CurveTable[ItemCollections[i].InputCount().Curve().RowName])->Keys()[0].Value() :
-                static_cast<FRichCurve*>(CurveTable[ItemCollections[i].InputCount().Curve().RowName])->Keys()[0].Value();
+            int deposit_amount = vending_machine->GetDepositGoal(player_controller, deposit_item_definition);
 
             if (UFortWorldItem* deposit_item_instance = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(player_controller, deposit_item_definition));
                 deposit_item_instance != nullptr || deposit_amount == 0)
             {
                 // Pay the item cost
-
-                if (deposit_item_instance != nullptr)
+                if (deposit_item_instance != nullptr && deposit_amount != 0)
                 {
-                    inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                    if (deposit_item_instance->ItemEntry().Count() < deposit_amount)
+                    {
+                        spdlog::warn(L"Player '{}' tried to buy from vending machines without enough materials.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                            
+                        return;
+                    }
                 }
                 
                 // Now spawn all the item entries
@@ -164,6 +164,12 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                         // Custom directional tossing
                         pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
                     }
+                }
+
+                // If a new pickup has been spawned, charge the player with the price
+                if (deposit_item_instance != nullptr && deposit_amount != 0)
+                {
+                    inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
                 }
             }
             

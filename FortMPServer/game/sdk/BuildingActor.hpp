@@ -112,6 +112,11 @@ public:
     {
         return Call<int>(L"GetDepositAmount", FortPlayerController, InInputItem);
     }
+    
+    int GetDepositGoal(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
+    {
+        return Call<int>(L"GetDepositGoal", FortPlayerController, InInputItem);
+    }
 };
 
 class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor
