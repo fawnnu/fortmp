@@ -133,3 +133,9 @@ struct FSoftObjectPath
     // Sub path of the asset
     FString SubPathString;
 };
+
+struct FStringAssetReference
+{
+    // Path to the asset
+    FString AssetReference;
+};

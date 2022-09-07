@@ -158,6 +158,7 @@ class ABuildingContainer : public ABuildingSMActor
 public:
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
+    DEFINE_PROPERTY(FVector, LootSpawnLocation);
 
     DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
     DEFINE_BIT_PROPERTY(bool, bStartAlreadySearched_Athena);

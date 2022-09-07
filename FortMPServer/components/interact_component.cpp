@@ -75,15 +75,8 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         }
 
         // Get proper location for loot spawn
-        FVector ContainerLocation = building_container->K2_GetActorLocation();
-        FVector ContainerLocationOffset = building_container->LootSpawnLocation_Athena();
-        
-        // Sum actor location and loot spawn location to get location to spawn loot
-        FVector LootSpawnLocation {};
-
-        LootSpawnLocation.X = ContainerLocation.X += ContainerLocationOffset.X;
-        LootSpawnLocation.Y = ContainerLocation.Y += ContainerLocationOffset.Y;
-        LootSpawnLocation.Z = ContainerLocation.Z += ContainerLocationOffset.Z;
+        FVector LootSpawnLocation = building_container->K2_GetActorLocation();
+        LootSpawnLocation.Z += building_container->HasProperty(L"LootSpawnLocation_Athena") ? building_container->LootSpawnLocation_Athena().Z : building_container->LootSpawnLocation().Z;
         
         // Generate and spawn the loot
         std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());

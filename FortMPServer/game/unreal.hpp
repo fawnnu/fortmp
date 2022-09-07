@@ -256,9 +256,15 @@ struct TSoftObjectPtr
 {
     T* Get()
     {
+        static UObject* SoftObjectPath = FindObject(L"/Script/CoreUObject.SoftObjectPath");
+        
         T* Object = static_cast<T*>(WeakPtr.Get());
 
-        if (!Object && ObjectID.AssetPathName.ComparisonIndex != 0)
+        if (Object == nullptr && SoftObjectPath == nullptr)
+        {
+            Object = FindObject<T>(reinterpret_cast<FStringAssetReference*>(reinterpret_cast<uintptr_t>(this) + 0x10)->AssetReference.c_str(), true);
+        }
+        else if (Object == nullptr && ObjectID.AssetPathName.ComparisonIndex != 0 && SoftObjectPath != nullptr)
         {
             Object = FindObject<T>(ObjectID.AssetPathName.ToString().c_str(), true);
         }

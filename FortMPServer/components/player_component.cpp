@@ -51,18 +51,28 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         ability_component::apply_ability_set(player_pawn, ability_set);
 
         // Take a random character
-        static UAthenaGameData* athena_game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
+        static UAthenaGameData* game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
             FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) :
-            FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true);
+            FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) ?
+            FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) :
+            FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameData.DefaultGameData", true);
 
         // Randomly pick a cosmetic
         UFortHeroType* hero_definition = nullptr;
 
-        if (athena_game_data)
+        if (game_data)
         {
-            if (athena_game_data->HasProperty("RandomCharacters"))
+            if (game_data->HasProperty("RandomCharacters"))
             {
-                hero_definition = athena_game_data->RandomCharacters()[UKismetMathLibrary::RandomIntegerInRange(0, 7)]->HeroDefinition();
+                hero_definition = game_data->RandomCharacters()[UKismetMathLibrary::RandomIntegerInRange(0, 7)]->HeroDefinition();
+            }
+            else if (game_data->HasProperty(L"DefaultAthenaHeroes"))
+            {
+                // Support different size of TSoftObjectPtr
+                TArrayManager<TSoftObjectPtr<UFortHeroType>> DefaultAthenaHeroes = TArrayManager<TSoftObjectPtr<UFortHeroType>>(
+                    &game_data->DefaultAthenaHeroes(), FindObject(L"/Script/CoreUObject.SoftObjectPath") ? 0x28 : 0x20);
+                
+                hero_definition = DefaultAthenaHeroes[UKismetMathLibrary::RandomIntegerInRange(0, 7)].Get();
             }
         }
 
@@ -71,7 +81,14 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
             // Set the hero type for season 3 (otherwise characterparts wouldn't show)
             player_controller->PlayerState()->HeroType() = hero_definition;
 
-            for (TSoftObjectPtr<UCustomCharacterPart>& character_part : hero_definition->Specializations()[0]->CharacterParts())
+            // Get specialization
+            UFortHeroSpecialization* Specialization = hero_definition->Specializations()[0].Get();
+
+            // Support different size of TSoftObjectPtr
+            TArrayManager<TSoftObjectPtr<UCustomCharacterPart>> CharacterParts = TArrayManager<TSoftObjectPtr<UCustomCharacterPart>>(
+                &Specialization->CharacterParts(), FindObject(L"/Script/CoreUObject.SoftObjectPath") ? 0x28 : 0x20);
+            
+            for (TSoftObjectPtr<UCustomCharacterPart>& character_part : CharacterParts)
             {
                 player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
             }
@@ -159,7 +176,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
 UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
 {
-    static UObject* hero_definition = FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true);
+    static UObject* hero_definition = FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) ?
+        FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) :
+        FindObject(L"/Game/Athena/Heroes/HID_Commando_Athena_25.HID_Commando_Athena_25", true);
 
     if (hero_definition == nullptr)
     {
