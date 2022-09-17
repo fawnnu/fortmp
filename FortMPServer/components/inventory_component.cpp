@@ -158,6 +158,21 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
         }
     }
+
+    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&world_item->ItemEntry().StateValues(), FFortItemEntryStateValue::GetStructSize());
+
+    // Make a new state value
+    FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
+
+    // Initialize the newly allocated memory
+    ZeroMemory(NewStateValue, FFortItemEntryStateValue::GetStructSize());
+
+    // Initialize the properties
+    NewStateValue->IntValue() = 1;
+    NewStateValue->StateType() = 2;
+
+    // Add it to the StateValues
+    StateValues.Add(NewStateValue);
     
     // Add to inventory
     replicated_entries.Add(&world_item->ItemEntry());

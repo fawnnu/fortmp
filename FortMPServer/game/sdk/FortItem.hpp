@@ -113,6 +113,15 @@ public:
     }
 };
 
+struct FFortItemEntryStateValue
+{
+    DEFINE_STRUCT_PROPERTY(int, IntValue);
+    DEFINE_STRUCT_PROPERTY(FName, NameValue);
+    DEFINE_STRUCT_PROPERTY(uint8_t, StateType);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntryStateValue");
+};
+
 struct FFortItemEntry : public FFastArraySerializerItem
 {
     DEFINE_STRUCT_PROPERTY(int, Count);
@@ -120,6 +129,7 @@ struct FFortItemEntry : public FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(UFortItemDefinition*, ItemDefinition);
     DEFINE_STRUCT_PROPERTY(int, LoadedAmmo);
     DEFINE_STRUCT_PROPERTY(struct FGuid, ItemGuid);
+    DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntryStateValue>, StateValues);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
 };
