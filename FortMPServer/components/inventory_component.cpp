@@ -158,8 +158,13 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
         }
     }
+    
+    // Add to inventory
+    replicated_entries.Add(&world_item->ItemEntry());
+    item_instances.Add(&world_item);
 
-    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&world_item->ItemEntry().StateValues(), FFortItemEntryStateValue::GetStructSize());
+    // Add to state values
+    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
 
     // Make a new state value
     FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
@@ -173,10 +178,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
     // Add it to the StateValues
     StateValues.Add(NewStateValue);
-    
-    // Add to inventory
-    replicated_entries.Add(&world_item->ItemEntry());
-    item_instances.Add(&world_item);
 
     // Support force quickbar focus when item gets added to inventory
     UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(world_item->ItemEntry().ItemDefinition());
