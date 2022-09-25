@@ -75,9 +75,14 @@ void Setup()
                     {
                         // block DLL thread until level starts to load
                     }
+
+                    // Get the LocalPlayers array
+                    TArrayManager<ULocalPlayer*> LocalPlayers = TArrayManager<ULocalPlayer*>(&(*GWorld)->OwningGameInstance()->LocalPlayers(), 8);
+
+                    // Remove the server's player
+                    LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
                     
                     new hook_manager();
-                    
                     new net_component();
                     new loader_component();
                     new patches_component();

@@ -54,12 +54,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
         
-        // Remove the server player from AlivePlayers on older builds
-        if (GetEngineVersionEasy() < 421)
-        {
-            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), UGameplayStatics::GetPlayerController(*GWorld, 0), 0);
-        }
-
         // setup warmup time
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;

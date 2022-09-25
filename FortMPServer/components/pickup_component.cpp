@@ -180,11 +180,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
 
                 if (spawned_item != nullptr)
                 {
-                    static bool b_legacy_quickbars = PlayerController->HasProperty(L"QuickBars");
-    
-                    if (b_legacy_quickbars && PlayerController->QuickBars() && GetEngineVersionEasy() < 420)
+                    if (TryAddToQuickBar != nullptr)
                     {
-                        PlayerController->QuickBars()->ServerAddItemInternal(spawned_item->ItemEntry().ItemDefinition(), spawned_item->ItemEntry().ItemGuid());
+                        TryAddToQuickBar(PlayerController, spawned_item);
                     }
             
                     // Equip item on client

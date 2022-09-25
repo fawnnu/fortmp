@@ -77,21 +77,18 @@ int team_component::get_team_size()
 
 uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
 {
-    if (loader_component::is_server_ready)
+    // List of all teams
+    TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
+
+    for (int team_idx = 3; team_idx < all_teams.Num(); team_idx++)
     {
-        // List of all teams
-        TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
-
-        for (int team_idx = 3; team_idx < all_teams.Num(); team_idx++)
+        if (all_teams[team_idx]->TeamMembers().Num() < team_component::get_team_size())
         {
-            if (all_teams[team_idx]->TeamMembers().Num() < team_component::get_team_size())
-            {
-                // Add player to team list
-                TArrayManager(&all_teams[team_idx]->TeamMembers(), sizeof(UObject*)).Add(&PlayerController);
+            // Add player to team list
+            TArrayManager(&all_teams[team_idx]->TeamMembers(), sizeof(UObject*)).Add(&PlayerController);
 
-                // Return chosen team
-                return team_idx;
-            }
+            // Return chosen team
+            return team_idx;
         }
     }
     

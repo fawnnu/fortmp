@@ -33,6 +33,12 @@ public:
     DEFINE_PROPERTY(AWorldSettings*, WorldSettings);
 };
 
+class UGameInstance : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<ULocalPlayer*>, LocalPlayers);
+};
+
 class UWorld : public UObject
 {
 public:
@@ -46,6 +52,8 @@ public:
     DEFINE_PROPERTY(ULevel*, PersistentLevel);
 
     DEFINE_PROPERTY_BY_OFFSET(float, TimeSeconds, NetworkOffsets::TimeSeconds);
+
+    DEFINE_PROPERTY(UGameInstance*, OwningGameInstance);
     
     AWorldSettings* K2_GetWorldSettings()
     {

@@ -7,6 +7,9 @@
 
 inventory_component::inventory_component()
 {
+    // We use TryAddToQuickBar to have quickbars working below UE 4.20 builds
+    INIT_POINTER(TryAddToQuickBar, memory_manager::find_function_by_string(L"TryAddToQuickBar"));
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
@@ -199,12 +202,9 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Mark for replication
     player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
 
-    // has to be done on older builds (items aren't added to quickbars by default)
-    static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
-    
-    if (b_legacy_quickbars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
+    if (TryAddToQuickBar != nullptr)
     {
-        player_controller->QuickBars()->ServerAddItemInternal(item_definition, world_item->ItemEntry().ItemGuid());
+        TryAddToQuickBar(player_controller, world_item);
     }
     
     return world_item;
