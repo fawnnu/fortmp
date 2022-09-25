@@ -27,4 +27,7 @@ namespace player_component_hooks
 
     // Called to set a CharacterPart, we hook it to null it
     DEFINE_FUNCTION_HOOK(void, ServerChoosePart, (AFortPlayerPawn*, FFrame&));
+
+    // Called when a player is disconnecting
+    DEFINE_FUNCTION_HOOK(void, ServerReturnToMainMenu, (AFortPlayerController* FortPlayerController));
 }

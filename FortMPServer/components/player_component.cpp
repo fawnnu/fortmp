@@ -26,7 +26,8 @@ player_component::player_component()
 
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
-
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
+    
     if (GetEngineVersionEasy() < 421)
     {
         // Hooking this on later versions causes issues
@@ -51,7 +52,7 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         ability_component::apply_ability_set(player_pawn, ability_set);
 
         // Take a random character
-        static UAthenaGameData* game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
+        UAthenaGameData* game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
             FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) :
             FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) ?
             FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) :
@@ -108,6 +109,12 @@ void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController*
     PlayerController->AcknowledgedPawn() = P;
     
     return ServerAcknowledgePossession(PlayerController, StackFrame);
+}
+
+void player_component_hooks::ServerReturnToMainMenu_Hook(AFortPlayerController* FortPlayerController)
+{
+    // Make the player return to main menu
+    FortPlayerController->ClientReturnToMainMenu(L"");   
 }
 
 void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn*, FFrame&)
