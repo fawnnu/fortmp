@@ -25,7 +25,7 @@ ability_component::ability_component()
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_pattern("89 54 24 10 55 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 80 B9 ? ? ? ? ? 4C 8B F1 0F 85 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 49 8B CE 48 89 BC 24 ? ? ? ? E8 ? ? ? ? 48 89 45 7F"), ability_component_hooks::AbilityCost_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Failed to remove item %s during reload, item duplic"), ability_component_hooks::AbilityCost_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Weapon [%s] - Failed to find an Inventory Owner"), ability_component_hooks::AbilityCost_Hook);
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::CheckCost, memory_manager::find_function_by_string(L"UFortGameplayAbility::CheckCost for %s"), ability_component_hooks::CheckCost_Hook);
+
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::DoesAbilitySatisfyTagRequirements, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 74 43 8B 55 5F", true, 1), ability_component_hooks::DoesAbilitySatisfyTagRequirements_Hook);
     
     DetourTransactionCommit();
@@ -127,46 +127,6 @@ void ability_component_hooks::ServerAbilityRPCBatch_Hook(UAbilitySystemComponent
     return ServerAbilityRPCBatch(AbilitySystemComponent, StackFrame);   
 }
 
-bool ability_component_hooks::CheckCost_Hook(UFortGameplayAbility* Ability, int Handle, uintptr_t unk_0, uintptr_t unk_1)
-{
-    const bool result = CheckCost(Ability, Handle, unk_0, unk_1);
-    
-    if (result)
-    {
-        if (auto Costs = TArrayManager<FFortAbilityCost>(&Ability->AbilityCosts(), FFortAbilityCost::GetStructSize()); Costs.Num())
-        {
-            if (Costs[0].CostSource() == 2) //AmmoMagazine
-            {
-                const auto player_controller = Ability->GetActivatingPawn()->Controller();
-                const FGuid fort_weapon_guid = Ability->GetCurrentSourceWeapon()->ItemEntryGuid();
-                
-                auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-                auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
-
-                for (int i = 0; i < replicated_entries.Num(); i++)
-                {
-                    FFortItemEntry& replicated_entry = replicated_entries[i];
-                    UFortWorldItem*& item_instance = item_instances[i];
-
-                    if (replicated_entry.ItemGuid() == fort_weapon_guid)
-                    {
-                        const auto new_loaded_ammo = Ability->GetCurrentSourceWeapon()->GetMagazineAmmoCount() - 1;
-                        
-                        replicated_entry.LoadedAmmo() = new_loaded_ammo;
-                        item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
-
-                        player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
 void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amount)
 {
     if (FortWeapon)
@@ -174,10 +134,7 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
         if (const auto weapon_item_definition = static_cast<UFortWorldItemDefinition*>(FortWeapon->WeaponData()))
         {
             if (const auto ammo_item_definition = weapon_item_definition->GetAmmoWorldItemDefinition_BP())
-            {
-                static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
-                static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
-                
+            {   
                 const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
                 auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
@@ -186,38 +143,11 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
                 for (int i = 0; i < replicated_entries.Num(); i++)
                 {
                     FFortItemEntry& replicated_entry = replicated_entries[i];
-                    UFortWorldItem*& item_instance = item_instances[i];
 
-                    if (replicated_entry.ItemGuid() == FortWeapon->ItemEntryGuid())
+                    if (replicated_entry.ItemDefinition() == ammo_item_definition)
                     {
-                        int new_loaded_ammo = 0;
-                        
-                        if (UKismetMathLibrary::ClassIsChildOf(weapon_item_definition->Class, FortWeaponItemDefinition) &&
-                            !UKismetMathLibrary::ClassIsChildOf(weapon_item_definition->Class, FortTrapItemDefinition))
-                        {
-                            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(uintptr_t(static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().Table) + 0x30);
-                            new_loaded_ammo = Map[static_cast<UFortWeaponItemDefinition*>(weapon_item_definition)->WeaponStatHandle().RowName].Value->ClipSize();
-
-                            for (int j = 0; j < replicated_entries.Num(); j++)
-                            {
-                                if (replicated_entries[j].ItemDefinition() == ammo_item_definition)
-                                {
-                                    if (replicated_entries[j].Count() - Amount == 0)
-                                    {
-                                        new_loaded_ammo = replicated_entry.LoadedAmmo() + Amount;
-                                    }
-                                    
-                                    inventory_component::remove_item(player_controller, replicated_entries[j].ItemGuid(), Amount, false);
-                                    
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        replicated_entry.LoadedAmmo() = new_loaded_ammo;
-                        item_instance->ItemEntry().LoadedAmmo() = new_loaded_ammo;
-
-                        player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+                        inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), Amount, false);
+                        break;
                     }
                 }
             }

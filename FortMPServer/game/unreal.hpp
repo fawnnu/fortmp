@@ -324,6 +324,31 @@ struct TSharedPtr
     }
 };
 
+template <typename T>
+struct TScriptDelegate
+{
+    TScriptDelegate(T* InObject, FName InFunctionName)
+    {
+        Object = InObject;
+        FunctionName = InFunctionName;
+    }
+    
+    TWeakObjectPtr<T> Object;
+
+    FName FunctionName;
+};
+
+template <typename T>
+struct TScriptMulticastDelegate
+{
+    TArray<TScriptDelegate<T>> InvocationList;
+
+    void Add(const TScriptDelegate<T>& InDelegate)
+    {
+        InvocationList.Add(InDelegate);
+    }
+};
+
 struct FActorSpawnParameters
 {
     char Unk00[0x40];

@@ -18,6 +18,9 @@ public:
 
 namespace inventory_component_hooks
 {
+    // Called when a weapon's ammo count is updated
+    DEFINE_FUNCTION_HOOK(void, OnAmmoCountChanged, (UObject* Object, UObject* Function, void* Params));
+    
     // Called when player tries to equip an inventory item
     DEFINE_FUNCTION_HOOK(void, ServerExecuteInventoryItem, (AFortPlayerController* PlayerController, FFrame& StackFrame));
 

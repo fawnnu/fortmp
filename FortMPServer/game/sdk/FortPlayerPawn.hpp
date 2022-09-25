@@ -68,9 +68,9 @@ public:
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
     DEFINE_PROPERTY(class UAbilitySystemComponent*, AbilitySystemComponent);
     
-    UObject* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
+    AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
-        return Call<UObject*>(L"EquipWeaponDefinition", WeaponData, ItemEntryGuid);
+        return Call<AFortWeapon*>(L"EquipWeaponDefinition", WeaponData, ItemEntryGuid);
     }
 
     bool IsDBNO()

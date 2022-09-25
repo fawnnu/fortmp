@@ -26,6 +26,8 @@ inventory_component::inventory_component()
     }
     
     DetourTransactionCommit();
+
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortWeapon.OnAmmoCountChanged", inventory_component_hooks::OnAmmoCountChanged_Hook);
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -397,7 +399,13 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     else
     {
         // Equip Weapon
-        PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+        auto NewWeapon = PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
+
+        // Bind a delegate to keep loadedammo updated
+        if (NewWeapon != nullptr && NewWeapon->OnLocalAmmoChanged().InvocationList.Num() == 0)
+        {
+            NewWeapon->OnLocalAmmoChanged().Add(TScriptDelegate(NewWeapon, L"OnAmmoCountChanged"));
+        }
     }
 
     static bool b_set_metadata = GetEngineVersionEasy() < 421;
@@ -443,6 +451,32 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     }
     
     return ServerExecuteInventoryItem(PlayerController, StackFrame);
+}
+
+void inventory_component_hooks::OnAmmoCountChanged_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    auto FortWeapon = static_cast<AFortWeapon*>(Object);
+
+    const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
+
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+
+    for (int i = 0; i < replicated_entries.Num(); i++)
+    {
+        FFortItemEntry& replicated_entry = replicated_entries[i];
+        UFortWorldItem*& item_instance = item_instances[i];
+
+        if (replicated_entry.ItemGuid() == FortWeapon->ItemEntryGuid())
+        {
+            replicated_entry.LoadedAmmo() = FortWeapon->GetLocalMagazineAmmoCount();
+            item_instance->ItemEntry().LoadedAmmo() = FortWeapon->GetLocalMagazineAmmoCount();
+
+            player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+
+            break;
+        }
+    }
 }
 
 void inventory_component_hooks::ServerExecuteInventoryWeapon_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

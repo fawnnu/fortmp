@@ -37,6 +37,8 @@ struct FString : private TArray<wchar_t>
 
 struct FName
 {
+    FName() = default;
+    
     FName(int InComparisonIndex, int InNumber) :
         ComparisonIndex(InComparisonIndex), Number(InNumber)
     {

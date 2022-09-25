@@ -3,12 +3,14 @@
 class AFortWeapon : public AActor
 {
 public:
+    DEFINE_PROPERTY(TScriptMulticastDelegate<AFortWeapon>, OnLocalAmmoChanged);
+    DEFINE_PROPERTY(int, AmmoCount);
     DEFINE_PROPERTY(UFortItemDefinition*, WeaponData);
     DEFINE_PROPERTY(FGuid, ItemEntryGuid);
 
-    int GetMagazineAmmoCount()
+    int GetLocalMagazineAmmoCount()
     {
-        return Call<int>(L"GetMagazineAmmoCount");
+        return Call<int>(L"GetLocalMagazineAmmoCount");
     }
     
     int GetRemainingAmmo()
