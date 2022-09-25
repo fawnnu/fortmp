@@ -16,6 +16,10 @@ pickup_component::pickup_component()
     REGISTER_UFUNCTION_DETOUR(pickup_component_hooks::ServerHandlePickupInfo, L"/Script/FortniteGame.FortPlayerPawn.ServerHandlePickupInfo", pickup_component_hooks::ServerHandlePickupInfo_Hook);
 
     DetourTransactionCommit();
+
+    REGISTER_PROCESS_EVENT_DETOUR(FindObject(L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap") ?
+        L"/Script/FortniteGame.FortPlayerPawn.OnCapsuleBeginOverlap" :
+        L"/Script/FortniteGame.FortPlayerPawnAthena.OnCapsuleBeginOverlap", pickup_component_hooks::OnCapsuleBeginOverlap_Hook);
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
@@ -114,12 +118,16 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
 {
     if (Pickup == nullptr)
     {
+        spdlog::error(L"pickup_component::handle_pickup called with invalid Pickup");
+        
         return;
     }
 
+    // Prevent duplication
     if (Pickup->bPickedUp())
     {
-        // Prevent duplication
+        spdlog::error(L"Attempting to pick up {}, but bPickedUp is true", Pickup->GetName().c_str());
+        
         return;
     }
     
@@ -234,7 +242,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     if (UKismetMathLibrary::ClassIsChildOf(OtherActor->Class, fort_pickup_class))
     {
         // Cast overlap capsule to FortPickup instance
-        static AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
+        AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
 
         // Filter pickup classes
         static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
@@ -248,7 +256,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
             {
                 // Pickup item automatically if it is not currently being tossed
-                PlayerPawn->ServerHandlePickup(fort_pickup, 0.f, {}, false);
+                pickup_component::handle_pickup(fort_pickup, PlayerPawn);
             }
         }
     }
