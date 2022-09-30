@@ -30,4 +30,7 @@ namespace player_component_hooks
 
     // Called when a player is disconnecting
     DEFINE_FUNCTION_HOOK(void, ServerReturnToMainMenu, (AFortPlayerController* FortPlayerController));
+
+    // Called when a player has been spawned
+    DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (UObject* Object, UObject* Function, void* Params));
 }

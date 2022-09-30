@@ -35,6 +35,9 @@ player_component::player_component()
     }
     
     DetourTransactionCommit();
+
+    // Finish spawning a player
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
 }
 
 AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_controller, FTransform spawn_transform)
@@ -257,4 +260,16 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
     return ServerSendZiplineState(FortPlayerPawn, StackFrame);
 }
 
+void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AFortPlayerControllerAthena*, NewPlayer);
 
+    // Give abilities to newly spawned pawns
+    if (NewPlayer->Pawn() != nullptr)
+    {
+        UObject* ability_set = FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") ?
+            FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
+        
+        ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
+    }
+}

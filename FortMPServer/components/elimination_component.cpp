@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "elimination_component.hpp"
 
+#include "inventory_component.hpp"
 #include "pickup_component.hpp"
 
 elimination_component::elimination_component()
@@ -118,14 +119,17 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
     if (VictimPlayerController->WorldInventory())
     {
-        for (FFortItemEntry& item_entry : replicated_entries)
+        for (int i = replicated_entries.Num() - 1; i >= 0; i--)
         {
+            FFortItemEntry& item_entry = replicated_entries[i];
+            
             if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible"))
             {
                 continue;
             }
 
-            pickup_component::spawn_pickup(item_entry.ItemDefinition(), VictimPlayerController->Pawn()->K2_GetActorLocation(), item_entry.Count(), item_entry.LoadedAmmo());
+            // Remove item from dead player
+            inventory_component::remove_item(VictimPlayerController, item_entry.ItemGuid(), -1);
         }
     }
 
