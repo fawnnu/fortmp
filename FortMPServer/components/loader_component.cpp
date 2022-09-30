@@ -63,8 +63,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;   
         }
         
-        // Start match
-        (*GWorld)->AuthorityGameMode()->StartMatch();
+        // Mark world as ready
+        UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
 
         // Notify the era server once the server is up
         dll_utils::send_webhook_message(dll_utils::general_chat_webhook, req_body.dump());

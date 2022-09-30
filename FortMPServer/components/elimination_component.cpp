@@ -63,6 +63,13 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
     // Victim player controller taken from function
     AFortPlayerController* VictimPlayerController = reinterpret_cast<AFortPlayerController*>(Object);
+
+    // Get playlist
+    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+        (*GWorld)->GameState()->CurrentPlaylistData() :
+        (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
+        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
+        nullptr;
     
     if (DeathReport.KillerPlayerState())
     {
@@ -75,9 +82,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
         if (DeathReport.KillerPawn())
         {
-            static bool b_has_distance = FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"Distance");
-            
-            if (b_has_distance)
+            if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"Distance"))
             {
                 // Get distance from killer pawn to eliminated pawn
                 VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
@@ -95,11 +100,15 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
 
     // Mark death report as initialized
-    static bool b_has_binitialized = FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"bInitialized");
-
-    if (b_has_binitialized)
+    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"bInitialized"))
     {
         VictimPlayerController->PlayerState()->DeathInfo().bInitialized() = true;
+    }
+
+    // Set the deathlocation
+    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathLocation"))
+    {
+        VictimPlayerController->PlayerState()->DeathInfo().DeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
     }
     
     // Spawn dead player loot
@@ -119,7 +128,11 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             pickup_component::spawn_pickup(item_entry.ItemDefinition(), VictimPlayerController->Pawn()->K2_GetActorLocation(), item_entry.Count(), item_entry.LoadedAmmo());
         }
     }
-    
+
+    // only proceed if Respawn isn't enabled
+    if (current_playlist->HasProperty(L"RespawnType") == false ||
+        current_playlist->HasProperty(L"RespawnType") == true &&
+        current_playlist->RespawnType() == 0)
     {
         if (RemoveFromAlivePlayerList)
         {

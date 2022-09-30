@@ -171,6 +171,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
             NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMin() = 0.f;
             NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMax() = 0.f;
 
+            // Bind OnStartedRespawn delegate
+            static_cast<AFortPlayerControllerAthena*>(NetConnection->PlayerController())->OnStartedRespawn().Add(TScriptDelegate(NetConnection->PlayerController(), L"OnPlayerStartedRespawn__DelegateSignature"));
+
             // Drop loading screen
             NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
 

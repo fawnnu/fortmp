@@ -153,6 +153,8 @@ public:
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
+    DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
+    
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
     void SpectateOnDeath()

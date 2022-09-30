@@ -84,6 +84,38 @@ patches_component::patches_component()
     }
 
     {
+        // Pawn spawning patches
+
+        const UObject* DefaultFortGameModeAthenaObject = FindObject(L"/Script/FortniteGame.Default__FortGameModeAthena");
+        const UObject* DefaultGameModeBaseObject = FindObject(L"/Script/Engine.Default__GameModeBase");
+
+        // Use Engine's SpawnDefaultPawnFor
+        if (const uintptr_t target_address = memory_manager::find_function_by_string(L"SpawnDefaultPawnFor: Fail"))
+        {
+            for (auto i = 0; i < INT_MAX; i++)
+            {
+                if (DefaultFortGameModeAthenaObject->VTable[i] != nullptr &&
+                    DefaultFortGameModeAthenaObject->VTable[i] == reinterpret_cast<LPVOID>(target_address))
+                {
+                    DWORD new_protect, old_protect;
+
+                    VirtualProtect(DefaultFortGameModeAthenaObject->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+
+                    DefaultFortGameModeAthenaObject->VTable[i] = DefaultGameModeBaseObject->VTable[i];
+
+                    VirtualProtect(DefaultFortGameModeAthenaObject->VTable, 4096, old_protect, &new_protect);
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch SpawnDefaultPawnFor: invalid target_address");
+        }
+    }
+
+    {
         // NOMCP BEHAVIOUR ON PRE 1.10
 
         if (const uintptr_t target_address = memory_manager::find_pattern("FF 97 ? ? ? ? 48 8B 8D ? ? ? ? 84 C0 0F 94 C3 48 85 C9 74 05 E8 ? ? ? ?"))
