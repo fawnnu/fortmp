@@ -34,7 +34,23 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
 
             int Count = 0;
 
-            auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(building_actor->BuildingResourceAmountOverride().CurveTable) + 0x30);
+            UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+                (*GWorld)->GameState()->CurrentPlaylistData() :
+                (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
+                (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
+                nullptr;
+
+            // Get resource rates table
+            UCurveTable* OverrideResourceRates = nullptr;
+
+            if (current_playlist != nullptr && current_playlist->HasProperty(L"ResourceRates"))
+            {
+                OverrideResourceRates = current_playlist->ResourceRates().Get();
+            }
+            
+            auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(OverrideResourceRates ?
+                OverrideResourceRates :
+                building_actor->BuildingResourceAmountOverride().CurveTable) + 0x30);
 
             // Get the amount of materials to give from CurveTable
             Count = FSimpleCurve::GetClass() ?
