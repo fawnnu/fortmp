@@ -84,6 +84,28 @@ patches_component::patches_component()
     }
 
     {
+        // Re-add AFortPlayerController::ServerSuicide
+
+        const UObject* DefaultFortPlayerControllerObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerController");
+        const UObject* DefaultFortPlayerControllerAthenaObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerControllerAthena");
+
+        if (const int target_index = memory_manager::find_function_by_string(L"ServerSuicide_Validate", {0x48, 0xFF, 0xA0}, 3, false, false))
+        {
+            DWORD old_protect, new_protect;
+
+            VirtualProtect(DefaultFortPlayerControllerAthenaObject->VTable, 8192, PAGE_EXECUTE_READWRITE, &old_protect);
+
+            DefaultFortPlayerControllerAthenaObject->VTable[target_index / 8] = DefaultFortPlayerControllerObject->VTable[target_index / 8];
+            
+            VirtualProtect(DefaultFortPlayerControllerAthenaObject->VTable, 8192, old_protect, &new_protect);
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch ServerSuicide");
+        }
+    }
+
+    {
         // Pawn spawning patches
 
         const UObject* DefaultFortGameModeAthenaObject = FindObject(L"/Script/FortniteGame.Default__FortGameModeAthena");
