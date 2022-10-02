@@ -172,6 +172,85 @@ uintptr_t memory_manager::get_function_start(uintptr_t address)
 	return Function ? BaseAddress + Function->BeginAddress : 0;
 }
 
+// Heavily inspired by https://github.com/khalladay/hooking-by-example AllocatePageNearAddress
+uintptr_t memory_manager::allocate_page_near_address(uintptr_t address, ENewPageLocation location)
+{
+	SYSTEM_INFO sys_info;
+	GetSystemInfo(&sys_info);
+	const uintptr_t PAGE_SIZE = sys_info.dwPageSize;
+
+	uintptr_t start_address = address & ~(PAGE_SIZE - 1);
+	uintptr_t min_address = std::min(start_address - 0x7FFFFF00, reinterpret_cast<uintptr_t>(sys_info.lpMinimumApplicationAddress));
+	uintptr_t max_address = std::max(start_address + 0x7FFFFF00,  reinterpret_cast<uintptr_t>(sys_info.lpMaximumApplicationAddress));
+
+	uintptr_t start_page = start_address - start_address % PAGE_SIZE;
+
+	for (uintptr_t page_offset = 1; page_offset; page_offset++)
+	{
+		uintptr_t byte_offset = page_offset * PAGE_SIZE;
+		uintptr_t high_address = start_page + byte_offset;
+		uintptr_t low_address = start_page > byte_offset ? start_page - byte_offset : 0;
+
+		bool bNeedsExit = high_address > max_address && low_address < min_address;
+
+		if (high_address < max_address &&
+			location == ENewPageLocation::BOTH ||
+			location == ENewPageLocation::HIGH)
+		{
+			uintptr_t out_address = reinterpret_cast<uintptr_t>(VirtualAlloc(reinterpret_cast<LPVOID>(high_address), PAGE_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+
+			if (out_address)
+			{
+				return out_address;
+			}
+		}
+
+		if (low_address > min_address &&
+			location == ENewPageLocation::BOTH ||
+			location == ENewPageLocation::LOW)
+		{
+			uintptr_t out_address = reinterpret_cast<uintptr_t>(VirtualAlloc(reinterpret_cast<LPVOID>(low_address), PAGE_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+
+			if (out_address)
+			{
+				return out_address;
+			}
+		}
+
+		if (bNeedsExit)
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)
+{
+	uintptr_t new_page_address = allocate_page_near_address(call_instruction_address, ENewPageLocation::HIGH);
+
+	// Add the below instructions to the new page
+	// mov r10, addr
+	// jmp r10
+
+	uint8_t instructions[] = {0x49, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x41, 0xFF, 0xE2};
+	
+	*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(instructions) + 2) = hook_address;
+
+	memcpy(reinterpret_cast<LPVOID>(new_page_address), instructions, sizeof instructions);
+
+	// Now, edit the call instruction to call our newly allocated page
+	int displacement = new_page_address - (call_instruction_address + 5);
+	
+	DWORD old_protect, new_protect;
+	VirtualProtect(reinterpret_cast<LPVOID>(call_instruction_address), 5, PAGE_EXECUTE_READWRITE, &old_protect);
+
+	*reinterpret_cast<int*>(call_instruction_address + 1) = displacement;
+	
+	VirtualProtect(reinterpret_cast<LPVOID>(call_instruction_address), 5, old_protect, &new_protect);
+}
+
 bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
 {
     if (pointer_cache.find(pointer_to_read) != pointer_cache.end())
