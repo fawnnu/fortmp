@@ -26,6 +26,8 @@ class AActor : public UObject
 public:
     DEFINE_PROPERTY(class USceneComponent*, RootComponent);
 
+    DEFINE_PROPERTY(TArray<class UActorComponent*>, BlueprintCreatedComponents);
+    
     DEFINE_PROPERTY(ENetRole, RemoteRole);
     DEFINE_PROPERTY(ENetRole, Role);
     DEFINE_PROPERTY(ENetDormancy, NetDormancy);

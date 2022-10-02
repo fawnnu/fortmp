@@ -23,6 +23,13 @@ public:
         Default__KismetSystemLibrary->Call(L"ExecuteConsoleCommand", *GWorld, Command, nullptr);
     }
 
+    static FString GetPathName(UObject* Object)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        
+        return Default__KismetSystemLibrary->Call<FString>(L"GetPathName", Object);
+    }
+    
     static FTimerHandle K2_SetTimer(UObject* Target, FString FunctionName, float Time, bool bLooping)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");

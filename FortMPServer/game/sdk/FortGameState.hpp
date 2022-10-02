@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "FortPlaylist.hpp"
+#include "KismetLibrary.hpp"
 
 struct FFortLevelStreamingInfo
 {
@@ -54,6 +56,38 @@ class AFortGameState : public AGameStateBase
 {
 public:
     DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);
+    DEFINE_PROPERTY(TArray<struct FName>, AdditionalPlaylistLevelsStreamed);
+
+    void OnRep_AdditionalPlaylistLevelsStreamed()
+    {
+        Call(L"OnRep_AdditionalPlaylistLevelsStreamed");
+    }
+
+    void AddPlaylistStreamedLevel(FName PackageName)
+    {
+        // Add a level
+        AdditionalPlaylistLevelsStreamed().Add(PackageName);
+
+        // Let the server know the levels were updated
+        OnRep_AdditionalPlaylistLevelsStreamed();
+    }
+
+    void HandlePlaylistStreamedLevels(UFortPlaylistAthena* in_playlist)
+    {
+        for(auto streamed_world : in_playlist->AdditionalLevels())
+        {
+            UObject* streamed_world_object = streamed_world.Get();
+            
+            if(streamed_world_object != nullptr)
+            {
+                FString streamed_world_path = UKismetSystemLibrary::GetPathName(streamed_world_object);
+                AdditionalPlaylistLevelsStreamed().Add(streamed_world_path.c_str());
+                spdlog::info(L"Loading playlist level: {}", streamed_world_path.c_str());
+            }
+        }
+
+        OnRep_AdditionalPlaylistLevelsStreamed();
+    }
 };
 
 struct FGameMemberInfoArray : FFastArraySerializer
@@ -75,7 +109,8 @@ public:
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
 
     DEFINE_PROPERTY(uint8_t, GamePhase);
-
+    DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
+    
     DEFINE_PROPERTY(UFortPlaylistAthena*, CurrentPlaylistData);
 
     DEFINE_PROPERTY(FPlaylistPropertyArray, CurrentPlaylistInfo);

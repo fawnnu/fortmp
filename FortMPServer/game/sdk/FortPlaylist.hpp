@@ -17,4 +17,6 @@ public:
     DEFINE_PROPERTY(struct FScalableFloat, RespawnHeight);
 
     DEFINE_PROPERTY(uint8_t, RespawnType);
+    DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
+    DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevels);
 };
