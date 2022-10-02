@@ -42,7 +42,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
 
         // Set aircraft behavior
-        (*GWorld)->GameState()->AirCraftBehavior() = in_playlist->AirCraftBehavior();
+        if ((*GWorld)->GameState()->HasProperty(L"AirCraftBehavior") &&
+            in_playlist != nullptr &&
+            in_playlist->HasProperty(L"AirCraftBehavior"))
+        {
+            (*GWorld)->GameState()->AirCraftBehavior() = in_playlist->AirCraftBehavior();
+        }
         
         // Update max players
         update_max_players(101);
