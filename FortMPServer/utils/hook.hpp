@@ -27,6 +27,24 @@
                                                                                                                                 \
     hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
+#define REGISTER_CALL_DETOUR(FunctionObject, FunctionDetour) \
+    { \
+        UFunction* function_to_hook = FindObject<UFunction>(FunctionObject) ? \
+        FindObject<UFunction>(FunctionObject) : FindObject<UFunction>(FunctionObject, false, true); \
+        \
+        if (function_to_hook != nullptr) \
+        {\
+            const auto all_calls_in_function = memory_manager::get_all_calls_in_function(reinterpret_cast<uintptr_t>(function_to_hook->get_native_function())); \
+            \
+            memory_manager::call_hook(all_calls_in_function[all_calls_in_function.size() - 1], reinterpret_cast<uintptr_t>(FunctionDetour));\
+        }\
+        else \
+        {\
+            spdlog::error(L"Failed to hook '{}', invalid function object provided", FunctionObject);\
+        }\
+    }
+    
+
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
     inline ReturnType (* FunctionName##) FunctionDefinition;                \
                                                                             \

@@ -226,6 +226,62 @@ uintptr_t memory_manager::allocate_page_near_address(uintptr_t address, ENewPage
 	return 0;
 }
 
+uintptr_t memory_manager::get_function_end(uintptr_t function_start)
+{
+	uintptr_t instruction_address = function_start;
+
+	while (true)
+	{
+		if (get_function_start(instruction_address) != function_start)
+		{
+			return instruction_address - 1;
+		}
+		
+		instruction_address++;
+	}
+}
+
+std::vector<uintptr_t> memory_manager::get_all_calls_in_function(uintptr_t function_start)
+{
+	std::vector<uintptr_t> calls_list;
+
+	uintptr_t function_end = get_function_end(function_start);
+	uintptr_t instruction_address = function_start;
+
+	for (; instruction_address <= function_end; instruction_address++)
+	{
+		if (*reinterpret_cast<uint8_t*>(instruction_address) == 0xE8) // Call
+		{
+			uintptr_t called_function = instruction_address + 5 + *reinterpret_cast<int*>(instruction_address + 1);
+
+			if (is_valid_function(called_function))
+			{
+				calls_list.push_back(instruction_address);
+			}
+		}
+	}
+
+	return calls_list;
+}
+
+bool memory_manager::is_valid_function(uintptr_t function)
+{
+	auto BaseAddress = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
+	
+	PIMAGE_NT_HEADERS64 Headers = ImageNtHeader(HINSTANCE(BaseAddress));
+
+	//The first section is always .text
+	PIMAGE_SECTION_HEADER TextSection = IMAGE_FIRST_SECTION(Headers);
+
+	if (function > BaseAddress + TextSection->VirtualAddress &&
+		function < BaseAddress + TextSection->VirtualAddress + TextSection->Misc.VirtualSize)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)
 {
 	uintptr_t new_page_address = allocate_page_near_address(call_instruction_address, ENewPageLocation::HIGH);

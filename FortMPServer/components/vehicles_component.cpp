@@ -5,10 +5,12 @@
 
 vehicles_component::vehicles_component()
 {
+    // Hook the last call in EquipAbilityWeapon
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::EquipAbilityWeapon, L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerAttemptExitVehicle, L"/Script/FortniteGame.FortPlayerControllerZone.ServerAttemptExitVehicle", vehicles_component_hooks::ServerAttemptExitVehicle_Hook);
 
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortAthenaVehicle.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
@@ -19,13 +21,8 @@ vehicles_component::vehicles_component()
 }
 
 // re-add code for this function; it's stripped
-void vehicles_component_hooks::EquipAbilityWeapon_Hook(UFortGameplayAbility* FortGameplayAbility, FFrame& StackFrame)
+void vehicles_component_hooks::EquipAbilityWeapon_Hook(UFortGameplayAbility* FortGameplayAbility, UFortWeaponItemDefinition* WeaponDefinition)
 {
-    // params unpacking from StackFrame.Code
-    UFortWeaponItemDefinition* WeaponDefinition = nullptr;
-
-    StackFrame.Step(FortGameplayAbility, &WeaponDefinition);
-
     // make sure the weapon definition is valid
     if (WeaponDefinition)
     {
@@ -48,8 +45,6 @@ void vehicles_component_hooks::EquipAbilityWeapon_Hook(UFortGameplayAbility* For
         // equip the ability weapon
         FortGameplayAbility->GetActivatingPawn()->EquipWeaponDefinition(WeaponDefinition, new_item->ItemEntry().ItemGuid());
     }
-
-    return EquipAbilityWeapon(FortGameplayAbility, StackFrame);
 }
 
 void vehicles_component_hooks::ServerAttemptExitVehicle_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)

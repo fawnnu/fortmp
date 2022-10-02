@@ -25,6 +25,9 @@ public:
     static uintptr_t find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes = {}, int Offset = 0, bool Backwards = true, bool bIsRelative = true);
     static uintptr_t get_function_start(uintptr_t address);
     static uintptr_t allocate_page_near_address(uintptr_t address, ENewPageLocation location = ENewPageLocation::LOW);
+    static uintptr_t get_function_end(uintptr_t function_start);
+    static std::vector<uintptr_t> get_all_calls_in_function(uintptr_t function_start);
+    static bool is_valid_function(uintptr_t function);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
     
     static bool is_bad_read_pointer(void* pointer_to_read);
