@@ -25,6 +25,9 @@ namespace pickup_component_hooks
     
     // Called when a pickup should be added to a player's inventory
     DEFINE_FUNCTION_HOOK(bool, OnAboutToEnterBackpack, (AFortPickup* Pickup));
+
+    // Called when a pickup should be spawned
+    DEFINE_FUNCTION_HOOK(AFortPickup*, K2_SpawnPickupInWorld, (UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position));
 }
 
 inline void (*Toss)(AFortPickup*);

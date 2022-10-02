@@ -6,6 +6,8 @@
 pickup_component::pickup_component()
 {
     INIT_POINTER(Toss, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B CB 48 8B 5C 24 ? 48 83 C4 20 5F")));
+
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_SpawnPickupInWorld", pickup_component_hooks::K2_SpawnPickupInWorld_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -260,4 +262,23 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             }
         }
     }
+}
+
+AFortPickup* pickup_component_hooks::K2_SpawnPickupInWorld_Hook(UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position)
+{
+    if (ItemDefinition != nullptr)
+    {
+        // Spawn the pickup
+        auto NewPickup = pickup_component::spawn_pickup(ItemDefinition, Position, NumberToSpawn, 0, false);
+
+        if (NewPickup != nullptr)
+        {
+            // Toss the pickup
+            NewPickup->TossPickup(Position, nullptr, 0, false);
+        
+            return NewPickup;
+        }
+    }
+    
+    return nullptr;   
 }
