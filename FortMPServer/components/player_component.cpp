@@ -133,6 +133,12 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
         if (player_pawn)
         {
+            // Register quest manager
+            if(NetConnection->PlayerController()->HasProperty(L"XPComponent"))
+            {
+                NetConnection->PlayerController()->XPComponent()->bRegisteredWithQuestManager() = true;
+            }
+            
             // Make sure the player is joining for the first time
             if (NetConnection->PlayerController()->PlayerState()->NumRejoins() > 0)
             {
