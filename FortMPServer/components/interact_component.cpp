@@ -172,6 +172,9 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {
+    // Call native function first
+    PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
+    
     GET_PARAMETER(AActor*, ReceivingActor);
 
     if (ReceivingActor == nullptr)
@@ -182,12 +185,13 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
 
     // Interact with actor
     interact_component::handle_interaction(PlayerController, ReceivingActor);
-    
-    return PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
 }
 
 void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(UActorComponent* InteractionComponent, FFrame& StackFrame)
 {
+    // Call native function first
+    InteractionComponent_ServerAttemptInteract(InteractionComponent, StackFrame);
+    
     GET_PARAMETER(AActor*, ReceivingActor);
 
     if (ReceivingActor == nullptr)
@@ -206,6 +210,4 @@ void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(U
 
     // Interact with actor
     interact_component::handle_interaction(player_controller, ReceivingActor);
-    
-    return InteractionComponent_ServerAttemptInteract(InteractionComponent, StackFrame);
 }
