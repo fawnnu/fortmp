@@ -139,7 +139,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     // Set the pickup target and fly time
     Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
-    Pickup->PickupLocationData().FlyTime() = 0.4f;
+    Pickup->PickupLocationData().FlyTime() /= static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->PickupSpeedMultiplier();
     Pickup->PickupLocationData().ItemOwner() = PlayerPawn;
     
     // Net update

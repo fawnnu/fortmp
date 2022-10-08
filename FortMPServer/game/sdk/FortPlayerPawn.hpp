@@ -113,6 +113,12 @@ public:
     }
 };
 
+class AFortPlayerPawnAthena : public AFortPlayerPawn
+{
+public:
+    DEFINE_PROPERTY(float, PickupSpeedMultiplier);
+};
+
 class AFortAIPawn : public UObject
 {
 public:
