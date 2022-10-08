@@ -2,6 +2,7 @@
 #include "pickup_component.hpp"
 
 #include "inventory_component.hpp"
+#include "looting_component.hpp"
 
 pickup_component::pickup_component()
 {
@@ -113,7 +114,10 @@ void pickup_component::toss_pickup(AFortPickup* fort_pickup, ABuildingActor* con
     }
                             
     // Toss
-    Toss(fort_pickup);
+    if (Toss != nullptr)
+    {
+        Toss(fort_pickup);
+    }
 }
 
 void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* PlayerPawn)
@@ -264,14 +268,14 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     }
 }
 
-AFortPickup* pickup_component_hooks::K2_SpawnPickupInWorld_Hook(UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position)
+AFortPickup* pickup_component_hooks::K2_SpawnPickupInWorld_Hook(UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position, FVector Direction, int OverrideMaxStackCount, bool bToss)
 {
     if (ItemDefinition != nullptr)
     {
         // Spawn the pickup
-        auto NewPickup = pickup_component::spawn_pickup(ItemDefinition, Position, NumberToSpawn, 0, false);
+        auto NewPickup = pickup_component::spawn_pickup(ItemDefinition, Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition), bToss);
 
-        if (NewPickup != nullptr)
+        if (NewPickup != nullptr && bToss == false)
         {
             // Toss the pickup
             NewPickup->TossPickup(Position, nullptr, 0, false);

@@ -38,11 +38,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with player pawns
         handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
     }
-    else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, supply_drop_class))
-    {
-        // Handle any interactions with supply drops
-        handle_supply_drop_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
-    }
     else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, vending_machine_class))
     {
         // Handle any interactions with vending machines
@@ -104,6 +99,10 @@ void interact_component::handle_player_pawn_interaction(AFortPlayerController* p
 
 void interact_component::handle_supply_drop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
 {
+    spdlog::warn(L"interact_component::handle_supply_drop_interaction is deprecated.");
+    
+    return;
+    
     // Spawn loot for supply drop
     std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaSupplyDrop");
 

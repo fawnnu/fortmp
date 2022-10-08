@@ -19,5 +19,8 @@ public:
 
 namespace looting_component_hooks
 {
-    DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, PickLootDrops, (TArray<FFortItemEntry>*, FName));
+    DEFINE_FUNCTION_HOOK(void, PickLootDrops_New, (UWorld*, TArray<FFortItemEntry>*, FName));
+
+    DEFINE_FUNCTION_HOOK(AFortPickup*, AFortAthenaSupplyDrop_SpawnPickup, (AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position));
 }

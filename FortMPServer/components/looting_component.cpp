@@ -9,6 +9,15 @@
 
 looting_component::looting_component()
 {
+    if (UFunction* target_function = FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.PickLootDrops"))
+    {
+        auto stripped_calls = memory_manager::get_all_stripped_calls_in_function(reinterpret_cast<uintptr_t>(target_function->get_native_function()));
+
+        REGISTER_CALL_DETOUR_WITH_ADDRESS(stripped_calls[stripped_calls.size() - 1], FindPropertyByName(target_function, L"WorldContextObject") ? reinterpret_cast<void*>(looting_component_hooks::PickLootDrops_New_Hook) : reinterpret_cast<void*>(looting_component_hooks::PickLootDrops_Hook));
+    }
+    
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnPickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook);
+    
     blacklisted_item_definitions = {};
     blacklisted_classes = {FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true)};
 }
@@ -497,3 +506,41 @@ int looting_component::get_default_loaded_ammo(UFortItemDefinition* in_item_defi
     
     return 0;
 }
+
+void looting_component_hooks::PickLootDrops_Hook(TArray<FFortItemEntry>* OutLootToDrop, FName TierGroupName)
+{
+    if (OutLootToDrop == nullptr)
+    {
+        spdlog::error(L"looting_component_hooks::PickLootDrops_Hook failed: invalid OutLootToDrop");
+    }
+
+    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(TierGroupName.ToString().c_str());
+
+    for (const auto& [item_definition, count] : loot_to_spawn)
+    {
+        // Create a new item entry
+        FFortItemEntry* NewItemEntry = &static_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(count, 1))->ItemEntry();
+
+        // Add the newly created item entry to the OutLootToDrop array
+        TArrayManager<FFortItemEntry> OutLootToDrop_ArrayManager = TArrayManager<FFortItemEntry>(OutLootToDrop, FFortItemEntry::GetStructSize());
+        OutLootToDrop_ArrayManager.Add(NewItemEntry);
+    }
+}
+
+void looting_component_hooks::PickLootDrops_New_Hook(UWorld*, TArray<FFortItemEntry>* OutLootToDrop, FName TierGroupName)
+{
+    PickLootDrops_Hook(OutLootToDrop, TierGroupName);   
+}
+
+AFortPickup* looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook(AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position)
+{
+    if (ItemDefinition != nullptr)
+    {
+        // Spawn a pickup
+        AFortPickup* NewPickup = pickup_component::spawn_pickup(ItemDefinition, *Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition));
+
+        return NewPickup;
+    }
+    
+    return nullptr;
+}   

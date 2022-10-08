@@ -264,6 +264,23 @@ std::vector<uintptr_t> memory_manager::get_all_calls_in_function(uintptr_t funct
 	return calls_list;
 }
 
+std::vector<uintptr_t> memory_manager::get_all_stripped_calls_in_function(uintptr_t function_start)
+{
+	std::vector<uintptr_t> stripped_calls_list;
+	
+	auto all_calls = get_all_calls_in_function(function_start);
+
+	for (auto call : all_calls)
+	{
+		if (is_stripped_function(call + 5 + *reinterpret_cast<int*>(call + 1)))
+		{
+			stripped_calls_list.push_back(call);
+		}
+	}
+
+	return stripped_calls_list;
+}
+
 bool memory_manager::is_valid_function(uintptr_t function)
 {
 	auto BaseAddress = reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr));
@@ -280,6 +297,15 @@ bool memory_manager::is_valid_function(uintptr_t function)
 	}
 
 	return false;
+}
+
+bool memory_manager::is_stripped_function(uintptr_t function)
+{
+	return reinterpret_cast<uint8_t*>(function)[0] == 0xe9 ||	// JMP
+	       reinterpret_cast<uint8_t*>(function)[0] == 0xeb ||	// JMP
+		   reinterpret_cast<uint8_t*>(function)[0] == 0xc3 ||	// RET
+		   reinterpret_cast<uint8_t*>(function)[1] == 0xc3 ||	// RET
+		   reinterpret_cast<uint8_t*>(function)[2] == 0xc3;		// RET
 }
 
 void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)

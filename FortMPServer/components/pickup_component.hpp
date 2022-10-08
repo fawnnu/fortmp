@@ -27,7 +27,7 @@ namespace pickup_component_hooks
     DEFINE_FUNCTION_HOOK(bool, OnAboutToEnterBackpack, (AFortPickup* Pickup));
 
     // Called when a pickup should be spawned
-    DEFINE_FUNCTION_HOOK(AFortPickup*, K2_SpawnPickupInWorld, (UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position));
+    DEFINE_FUNCTION_HOOK(AFortPickup*, K2_SpawnPickupInWorld, (UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position, FVector Direction, int OverrideMaxStackCount, bool bToss));
 }
 
 inline void (*Toss)(AFortPickup*);

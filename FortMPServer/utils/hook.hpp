@@ -43,7 +43,14 @@
             spdlog::error(L"Failed to hook '{}', invalid function object provided", FunctionObject);\
         }\
     }
-    
+
+#define REGISTER_CALL_DETOUR_WITH_ADDRESS(CallAddress, FunctionDetour) \
+    {\
+        if (CallAddress != 0)\
+        {\
+            memory_manager::call_hook(CallAddress, reinterpret_cast<uintptr_t>(FunctionDetour));\
+        }\
+    }
 
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
     inline ReturnType (* FunctionName##) FunctionDefinition;                \
