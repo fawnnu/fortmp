@@ -31,6 +31,7 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFr
     // Take the most recent attached actor (new trap)
     ABuildingSMActor* trap_actor = AttachedActor->AttachedBuildingActors()[AttachedActor->AttachedBuildingActors().Num() - 1];
 
+    // Get the new team for this trap
     uint8_t new_team = player_controller->PlayerState()->TeamIndex();
     
     // Set trap team
@@ -40,9 +41,13 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFr
     trap_actor->SetTeam(new_team);
 
     // Pay trap cost
-    if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_definition(player_controller, FortDecoTool->ItemDefinition()))
+    if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_guid(player_controller, FortDecoTool->ItemEntryGuid()))
     {
         inventory_component::remove_item(player_controller, static_cast<UFortWorldItem*>(item_to_remove)->ItemEntry().ItemGuid(), 1, false);
+    }
+    else
+    {
+        spdlog::error(L"trap_component_hooks::ServerSpawnDeco_Hook failed to pay trap cost, invalid item_to_remove");
     }
 }
 
