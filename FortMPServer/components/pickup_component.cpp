@@ -270,18 +270,15 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
 
 AFortPickup* pickup_component_hooks::K2_SpawnPickupInWorld_Hook(UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position, FVector Direction, int OverrideMaxStackCount, bool bToss)
 {
-    if (ItemDefinition != nullptr)
-    {
-        // Spawn the pickup
-        auto NewPickup = pickup_component::spawn_pickup(ItemDefinition, Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition), bToss);
+    // Spawn the pickup
+    auto NewPickup = pickup_component::spawn_pickup(ItemDefinition, Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition), bToss);
 
-        if (NewPickup != nullptr && bToss == false)
-        {
+    if (NewPickup != nullptr && bToss == false)
+    {
             // Toss the pickup
-            NewPickup->TossPickup(Position, nullptr, 0, false);
+        NewPickup->TossPickup(Position, nullptr, 0, false);
         
-            return NewPickup;
-        }
+        return NewPickup;
     }
     
     return nullptr;   

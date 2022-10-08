@@ -534,13 +534,5 @@ void looting_component_hooks::PickLootDrops_New_Hook(UWorld*, TArray<FFortItemEn
 
 AFortPickup* looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook(AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position)
 {
-    if (ItemDefinition != nullptr)
-    {
-        // Spawn a pickup
-        AFortPickup* NewPickup = pickup_component::spawn_pickup(ItemDefinition, *Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition));
-
-        return NewPickup;
-    }
-    
-    return nullptr;
+    return pickup_component::spawn_pickup(ItemDefinition, *Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition));
 }   
