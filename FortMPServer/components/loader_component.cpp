@@ -58,6 +58,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // initialize vending machines
         initialize_vending_machines();
+
+        // initialize llamas
+        initialize_llamas();
         
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
@@ -163,6 +166,79 @@ void loader_component::initialize_vending_machines()
         looting_component::set_vending_machine_loot(vending_machine);
     }
 }
+
+void loader_component::initialize_llamas()
+{
+    // Get gamestate
+    AFortGameStateAthena* GameState = (*GWorld)->GameState();
+
+    if (GameState->MapInfo())
+    {
+        // Create a new FortSupplyDropInfo
+        UFortSupplyDropInfo* NewSupplyDropInfo = static_cast<UFortSupplyDropInfo*>(UGameplayStatics::SpawnObject(FindObject(L"/Script/FortniteGame.FortSupplyDropInfo"), *GWorld));
+
+        // Set the supply drop info's class
+        if (GameState->MapInfo()->HasProperty(L"LlamaClass"))
+        {
+            NewSupplyDropInfo->SupplyDropClass() = GameState->MapInfo()->LlamaClass();
+
+            // Create a new FFortSupplyDropGamePhaseData (Allocate the struct on the heap to avoid issues with garbage collection)
+            FFortSupplyDropGamePhaseData* NewGamePhaseData = static_cast<FFortSupplyDropGamePhaseData*>(malloc(FFortSupplyDropGamePhaseData::GetStructSize()));
+
+            // Initialize our struct's memory
+            ZeroMemory(NewGamePhaseData, FFortSupplyDropGamePhaseData::GetStructSize());
+
+            // Add it to the supply drop info
+            auto GamePhaseData = TArrayManager<FFortSupplyDropGamePhaseData>(&NewSupplyDropInfo->GamePhaseData(), FFortSupplyDropGamePhaseData::GetStructSize());
+
+            GamePhaseData.Add(NewGamePhaseData);
+
+            // Now create a sub phase data
+            FFortSupplyDropSubPhaseData* NewSubPhaseData = static_cast<FFortSupplyDropSubPhaseData*>(malloc(FFortSupplyDropSubPhaseData::GetStructSize()));
+
+            // Initialize our struct's memory
+            ZeroMemory(NewSubPhaseData, FFortSupplyDropSubPhaseData::GetStructSize());
+
+            auto SubPhaseData = TArrayManager<FFortSupplyDropSubPhaseData>(&GamePhaseData[0].SubPhaseData(), FFortSupplyDropSubPhaseData::GetStructSize());
+
+            // Add the sub phase data to our GamePhaseData
+            SubPhaseData.Add(NewSubPhaseData);
+
+            // Now set SupplyDropMinPlacementHeight and SupplyDropMaxPlacementHeight, copy them from the default supply drop info
+            if (UFortSupplyDropInfo* DefaultSupplyDrop = FindObject<UFortSupplyDropInfo>(L"/Game/Athena/Balance/MapInfos/DefaultSupplyDrop.DefaultSupplyDrop", true))
+            {
+                auto DefaultGamePhaseData = TArrayManager<FFortSupplyDropGamePhaseData>(&DefaultSupplyDrop->GamePhaseData(), FFortSupplyDropGamePhaseData::GetStructSize());
+                
+                GamePhaseData[0].SupplyDropMinPlacementHeight() = DefaultGamePhaseData[0].SupplyDropMinPlacementHeight();
+                GamePhaseData[0].SupplyDropMaxPlacementHeight() = DefaultGamePhaseData[0].SupplyDropMaxPlacementHeight();
+            }
+
+            // Spawn the llamas
+            for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(GameState->MapInfo()->LlamaQuantityMin().GetValueAtLevel(0, nullptr), GameState->MapInfo()->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
+            {
+                // Call the function to spawn the llamas
+                if (SpawnSupplyDrop != nullptr)
+                {
+                    FRotator NewRotation{};
+
+                    // New llama
+                    AFortAthenaSupplyDrop* NewSupplyDrop = SpawnSupplyDrop(GameState->MapInfo(), nullptr, 0, 0, NewSupplyDropInfo, &NewRotation);
+
+                    // Log
+                    spdlog::info(L"Spawned Llama at {} {} {}", NewSupplyDrop->K2_GetActorLocation().X, NewSupplyDrop->K2_GetActorLocation().Y, NewSupplyDrop->K2_GetActorLocation().Z);
+                }
+                else
+                {
+                    spdlog::error(L"Failed to spawn llama: SpawnSupplyDrop was not found.");
+                }
+            }
+        }
+    }
+    else
+    {
+        spdlog::error(L"loader_component::initialize_llamas failed, invalid MapInfo");
+    }
+}   
 
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {

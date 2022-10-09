@@ -11,6 +11,7 @@ public:
     static void update_max_players(int MaxPlayers);
     static void spawn_floor_loot(UObject* Class, FString LootTier);
     static void initialize_vending_machines();
+    static void initialize_llamas();
 
     inline static bool is_server_ready = false;
 

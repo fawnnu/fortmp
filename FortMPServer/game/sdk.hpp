@@ -83,6 +83,7 @@
 #include "sdk/CurveTable.hpp"
 #include "sdk/GameData.hpp"
 #include "sdk/KismetLibrary.hpp"
+#include "sdk/MapInfo.hpp"
 
 #include "sdk/BuildingActor.hpp"
 #include "sdk/GameplayStatics.hpp"

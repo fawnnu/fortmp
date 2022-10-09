@@ -24,3 +24,5 @@ namespace looting_component_hooks
 
     DEFINE_FUNCTION_HOOK(AFortPickup*, AFortAthenaSupplyDrop_SpawnPickup, (AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position));
 }
+
+inline AFortAthenaSupplyDrop* (*SpawnSupplyDrop)(AFortAthenaMapInfo* FortAthenaMapInfo, void* UnknownParam, int UnknownParam_1, int SafezoneIndex, UFortSupplyDropInfo* FortSupplyDropInfo, FRotator* InRotation);

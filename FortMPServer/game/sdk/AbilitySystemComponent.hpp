@@ -81,9 +81,32 @@ struct FGameplayEventData
 
 struct FScalableFloat
 {
+    DEFINE_STRUCT_PROPERTY(float, Value);
     DEFINE_STRUCT_PROPERTY(FCurveTableRowHandle, Curve);
     
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.ScalableFloat");
+
+    float GetValueAtLevel(float Level, FString* ContextString)
+    {
+        static uintptr_t GetValueAtLevel_Address = memory_manager::find_function_by_string(L"FScalableFloat::GetValueAtLevel");
+
+        if (GetValueAtLevel_Address)
+        {
+            return reinterpret_cast<float (*)(FScalableFloat*, float, FString*)>(GetValueAtLevel_Address)(this, Level, ContextString);
+        }
+        
+        spdlog::error(L"FScalableFloat::GetValueAtLevel failed: invalid address.");
+
+        return 0.f;
+    }
+
+    FScalableFloat& operator=(FScalableFloat& InScalableFloat)
+    {
+        Value() = InScalableFloat.Value();
+        Curve() = InScalableFloat.Curve();
+
+        return *this;
+    }
 };
 
 class UAbilitySystemComponent : public UObject

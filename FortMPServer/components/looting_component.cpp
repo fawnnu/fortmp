@@ -9,6 +9,8 @@
 
 looting_component::looting_component()
 {
+    INIT_POINTER(SpawnSupplyDrop, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 41 56 48 83 EC 60 49 63 F1 48 8B E9 4D 63 F0 45 85 C9 78 46 3B B1 ? ? ? ?"));
+    
     if (UFunction* target_function = FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.PickLootDrops"))
     {
         auto stripped_calls = memory_manager::get_all_stripped_calls_in_function(reinterpret_cast<uintptr_t>(target_function->get_native_function()));

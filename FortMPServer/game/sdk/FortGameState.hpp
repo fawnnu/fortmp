@@ -121,6 +121,8 @@ public:
     
     DEFINE_PROPERTY(int, TotalPlayers);
     DEFINE_PROPERTY(int, PlayersLeft);
+
+    DEFINE_PROPERTY(class AFortAthenaMapInfo*, MapInfo);
     
     void OnRep_CurrentPlaylistInfo()
     {
