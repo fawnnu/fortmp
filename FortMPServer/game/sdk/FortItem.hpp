@@ -56,17 +56,19 @@ public:
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AbilitySet)
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AttributeSet)
     DEFINE_PROPERTY(TArray<struct FGameplayAttribute>, TrackedAttributes);
-
-    // Used on early versions
+    
     UFortItemDefinition* GetDecoItemDefinition()
     {
-        return Call<UFortItemDefinition*>(L"GetDecoItemDefinition");
-    }
-
-    // Used on later versions
-    UFortItemDefinition* GetWeaponItemDefinition()
-    {
-        return Call<UFortItemDefinition*>(L"GetWeaponItemDefinition");
+        if(!HasFunction(L"GetWeaponItemDefinition"))
+        {
+            // Used on early versions
+            return Call<UFortItemDefinition*>(L"GetDecoItemDefinition");   
+        }
+        else
+        {
+            // Used on later builds
+            return Call<UFortItemDefinition*>(L"GetWeaponItemDefinition");
+        }
     }
 };
 
