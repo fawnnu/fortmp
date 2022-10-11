@@ -33,9 +33,11 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         return nullptr;
     }
     
+    static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+    
     if(pickup_class == nullptr)
     {
-        pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+        pickup_class = fort_pickup_class;
     }
 
     // Spawn pickup in world
