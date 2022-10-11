@@ -26,17 +26,20 @@ pickup_component::pickup_component()
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
-                                            int loaded_ammo, bool bToss)
+                                            int loaded_ammo, bool bToss, UObject* pickup_class)
 {
     if (item_definition == nullptr)
     {
         return nullptr;
     }
     
-    static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
-    
+    if(pickup_class == nullptr)
+    {
+        pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+    }
+
     // Spawn pickup in world
-    AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, fort_pickup_class, &pickup_location, nullptr, FActorSpawnParameters {}));
+    AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, pickup_class, &pickup_location, nullptr, FActorSpawnParameters {}));
 
     if (fort_pickup == nullptr)
     {

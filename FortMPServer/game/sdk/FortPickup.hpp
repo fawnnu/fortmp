@@ -41,3 +41,8 @@ public:
         Call(L"OnRep_PickupLocationData");
     }
 };
+
+class AFortGameModePickup : public AFortPickup
+{
+    
+};
