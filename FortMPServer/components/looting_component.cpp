@@ -445,7 +445,10 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
             // get the first item from the item entries and put it on display
             auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
 
-            ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
+            if(OutputItemEntries.Num() > 0)
+            {
+                ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());   
+            }
         }
     }
 }   
