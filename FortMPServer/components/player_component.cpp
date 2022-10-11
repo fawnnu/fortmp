@@ -94,6 +94,7 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
             
             for (TSoftObjectPtr<UCustomCharacterPart>& character_part : CharacterParts)
             {
+                player_pawn->ServerChooseGender(character_part->GenderPermitted());
                 player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
             }
         }
@@ -225,7 +226,18 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
     {
         auto new_ability_spec = FGameplayAbilitySpec();
 
-        new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C"); // set the ability in the newly created struct
+        static auto AthenaSprayItemDefinition = FindObject(L"/Script/FortniteGame.AthenaSprayItemDefinition");
+
+        // set the ability in the newly created struct    TODO: ADD TOYS
+        if(UKismetMathLibrary::ClassIsChildOf(EmoteAsset->Class, AthenaSprayItemDefinition))
+        {
+            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
+        }
+        else
+        {
+            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
+        }
+        
         new_ability_spec.SourceObject = EmoteAsset; // set the sourceobject, in this case the emote we want to execute
         new_ability_spec.Level = 1; 
         new_ability_spec.InputID = 1;

@@ -19,6 +19,7 @@ looting_component::looting_component()
     }
     
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnPickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook);
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnGameModePickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnGameModePickup_Hook);
     
     blacklisted_item_definitions = {};
     blacklisted_classes = {FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true)};
@@ -445,7 +446,10 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
             // get the first item from the item entries and put it on display
             auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
 
-            ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
+            if(OutputItemEntries.Num() > 0)
+            {
+                ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());   
+            }
         }
     }
 }
@@ -657,4 +661,9 @@ void looting_component_hooks::PickLootDrops_New_Hook(UWorld*, TArray<FFortItemEn
 AFortPickup* looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook(AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position)
 {
     return pickup_component::spawn_pickup(ItemDefinition, *Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition));
+}
+
+AFortGameModePickup* looting_component_hooks::AFortAthenaSupplyDrop_SpawnGameModePickup_Hook(AFortAthenaSupplyDrop* FortAthenaSupplyDrop, UFortItemDefinition* ItemDefinition, UObject* PickupClass, int NumberToSpawn, AFortPawn* TriggeringPawn, FVector* Position, FVector* Direction)
+{
+    return static_cast<AFortGameModePickup*>(pickup_component::spawn_pickup(ItemDefinition, *Position, NumberToSpawn, looting_component::get_default_loaded_ammo(ItemDefinition), PickupClass));
 }   

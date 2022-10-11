@@ -145,22 +145,25 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         // Grant attributes
         UObject* attribute_set = gadget_item_definition->AttributeSet().Get();
 
-        bool b_has_attribute_set = false;
-        
-        for (const auto Attribute : player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes())
+        if(attribute_set)
         {
-            if (Attribute->IsA(attribute_set)) //TODO: Make sure the attribute belongs to the item (Guid check)
+            bool b_has_attribute_set = false;
+        
+            for (const auto Attribute : player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes())
             {
-                b_has_attribute_set = true;
-                break;
+                if (Attribute->IsA(attribute_set)) //TODO: Make sure the attribute belongs to the item (Guid check)
+                    {
+                    b_has_attribute_set = true;
+                    break;
+                    }
             }
-        }
 
-        if (!b_has_attribute_set)
-        {
-            auto new_attribute = UGameplayStatics::SpawnObject(attribute_set, world_item);
+            if (!b_has_attribute_set)
+            {
+                auto new_attribute = UGameplayStatics::SpawnObject(attribute_set, world_item);
         
-            player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
+                player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
+            }
         }
     }
     
@@ -394,7 +397,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, gadget_definition_class))
     {
         // If item is a gadget, equip it's deco item definition
-        PlayerController->Pawn()->EquipWeaponDefinition(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition(), ItemGuid); // TODO: Add a check to use GetWeaponItemDefinition on later builds
+        PlayerController->Pawn()->EquipWeaponDefinition(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition(), ItemGuid);
     }
     else
     {
