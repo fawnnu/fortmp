@@ -61,9 +61,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // initialize llamas
         initialize_llamas();
+
+        // initialize BGAs
+        initialize_bga();
         
         // Update default pawn class
-        (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+        (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = APlayerPawn_Athena_C::StaticClass();
         
         // setup warmup time
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
@@ -133,7 +136,7 @@ void loader_component::update_max_players(int MaxPlayers)
     }
 }
 
-void loader_component::spawn_floor_loot(UObject* Class, FString LootTier)
+void loader_component::spawn_floor_loot(UObject* Class, FName LootTier)
 {
     TArray<AActor*> floor_loot_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, Class);
         
@@ -157,13 +160,11 @@ void loader_component::spawn_floor_loot(UObject* Class, FString LootTier)
 
 void loader_component::initialize_vending_machines()
 {
-    TArray<AActor*> vending_machine_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
+    TArray<AB_Athena_VendingMachine_C*> vending_machine_actors = UGameplayStatics::GetAllActorsOfClass<AB_Athena_VendingMachine_C>(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
         
-    for (AActor* vending_machine_actor : vending_machine_actors)
+    for (AB_Athena_VendingMachine_C* vending_machine_actor : vending_machine_actors)
     {
-        auto vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine_actor);
-
-        looting_component::set_vending_machine_loot(vending_machine);
+        looting_component::set_vending_machine_loot(vending_machine_actor);
     }
 }
 
@@ -238,8 +239,18 @@ void loader_component::initialize_llamas()
     {
         spdlog::error(L"loader_component::initialize_llamas failed, invalid MapInfo");
     }
-}   
+}
 
+void loader_component::initialize_bga()
+{
+    TArray<ABGAConsumableSpawner*> BGAConsumableSpawners = UGameplayStatics::GetAllActorsOfClass<ABGAConsumableSpawner>(*GWorld, ABGAConsumableSpawner::StaticClass());
+
+    for (ABGAConsumableSpawner* BGAConsumableSpawner : BGAConsumableSpawners)
+    {
+        FFortLootTierData* TierData = looting_component::get_random_loot_tier_data(BGAConsumableSpawner->SpawnLootTierGroup());
+    }
+}
+    
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {
     // Call original function first

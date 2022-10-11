@@ -94,6 +94,12 @@ public:
     DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
 };
 
+class UBGAConsumableWrapperItemDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_PROPERTY(TSoftObjectPtr<UObject>, ConsumableClass);
+};
+
 struct FFortItemList : public FFastArraySerializer
 {
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntry>, ReplicatedEntries);

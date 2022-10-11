@@ -24,7 +24,7 @@ looting_component::looting_component()
     blacklisted_classes = {FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true)};
 }
 
-std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_category)
+std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_category)
 {
     UObject* loot_tier_data = get_loot_tier_data();
     UObject* loot_tier_packages = get_loot_tier_packages();
@@ -54,7 +54,7 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FString loot_c
         // Loot tier data for the category
         FFortLootTierData* category_loot_tier_data = element.Element.Value;
         
-        if (category_loot_tier_data->TierGroup().ToString() == loot_category.c_str())
+        if (category_loot_tier_data->TierGroup() == loot_category)
         {
             if (category_loot_tier_data->Weight() > 0.0f)
             {
@@ -448,6 +448,126 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
             ItemCollections[i].OutputItem() = static_cast<UFortWorldItemDefinition*>(OutputItemEntries[0].ItemDefinition());
         }
     }
+}
+
+FFortLootTierData* looting_component::get_random_loot_tier_data(FName loot_category)
+{
+    UObject* loot_tier_data = get_loot_tier_data();
+    
+    if (loot_tier_data == nullptr)
+    {
+        return nullptr;
+    }
+
+    TMap<FName, FFortLootTierData*> loot_tier_data_map = *reinterpret_cast<TMap<FName, FFortLootTierData*>*>(reinterpret_cast<uintptr_t>(loot_tier_data) + 0x30);
+
+    // Row name and weight
+    std::vector<FName> category_row_names;
+
+    float max_weight = 0.0f;
+
+    for (auto element : loot_tier_data_map)
+    {
+        // Category name
+        FName category_row_name = element.Element.Key;
+
+        // Loot tier data for the category
+        FFortLootTierData* category_loot_tier_data = element.Element.Value;
+        
+        if (category_loot_tier_data->TierGroup() == loot_category)
+        {
+            if (category_loot_tier_data->Weight() > 0.0f)
+            {
+                category_row_names.push_back(category_row_name);
+            }
+        }
+    }
+
+    for (FName category_row_name : category_row_names)
+    {
+        // Increase max weight based on each individual category weight
+        max_weight += loot_tier_data_map[category_row_name].Value->Weight();
+    }
+
+    FFortLootTierData* final_loot_tier_data = nullptr;
+
+    // Generate random float between zero and the weight calculated
+    float random_weight = UKismetMathLibrary::RandomFloatInRange(0.0f, max_weight);
+    
+    for (FName category_row_name : category_row_names)
+    {
+        if (random_weight < loot_tier_data_map[category_row_name].Value->Weight())
+        {
+            // Choose this row
+            final_loot_tier_data = loot_tier_data_map[category_row_name].Value;
+
+            break;
+        }
+
+        random_weight -= loot_tier_data_map[category_row_name].Value->Weight();
+    }
+
+    return final_loot_tier_data;
+}
+
+FFortLootPackageData* looting_component::get_random_loot_package_data(FFortLootTierData* loot_tier_data)
+{
+    UObject* loot_package_data = get_loot_tier_data();
+    
+    if (loot_package_data == nullptr)
+    {
+        return nullptr;
+    }
+
+    TMap<FName, FFortLootPackageData*> loot_package_data_map = *reinterpret_cast<TMap<FName, FFortLootPackageData*>*>(reinterpret_cast<uintptr_t>(loot_package_data) + 0x30);
+
+    // Row name and weight
+    std::vector<FName> category_row_names;
+
+    float max_weight = 0.0f;
+
+    for (auto element : loot_package_data_map)
+    {
+        // Category name
+        FName category_row_name = element.Element.Key;
+
+        // Loot tier data for the category
+        FFortLootPackageData* category_loot_tier_data = element.Element.Value;
+        
+        if (category_loot_tier_data->LootPackageID() == loot_tier_data->LootPackage())
+        {
+            if (category_loot_tier_data->Weight() > 0.0f)
+            {
+                category_row_names.push_back(category_row_name);
+            }
+        }
+    }
+
+    for (FName category_row_name : category_row_names)
+    {
+        // Increase max weight based on each individual category weight
+        max_weight += loot_package_data_map[category_row_name].Value->Weight();
+    }
+
+    FFortLootPackageData* final_loot_package_data = nullptr;
+
+    // Generate random float between zero and the weight calculated
+    float random_weight = UKismetMathLibrary::RandomFloatInRange(0.0f, max_weight);
+    
+    for (FName category_row_name : category_row_names)
+    {
+        if (random_weight < loot_package_data_map[category_row_name].Value->Weight())
+        {
+            // Choose this row
+            final_loot_package_data = loot_package_data_map[category_row_name].Value;
+
+            break;
+        }
+
+        random_weight -= loot_package_data_map[category_row_name].Value->Weight();
+    }
+
+    return final_loot_package_data;
 }   
 
 UObject* looting_component::get_loot_tier_data()
@@ -516,7 +636,7 @@ void looting_component_hooks::PickLootDrops_Hook(TArray<FFortItemEntry>* OutLoot
         spdlog::error(L"looting_component_hooks::PickLootDrops_Hook failed: invalid OutLootToDrop");
     }
 
-    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(TierGroupName.ToString().c_str());
+    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(TierGroupName);
 
     for (const auto& [item_definition, count] : loot_to_spawn)
     {

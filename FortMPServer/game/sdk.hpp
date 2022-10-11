@@ -84,6 +84,7 @@
 #include "sdk/GameData.hpp"
 #include "sdk/KismetLibrary.hpp"
 #include "sdk/MapInfo.hpp"
+#include "sdk/AI.hpp"
 
 #include "sdk/BuildingActor.hpp"
 #include "sdk/GameplayStatics.hpp"

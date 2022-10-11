@@ -9,9 +9,10 @@ public:
 
     static bool initialize_playlist(UFortPlaylistAthena* in_playlist);
     static void update_max_players(int MaxPlayers);
-    static void spawn_floor_loot(UObject* Class, FString LootTier);
+    static void spawn_floor_loot(UObject* Class, FName LootTier);
     static void initialize_vending_machines();
     static void initialize_llamas();
+    static void initialize_bga();
 
     inline static bool is_server_ready = false;
 

@@ -5,9 +5,12 @@ class looting_component
 public:
     looting_component();
 
-    static std::map<UFortItemDefinition*, int> spawn_loot(FString loot_category);
+    static std::map<UFortItemDefinition*, int> spawn_loot(FName loot_category);
 
     static void set_vending_machine_loot(ABuildingItemCollectorActor* vending_machine);
+
+    static FFortLootTierData* get_random_loot_tier_data(FName loot_category);
+    static FFortLootPackageData* get_random_loot_package_data(FFortLootTierData* loot_tier_data);
 
     static UObject* get_loot_tier_data();
     static UObject* get_loot_tier_packages();

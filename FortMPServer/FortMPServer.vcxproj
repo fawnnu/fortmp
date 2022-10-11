@@ -185,6 +185,7 @@
     <ClInclude Include="game\sdk\AbilitySystemComponent.hpp" />
     <ClInclude Include="game\sdk\Actor.hpp" />
     <ClInclude Include="game\sdk\ActorComponent.hpp" />
+    <ClInclude Include="game\sdk\AI.hpp" />
     <ClInclude Include="game\sdk\BuildingActor.hpp" />
     <ClInclude Include="game\sdk\CurveTable.hpp" />
     <ClInclude Include="game\sdk\DataTable.hpp" />

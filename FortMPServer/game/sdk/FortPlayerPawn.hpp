@@ -132,3 +132,12 @@ public:
         Call(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized", FortPickup, FlyTime);
     }
 };
+
+class APlayerPawn_Athena_C : public AFortPlayerPawnAthena
+{
+public:
+    static UObject* StaticClass()
+    {
+        return FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+    }
+};

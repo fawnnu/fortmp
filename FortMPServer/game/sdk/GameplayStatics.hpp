@@ -17,7 +17,8 @@ public:
         return Default__GameplayStatics->Call<UObject*>(L"SpawnObject", Class, Outer);
     }
 
-    static TArray<AActor*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
+    template <typename T = AActor>
+    static TArray<T*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
         
@@ -32,7 +33,7 @@ public:
             UObject* ActorClass;
 
             // List of out actors
-            TArray<AActor*> OutActors;
+            TArray<T*> OutActors;
         } function_params;
         
         function_params.WorldContextObject = WorldContextObject;

@@ -199,3 +199,16 @@ public:
         Call(L"SetSpawnMachineState", NewState);
     }
 };
+
+class ABGAConsumableSpawner : public ABuildingActor
+{
+public:
+    static UObject* StaticClass()
+    {
+        return FindObject(L"/Script/FortniteGame.BGAConsumableSpawner");
+    }
+    
+    DEFINE_PROPERTY(FName, SpawnLootTierGroup);
+    DEFINE_PROPERTY(UEnvQuery*, QueryTemplate);
+    DEFINE_PROPERTY(TArray<FFortItemEntry>, ConsumablesToSpawn);
+};
