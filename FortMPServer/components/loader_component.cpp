@@ -15,6 +15,8 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     
     DetourTransactionCommit();
+
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -247,7 +249,13 @@ void loader_component::initialize_bga()
 
     for (ABGAConsumableSpawner* BGAConsumableSpawner : BGAConsumableSpawners)
     {
-        FFortLootTierData* TierData = looting_component::get_random_loot_tier_data(BGAConsumableSpawner->SpawnLootTierGroup());
+        if (UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(*GWorld, BGAConsumableSpawner->QueryTemplate(), BGAConsumableSpawner, 3, nullptr))
+        {
+            if (QueryInstance->OnQueryFinishedEvent().InvocationList.Num() == 0)
+            {
+                QueryInstance->OnQueryFinishedEvent().Add(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
+            }
+        }
     }
 }
     
@@ -287,6 +295,53 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
             {
                 // Start match if we have enough loaded levels
                 loader_component::start_match();
+            }
+        }
+    }
+}
+
+void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    UEnvQueryInstanceBlueprintWrapper* QueryInstance = static_cast<UEnvQueryInstanceBlueprintWrapper*>(Object);
+
+    UObject* Querier = QueryInstance->QueryResult().Get()->Owner().Get();
+
+    if (UKismetMathLibrary::ClassIsChildOf(Querier->Class, ABGAConsumableSpawner::StaticClass()))
+    {
+        ABGAConsumableSpawner* ConsumableSpawner = static_cast<ABGAConsumableSpawner*>(Querier);
+        
+        FFortLootTierData* LootTierData = looting_component::get_random_loot_tier_data(ConsumableSpawner->SpawnLootTierGroup());
+        FFortLootPackageData* LootPackageData = looting_component::get_random_loot_package_data(LootTierData);
+
+        if (LootTierData == nullptr)
+        {
+            return;
+        }
+        if (LootPackageData == nullptr)
+        {
+            return;
+        }
+        
+        UBGAConsumableWrapperItemDefinition* ItemDefinition = static_cast<UBGAConsumableWrapperItemDefinition*>(LootPackageData->ItemDefinition().Get());
+
+        if (UKismetMathLibrary::ClassIsChildOf(ItemDefinition->Class, UBGAConsumableWrapperItemDefinition::StaticClass()))
+        {
+            UObject* ConsumableClass = ItemDefinition->ConsumableClass().Get();
+
+            // Get the query results as locations
+            TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+
+            const int NumActorsToSpawn = LootTierData->NumLootPackageDrops();
+
+            if (Locations.Num() >= NumActorsToSpawn)
+            {
+                // Now get the first locations and spawn an actor for each one of them
+                for (int i = 0; i < NumActorsToSpawn; i++)
+                {
+                    FActorSpawnParameters SpawnActorParameters{};
+
+                    SpawnActor(*GWorld, ConsumableClass, &Locations[i], nullptr, SpawnActorParameters);
+                }
             }
         }
     }

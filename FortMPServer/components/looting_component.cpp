@@ -516,7 +516,7 @@ FFortLootTierData* looting_component::get_random_loot_tier_data(FName loot_categ
 
 FFortLootPackageData* looting_component::get_random_loot_package_data(FFortLootTierData* loot_tier_data)
 {
-    UObject* loot_package_data = get_loot_tier_data();
+    UObject* loot_package_data = get_loot_tier_packages();
     
     if (loot_package_data == nullptr)
     {

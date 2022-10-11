@@ -205,7 +205,9 @@ class ABGAConsumableSpawner : public ABuildingActor
 public:
     static UObject* StaticClass()
     {
-        return FindObject(L"/Script/FortniteGame.BGAConsumableSpawner");
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.BGAConsumableSpawner");
+        
+        return static_class;
     }
     
     DEFINE_PROPERTY(FName, SpawnLootTierGroup);

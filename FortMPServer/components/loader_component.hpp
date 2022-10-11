@@ -34,4 +34,6 @@ namespace loader_component_hooks
 {
     // Called when a streaming level is loaded
     DEFINE_FUNCTION_HOOK(void, UpdateLevelStreaming, (UWorld* World));
+
+    DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
 }

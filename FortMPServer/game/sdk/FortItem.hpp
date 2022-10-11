@@ -99,6 +99,13 @@ public:
 class UBGAConsumableWrapperItemDefinition : public UFortItemDefinition
 {
 public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.BGAConsumableWrapperItemDefinition");
+
+        return static_class;
+    }
+    
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, ConsumableClass);
 };
 

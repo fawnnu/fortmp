@@ -144,6 +144,8 @@ class APlayerPawn_Athena_C : public AFortPlayerPawnAthena
 public:
     static UObject* StaticClass()
     {
-        return FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+        static UObject* static_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
+        
+        return static_class;
     }
 };
