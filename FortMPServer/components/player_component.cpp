@@ -94,6 +94,7 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
             
             for (TSoftObjectPtr<UCustomCharacterPart>& character_part : CharacterParts)
             {
+                player_pawn->ServerChooseGender(character_part->GenderPermitted());
                 player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
             }
         }

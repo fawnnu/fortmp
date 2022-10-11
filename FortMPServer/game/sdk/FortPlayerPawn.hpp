@@ -11,6 +11,7 @@ class UCustomCharacterPart : public UObject
 {
 public:
     DEFINE_PROPERTY(uint8_t, CharacterPartType);
+    DEFINE_PROPERTY(uint8_t, GenderPermitted);
 };
 
 class UFortHeroSpecialization : public UObject
@@ -110,6 +111,11 @@ public:
     void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)
     {
         ServerChoosePart_Implementation(this, Part, ChosenCharacterPart);
+    }
+
+    void ServerChooseGender(uint8_t Gender)
+    {
+        Call(L"ServerChooseGender", Gender);
     }
 };
 
