@@ -5,6 +5,8 @@
 
 ability_component::ability_component()
 {
+    INIT_POINTER(GHandle, memory_manager::find_pattern("FF 05 ? ? ? ? 8B 43 0C 41 89 86 ? ? ? ? 48 8B 84 24 ? ? ? ? 48 89 43 70 E8 ? ? ? ?", true, 2));
+    
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_pattern("4C 89 4C 24 ? 4C 89 44 24 ? 89 54 24 10 55 53 56 57 41 54 41 57 48 8D AC 24 ? ? ? ?"));
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_function_by_string(L"InternalTryActivateAbility called with invalid"));
     INIT_POINTER(InternalTryActivateAbility, memory_manager::find_pattern("4C 89 4C 24 ? 4C 89 44 24 ? 89 54 24 10 55 56 41 54 41 55 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ?"));

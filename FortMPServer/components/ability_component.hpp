@@ -21,6 +21,9 @@ namespace ability_component_hooks
     DEFINE_FUNCTION_HOOK(bool, DoesAbilitySatisfyTagRequirements, (UGameplayAbility* Ability, UAbilitySystemComponent* UAbilitySystemComponent, void* SourceTags, void* TargetTags, void* OutTags));
 }
 
+// GHandle for specs
+inline int* GHandle;
+
 // Activate ability internally
 inline bool (*InternalTryActivateAbility)(UObject* AbilitySystemComponent, FGameplayAbilitySpecHandle Handle, FPredictionKey InPredictionKey, UObject** OutInstancedAbility, void* OnGameplayAbilityEndedDelegate, void* TriggerEventData);
 

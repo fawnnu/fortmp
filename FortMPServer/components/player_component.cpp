@@ -226,6 +226,12 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
     {
         auto new_ability_spec = FGameplayAbilitySpec();
 
+        // Increase the handle of this spec
+        if (GHandle != nullptr)
+        {
+            new_ability_spec.Handle = (*GHandle)++;
+        }
+        
         static auto AthenaSprayItemDefinition = FindObject(L"/Script/FortniteGame.AthenaSprayItemDefinition");
 
         // set the ability in the newly created struct    TODO: ADD TOYS
