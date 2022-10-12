@@ -537,13 +537,16 @@ FFortLootPackageData* looting_component::get_random_loot_package_data(FFortLootT
 
         // Loot tier data for the category
         FFortLootPackageData* category_loot_tier_data = element.Element.Value;
-        
-        if (category_loot_tier_data->LootPackageID() == loot_tier_data->LootPackage())
+
+        if(category_loot_tier_data && loot_tier_data)
         {
-            if (category_loot_tier_data->Weight() > 0.0f)
+            if (category_loot_tier_data->LootPackageID() == loot_tier_data->LootPackage())
             {
-                category_row_names.push_back(category_row_name);
-            }
+                if (category_loot_tier_data->Weight() > 0.0f)
+                {
+                    category_row_names.push_back(category_row_name);
+                }
+            }   
         }
     }
 
