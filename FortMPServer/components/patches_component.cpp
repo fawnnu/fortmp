@@ -24,6 +24,9 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    // Disable GC if needed
+    //REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts."), patches_component_hook::TryCollectGarbage_Hook);
+
     // Limit the tickrate
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetMaxTickRate, memory_manager::find_function_by_string(L"Hitching by request!"), patches_component_hook::GetMaxTickRate_Hook);
 
@@ -180,6 +183,12 @@ patches_component::patches_component()
     }
     
     DetourTransactionCommit();
+}
+
+bool patches_component_hook::TryCollectGarbage_Hook(int KeepFlags, bool bPerformFullPurge)
+{
+    // Do not collect garbage, if the hook is enabled
+    return false;   
 }
 
 bool patches_component_hook::SpawnPlayActor_Hook(ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World)
