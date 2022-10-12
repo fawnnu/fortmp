@@ -28,6 +28,8 @@ inventory_component::inventory_component()
     DetourTransactionCommit();
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortWeapon.OnAmmoCountChanged", inventory_component_hooks::OnAmmoCountChanged_Hook);
+
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -242,6 +244,23 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo());
             }
 
+            UFortWorldItemDefinition* world_item_definition = reinterpret_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
+
+            if(world_item_definition->bPersistInInventoryWhenFinalStackEmpty() == true)
+            {
+                if(replicated_entry.Count() == 1)
+                {
+                    // Update item entry count
+                    replicated_entry.Count() = 0;
+                    item_instance->ItemEntry().Count() = 0;
+                
+                    // Mark for replication
+                    player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
+
+                    return;
+                }
+            }
+            
             if (item_count > 0 && replicated_entry.Count() - item_count > 0)
             {
                 // Update item entry count
@@ -518,4 +537,22 @@ uintptr_t inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars
     }
     
     return return_value;
+}
+
+int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval)
+{
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&PlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                 
+    for (int i = 0; i < replicated_entries.Num(); i++)
+    {
+        FFortItemEntry& replicated_entry = replicated_entries[i];
+
+        if (replicated_entry.ItemDefinition() == ItemDefinition)
+        {
+            inventory_component::remove_item(PlayerController, replicated_entry.ItemGuid(), AmountToRemove, false);
+
+            break;
+        }
+    }
+    return 1;
 }

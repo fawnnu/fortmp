@@ -32,6 +32,8 @@ namespace inventory_component_hooks
 
     // Experimental hook, fixes server crashes on 4.2 and more versions probably, but is probably useless after Quickbar functions aren't called anymore above ue 4.19
     DEFINE_FUNCTION_HOOK(uintptr_t, UnknownQuickbarFunction, (AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot));
+
+    DEFINE_FUNCTION_HOOK(int, K2_RemoveItemFromPlayer, (class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval));
 }
 
 inline void (*TryAddToQuickBar)(AFortPlayerController*, UFortWorldItem*);
