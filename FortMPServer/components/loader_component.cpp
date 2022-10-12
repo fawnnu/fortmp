@@ -175,20 +175,17 @@ void loader_component::initialize_llamas()
     // Get gamestate
     AFortGameStateAthena* GameState = (*GWorld)->GameState();
 
-    if (GameState->MapInfo() == nullptr)
-    {
-        GameState->MapInfo() = SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C"));
-    }
-
-    if (GameState->MapInfo())
+    AFortAthenaMapInfo* MapInfo = GameState->MapInfo() ? GameState->MapInfo() : SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C"));
+    
+    if (MapInfo)
     {
         // Create a new FortSupplyDropInfo
         UFortSupplyDropInfo* NewSupplyDropInfo = static_cast<UFortSupplyDropInfo*>(UGameplayStatics::SpawnObject(FindObject(L"/Script/FortniteGame.FortSupplyDropInfo"), *GWorld));
 
         // Set the supply drop info's class
-        if (GameState->MapInfo()->HasProperty(L"LlamaClass"))
+        if (MapInfo->HasProperty(L"LlamaClass"))
         {
-            NewSupplyDropInfo->SupplyDropClass() = GameState->MapInfo()->LlamaClass();
+            NewSupplyDropInfo->SupplyDropClass() = MapInfo->LlamaClass();
 
             // Create a new FFortSupplyDropGamePhaseData (Allocate the struct on the heap to avoid issues with garbage collection)
             FFortSupplyDropGamePhaseData* NewGamePhaseData = static_cast<FFortSupplyDropGamePhaseData*>(malloc(FFortSupplyDropGamePhaseData::GetStructSize()));
@@ -222,7 +219,7 @@ void loader_component::initialize_llamas()
             }
 
             // Spawn the llamas
-            for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(GameState->MapInfo()->LlamaQuantityMin().GetValueAtLevel(0, nullptr), GameState->MapInfo()->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
+            for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(MapInfo->LlamaQuantityMin().GetValueAtLevel(0, nullptr), MapInfo->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
             {
                 // Call the function to spawn the llamas
                 if (SpawnSupplyDrop != nullptr)
@@ -230,7 +227,7 @@ void loader_component::initialize_llamas()
                     FRotator NewRotation{};
 
                     // New llama
-                    AFortAthenaSupplyDrop* NewSupplyDrop = SpawnSupplyDrop(GameState->MapInfo(), nullptr, 0, 0, NewSupplyDropInfo, &NewRotation);
+                    AFortAthenaSupplyDrop* NewSupplyDrop = SpawnSupplyDrop(MapInfo, nullptr, 0, 0, NewSupplyDropInfo, &NewRotation);
 
                     // Log
                     spdlog::info(L"Spawned Llama at {} {} {}", NewSupplyDrop->K2_GetActorLocation().X, NewSupplyDrop->K2_GetActorLocation().Y, NewSupplyDrop->K2_GetActorLocation().Z);
