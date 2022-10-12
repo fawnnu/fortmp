@@ -246,22 +246,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
 
             UFortWorldItemDefinition* world_item_definition = reinterpret_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
 
-            if(world_item_definition->bPersistInInventoryWhenFinalStackEmpty() == true)
-            {
-                if(replicated_entry.Count() == 1)
-                {
-                    // Update item entry count
-                    replicated_entry.Count() = 0;
-                    item_instance->ItemEntry().Count() = 0;
-                
-                    // Mark for replication
-                    player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
-
-                    return;
-                }
-            }
-            
-            if (item_count > 0 && replicated_entry.Count() - item_count > 0)
+            if (item_count > 0 && replicated_entry.Count() - item_count > 0 || world_item_definition->bPersistInInventoryWhenFinalStackEmpty() && replicated_entry.Count() > 0)
             {
                 // Update item entry count
                 replicated_entry.Count() -= item_count;
