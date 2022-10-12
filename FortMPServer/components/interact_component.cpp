@@ -56,14 +56,21 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         FString left_str;
         FString right_str;
 
-        // Split the string
-        UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
+        final_search_loot_tier_group = SearchLootTierGroup.c_str();
+        
+        if(final_search_loot_tier_group.find(L"Athena") == -1)
+        {
+            // Split the string
+            UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
 
-        // Build the string
-        final_search_loot_tier_group += left_str.c_str();
-        final_search_loot_tier_group += L"_Athena";
-        final_search_loot_tier_group += right_str.c_str();
-
+            final_search_loot_tier_group = L"";
+            
+            // Build the string
+            final_search_loot_tier_group += left_str.c_str();
+            final_search_loot_tier_group += L"_Athena";
+            final_search_loot_tier_group += right_str.c_str();   
+        }
+        
         if (right_str == L"Ammo")
         {
             final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
