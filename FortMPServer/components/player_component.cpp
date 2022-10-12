@@ -164,7 +164,9 @@ void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnect
 
             // Grant harvesting tool
             inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
-
+            inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"Athena_C4", false, true), 6);
+            inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Hook_Gun_VR_Ore_T03", false, true), 1, 10);
+            
             for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
             {
                 // Grant default item

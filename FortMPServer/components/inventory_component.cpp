@@ -30,6 +30,8 @@ inventory_component::inventory_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortWeapon.OnAmmoCountChanged", inventory_component_hooks::OnAmmoCountChanged_Hook);
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -539,5 +541,11 @@ int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(class AFortPlayerCon
             break;
         }
     }
+    return 1;
+}
+
+int inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook(class AFortPlayerController* PlayerController, struct FGuid ItemGuid, int AmountToRemove, bool bForceRemoval)
+{
+    inventory_component::remove_item(PlayerController, ItemGuid, AmountToRemove, false);
     return 1;
 }
