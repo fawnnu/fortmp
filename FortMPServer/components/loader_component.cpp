@@ -175,6 +175,11 @@ void loader_component::initialize_llamas()
     // Get gamestate
     AFortGameStateAthena* GameState = (*GWorld)->GameState();
 
+    if (GameState->MapInfo() == nullptr)
+    {
+        GameState->MapInfo() = SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C"));
+    }
+
     if (GameState->MapInfo())
     {
         // Create a new FortSupplyDropInfo
