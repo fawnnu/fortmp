@@ -324,6 +324,49 @@ struct TSharedPtr
     }
 };
 
+class FScriptInterface
+{
+private:
+    UObject* ObjectPointer;
+    void* InterfacePointer;
+
+public:
+    inline UObject* GetObject() const
+    {
+        return ObjectPointer;
+    }
+
+    inline UObject*& GetObjectRef()
+    {
+        return ObjectPointer;
+    }
+
+    inline void* GetInterface() const
+    {
+        return ObjectPointer != nullptr ? InterfacePointer : nullptr;
+    }
+};
+
+template<class InterfaceType>
+class TScriptInterface : public FScriptInterface
+{
+public:
+    inline InterfaceType* operator->() const
+    {
+        return (InterfaceType*)GetInterface();
+    }
+
+    inline InterfaceType& operator*() const
+    {
+        return *((InterfaceType*)GetInterface());
+    }
+
+    inline operator bool() const
+    {
+        return GetInterface() != nullptr;
+    }
+};
+
 template <typename T>
 struct TScriptDelegate
 {

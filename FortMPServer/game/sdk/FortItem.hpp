@@ -52,6 +52,13 @@ class UFortGadgetItemDefinition : public UFortItemDefinition
 {
 public:
 
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition");
+
+        return static_class;
+    }
+    
     DEFINE_PROPERTY(TArray<class UCustomCharacterPart*>, CharacterParts)
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AbilitySet)
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AttributeSet)

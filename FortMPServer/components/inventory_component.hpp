@@ -36,6 +36,8 @@ namespace inventory_component_hooks
     DEFINE_FUNCTION_HOOK(int, K2_RemoveItemFromPlayer, (class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval));
     
     DEFINE_FUNCTION_HOOK(int, K2_RemoveItemFromPlayerByGuid, (class AFortPlayerController* PlayerController, struct FGuid ItemGuid, int AmountToRemove, bool bForceRemoval));
+
+    DEFINE_FUNCTION_HOOK(void, GiveItemToInventoryOwner, (TScriptInterface<class UObject> InventoryOwner, class UFortWorldItemDefinition* ItemDefinition, int NumberToGive, bool bNotifyPlayer, int ItemLevel));
 }
 
 inline void (*TryAddToQuickBar)(AFortPlayerController*, UFortWorldItem*);

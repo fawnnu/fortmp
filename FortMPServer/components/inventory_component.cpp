@@ -32,6 +32,8 @@ inventory_component::inventory_component()
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
+
+    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -411,14 +413,10 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
             }
         }
     }
-
-    // Support gadgets logic
-    static UObject* gadget_definition_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition");
     
-    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, gadget_definition_class))
+    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, UFortGadgetItemDefinition::StaticClass()))
     {
-        // If item is a gadget, equip it's deco item definition
-        PlayerController->Pawn()->EquipWeaponDefinition(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition(), ItemGuid);
+        PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition()));
     }
     else
     {
@@ -563,4 +561,14 @@ int inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook(class AFortPla
 {
     inventory_component::remove_item(PlayerController, ItemGuid, AmountToRemove, false);
     return 1;
+}
+
+void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<class UObject> InventoryOwner, class UFortWorldItemDefinition* ItemDefinition, int NumberToGive, bool bNotifyPlayer, int ItemLevel)
+{
+    AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(InventoryOwner.GetObjectRef());
+    if(PlayerController)
+    {
+        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+    }
+    return;
 }
