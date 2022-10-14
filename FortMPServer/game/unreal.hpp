@@ -93,6 +93,13 @@ public:
         return NamePrivate.ToString();
     }
 
+    void* GetInterfaceAddress(UObject* InterfaceClass)
+    {
+        static uintptr_t getinterfaceaddress_address = memory_manager::find_function_by_string(L"SetObjectiveTimer passed a bad function", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1);
+
+        return reinterpret_cast<void* (*)(UObject*, UObject*)>(getinterfaceaddress_address)(this, InterfaceClass);
+    }
+    
     bool HasProperty(FName in_property) const
     {
         return FindPropertyByName(Class, in_property);

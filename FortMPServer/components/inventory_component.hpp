@@ -41,3 +41,5 @@ namespace inventory_component_hooks
 }
 
 inline void (*TryAddToQuickBar)(AFortPlayerController*, UFortWorldItem*);
+
+inline void (*RemoveGadgetData)(UFortGadgetItemDefinition* ItemDefinition, void* Interface, UFortWorldItem* ItemInstance);

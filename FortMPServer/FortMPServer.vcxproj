@@ -210,6 +210,7 @@
     <ClInclude Include="game\sdk\GameData.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
     <ClInclude Include="game\sdk\GameplayTags.hpp" />
+    <ClInclude Include="game\sdk\Interface.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />
     <ClInclude Include="game\sdk\MapInfo.hpp" />
     <ClInclude Include="game\sdk\NetConnection.hpp" />

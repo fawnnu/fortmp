@@ -61,6 +61,7 @@
     }
 
 #include "sdk/Actor.hpp"
+#include "sdk/Interface.hpp"
 #include "sdk/FortItem.hpp"
 #include "sdk/GameplayTags.hpp"
 #include "sdk/NetConnection.hpp"

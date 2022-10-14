@@ -7,6 +7,9 @@
 
 inventory_component::inventory_component()
 {
+    // We use RemoveGadgetData to remove gadget data such as abilities, CPs, attributes.
+    INIT_POINTER(RemoveGadgetData, memory_manager::find_function_by_string(L"UFortGadgetItemDefinition::RemoveGadgetData"));
+    
     // We use TryAddToQuickBar to have quickbars working below UE 4.20 builds
     INIT_POINTER(TryAddToQuickBar, memory_manager::find_function_by_string(L"TryAddToQuickBar"));
     
@@ -128,54 +131,11 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         world_item->ItemEntry().LoadedAmmo() = loaded_ammo;
     }
     
-    // Gadgets implementation
-    static UObject* gadget_definition_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true);
-    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, gadget_definition_class))
-    {
-        UFortGadgetItemDefinition* gadget_item_definition = static_cast<UFortGadgetItemDefinition*>(item_definition);
-        
-        // Apply characrer parts
-        for (UCustomCharacterPart* character_part : gadget_item_definition->CharacterParts())
-        {
-            player_controller->Pawn()->ServerChoosePart(character_part->CharacterPartType(), character_part);
-        }
-
-        // Apply Gadget Ability set
-        UObject* ability_set = gadget_item_definition->AbilitySet().Get();
-        
-        if(ability_set)
-        {
-            ability_component::apply_ability_set(player_controller->Pawn(), ability_set);
-        }
-
-        // Grant attributes
-        UObject* attribute_set = gadget_item_definition->AttributeSet().Get();
-
-        if(attribute_set)
-        {
-            bool b_has_attribute_set = false;
-        
-            for (const auto Attribute : player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes())
-            {
-                if (Attribute->IsA(attribute_set)) //TODO: Make sure the attribute belongs to the item (Guid check)
-                    {
-                    b_has_attribute_set = true;
-                    break;
-                    }
-            }
-
-            if (!b_has_attribute_set)
-            {
-                auto new_attribute = UGameplayStatics::SpawnObject(attribute_set, world_item);
-        
-                player_controller->Pawn()->AbilitySystemComponent()->SpawnedAttributes().Add(new_attribute);
-            }
-        }
-    }
-    
     // Add to inventory
     replicated_entries.Add(&world_item->ItemEntry());
-    item_instances.Add(&world_item);
+    
+    // Update inventory locally
+    player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
     // Add to state values
     TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
@@ -194,21 +154,13 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     StateValues.Add(NewStateValue);
 
     // Support force quickbar focus when item gets added to inventory
-    UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(world_item->ItemEntry().ItemDefinition());
-
-    if(world_item_definition != nullptr)
+    if (item_definition->HasProperty(L"bForceFocusWhenAdded"))
     {
-        if (static bool b_has_property = world_item_definition->HasProperty(L"bForceFocusWhenAdded"))
+        if(static_cast<UFortWorldItemDefinition*>(item_definition)->bForceFocusWhenAdded() == true)
         {
-            if(world_item_definition->bForceFocusWhenAdded() == true)
-            {
-                player_controller->ClientEquipItem(world_item->GetItemGuid(), true);
-            }
+            player_controller->ClientEquipItem(world_item->GetItemGuid(), true);
         }
     }
-    
-    // Update inventory locally
-    player_controller->WorldInventory()->HandleInventoryLocalUpdate();
     
     // Mark for replication
     player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
@@ -223,8 +175,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
 void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item, bool b_is_swapping)
 {
-    // TODO: Add logic for character parts reverting, if player is removing a gadget from inventory.
-    
     if (!player_controller->Pawn() && should_drop_item)
     {
         // No pawn to spawn item at
@@ -277,6 +227,12 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 return;
             }
 
+            // If it's an AGID, remove it accordingly
+            if (UKismetMathLibrary::ClassIsChildOf(item_instance->ItemEntry().ItemDefinition()->Class, UFortGadgetItemDefinition::StaticClass()))
+            {
+                RemoveGadgetData(static_cast<UFortGadgetItemDefinition*>(item_instance->ItemEntry().ItemDefinition()), player_controller->GetInterfaceAddress(IFortInventoryOwnerInterface::StaticClass()), item_instance);
+            }
+            
             // Cache array classes
             static void* replicated_entries_property = FindPropertyByName(FFortItemList::GetClass(), L"ReplicatedEntries");
             static void* item_instances_property = FindPropertyByName(FFortItemList::GetClass(), L"ItemInstances");
