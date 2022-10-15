@@ -373,6 +373,12 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, UFortGadgetItemDefinition::StaticClass()))
     {
         PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition()));
+
+        if (PlayerController->Pawn()->CurrentWeapon())
+        {
+            // Update entry GUID in current weapon
+            PlayerController->Pawn()->CurrentWeapon()->ItemEntryGuid() = ItemGuid;
+        }
     }
     else
     {
