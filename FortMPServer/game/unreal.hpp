@@ -95,7 +95,7 @@ public:
 
     void* GetInterfaceAddress(UObject* InterfaceClass)
     {
-        static uintptr_t getinterfaceaddress_address = memory_manager::find_function_by_string(L"SetObjectiveTimer passed a bad function", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1);
+        static uintptr_t getinterfaceaddress_address = memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 33 ? 48 8B ? 48 8B ? 48 85 ? 0F 84 ? ? ? ? 8B 82");
 
         return reinterpret_cast<void* (*)(UObject*, UObject*)>(getinterfaceaddress_address)(this, InterfaceClass);
     }
