@@ -98,10 +98,21 @@ public:
     DEFINE_PROPERTY(struct FTableRowHandle, WeaponStatHandle);
 };
 
-class UAthenaCharacterItemDefinition : public UFortItemDefinition
+class UAthenaCosmeticItemDefinition : public UFortItemDefinition
+{
+};
+
+class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
 {
 public:
     DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
+};
+
+class UAthenaPickaxeItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+    // Pickaxe Weapon Item Data
+    DEFINE_PROPERTY(UFortWeaponItemDefinition*, WeaponDefinition);
 };
 
 class UBGAConsumableWrapperItemDefinition : public UFortItemDefinition
@@ -116,6 +127,19 @@ public:
     
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, ConsumableClass);
 };
+
+struct FFortAthenaLoadout
+{
+    DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, SkyDiveContrail);
+    DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, Glider);
+    DEFINE_STRUCT_PROPERTY(UAthenaPickaxeItemDefinition*, Pickaxe);
+    DEFINE_STRUCT_PROPERTY(UAthenaCharacterItemDefinition*, Character);
+    DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, Backpack);
+    DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, ItemWrapOverride);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAthenaLoadout");
+};
+
 
 struct FFortItemList : public FFastArraySerializer
 {
