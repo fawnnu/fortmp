@@ -8,6 +8,8 @@
 
 player_component::player_component()
 {
+    INIT_POINTER(ApplyCharacterCustomization, memory_manager::find_function_by_string(L"AFortPlayerState::ApplyCharacterCustomization"));
+    
     // Initialize serverchoosepart
     if (const uintptr_t index = memory_manager::find_function_by_string(L"ServerChoosePart_Validate", {0xff, 0x90}, 2, false, false))
     {
@@ -54,50 +56,8 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         // Apply Athena ability set
         ability_component::apply_ability_set(player_pawn, ability_set);
 
-        // Take a random character
-        UAthenaGameData* game_data = FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) ?
-            FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameDataCosmetics.DefaultGameDataCosmetics", true) :
-            FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) ?
-            FindObject<UAthenaGameData>(L"/Game/Balance/AthenaGameData.AthenaGameData", true) :
-            FindObject<UAthenaGameData>(L"/Game/Balance/DefaultGameData.DefaultGameData", true);
-
-        // Randomly pick a cosmetic
-        UFortHeroType* hero_definition = nullptr;
-
-        if (game_data)
-        {
-            if (game_data->HasProperty("RandomCharacters"))
-            {
-                hero_definition = game_data->RandomCharacters()[UKismetMathLibrary::RandomIntegerInRange(0, 7)]->HeroDefinition();
-            }
-            else if (game_data->HasProperty(L"DefaultAthenaHeroes"))
-            {
-                // Support different size of TSoftObjectPtr
-                TArrayManager<TSoftObjectPtr<UFortHeroType>> DefaultAthenaHeroes = TArrayManager<TSoftObjectPtr<UFortHeroType>>(
-                    &game_data->DefaultAthenaHeroes(), FindObject(L"/Script/CoreUObject.SoftObjectPath") ? 0x28 : 0x20);
-                
-                hero_definition = DefaultAthenaHeroes[UKismetMathLibrary::RandomIntegerInRange(0, 7)].Get();
-            }
-        }
-
-        if (player_controller->PlayerState()->HeroType() == nullptr && hero_definition)
-        {
-            // Set the hero type for season 3 (otherwise characterparts wouldn't show)
-            player_controller->PlayerState()->HeroType() = hero_definition;
-
-            // Get specialization
-            UFortHeroSpecialization* Specialization = hero_definition->Specializations()[0].Get();
-
-            // Support different size of TSoftObjectPtr
-            TArrayManager<TSoftObjectPtr<UCustomCharacterPart>> CharacterParts = TArrayManager<TSoftObjectPtr<UCustomCharacterPart>>(
-                &Specialization->CharacterParts(), FindObject(L"/Script/CoreUObject.SoftObjectPath") ? 0x28 : 0x20);
-            
-            for (TSoftObjectPtr<UCustomCharacterPart>& character_part : CharacterParts)
-            {
-                player_pawn->ServerChooseGender(character_part->GenderPermitted());
-                player_pawn->ServerChoosePart(character_part->CharacterPartType(), character_part.Get());
-            }
-        }
+        // Apply customization loadout
+        ApplyCharacterCustomization(player_pawn->PlayerState(), player_pawn);
         
         return player_pawn;
     }

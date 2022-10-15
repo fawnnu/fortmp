@@ -34,3 +34,5 @@ namespace player_component_hooks
     // Called when a player has been spawned
     DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (UObject* Object, UObject* Function, void* Params));
 }
+
+inline void** (*ApplyCharacterCustomization)(AFortPlayerState* FortPlayerState, AFortPlayerPawn* FortPlayerPawn);
