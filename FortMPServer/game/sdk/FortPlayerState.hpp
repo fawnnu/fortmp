@@ -18,6 +18,21 @@ public:
 
     //IP
     DEFINE_PROPERTY(FString, SavedNetworkAddress);
+
+    void ApplyCharacterCustomization(class AFortPlayerPawn* FortPlayerPawn)
+    {
+        static uintptr_t ApplyCharacterCustomization_Address = memory_manager::find_function_by_string(L"AFortPlayerState::ApplyCharacterCustomization");
+
+        // If ApplyCharacterCustomization exists, use it
+        if (ApplyCharacterCustomization_Address)
+        {
+            reinterpret_cast<void (*)(AFortPlayerState*, AFortPlayerPawn*)>(ApplyCharacterCustomization_Address)(this, FortPlayerPawn);
+            
+            return;
+        }
+
+        // TODO: Apply character parts ourselves if the native function does not exist
+    }
 };
 
 struct FDeathInfo

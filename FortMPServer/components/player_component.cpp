@@ -8,8 +8,6 @@
 
 player_component::player_component()
 {
-    INIT_POINTER(ApplyCharacterCustomization, memory_manager::find_function_by_string(L"AFortPlayerState::ApplyCharacterCustomization"));
-    
     // Initialize serverchoosepart
     if (const uintptr_t index = memory_manager::find_function_by_string(L"ServerChoosePart_Validate", {0xff, 0x90}, 2, false, false))
     {
@@ -22,10 +20,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAcknowledgePossession, L"/Script/Engine.PlayerController.ServerAcknowledgePossession", player_component_hooks::ServerAcknowledgePossession_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerChoosePart, L"/Script/FortniteGame.FortPlayerPawn.ServerChoosePart", player_component_hooks::ServerChoosePart_Hook);
     
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 40 8B DA 48 8B F9 39 91 ? ? ? ? 0F 85 ? ? ? ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 85 D2 74 41 83 EB 01 74 33 83 EB 01"), player_component_hooks::SetClientLoginState_Hook);
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_pattern("48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 40 8B A9 ? ? ? ? 8B F2 48 8B F9 3B EA 75 ? 80 3D ? ? ? ? ? 0F 82 ? ? ? ?"), player_component_hooks::SetClientLoginState_Hook);
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::SetClientLoginState, memory_manager::find_function_by_string(L"UNetConnection::SetClientLoginState: State same: %s"), player_component_hooks::SetClientLoginState_Hook);
-
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::PostLogin, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLogin"), player_component_hooks::PostLogin_Hook);
+    
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
@@ -57,7 +53,7 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
         ability_component::apply_ability_set(player_pawn, ability_set);
 
         // Apply customization loadout
-        ApplyCharacterCustomization(player_pawn->PlayerState(), player_pawn);
+        player_pawn->PlayerState()->ApplyCharacterCustomization(player_pawn);
         
         return player_pawn;
     }
@@ -86,75 +82,70 @@ void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn*, FFrame&)
     // Do nothing    
 }
 
-void player_component_hooks::SetClientLoginState_Hook(UNetConnection* NetConnection, int State)
+void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer)
 {
-    if (State == 3) // ReceivedJoin
+    player_component::create_player(static_cast<AFortPlayerController*>(NewPlayer), NewPlayer->GetTransform());
+    
+    // Make sure the player is joining for the first time
+    if (NewPlayer->PlayerState()->NumRejoins() > 0)
     {
-        AFortPlayerPawn* player_pawn = player_component::create_player(NetConnection->PlayerController(), NetConnection->PlayerController()->GetTransform());
-
-        if (player_pawn)
-        {
-            // Register quest manager
-            if(NetConnection->PlayerController()->HasProperty(L"XPComponent"))
-            {
-                NetConnection->PlayerController()->XPComponent()->bRegisteredWithQuestManager() = true;
-            }
-            
-            // Make sure the player is joining for the first time
-            if (NetConnection->PlayerController()->PlayerState()->NumRejoins() > 0)
-            {
-                spdlog::error(L"Player {} attempted to rejoin. Kicking...", NetConnection->PlayerController()->MyPlayerInfo()->PlayerName().c_str());
+        spdlog::error(L"Player {} attempted to rejoin. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
                 
-                NetConnection->PlayerController()->ClientReturnToMainMenu(L"You aren't allowed to rejoin. Please restart the game with a different name and try again.");
+        static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"You aren't allowed to rejoin. Please restart the game with a different name and try again.");
 
-                return SetClientLoginState(NetConnection, 0);
-            }
-            
-            // Spawn QuickBars
-            AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
-            
-            AFortQuickBars*& player_quickbars = NetConnection->PlayerController()->HasProperty(L"QuickBars") ?
-                NetConnection->PlayerController()->QuickBars() : NetConnection->PlayerController()->ClientQuickBars();
-
-            // Set quickbars
-            player_quickbars = new_quickbars;
-            
-            // Set ownership
-            player_quickbars->SetOwner(NetConnection->PlayerController());
-
-            // Grant harvesting tool
-            inventory_component::add_item(NetConnection->PlayerController(), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
-            
-            for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
-            {
-                // Grant default item
-                inventory_component::add_item(NetConnection->PlayerController(), starting_item.Item, starting_item.Count);
-            }
-
-            // Assign team
-            team_component::set_team(NetConnection->PlayerController(), team_component::find_team(NetConnection->PlayerController()));
-
-            // Make pawn invulnerable on spawn island
-            UKismetSystemLibrary::SetBoolPropertyByName(NetConnection->PlayerController()->Pawn(), L"bIsInvulnerable", true);
-
-            // Prevent camera from shaking while spectating or when using the guided missile
-            NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMin() = 0.f;
-            NetConnection->PlayerController()->PlayerCameraManager()->ViewRollMax() = 0.f;
-
-            // Bind OnStartedRespawn delegate
-            if (NetConnection->PlayerController()->HasProperty(L"OnStartedRespawn"))
-            {
-                static_cast<AFortPlayerControllerAthena*>(NetConnection->PlayerController())->OnStartedRespawn().Add(TScriptDelegate(NetConnection->PlayerController(), L"OnPlayerStartedRespawn__DelegateSignature"));
-            }
-
-            // Drop loading screen
-            NetConnection->PlayerController()->bHasServerFinishedLoading() = true;
-
-            spdlog::info(L"Player '{}' joined and spawned", NetConnection->PlayerController()->MyPlayerInfo()->PlayerName().c_str());
-        }
+        return;
     }
 
-    return SetClientLoginState(NetConnection, State);
+    // Register quest manager
+    if(NewPlayer->HasProperty(L"XPComponent"))
+    {
+        static_cast<AFortPlayerController*>(NewPlayer)->XPComponent()->bRegisteredWithQuestManager() = true;
+    }
+            
+    // Spawn QuickBars
+    AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
+            
+    AFortQuickBars*& player_quickbars = NewPlayer->HasProperty(L"QuickBars") ?
+        static_cast<AFortPlayerController*>(NewPlayer)->QuickBars() : static_cast<AFortPlayerController*>(NewPlayer)->ClientQuickBars();
+
+    // Set quickbars
+    player_quickbars = new_quickbars;
+            
+    // Set ownership
+    player_quickbars->SetOwner(NewPlayer);
+
+    // Grant harvesting tool
+    inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
+            
+    for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
+    {
+        // Grant default item
+        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), starting_item.Item, starting_item.Count);
+    }
+
+    // Assign team
+    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)));
+
+    // Make pawn invulnerable on spawn island
+    UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
+
+    // Prevent camera from shaking while spectating or when using the guided missile
+    NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
+    NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
+
+    // Bind OnStartedRespawn delegate
+    if (NewPlayer->HasProperty(L"OnStartedRespawn"))
+    {
+        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Add(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
+    }
+
+    // Drop loading screen
+    static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
+
+    spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
+
+    // Call native function
+    PostLogin(FortGameModeAthena, NewPlayer);
 }
 
 UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
@@ -258,5 +249,8 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
             FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
+
+        // Apply CPs
+        NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
     }
 }

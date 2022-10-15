@@ -14,7 +14,7 @@ namespace player_component_hooks
     DEFINE_FUNCTION_HOOK(void, ServerAcknowledgePossession, (APlayerController* PlayerController, FFrame& StackFrame));
     
     // Called when a player joins the server
-    DEFINE_FUNCTION_HOOK(void, SetClientLoginState, (UNetConnection* NetConnection, int State));
+    DEFINE_FUNCTION_HOOK(void, PostLogin, (AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer));
 
     // Called to override the hero type
     DEFINE_FUNCTION_HOOK(UObject*, GetHeroDefinition, (UObject* Hero));
@@ -34,5 +34,3 @@ namespace player_component_hooks
     // Called when a player has been spawned
     DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (UObject* Object, UObject* Function, void* Params));
 }
-
-inline void** (*ApplyCharacterCustomization)(AFortPlayerState* FortPlayerState, AFortPlayerPawn* FortPlayerPawn);
