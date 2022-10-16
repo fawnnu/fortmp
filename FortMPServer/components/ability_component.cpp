@@ -139,18 +139,9 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
             {   
                 const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
-                auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-                auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
-
-                for (int i = 0; i < replicated_entries.Num(); i++)
+                if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(player_controller, ammo_item_definition)))
                 {
-                    FFortItemEntry& replicated_entry = replicated_entries[i];
-
-                    if (replicated_entry.ItemDefinition() == ammo_item_definition)
-                    {
-                        inventory_component::remove_item(player_controller, replicated_entry.ItemGuid(), Amount, false);
-                        break;
-                    }
+                    inventory_component::remove_item(player_controller, ItemToRemove->ItemEntry().ItemGuid(), Amount, false);
                 }
             }
         }

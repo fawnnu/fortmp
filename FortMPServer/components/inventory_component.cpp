@@ -510,36 +510,27 @@ uintptr_t inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars
     return return_value;
 }
 
-int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval)
+int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(AFortPlayerController* PlayerController, UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval)
 {
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&PlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-                 
-    for (int i = 0; i < replicated_entries.Num(); i++)
+    if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(PlayerController, ItemDefinition)))
     {
-        FFortItemEntry& replicated_entry = replicated_entries[i];
-
-        if (replicated_entry.ItemDefinition() == ItemDefinition)
-        {
-            inventory_component::remove_item(PlayerController, replicated_entry.ItemGuid(), AmountToRemove, false);
-
-            break;
-        }
+        inventory_component::remove_item(PlayerController, ItemToRemove->ItemEntry().ItemGuid(), AmountToRemove, false);
     }
+    
     return 1;
 }
 
-int inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook(class AFortPlayerController* PlayerController, struct FGuid ItemGuid, int AmountToRemove, bool bForceRemoval)
+int inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook(AFortPlayerController* PlayerController, FGuid ItemGuid, int AmountToRemove, bool bForceRemoval)
 {
     inventory_component::remove_item(PlayerController, ItemGuid, AmountToRemove, false);
+    
     return 1;
 }
 
-void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<class UObject> InventoryOwner, class UFortWorldItemDefinition* ItemDefinition, int NumberToGive, bool bNotifyPlayer, int ItemLevel)
+void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<UObject> InventoryOwner, UFortWorldItemDefinition* ItemDefinition, int NumberToGive, bool bNotifyPlayer, int ItemLevel)
 {
-    AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(InventoryOwner.GetObjectRef());
-    if(PlayerController)
+    if (AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(InventoryOwner.GetObjectRef()))
     {
         inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
     }
-    return;
 }
