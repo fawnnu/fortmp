@@ -246,6 +246,12 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
+            if (UKismetMathLibrary::ClassIsChildOf(item_instance->ItemEntry().ItemDefinition()->Class, UFortGadgetItemDefinition::StaticClass()) && player_controller->Pawn() != nullptr)
+            {
+                // If it's an AGID, remove the character parts (Has to be done after removing from inventory)
+                player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
+            }
+            
             // has to be done on older builds
             static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
             
