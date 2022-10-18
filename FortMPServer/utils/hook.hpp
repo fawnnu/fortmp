@@ -52,6 +52,22 @@
         }\
     }
 
+#define REGISTER_VTABLE_HOOK(VTable, FunctionIndex, FunctionToHook)\
+    {\
+        if (VTable)\
+        {\
+            INIT_POINTER(FunctionToHook, VTable[FunctionIndex]);\
+            \
+            DWORD old_protect, new_protect;\
+            \
+            VirtualProtect(VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);\
+            \
+            VTable[FunctionIndex] = FunctionToHook##_Hook;\
+            \
+            VirtualProtect(VTable, 4096, old_protect, &new_protect);\
+        }\
+    }
+
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
     inline ReturnType (* FunctionName##) FunctionDefinition;                \
                                                                             \
@@ -72,5 +88,6 @@ inline std::deque<std::function<void()>> game_thread_queue;
 namespace hook_manager_hooks
 {
     // Called every time that ProcessEvent is called
-    DEFINE_FUNCTION_HOOK(void, ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, AActor_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, UEnvQueryInstanceBlueprintWrapper_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
 }

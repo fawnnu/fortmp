@@ -84,7 +84,8 @@ void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn*, FFrame&)
 
 void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer)
 {
-    player_component::create_player(static_cast<AFortPlayerController*>(NewPlayer), NewPlayer->GetTransform());
+    // Call native function
+    PostLogin(FortGameModeAthena, NewPlayer);
     
     // Make sure the player is joining for the first time
     if (NewPlayer->PlayerState()->NumRejoins() > 0)
@@ -143,9 +144,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
 
     spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
-
-    // Call native function
-    PostLogin(FortGameModeAthena, NewPlayer);
 }
 
 UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
