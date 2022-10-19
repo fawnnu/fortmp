@@ -19,6 +19,14 @@ struct FBuildingClassData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.BuildingClassData");
 };
 
+struct FFortSearchBounceData
+{
+    DEFINE_STRUCT_PROPERTY(FVector, BounceNormal);
+    DEFINE_STRUCT_PROPERTY(uint32, SearchAnimationCount);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortSearchBounceData");
+};
+
 struct FCollectorUnitInfo
 {
     DEFINE_STRUCT_PROPERTY(UFortWorldItemDefinition*, InputItem);
@@ -159,7 +167,8 @@ public:
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
     DEFINE_PROPERTY(FVector, LootSpawnLocation);
-
+    DEFINE_PROPERTY(FFortSearchBounceData, SearchBounceData);
+    
     DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
     DEFINE_BIT_PROPERTY(bool, bStartAlreadySearched_Athena);
 

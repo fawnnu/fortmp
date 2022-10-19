@@ -92,6 +92,9 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         // Mark the container as open
         UKismetSystemLibrary::SetBoolPropertyByName(building_container, L"bAlreadySearched", true);
 
+        // Container opening effects
+        building_container->SearchBounceData().SearchAnimationCount()++;
+        
         // Update on server
         building_container->OnRep_bAlreadySearched();
     }
