@@ -20,7 +20,6 @@ interact_component::interact_component()
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor)
 {
     static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
-    static UObject* supply_drop_class = FindObject(L"/Script/FortniteGame.FortAthenaSupplyDrop");
     static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
@@ -50,38 +49,12 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
 {
     if (!building_container->bAlreadySearched())
     {
-        FString SearchLootTierGroup = building_container->SearchLootTierGroup().ToString().c_str();
-
-        std::wstring final_search_loot_tier_group;
-        FString left_str;
-        FString right_str;
-
-        final_search_loot_tier_group = SearchLootTierGroup.c_str();
-        
-        if(final_search_loot_tier_group.find(L"Athena") == -1)
-        {
-            // Split the string
-            UKismetStringLibrary::Split(SearchLootTierGroup, L"_", &left_str, &right_str, 1, 0); //Split, case insensitive (1), from start
-
-            final_search_loot_tier_group = L"";
-            
-            // Build the string
-            final_search_loot_tier_group += left_str.c_str();
-            final_search_loot_tier_group += L"_Athena";
-            final_search_loot_tier_group += right_str.c_str();   
-        }
-        
-        if (right_str == L"Ammo")
-        {
-            final_search_loot_tier_group += UKismetMathLibrary::RandomBool() ? L"Large" : L"Small";
-        }
-
         // Get proper location for loot spawn
         FVector LootSpawnLocation = building_container->K2_GetActorLocation();
         LootSpawnLocation.Z += building_container->HasProperty(L"LootSpawnLocation_Athena") ? building_container->LootSpawnLocation_Athena().Z : building_container->LootSpawnLocation().Z;
         
         // Generate and spawn the loot
-        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(final_search_loot_tier_group.c_str());
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
 
         for (const auto& [ item_definition, count ] : loot_to_spawn)
         {
@@ -91,10 +64,10 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
 
         // Mark the container as open
         UKismetSystemLibrary::SetBoolPropertyByName(building_container, L"bAlreadySearched", true);
-
-        // Container opening effects
+		
+		// Container opening effects
         building_container->SearchBounceData().SearchAnimationCount()++;
-        
+
         // Update on server
         building_container->OnRep_bAlreadySearched();
     }
@@ -105,22 +78,6 @@ void interact_component::handle_player_pawn_interaction(AFortPlayerController* p
 {
     // Revive player
     reviving_component::revive_player(player_controller, player_pawn);
-}
-
-void interact_component::handle_supply_drop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
-{
-    spdlog::warn(L"interact_component::handle_supply_drop_interaction is deprecated.");
-    
-    return;
-    
-    // Spawn loot for supply drop
-    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(L"Loot_AthenaSupplyDrop");
-
-    for (const auto& [ item_definition, count ] : loot_to_spawn)
-    {
-        // Spawn pickup
-        pickup_component::spawn_pickup(item_definition, supply_drop->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
-    }
 }
 
 void interact_component::handle_vending_machine_interaction(AFortPlayerController* player_controller, ABuildingItemCollectorActor* vending_machine)

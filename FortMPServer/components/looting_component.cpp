@@ -242,6 +242,22 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
     return loot_to_spawn;
 }
 
+FName looting_component::redirect_tier_group(FName InTierGroup)
+{
+    // Convert InTierGroup if necessary
+    if (InTierGroup == L"Loot_Treasure")
+    {
+        return L"Loot_AthenaTreasure";
+    }
+    if (InTierGroup == L"Loot_Ammo")
+    {
+        return L"Loot_AthenaAmmoLarge";
+    }
+
+    // Return anything that doesn't have to be converted
+    return InTierGroup;
+}
+
 void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* vending_machine)
 {
     // get our datatables at first
