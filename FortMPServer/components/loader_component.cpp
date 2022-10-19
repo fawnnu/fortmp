@@ -43,6 +43,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             return;
         }
 
+        // Load additional playlist levels
+        (*GWorld)->GameState()->HandlePlaylistStreamedLevels(in_playlist);
+
         // Set aircraft behavior
         if ((*GWorld)->GameState()->HasProperty(L"AirCraftBehavior") &&
             in_playlist != nullptr &&

@@ -26,8 +26,19 @@ public:
     static FString GetPathName(UObject* Object)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
-        
-        return Default__KismetSystemLibrary->Call<FString>(L"GetPathName", Object);
+        static UFunction* GetPathName = FindObject<UFunction>(L"/Script/Engine.KismetSystemLibrary.GetPathName");
+
+        struct
+        {
+            UObject* Object;
+            FString ReturnValue;
+        } params;
+
+        params.Object = Object;
+
+        ProcessEvent(Default__KismetSystemLibrary, GetPathName, &params);
+
+        return params.ReturnValue;
     }
     
     static FTimerHandle K2_SetTimer(UObject* Target, FString FunctionName, float Time, bool bLooping)

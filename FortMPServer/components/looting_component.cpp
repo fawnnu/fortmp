@@ -370,6 +370,11 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
         {
             auto CurrentLoot = PickedLootTierData[i];
 
+            if (CurrentLoot == nullptr)
+            {
+                continue;
+            }
+
             if (wcsstr(CurrentLoot->LootPackage().ToString().c_str(), L"WorldList"))
             {
                 std::vector<FFortLootPackageData*> possible_world_lists;
