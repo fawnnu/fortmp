@@ -192,6 +192,7 @@
     <ClInclude Include="game\sdk\FortAbility.hpp" />
     <ClInclude Include="game\sdk\FortAircraft.hpp" />
     <ClInclude Include="game\sdk\FortAthenaSupplyDrop.hpp" />
+    <ClInclude Include="game\sdk\FortCreative.hpp" />
     <ClInclude Include="game\sdk\FortDecoTool.hpp" />
     <ClInclude Include="game\sdk\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortGameState.hpp" />

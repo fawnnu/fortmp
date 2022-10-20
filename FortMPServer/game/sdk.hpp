@@ -98,3 +98,4 @@
 #include "sdk/FortDecoTool.hpp"
 
 #include "sdk/ActorComponent.hpp"
+#include "sdk/FortCreative.hpp"
