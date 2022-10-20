@@ -9,6 +9,8 @@ public:
     }
 };
 
+class AFortAircraft;
+
 class UFortControllerComponent_Aircraft : public UActorComponent
 {
 public:

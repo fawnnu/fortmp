@@ -3,6 +3,7 @@
 #include "components/ability_component.hpp"
 #include "components/aircraft_component.hpp"
 #include "components/building_component.hpp"
+#include "components/creative_component.hpp"
 #include "components/elimination_component.hpp"
 #include "components/harvesting_component.hpp"
 #include "components/interact_component.hpp"
@@ -90,6 +91,7 @@ void Setup()
                     new aircraft_component();
                     new ability_component();
                     new inventory_component();
+                    new creative_component();
                     new pickup_component();
                     new looting_component();
                     new building_component();

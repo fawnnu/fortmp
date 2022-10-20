@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FortCreative.hpp"
 #include "FortPlaylist.hpp"
 #include "KismetLibrary.hpp"
 
@@ -66,6 +67,8 @@ public:
     DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);
     DEFINE_PROPERTY(TArray<char>, AdditionalPlaylistLevelsStreamed);
 
+    DEFINE_PROPERTY(AFortCreativePortalManager*, CreativePortalManager);
+    
     void OnRep_AdditionalPlaylistLevelsStreamed()
     {
         Call(L"OnRep_AdditionalPlaylistLevelsStreamed");

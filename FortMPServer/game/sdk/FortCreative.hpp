@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ActorComponent.hpp"
 
 struct FFortPlaysetStreamingData
 {
@@ -9,6 +10,8 @@ struct FFortPlaysetStreamingData
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPlaysetStreamingData");
 };
+
+class AFortVolume;
 
 class AFortAthenaCreativePortal : public AActor
 {
@@ -27,7 +30,26 @@ public:
     {
         Call(L"OnRep_PortalOpen");
     }
+
+    void OnRep_OwningPlayer()
+    {
+        Call(L"OnRep_OwningPlayer");
+    }
+
+    void OnRep_PlayersReady()
+    {
+        Call(L"OnRep_PlayersReady");
+    }
     
+    void OwningPlayerChanged()
+    {
+        Call(L"OwningPlayerChanged");
+    }
+
+    void PortalOpenChanged()
+    {
+        Call(L"PortalOpenChanged");
+    }
 };
 
 class AFortCreativePortalManager : public AActor
@@ -36,7 +58,14 @@ public:
     DEFINE_PROPERTY(TArray<class AFortAthenaCreativePortal*>, AllPortals);
     DEFINE_PROPERTY(TArray<class AFortAthenaCreativePortal*>, UsedPortals);
     DEFINE_PROPERTY(TArray<class AFortAthenaCreativePortal*>, AvailablePortals);
+
+    void MarkPortalUsed(AFortAthenaCreativePortal* PortalUsed)
+    {
+        Call(L"MarkPortalUsed", PortalUsed);
+    }
 };
+
+class ULevelStreaming;
 
 class UFortPlaysetItemDefinition : public UFortItemDefinition
 {

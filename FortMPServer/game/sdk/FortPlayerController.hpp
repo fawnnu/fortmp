@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FortCreative.hpp"
 
 class UNetConnection;
 class UAthenaResurrectionComponent;
@@ -162,6 +163,8 @@ class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
+
+    DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 

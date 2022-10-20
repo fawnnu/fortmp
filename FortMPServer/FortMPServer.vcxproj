@@ -163,6 +163,7 @@
     <ClInclude Include="components\ability_component.hpp" />
     <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
+    <ClInclude Include="components\creative_component.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
     <ClInclude Include="components\harvesting_component.hpp" />
     <ClInclude Include="components\interact_component.hpp" />
@@ -192,7 +193,6 @@
     <ClInclude Include="game\sdk\FortAbility.hpp" />
     <ClInclude Include="game\sdk\FortAircraft.hpp" />
     <ClInclude Include="game\sdk\FortAthenaSupplyDrop.hpp" />
-    <ClInclude Include="game\sdk\FortCreative.hpp" />
     <ClInclude Include="game\sdk\FortDecoTool.hpp" />
     <ClInclude Include="game\sdk\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortGameState.hpp" />
@@ -205,6 +205,7 @@
     <ClInclude Include="game\sdk\FortPlaylist.hpp" />
     <ClInclude Include="game\sdk\FortQuickbars.hpp" />
     <ClInclude Include="game\sdk\FortSafezone.hpp" />
+    <ClInclude Include="game\sdk\FortCreative.hpp" />
     <ClInclude Include="game\sdk\FortVolume.hpp" />
     <ClInclude Include="game\sdk\FortWeapon.hpp" />
     <ClInclude Include="game\sdk\FortZiplines.hpp" />
@@ -332,6 +333,7 @@
       <AdditionalIncludeDirectories>E:\FortMP v2\fortmp-server\packages\Detours.4.0.1\build\native\..\..\lib\native\include\;E:\FortMP v2\fortmp-server\ext\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="components\creative_component.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />
     <ClCompile Include="components\harvesting_component.cpp" />
     <ClCompile Include="components\interact_component.cpp" />
