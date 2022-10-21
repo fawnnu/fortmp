@@ -15,6 +15,11 @@ public:
     {
         return Call<AFortPlayerPawn*>(L"SpawnDefaultPawnAtTransform", NewPlayer, SpawnTransform);
     }
+
+    AActor* ChoosePlayerStart(APlayerController* NewPlayer)
+    {
+        return Call<AActor*>(L"ChoosePlayerStart", NewPlayer);
+    }
 };
 
 class AGameMode : public AGameModeBase

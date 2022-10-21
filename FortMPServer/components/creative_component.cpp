@@ -11,6 +11,7 @@ creative_component::creative_component()
     DetourUpdateThread(GetCurrentThread());
     
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerGiveCreativeItem, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem", creative_component_hooks::ServerGiveCreativeItem_Hook);
+    REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
     
     DetourTransactionCommit();
 }
@@ -128,7 +129,7 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     
     static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(8000);
     
-    Portal->NotifyTeleportedPlayerPawn(PlayerPawn, false);
+    Portal->OnPlayerPawnTeleported(PlayerPawn, false);
 }
 
 void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
@@ -141,4 +142,24 @@ void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController
     }
     
     return ServerGiveCreativeItem(FortPlayerController, StackFrame);
+}
+
+void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortPlayerControllerAthena* FortPlayerControllerAthena, FFrame& StackFrame)
+{
+    FortPlayerControllerAthena->PreLobbyIslandTeleport();
+
+    AActor* PlayerStart = (*GWorld)->AuthorityGameMode()->ChoosePlayerStart(FortPlayerControllerAthena);
+
+    if (PlayerStart)
+    {
+        FortPlayerControllerAthena->Pawn()->K2_TeleportTo(PlayerStart->K2_GetActorLocation(), PlayerStart->K2_GetActorRotation());
+        
+        FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
+    }
+    else
+    {
+        spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Invalid PlayerStart");
+    }
+
+    return ServerTeleportToPlaygroundLobbyIsland(FortPlayerControllerAthena, StackFrame);
 }

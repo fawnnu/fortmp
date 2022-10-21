@@ -173,6 +173,16 @@ public:
     {
         Call(L"SpectateOnDeath");
     }
+
+    void PreLobbyIslandTeleport()
+    {
+        Call(L"PreLobbyIslandTeleport");
+    }
+
+    void PostLobbyIslandTeleport(AFortPlayerPawn* FortPlayerPawn)
+    {
+        Call(L"PostLobbyIslandTeleport", FortPlayerPawn);
+    }
 };
 
 struct FFortPlayerDeathReport
