@@ -2,6 +2,7 @@
 #include "player_component.hpp"
 
 #include "ability_component.hpp"
+#include "creative_component.hpp"
 #include "inventory_component.hpp"
 #include "net_component.hpp"
 #include "team_component.hpp"
@@ -139,6 +140,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     {
         static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Add(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
     }
+
+    // Creative support
+    creative_component::handle_player_join(NewPlayer->NetConnection());
 
     // Drop loading screen
     static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;

@@ -55,7 +55,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         // Update max players
-        update_max_players(101);
+        update_max_players(100);
         
         // Spawn all floor loot
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true), L"Loot_AthenaFloorLoot");
@@ -83,7 +83,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         // Start match
-        (*GWorld)->AuthorityGameMode()->StartMatch();
+        if (in_playlist->HasProperty(L"bEnableCreativeMode") &&
+            in_playlist->bEnableCreativeMode() == false)
+        {
+            (*GWorld)->AuthorityGameMode()->StartMatch();
+        }
         
         // Mark world as ready
         UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);

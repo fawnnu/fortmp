@@ -19,4 +19,5 @@ public:
     DEFINE_PROPERTY(uint8_t, RespawnType);
     DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevels);
+    DEFINE_BIT_PROPERTY(bool, bEnableCreativeMode);
 };

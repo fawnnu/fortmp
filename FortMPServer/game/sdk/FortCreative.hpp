@@ -119,4 +119,24 @@ public:
     DEFINE_PROPERTY(ULevelStreaming*, StreamedLevel);
     DEFINE_PROPERTY(TArray<struct FUniqueNetIdRepl>, PlayersWithValidPlaysetData);
     DEFINE_PROPERTY(FName, ClientLoadedPackageName);
+
+    void SetPlayset(UFortPlaysetItemDefinition* NewPlayset)
+    {
+        Call(L"SetPlayset", NewPlayset);
+    }
+
+    void OnRep_ClientPlaysetData()
+    {
+        Call(L"OnRep_ClientPlaysetData");
+    }
+
+    void OnFinishedLoading()
+    {
+        Call(L"OnFinishedLoading");
+    }
+
+    void OnFinishedLoading_Internal()
+    {
+        Call(L"OnFinishedLoading_Internal");
+    }
 };

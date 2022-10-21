@@ -79,6 +79,12 @@ public:
     }
 };
 
+class UFortCreativeRealEstatePlotItemDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_PROPERTY(TSoftObjectPtr<class UFortPlaysetItemDefinition>, BasePlayset);
+};
+
 class UFortWorldItemDefinition : public UFortItemDefinition
 {
 public:
