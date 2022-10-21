@@ -91,7 +91,6 @@ void Setup()
                     new aircraft_component();
                     new ability_component();
                     new inventory_component();
-                    new creative_component();
                     new pickup_component();
                     new looting_component();
                     new building_component();
@@ -104,6 +103,7 @@ void Setup()
                     new vehicles_component();
                     new storm_component();
                     new replication_component();
+                    new creative_component();
                     
                     break;
                 }

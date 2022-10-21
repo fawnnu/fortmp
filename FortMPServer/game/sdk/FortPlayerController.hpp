@@ -165,6 +165,7 @@ public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
 
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
+    DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);
     
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
