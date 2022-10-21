@@ -50,6 +50,11 @@ public:
     {
         Call(L"PortalOpenChanged");
     }
+
+    void NotifyTeleportedPlayerPawn(AFortPlayerPawn* FortPlayerPawn, bool bTeleportedToIslandStart)
+    {
+        Call(L"NotifyTeleportedPlayerPawn", FortPlayerPawn, bTeleportedToIslandStart);
+    }
 };
 
 class AFortCreativePortalManager : public AActor

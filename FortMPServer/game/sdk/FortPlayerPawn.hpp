@@ -123,6 +123,11 @@ class AFortPlayerPawnAthena : public AFortPlayerPawn
 {
 public:
     DEFINE_PROPERTY(float, PickupSpeedMultiplier);
+
+    void TeleportToSkyDive(float HeighAboveGround)
+    {
+        Call(L"TeleportToSkyDive", HeighAboveGround);
+    }
 };
 
 class AFortAIPawn : public UObject

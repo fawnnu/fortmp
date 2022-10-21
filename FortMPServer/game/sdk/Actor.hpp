@@ -62,6 +62,11 @@ public:
         return Call<bool>(L"K2_SetActorRotation", NewRotation, bTeleportPhysics);
     }
 
+    bool K2_TeleportTo(FVector DestLocation, FRotator DestRotation)
+    {
+        return Call<bool>(L"K2_TeleportTo", DestLocation, DestRotation);
+    }
+
     void SetOwner(UObject* NewOwner)
     {
         Call(L"SetOwner", NewOwner);

@@ -124,11 +124,11 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
-    PlayerPawn->Call(L"K2_TeleportTo", Portal->LinkedVolume()->K2_GetActorLocation(), FRotator{});
-    PlayerPawn->Call(L"TeleportToSkyDive", 8000);
+    PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
     
-    Portal->Call(L"NotifyTeleportedPlayerPawn", PlayerPawn, false);
-    Portal->Call(L"OnPlayerPawnTeleported", PlayerPawn, false);
+    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(8000);
+    
+    Portal->NotifyTeleportedPlayerPawn(PlayerPawn, false);
 }
 
 void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
