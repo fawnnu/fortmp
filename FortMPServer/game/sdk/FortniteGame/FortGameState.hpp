@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "FortCreative.hpp"
-#include "FortPlaylist.hpp"
-#include "KismetLibrary.hpp"
+#include "sdk/FortniteGame/Athena/FortCreative.hpp"
+#include "sdk/FortniteGame/Athena/FortPlaylist.hpp"
+#include "sdk/Engine/Kismet/KismetLibrary.hpp"
 
 struct FFortLevelStreamingInfo
 {

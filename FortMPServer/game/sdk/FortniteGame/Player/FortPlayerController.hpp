@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "FortCreative.hpp"
+#include "sdk/FortniteGame/Athena/FortCreative.hpp"
 
 class UNetConnection;
 class UAthenaResurrectionComponent;

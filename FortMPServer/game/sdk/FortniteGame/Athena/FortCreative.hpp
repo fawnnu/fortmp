@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ActorComponent.hpp"
+#include "sdk/Engine/Components/ActorComponent.hpp"
 
 struct FFortPlaysetStreamingData
 {
