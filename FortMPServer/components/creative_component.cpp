@@ -164,6 +164,13 @@ void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController
 
 void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortPlayerControllerAthena* FortPlayerControllerAthena, FFrame& StackFrame)
 {
+    if (FortPlayerControllerAthena == nullptr || FortPlayerControllerAthena->Pawn() == nullptr)
+    {
+        spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Invalid PlayerController or Pawn.");
+        
+        return ServerTeleportToPlaygroundLobbyIsland(FortPlayerControllerAthena, StackFrame);
+    }
+    
     FortPlayerControllerAthena->PreLobbyIslandTeleport();
 
     AActor* PlayerStart = (*GWorld)->AuthorityGameMode()->ChoosePlayerStart(FortPlayerControllerAthena);
