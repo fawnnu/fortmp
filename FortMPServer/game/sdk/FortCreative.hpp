@@ -11,6 +11,14 @@ struct FFortPlaysetStreamingData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPlaysetStreamingData");
 };
 
+struct FFortCreativePlotPermissionData
+{
+    DEFINE_STRUCT_PROPERTY(uint8, Permission);
+    DEFINE_STRUCT_PROPERTY(TArray<struct FString>, WhiteList);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortCreativePlotPermissionData");
+};
+
 class AFortVolume;
 
 class AFortAthenaCreativePortal : public AActor
@@ -110,6 +118,25 @@ public:
         memcpy(OutLevelData, &Params->OutLevelData(), FFortPlaysetStreamingData::GetStructSize());
 
         return Params->ReturnValue();
+    }
+};
+
+class UFortLevelSaveComponent : public UActorComponent
+{
+public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortLevelSaveComponent");
+
+        return static_class;
+    }
+    
+    DEFINE_PROPERTY(FUniqueNetIdRepl, AccountIdOfOwner);
+    DEFINE_PROPERTY(FFortCreativePlotPermissionData, PlotPermissions);
+
+    void OnRep_PlotPermissionsChanged()
+    {
+        Call(L"OnRep_PlotPermissionsChanged");
     }
 };
 

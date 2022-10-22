@@ -86,7 +86,10 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
             // Now get this volume's playset component and initialize the island
             for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
             {
-                if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+                // Prevent a crash on later builds and when more people are joining
+                if(Component != nullptr)
+                {
+                 if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
                 {
                     UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
 
@@ -108,14 +111,26 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                     // OnRep
                     PlaysetComponent->OnRep_ClientPlaysetData();
 
-                    // Finish loading
-                    PlaysetComponent->OnFinishedLoading();
-                    PlaysetComponent->OnFinishedLoading_Internal();
-
                     // Log
                     spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
 
                     return;
+                }
+
+                else if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UFortLevelSaveComponent::StaticClass()))
+                {
+                    UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
+
+                    LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
+                    
+                    if(LevelSaveComponent->HasProperty(L"PlotPermissions"))
+                    {
+                        /* @ Private = 0
+                         * @ Public = 1 */
+                        LevelSaveComponent->PlotPermissions().Permission() = 1;
+                        LevelSaveComponent->OnRep_PlotPermissionsChanged();
+                    }
+                }   
                 }
             }
         }
@@ -144,6 +159,9 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
         if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
         {
             static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData().Add(PlayerPawn->Controller()->NetConnection()->PlayerID());
+            
+            // Finish loading
+            static_cast<UPlaysetLevelStreamComponent*>(Component)->OnFinishedLoading();
         }
     }
     
@@ -181,23 +199,29 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
         
         FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
 
-        // Remove from 
-        for (UActorComponent* Component : FortPlayerControllerAthena->CreativePlotLinkedVolume()->BlueprintCreatedComponents())
+        if(FortPlayerControllerAthena->CreativePlotLinkedVolume())
         {
-            if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+            // Remove from players with valid playset data
+            for (UActorComponent* Component : FortPlayerControllerAthena->CreativePlotLinkedVolume()->BlueprintCreatedComponents())
             {
-                TArrayManager<FUniqueNetIdRepl> PlayersWithValidPlaysetData = TArrayManager<FUniqueNetIdRepl>(&static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData(), sizeof FUniqueNetIdRepl);
-
-                for (int i = 0; i < PlayersWithValidPlaysetData.Num(); i++)
+                if(Component != nullptr)
                 {
-                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayersWithValidPlaysetData[i], FortPlayerControllerAthena->NetConnection()->PlayerID()))
+                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
                     {
-                        PlayersWithValidPlaysetData.Remove(i, FindPropertyByName(Component->Class, L"PlayersWithValidPlaysetData"));
+                        TArrayManager<FUniqueNetIdRepl> PlayersWithValidPlaysetData = TArrayManager<FUniqueNetIdRepl>(&static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData(), sizeof FUniqueNetIdRepl);
+
+                        for (int i = 0; i < PlayersWithValidPlaysetData.Num(); i++)
+                        {
+                            if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayersWithValidPlaysetData[i], FortPlayerControllerAthena->NetConnection()->PlayerID()))
+                            {
+                                PlayersWithValidPlaysetData.Remove(i, FindPropertyByName(Component->Class, L"PlayersWithValidPlaysetData"));
+                            }
+                        }
                     }
                 }
-            }
+            }   
         }
-
+        
         // Unset linked volume
         FortPlayerControllerAthena->CreativePlotLinkedVolume() = nullptr;
 
