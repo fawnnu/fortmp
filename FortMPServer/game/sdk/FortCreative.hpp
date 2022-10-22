@@ -51,9 +51,14 @@ public:
         Call(L"PortalOpenChanged");
     }
 
-    void OnPlayerPawnTeleported(AFortPlayerPawn* FortPlayerPawn, bool bTeleportedToIslandStart)
+    void OnPlayerPawnTeleported(AFortPlayerPawn* FortPlayerPawn)
     {
-        Call(L"OnPlayerPawnTeleported", FortPlayerPawn, bTeleportedToIslandStart);
+        Call(L"OnPlayerPawnTeleported", FortPlayerPawn);
+    }
+
+    void NotifyTeleportedPlayerPawn(AFortPlayerPawn* FortPlayerPawn)
+    {
+        Call(L"NotifyTeleportedPlayerPawn", FortPlayerPawn);
     }
 };
 

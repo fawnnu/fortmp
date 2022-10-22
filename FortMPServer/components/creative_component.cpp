@@ -5,6 +5,7 @@
 
 creative_component::creative_component()
 {
+    
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaCreativePortal.TeleportPlayerToLinkedVolume", creative_component_hooks::TeleportPlayerToLinkedVolume_Hook);
     
     DetourTransactionBegin();
@@ -125,11 +126,15 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
+    if(!Portal->LinkedVolume() || !PlayerPawn) return;
+    
     PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
     
-    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(8000);
+    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(15000);
+
+    reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
     
-    Portal->OnPlayerPawnTeleported(PlayerPawn, false);
+    Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
 }
 
 void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
