@@ -101,8 +101,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                     creative_portal->LinkedVolume()->CurrentPlayset()->SpawnPlayset(*GWorld, creative_portal->LinkedVolume()->CurrentPlayset(), creative_portal->LinkedVolume()->K2_GetActorLocation(), FRotator(), NewPlaysetStreamingData);
 
                     // Initialize the component
-                    PlaysetComponent->PlayersWithValidPlaysetData().Add(NetConnection->PlayerID());
-                    
                     PlaysetComponent->ClientLoadedPackageName() = PlaysetComponent->ClientPlaysetData().PackageName();
                 
                     memcpy(&PlaysetComponent->ClientPlaysetData(), NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
@@ -126,13 +124,28 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
-    if(!Portal->LinkedVolume() || !PlayerPawn) return;
+    if (Portal->LinkedVolume() == nullptr || PlayerPawn == nullptr)
+    {
+        spdlog::error(L"creative_component_hooks::TeleportPlayerToLinkedVolume_Hook: Invalid LinkedVolume or PlayerPawn");
+        
+        return;
+    }
     
     PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
     
     static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(15000);
 
     reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
+    reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
+
+    // Add to the array
+    for (UActorComponent* Component : Portal->LinkedVolume()->BlueprintCreatedComponents())
+    {
+        if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+        {
+            static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData().Add(PlayerPawn->Controller()->NetConnection()->PlayerID());
+        }
+    }
     
     Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
 }
@@ -160,6 +173,28 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
         FortPlayerControllerAthena->Pawn()->K2_TeleportTo(PlayerStart->K2_GetActorLocation(), PlayerStart->K2_GetActorRotation());
         
         FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
+
+        // Remove from 
+        for (UActorComponent* Component : FortPlayerControllerAthena->CreativePlotLinkedVolume()->BlueprintCreatedComponents())
+        {
+            if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+            {
+                TArrayManager<FUniqueNetIdRepl> PlayersWithValidPlaysetData = TArrayManager<FUniqueNetIdRepl>(&static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData(), sizeof FUniqueNetIdRepl);
+
+                for (int i = 0; i < PlayersWithValidPlaysetData.Num(); i++)
+                {
+                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayersWithValidPlaysetData[i], FortPlayerControllerAthena->NetConnection()->PlayerID()))
+                    {
+                        PlayersWithValidPlaysetData.Remove(i, FindPropertyByName(Component->Class, L"PlayersWithValidPlaysetData"));
+                    }
+                }
+            }
+        }
+
+        // Unset linked volume
+        FortPlayerControllerAthena->CreativePlotLinkedVolume() = nullptr;
+
+        FortPlayerControllerAthena->OnRep_CreativePlotLinkedVolume();
     }
     else
     {

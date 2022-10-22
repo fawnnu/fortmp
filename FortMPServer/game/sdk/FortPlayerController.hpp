@@ -169,6 +169,11 @@ public:
     
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
+    void OnRep_CreativePlotLinkedVolume()
+    {
+        Call(L"OnRep_CreativePlotLinkedVolume");
+    }
+
     void SpectateOnDeath()
     {
         Call(L"SpectateOnDeath");
