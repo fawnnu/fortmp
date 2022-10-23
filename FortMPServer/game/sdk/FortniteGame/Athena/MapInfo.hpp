@@ -36,4 +36,12 @@ public:
     DEFINE_PROPERTY(UObject*, LlamaClass);
     DEFINE_PROPERTY(FScalableFloat, LlamaQuantityMin);
     DEFINE_PROPERTY(FScalableFloat, LlamaQuantityMax);
+
+    DEFINE_PROPERTY(UObject*, TreasureChestClass);
+    DEFINE_PROPERTY(FScalableFloat, TreasureChestMinSpawnPercent);
+    DEFINE_PROPERTY(FScalableFloat, TreasureChestMaxSpawnPercent);
+    
+    DEFINE_PROPERTY(UObject*, AmmoBoxClass);
+    DEFINE_PROPERTY(FScalableFloat, AmmoBoxMinSpawnPercent);
+    DEFINE_PROPERTY(FScalableFloat, AmmoBoxMaxSpawnPercent);
 };

@@ -120,6 +120,14 @@ public:
         
         return Default__KismetMathLibrary->Call<bool>(L"RandomBool");
     }
+    
+    static bool RandomBoolWithWeight(float Weight)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+        
+        return Default__KismetMathLibrary->Call<bool>(L"RandomBoolWithWeight", Weight);
+    }
 
     //better than reimplementing IsA!
     static bool ClassIsChildOf(UObject* in_test_class, UObject* parent_class)

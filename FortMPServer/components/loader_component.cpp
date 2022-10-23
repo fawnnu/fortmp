@@ -8,6 +8,24 @@
 
 loader_component::loader_component()
 {
+    AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
+
+    uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called");
+    int BeginPlayIndex = 0;
+    
+    for (int i = 0; i < INT_MAX; i++)
+    {
+        if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+        {
+            BeginPlayIndex = i;
+            
+            break;
+        }
+    }
+
+    // Hook begin play for the classes we need
+    REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
@@ -351,6 +369,51 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
 
                     SpawnActor(*GWorld, ConsumableClass, &Locations[i], nullptr, SpawnActorParameters);
                 }
+            }
+        }
+    }
+}
+
+void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContainer* Target)
+{
+    ABuildingContainer_BeginPlay(Target);
+    
+    static AFortAthenaMapInfo* MapInfo = (*GWorld)->GameState()->MapInfo() ? (*GWorld)->GameState()->MapInfo() : SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C", true));
+
+    if (MapInfo)
+    {
+        // New class for Ammo
+        static UObject* Tiered_Ammo_Athena_C = FindObject(L"/Game/Building/ActorBlueprints/Containers/Tiered_Ammo_Athena.Tiered_Ammo_Athena_C", true);
+
+        // New class for Chests
+        static UObject* Tiered_Chest_Athena_C = FindObject(L"/Game/Building/ActorBlueprints/Containers/Tiered_Chest_Athena.Tiered_Chest_Athena_C", true);
+
+        if (Target->IsA(Tiered_Chest_Athena_C) || Target->IsA(MapInfo->TreasureChestClass()))
+        {
+            // Get a random percentage
+            static float RandomPercentage = UKismetMathLibrary::RandomFloatInRange(MapInfo->TreasureChestMinSpawnPercent().GetValueAtLevel(0, nullptr), MapInfo->TreasureChestMaxSpawnPercent().GetValueAtLevel(0, nullptr));
+
+            // Now get a random bool with that percentage
+            bool bShouldSpawn = UKismetMathLibrary::RandomBoolWithWeight(RandomPercentage / 100);
+
+            if (bShouldSpawn == false)
+            {   
+                // Destroy the chest if needed
+                Target->K2_DestroyActor();
+            }
+        }
+        else if (Target->IsA(Tiered_Ammo_Athena_C) || Target->IsA(MapInfo->AmmoBoxClass()))
+        {
+            // Get a random percentage
+            static float RandomPercentage = UKismetMathLibrary::RandomFloatInRange(MapInfo->AmmoBoxMinSpawnPercent().GetValueAtLevel(0, nullptr), MapInfo->AmmoBoxMaxSpawnPercent().GetValueAtLevel(0, nullptr));
+
+            // Now get a random bool with that percentage
+            bool bShouldSpawn = UKismetMathLibrary::RandomBoolWithWeight(RandomPercentage / 100);
+
+            if (bShouldSpawn == false)
+            {   
+                // Destroy the chest if needed
+                Target->K2_DestroyActor();
             }
         }
     }

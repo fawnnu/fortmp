@@ -77,40 +77,43 @@ public:
     void HandlePlaylistStreamedLevels(UFortPlaylistAthena* in_playlist)
     {
         // Loop through all the additional levels
-        for (auto streamed_world : in_playlist->AdditionalLevels())
+        if (in_playlist->HasProperty(L"AdditionalLevels"))
         {
-            // Get object from Soft Object Pointer
-            if (UObject* streamed_world_object = streamed_world.Get())
+            for (auto streamed_world : in_playlist->AdditionalLevels())
             {
-                // Get the path name
-                FString streamed_world_path = UKismetSystemLibrary::GetPathName(streamed_world_object);
-
-                TArrayManager<char> AdditionalPlaylistLevelsStreamed_ArrayManager = TArrayManager<char>(&AdditionalPlaylistLevelsStreamed(), FAdditionalLevelStreamed::GetClass() ? FAdditionalLevelStreamed::GetStructSize() : sizeof FName);
-
-                if (FAdditionalLevelStreamed::GetClass())
+                // Get object from Soft Object Pointer
+                if (UObject* streamed_world_object = streamed_world.Get())
                 {
-                    FAdditionalLevelStreamed* NewAdditionalLevelStreamed = static_cast<FAdditionalLevelStreamed*>(malloc(FAdditionalLevelStreamed::GetStructSize()));
+                    // Get the path name
+                    FString streamed_world_path = UKismetSystemLibrary::GetPathName(streamed_world_object);
 
-                    ZeroMemory(NewAdditionalLevelStreamed, FAdditionalLevelStreamed::GetStructSize());
+                    TArrayManager<char> AdditionalPlaylistLevelsStreamed_ArrayManager = TArrayManager<char>(&AdditionalPlaylistLevelsStreamed(), FAdditionalLevelStreamed::GetClass() ? FAdditionalLevelStreamed::GetStructSize() : sizeof FName);
 
-                    NewAdditionalLevelStreamed->LevelName() = streamed_world_path.c_str();
+                    if (FAdditionalLevelStreamed::GetClass())
+                    {
+                        FAdditionalLevelStreamed* NewAdditionalLevelStreamed = static_cast<FAdditionalLevelStreamed*>(malloc(FAdditionalLevelStreamed::GetStructSize()));
 
-                    AdditionalPlaylistLevelsStreamed_ArrayManager.Add(&NewAdditionalLevelStreamed);
+                        ZeroMemory(NewAdditionalLevelStreamed, FAdditionalLevelStreamed::GetStructSize());
 
-                    spdlog::info(L"Loaded Additional playlist level: '{}'", NewAdditionalLevelStreamed->LevelName().ToString().c_str());
+                        NewAdditionalLevelStreamed->LevelName() = streamed_world_path.c_str();
+
+                        AdditionalPlaylistLevelsStreamed_ArrayManager.Add(&NewAdditionalLevelStreamed);
+
+                        spdlog::info(L"Loaded Additional playlist level: '{}'", NewAdditionalLevelStreamed->LevelName().ToString().c_str());
+                    }
+                    else
+                    {
+                        FName LevelName = streamed_world_path.c_str();
+
+                        AdditionalPlaylistLevelsStreamed_ArrayManager.Add(&LevelName);
+
+                        spdlog::info(L"Loaded Additional playlist level: '{}'", LevelName.ToString().c_str());
+                    }
                 }
                 else
                 {
-                    FName LevelName = streamed_world_path.c_str();
-
-                    AdditionalPlaylistLevelsStreamed_ArrayManager.Add(&LevelName);
-
-                    spdlog::info(L"Loaded Additional playlist level: '{}'", LevelName.ToString().c_str());
+                    spdlog::error(L"Invalid AdditionalLevel when executing HandlePlaylistStreamedLevels");
                 }
-            }
-            else
-            {
-                spdlog::error(L"Invalid AdditionalLevel when executing HandlePlaylistStreamedLevels");
             }
         }
 

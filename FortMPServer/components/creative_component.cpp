@@ -87,50 +87,52 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
             for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
             {
                 // Prevent a crash on later builds and when more people are joining
-                if(Component != nullptr)
+                if (Component)
                 {
-                 if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
-                {
-                    UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
-
-                    PlaysetComponent->SetPlayset(creative_portal->LinkedVolume()->CurrentPlayset());
-
-                    // Create new streaming data
-                    FFortPlaysetStreamingData* NewPlaysetStreamingData = static_cast<FFortPlaysetStreamingData*>(malloc(FFortPlaysetStreamingData::GetStructSize()));
-
-                    ZeroMemory(NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
-
-                    // Create the island
-                    creative_portal->LinkedVolume()->CurrentPlayset()->SpawnPlayset(*GWorld, creative_portal->LinkedVolume()->CurrentPlayset(), creative_portal->LinkedVolume()->K2_GetActorLocation(), FRotator(), NewPlaysetStreamingData);
-
-                    // Initialize the component
-                    PlaysetComponent->ClientLoadedPackageName() = PlaysetComponent->ClientPlaysetData().PackageName();
-                
-                    memcpy(&PlaysetComponent->ClientPlaysetData(), NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
-
-                    // OnRep
-                    PlaysetComponent->OnRep_ClientPlaysetData();
-
-                    // Log
-                    spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
-
-                    return;
-                }
-
-                else if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UFortLevelSaveComponent::StaticClass()))
-                {
-                    UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
-
-                    LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
-                    
-                    if(LevelSaveComponent->HasProperty(L"PlotPermissions"))
+                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
                     {
-                        /* @ Private = 0
-                         * @ Public = 1 */
-                        LevelSaveComponent->PlotPermissions().Permission() = 1;
-                        LevelSaveComponent->OnRep_PlotPermissionsChanged();
+                        UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
+
+                        PlaysetComponent->SetPlayset(creative_portal->LinkedVolume()->CurrentPlayset());
+
+                        // Create new streaming data
+                        FFortPlaysetStreamingData* NewPlaysetStreamingData = static_cast<FFortPlaysetStreamingData*>(malloc(FFortPlaysetStreamingData::GetStructSize()));
+
+                        ZeroMemory(NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
+
+                        // Create the island
+                        creative_portal->LinkedVolume()->CurrentPlayset()->SpawnPlayset(*GWorld, creative_portal->LinkedVolume()->CurrentPlayset(), creative_portal->LinkedVolume()->K2_GetActorLocation(), FRotator(), NewPlaysetStreamingData);
+
+                        // Initialize the component
+                        PlaysetComponent->ClientLoadedPackageName() = PlaysetComponent->ClientPlaysetData().PackageName();
+                
+                        memcpy(&PlaysetComponent->ClientPlaysetData(), NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
+
+                        // OnRep
+                        PlaysetComponent->OnRep_ClientPlaysetData();
+            
+                        // Finish loading
+                        static_cast<UPlaysetLevelStreamComponent*>(Component)->OnFinishedLoading();
+
+                        // Log
+                        spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
+
+                        return;
                     }
-                }   
+                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UFortLevelSaveComponent::StaticClass()))
+                    {
+                        UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
+
+                        LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
+                    
+                        if (LevelSaveComponent->HasProperty(L"PlotPermissions"))
+                        {
+                            /* @ Private = 0
+                             * @ Public = 1 */
+                            LevelSaveComponent->PlotPermissions().Permission() = 1;
+                            LevelSaveComponent->OnRep_PlotPermissionsChanged();
+                        }
+                    }
                 }
             }
         }
@@ -151,6 +153,7 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(15000);
 
     reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
+    
     reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
 
     // Add to the array
@@ -159,9 +162,6 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
         if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
         {
             static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData().Add(PlayerPawn->Controller()->NetConnection()->PlayerID());
-            
-            // Finish loading
-            static_cast<UPlaysetLevelStreamComponent*>(Component)->OnFinishedLoading();
         }
     }
     
