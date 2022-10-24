@@ -77,6 +77,11 @@ public:
     void HandlePlaylistStreamedLevels(UFortPlaylistAthena* in_playlist)
     {
         // Loop through all the additional levels
+        if (in_playlist == nullptr)
+        {
+            return;
+        }
+        
         if (in_playlist->HasProperty(L"AdditionalLevels"))
         {
             for (auto streamed_world : in_playlist->AdditionalLevels())

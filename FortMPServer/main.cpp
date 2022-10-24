@@ -20,6 +20,7 @@
 #include "components/trap_component.hpp"
 #include "components/vehicles_component.hpp"
 #include "components/storm_component.hpp"
+#include "components/function_component.hpp"
 #include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -82,7 +83,8 @@ void Setup()
 
                     // Remove the server's player
                     LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
-                    
+
+                    new function_component();
                     new hook_manager();
                     new net_component();
                     new loader_component();

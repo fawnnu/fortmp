@@ -101,8 +101,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         // Start match
-        if (in_playlist->HasProperty(L"bEnableCreativeMode") &&
-            in_playlist->bEnableCreativeMode() == false)
+        if (in_playlist &&
+            in_playlist->HasProperty(L"bEnableCreativeMode") &&
+            in_playlist->bEnableCreativeMode() == false ||
+            in_playlist == nullptr ||
+            in_playlist->HasProperty(L"bEnableCreativeMode") == false)
         {
             (*GWorld)->AuthorityGameMode()->StartMatch();
         }

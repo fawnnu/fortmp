@@ -238,6 +238,24 @@ public:
 
         return *reinterpret_cast<void**>(__int64(this) + function_offset); 
     }
+
+    void set_function_flags(int InFunctionFlags)
+    {
+        static UObject* UStruct__Class = FindObject(L"/Script/CoreUObject.Struct");
+
+        // Function flags are always the first property of UFunction
+        static int function_flags_offset = *reinterpret_cast<int*>(uintptr_t(UStruct__Class) + CoreOffsets::StructSize);
+
+        *reinterpret_cast<int*>(uintptr_t(this) + function_flags_offset) = InFunctionFlags;
+    }
+
+    void set_native_function(void* InNativeFunction)
+    {
+        // Offset of native function in a UFunction struct
+        static int function_offset = *reinterpret_cast<int*>(__int64(this->Class) + CoreOffsets::StructSize) - sizeof(void*);
+
+        *reinterpret_cast<void**>(__int64(this) + function_offset) = InNativeFunction; 
+    }
 };
 
 struct FWeakObjectPtr

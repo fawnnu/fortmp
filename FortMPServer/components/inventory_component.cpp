@@ -4,6 +4,7 @@
 #include "pickup_component.hpp"
 
 #include "ability_component.hpp"
+#include "function_component.hpp"
 
 inventory_component::inventory_component()
 {
@@ -30,13 +31,14 @@ inventory_component::inventory_component()
     
     DetourTransactionCommit();
 
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortWeapon.OnAmmoCountChanged", inventory_component_hooks::OnAmmoCountChanged_Hook);
-
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
+
+    // Create custom function
+    REGISTER_CUSTOM_UFUNCTION(UpdateWeaponLoadedAmmo, AFortWeapon::StaticClass());
 }
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
@@ -397,7 +399,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
         // Bind a delegate to keep loadedammo updated
         if (NewWeapon != nullptr && NewWeapon->OnLocalAmmoChanged().InvocationList.Num() == 0)
         {
-            NewWeapon->OnLocalAmmoChanged().Add(TScriptDelegate(NewWeapon, L"OnAmmoCountChanged"));
+            NewWeapon->OnLocalAmmoChanged().Add(TScriptDelegate(NewWeapon, L"UpdateWeaponLoadedAmmo"));
         }
     }
 
@@ -446,10 +448,8 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     return ServerExecuteInventoryItem(PlayerController, StackFrame);
 }
 
-void inventory_component_hooks::OnAmmoCountChanged_Hook(UObject* Object, UObject* Function, void* Params)
+void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame)
 {
-    auto FortWeapon = static_cast<AFortWeapon*>(Object);
-
     const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
     auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
