@@ -21,6 +21,7 @@
 #include "components/vehicles_component.hpp"
 #include "components/storm_component.hpp"
 #include "components/function_component.hpp"
+#include "components/gamemodes_component.hpp"
 #include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -106,6 +107,7 @@ void Setup()
                     new storm_component();
                     new replication_component();
                     new creative_component();
+                    new gamemodes_component();
                     
                     break;
                 }

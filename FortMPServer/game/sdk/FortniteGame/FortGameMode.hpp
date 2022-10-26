@@ -48,6 +48,13 @@ public:
 class AFortGameModeAthena : public AFortGameModeZone
 {
 public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameModeAthena");
+
+        return static_class;
+    }
+    
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
     DEFINE_PROPERTY(float, WarmupEarlyCountdownDuration);
     DEFINE_PROPERTY(float, EndGameKickPlayersDelay);
@@ -59,4 +66,10 @@ public:
     DEFINE_PROPERTY(AFortSafeZoneIndicator*, SafeZoneIndicator);
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
+
+    // Custom event
+    void OnServerReady()
+    {
+        Call(L"OnServerReady");
+    }
 };

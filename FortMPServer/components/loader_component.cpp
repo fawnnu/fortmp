@@ -1,7 +1,6 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
-#include "elimination_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
 #include "pickup_component.hpp"
@@ -112,6 +111,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         // Mark world as ready
         UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
+
+        // Notify gamemode of server being ready
+        (*GWorld)->AuthorityGameMode()->OnServerReady();
 
         // Notify the era server once the server is up
         dll_utils::send_webhook_message(dll_utils::general_chat_webhook, req_body.dump());
