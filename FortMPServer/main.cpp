@@ -22,6 +22,7 @@
 #include "components/storm_component.hpp"
 #include "components/function_component.hpp"
 #include "components/gamemodes_component.hpp"
+#include "components/blueprint_component.hpp"
 #include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -45,6 +46,9 @@ void Setup()
 
     // Initialize function's component
     new function_component();
+
+    // Initialize FMP blueprint support
+    new blueprint_component();
 
     // Initialize gamemode custom functions
     new gamemodes_component();

@@ -196,6 +196,13 @@ public:
 class UFortKismetLibrary : public UObject
 {
 public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortKismetLibrary");
+
+        return static_class;
+    }
+    
     static bool EqualEqual_UniqueNetIdReplUniqueNetIdRepl(FUniqueNetIdRepl A, FUniqueNetIdRepl B)
     {
         // Static function to use default object

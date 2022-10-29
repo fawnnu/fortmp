@@ -162,6 +162,7 @@
     <ClInclude Include="..\ext\include\imgui\imstb_truetype.h" />
     <ClInclude Include="components\ability_component.hpp" />
     <ClInclude Include="components\aircraft_component.hpp" />
+    <ClInclude Include="components\blueprint_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
@@ -266,6 +267,7 @@
     </ClCompile>
     <ClCompile Include="components\ability_component.cpp" />
     <ClCompile Include="components\aircraft_component.cpp" />
+    <ClCompile Include="components\blueprint_component.cpp" />
     <ClCompile Include="components\building_component.cpp">
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>x64\Release\</AssemblerListingLocation>

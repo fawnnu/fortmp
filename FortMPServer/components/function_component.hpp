@@ -5,12 +5,17 @@
         function_component::create_custom_ufunction(#Function, Class, Function);\
     }
 
+#define REGISTER_CUSTOM_UFUNCTION_WITH_PARAMS(Function, Class, ParmsSize)\
+    {\
+        function_component::create_custom_ufunction(#Function, Class, Function, ParmsSize);\
+    }
+
 class function_component
 {
 public:
     function_component();
 
-    static void create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction);
+    static void create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction, int ParmsSize = 0);
 
 private:
     inline static DWORD FuncMap_Offset;

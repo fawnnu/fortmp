@@ -47,6 +47,9 @@ inline UObject* (*Get)(struct FWeakObjectPtr*);
 // Initialize an FWeakObjectPtr with an Object
 inline void (*SetFWeakObjectPtr)(struct FWeakObjectPtr*, UObject*);
 
+// Array of native functions
+inline void** GNatives;
+
 // SRand
 inline float (*SRand)();
 
@@ -208,7 +211,9 @@ struct FFrame
 
     void Step(UObject* Context, void* OutParam)
     {
-        ::Step(this, Context, OutParam);
+        int B = *Code++;
+
+        reinterpret_cast<void (*)(UObject*, FFrame*, void*)>(GNatives[B])(Context, this, OutParam);
     }
 };
 
@@ -231,6 +236,24 @@ T* FindObject(const wchar_t* ObjectName, bool bLoadObject = false, bool bUseAnyP
     return reinterpret_cast<T*>(Object);
 }
 
+class UProperty : public UObject
+{
+    
+};
+
+class UStrProperty : public UProperty
+{
+public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/CoreUObject.StrProperty");
+
+        return static_class;
+    }
+};
+
+float GetEngineVersionEasy();
+
 class UFunction : public UObject
 {
 public:
@@ -240,6 +263,22 @@ public:
         static int function_offset = *reinterpret_cast<int*>(__int64(this->Class) + CoreOffsets::StructSize) - sizeof(void*);
 
         return *reinterpret_cast<void**>(__int64(this) + function_offset); 
+    }
+
+    void set_parms_size(int InParmsSize)
+    {
+        static UObject* UStruct__Class = FindObject(L"/Script/CoreUObject.Struct");
+
+        static int UStruct_Size = *reinterpret_cast<int*>(uintptr_t(UStruct__Class) + CoreOffsets::StructSize);
+        
+        static int parms_size_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0x8 : 0x6;
+
+        *reinterpret_cast<int*>(uintptr_t(this) + parms_size_offset) = InParmsSize;
+    }
+
+    void set_properties_size(int InPropertiesSize)
+    {
+        *reinterpret_cast<int*>(uintptr_t(this) + CoreOffsets::Children + 8) = InPropertiesSize;
     }
 
     void set_function_flags(int InFunctionFlags)
