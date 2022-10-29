@@ -35,6 +35,9 @@ inline UObject* (*StaticFindObject)(UObject* Class, void* Outer, const wchar_t* 
 // Load an object by name
 inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wchar_t*, int, void*, bool);
 
+// Creates an object
+inline UObject* (*StaticConstructObject)(UObject* Class, UObject* Outer, FName InName, int ObjectFlags, int InternalObjectFlags, UObject* InTemplate, bool bCopyTransientsFromClassDefaults, void*, bool bAssumeTemplateIsArchetype);
+
 // Get parameters from StackFrame.Code
 inline void (*Step)(struct FFrame*, UObject* Context, void* OutParam);
 

@@ -30,13 +30,16 @@ function_component::function_component()
 
 void function_component::create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction)
 {
-    UFunction* NewFunction = static_cast<UFunction*>(UGameplayStatics::SpawnObject(FindObject(L"/Script/CoreUObject.Function"), InClass));
-
-    // Create FName
+    if (StaticConstructObject == nullptr)
+    {
+        spdlog::error(L"function_component::create_custom_ufunction: StaticConstructObject is nullptr");
+        
+        return;
+    }
+    
     FName FunctionName(InName);
     
-    // Update its name
-    NewFunction->NamePrivate = FunctionName;
+    UFunction* NewFunction = static_cast<UFunction*>(StaticConstructObject(FindObject(L"/Script/CoreUObject.Function"), InClass, FunctionName, 0, 0, nullptr, false, nullptr, false));
 
     // Set flags to FUNC_Native
     NewFunction->set_function_flags(0x00000400);

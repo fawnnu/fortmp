@@ -12,7 +12,9 @@ void unreal_manager::setup_unreal_engine()
     
     INIT_POINTER(StaticFindObject, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 30 80 3D ? ? ? ? ? 41 0F B6 D9 49 8B F8 48 8B F2"));
     INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
-
+    INIT_POINTER(StaticConstructObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8C 24 ? ? ? ? 48 8B D8 48 89 48 28 40 88 70 30 48 8B 4C 24", true, 1));
+    INIT_POINTER(StaticConstructObject, memory_manager::find_function_by_string(L"STAT_ConstructObject"));
+    
     INIT_POINTER(SpawnActor, memory_manager::find_pattern("40 53 56 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 0F 28 1D ? ? ? ? 0F 57 D2 48 8B B4 24 ? ? ? ? 0F 28 CB"));
     
     INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));

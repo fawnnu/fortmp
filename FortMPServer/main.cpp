@@ -43,6 +43,12 @@ void Setup()
     // Disable unwanted modules
     //new modules_component();
 
+    // Initialize function's component
+    new function_component();
+
+    // Initialize gamemode custom functions
+    new gamemodes_component();
+
     // Setup rendered on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
@@ -85,7 +91,6 @@ void Setup()
                     // Remove the server's player
                     LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
 
-                    new function_component();
                     new hook_manager();
                     new net_component();
                     new loader_component();
@@ -107,7 +112,6 @@ void Setup()
                     new storm_component();
                     new replication_component();
                     new creative_component();
-                    new gamemodes_component();
                     
                     break;
                 }
