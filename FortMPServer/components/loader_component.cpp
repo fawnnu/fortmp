@@ -86,6 +86,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // initialize BGAs
         initialize_bga();
+
+        // Update gamemode for clients
+        (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");
+
+        (*GWorld)->GameState()->OnRep_GameModeClass();
         
         // Update default pawn class
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = APlayerPawn_Athena_C::StaticClass();
@@ -409,7 +414,7 @@ void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContaine
                     Target->K2_DestroyActor();
                 }
             }
-            else if (Target->IsA(Tiered_Ammo_Athena_C) || Target->IsA(MapInfo->AmmoBoxClass()))
+            else if (Target->IsA(Tiered_Ammo_Athena_C) || MapInfo->HasProperty(L"AmmoBoxClass") && Target->IsA(MapInfo->AmmoBoxClass()))
             {
                 // Get a random percentage
                 static float RandomPercentage = UKismetMathLibrary::RandomFloatInRange(MapInfo->AmmoBoxMinSpawnPercent().GetValueAtLevel(0, nullptr), MapInfo->AmmoBoxMaxSpawnPercent().GetValueAtLevel(0, nullptr));

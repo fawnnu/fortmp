@@ -74,11 +74,11 @@ void Setup()
 
                     if (GetEngineVersionEasy() > 423)
                     {
-                        server_level = L"Apollo_Terrain";
+                        server_level = L"Apollo_Terrain?game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C";
                     }
                     else
                     {
-                        server_level = L"Athena_Terrain";
+                        server_level = L"Athena_Terrain?game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C";
                     }
                     
                     // load into level

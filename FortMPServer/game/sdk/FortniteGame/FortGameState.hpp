@@ -50,7 +50,14 @@ public:
 class AGameStateBase : public AActor
 {
 public:
+    DEFINE_PROPERTY(UObject*, GameModeClass);
+    
     DEFINE_PROPERTY(float, ReplicatedWorldTimeSeconds);
+
+    void OnRep_GameModeClass()
+    {
+        Call(L"OnRep_GameModeClass");
+    }
 };
 
 struct FAdditionalLevelStreamed
