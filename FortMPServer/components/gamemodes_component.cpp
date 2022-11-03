@@ -11,5 +11,5 @@ gamemodes_component::gamemodes_component()
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
-    
+    INIT_CUSTOM_FUNCTION();
 }

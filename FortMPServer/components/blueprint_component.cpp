@@ -10,12 +10,9 @@ blueprint_component::blueprint_component()
 
 void blueprint_component::LogFMP(UObject* Self, FFrame& StackFrame)
 {
-    // Read params from bytecode
-    FString InString;
-    StackFrame.Step(StackFrame.Object, &InString);
+    GET_CUSTOM_FUNCTION_BP_PARAM(FString, InString);
 
-    // Bump Code one last time
-    StackFrame.Code++;
+    INIT_CUSTOM_FUNCTION();
     
     // Redirect this function's input to spdlog
     spdlog::info(L"BlueprintLog: {}", InString.c_str());

@@ -450,6 +450,8 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
 
 void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame)
 {
+    INIT_CUSTOM_FUNCTION();
+
     const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
     auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
