@@ -23,6 +23,7 @@
 #include "components/function_component.hpp"
 #include "components/gamemodes_component.hpp"
 #include "components/blueprint_component.hpp"
+#include "components/pak_component.hpp"
 #include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
@@ -46,6 +47,9 @@ void Setup()
 
     // Initialize function's component
     new function_component();
+
+    // Load Server Paks
+    new pak_component();
 
     // Setup rendered on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
