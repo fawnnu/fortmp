@@ -3,29 +3,14 @@
 
 function_component::function_component()
 {
-    if (GetEngineVersionEasy() < 423)
-    {
-        FuncMap_Offset = 0x108;
-    }
-    else if (GetEngineVersionEasy() < 425)
-    {
-        FuncMap_Offset = 0x100;
-    }
-    else if (GetEngineVersionEasy() < 426)
-    {
-        FuncMap_Offset = 0x148;
-    }
-    else
-    {
-        FuncMap_Offset = 0x130;
-    }
+    FuncMap_Offset = 0x108;
 
     // Initialize functions
     std::vector<uintptr_t> calls = memory_manager::get_all_calls_in_function(reinterpret_cast<uintptr_t>(FindFunctionByName));
 
     INIT_POINTER(FuncMap_Add, calls[calls.size() - 1] + 5 + *reinterpret_cast<int32_t*>(calls[calls.size() - 1] + 1));
 
-    INIT_POINTER(CreateLinkAndAddChildFunctionsToMap, memory_manager::find_pattern("E8 ? ? ? ? 8B 4E 40 48 8B 46 28 48 89 44 24 ? 89 4C 24 20", true, 1));
+    INIT_POINTER(CreateLinkAndAddChildFunctionsToMap, memory_manager::find_pattern("E8 ? ? ? ? 8B ? ? 48 8B ? 28 48 89 44 24 ? 89 4C 24 20", true, 1));
 }
 
 void function_component::create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction, int ParmsSize)

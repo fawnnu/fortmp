@@ -3,8 +3,6 @@
 
 #include "spdlog/sinks/basic_file_sink.h"
 
-#define SILENCE_WEBHOOKS
-
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 dll_utils::dll_utils()
