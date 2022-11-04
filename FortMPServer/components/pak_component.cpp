@@ -3,9 +3,10 @@
 
 pak_component::pak_component()
 {
-    INIT_POINTER(FPlatformFileManager__Get, memory_manager::find_pattern("44 89 3D ? ? ? ? E8 ? ? ? ? 48 8B C8 E8 ? ? ? ?", true, 8));
+    INIT_POINTER(FPlatformFileManager__Get, memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 85 C0", true, 1));
 
     INIT_POINTER(FPlatformFileManager__FindPlatformFile, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 83 EC 20 48 8B 31"));
+    INIT_POINTER(FPlatformFileManager__FindPlatformFile, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 19 48 8B FA 48 85 DB 74 29"));
 
     if (GetEngineVersionEasy() > 422)
     {
@@ -44,6 +45,10 @@ pak_component::pak_component()
     else if (FPakPlatformFile__MountAllPakFiles_New)
     {
         NumPaksLoaded = FPakPlatformFile__MountAllPakFiles_New(PakPlatformFile, PakFolders, L"*.pak");
+    }
+    else
+    {
+        spdlog::error(L"Couldn't find any valid function to mount Server Paks.");
     }
 
     spdlog::info(L"Loaded {} Server Paks", NumPaksLoaded);
