@@ -147,6 +147,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Drop loading screen
     static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
 
+    // Notify gamemode
+    (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
+
     spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
 }
 

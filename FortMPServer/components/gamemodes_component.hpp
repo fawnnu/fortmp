@@ -5,6 +5,7 @@ class gamemodes_component
 public:
     gamemodes_component();
     
-    // OnServerReady implementation
     static void OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
+
+    static void OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 };

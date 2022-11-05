@@ -72,4 +72,19 @@ public:
     {
         Call(L"OnServerReady");
     }
+
+    void OnPlayerJoined(APlayerController* NewPlayer)
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnPlayerJoined", 1)))
+        {
+            struct
+            {
+                APlayerController* NewPlayer;
+            } Params;
+
+            Params.NewPlayer = NewPlayer;
+
+            ProcessEvent(this, TargetFunction, &Params);
+        }
+    }
 };
