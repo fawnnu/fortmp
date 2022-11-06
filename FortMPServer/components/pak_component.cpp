@@ -8,14 +8,7 @@ pak_component::pak_component()
     INIT_POINTER(FPlatformFileManager__FindPlatformFile, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 83 EC 20 48 8B 31"));
     INIT_POINTER(FPlatformFileManager__FindPlatformFile, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 19 48 8B FA 48 85 DB 74 29"));
 
-    if (GetEngineVersionEasy() > 422)
-    {
-        INIT_POINTER(FPakPlatformFile__MountAllPakFiles_New, memory_manager::find_function_by_string(L"Found Pak file %s attempting to mount."));
-    }
-    else
-    {
-        INIT_POINTER(FPakPlatformFile__MountAllPakFiles, memory_manager::find_function_by_string(L"Found Pak file %s attempting to mount."));
-    }
+    INIT_POINTER(FPakPlatformFile__Mount, memory_manager::find_function_by_string(L"Failed to mount pak \"%s\", pak is invalid."));
 
     // Get Current Directory
     auto ModsPath = std::string(dll_utils::get_current_path()) + "/Mods";
@@ -85,18 +78,39 @@ pak_component::pak_component()
     // Mount pak
     int NumPaksLoaded = 0;
     
-    if (FPakPlatformFile__MountAllPakFiles)
+    std::vector<std::wstring> FoundPakFiles;
+
+    FindAllPakFiles(FoundPakFiles);
+
+    for (std::wstring PakFile : FoundPakFiles)
     {
-        NumPaksLoaded = FPakPlatformFile__MountAllPakFiles(PakPlatformFile, PakFolders);
-    }
-    else if (FPakPlatformFile__MountAllPakFiles_New)
-    {
-        NumPaksLoaded = FPakPlatformFile__MountAllPakFiles_New(PakPlatformFile, PakFolders, L"*.pak");
-    }
-    else
-    {
-        spdlog::error(L"Couldn't find any valid function to mount Server Paks.");
+        if (FPakPlatformFile__Mount(PakPlatformFile, PakFile.c_str(), 0))
+        {
+            NumPaksLoaded++;
+        }
     }
 
     spdlog::info(L"Loaded {} Server Paks", NumPaksLoaded);
+}
+
+void pak_component::FindAllPakFiles(std::vector<std::wstring>& FoundPakFiles)
+{
+    // Get Current Directory
+    auto ModsPath = std::string(dll_utils::get_current_path()) + "/Mods";
+
+    // Create directory if it doesn't exist
+    std::filesystem::create_directories(ModsPath);
+
+    for (const auto& Entry : std::filesystem::directory_iterator(ModsPath))
+    {
+        std::string file_name_full = Entry.path().string();
+
+        // If it's a pak file, proceed
+        if (file_name_full.find(".pak") != std::string::npos)
+        {
+            std::wstring PakFilename = std::wstring(file_name_full.begin(), file_name_full.end()).c_str();
+
+            FoundPakFiles.push_back(PakFilename);
+        }
+    }
 }

@@ -4,11 +4,12 @@ class pak_component
 {
 public:
     pak_component();
+
+    static void FindAllPakFiles(std::vector<std::wstring>& FoundPakFiles);
 };
 
 inline void* (*FPlatformFileManager__Get)();
 
 inline void* (*FPlatformFileManager__FindPlatformFile)(void* Self, const TCHAR* Name);
 
-inline int (*FPakPlatformFile__MountAllPakFiles)(void* Self, TArray<FString>& PakFolders);
-inline int (*FPakPlatformFile__MountAllPakFiles_New)(void* Self, TArray<FString>& PakFolders, const FString& Wildcard);
+inline bool (*FPakPlatformFile__Mount)(void* Self, const TCHAR* InPakFilename, uint32_t PakOrder);
