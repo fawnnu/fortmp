@@ -9,21 +9,27 @@ loader_component::loader_component()
 {
     AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
 
-    uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called");
-    int BeginPlayIndex = 0;
-    
-    for (int i = 0; i < INT_MAX; i++)
+    if (const uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called"))
     {
-        if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+        int BeginPlayIndex = 0;
+    
+        for (int i = 0; i < INT_MAX; i++)
         {
-            BeginPlayIndex = i;
+            if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+            {
+                BeginPlayIndex = i;
             
-            break;
+                break;
+            }
         }
-    }
 
-    // Hook begin play for the classes we need
-    REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+        // Hook begin play for the classes we need
+        REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+    }
+    else
+    {
+        spdlog::error(L"Failed to hook ABuildingContainer_BeginPlay. Invalid BeginPlayAddress");
+    }
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
