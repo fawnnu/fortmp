@@ -226,6 +226,7 @@
     <ClInclude Include="game\unreal\unreal_math.hpp" />
     <ClInclude Include="game\unreal\unreal_net.hpp" />
     <ClInclude Include="game\unreal\unreal_string.hpp" />
+    <ClInclude Include="gui\Menu\WorldTab.hpp" />
     <ClInclude Include="gui\renderer.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\Containers.hpp" />
@@ -493,6 +494,7 @@
       <AdditionalIncludeDirectories>E:\FortMP v2\fortmp-server\packages\Detours.4.0.1\build\native\..\..\lib\native\include\;E:\FortMP v2\fortmp-server\ext\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="gui\Menu\WorldTab.cpp" />
     <ClCompile Include="gui\renderer.cpp" />
     <ClCompile Include="include.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

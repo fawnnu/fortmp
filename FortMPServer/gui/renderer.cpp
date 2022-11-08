@@ -10,6 +10,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
+#include "Menu/WorldTab.hpp"
+
 renderer::renderer()
 {
     CreateNewWindow();
@@ -34,7 +36,7 @@ void renderer::CreateNewWindow()
 
     RegisterClassEx(&WindowClass);
 
-    HWND WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_OVERLAPPEDWINDOW, 0, 0, 800, 600, nullptr, nullptr, WindowClass.hInstance, nullptr);
+    HWND WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_CAPTION | WS_SYSMENU, 0, 0, 1000, 720, nullptr, nullptr, WindowClass.hInstance, nullptr);
 
     if (CreateDeviceD3D(WindowHandle) == false)
     {
@@ -48,6 +50,36 @@ void renderer::CreateNewWindow()
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    
+    auto& IO = ImGui::GetIO();
+    IO.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf", 17);
+
+    auto& Style = ImGui::GetStyle();
+    Style.TabRounding = 0.2f;
+    Style.FrameRounding = 3.f;
+
+    auto* Colors = Style.Colors;
+    Colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 0.94f);
+    Colors[ImGuiCol_FrameBg]                = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
+    Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.38f, 0.38f, 0.39f, 0.40f);
+    Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.36f, 0.36f, 0.36f, 0.67f);
+    Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
+    Colors[ImGuiCol_CheckMark]              = ImVec4(0.03f, 0.03f, 0.03f, 1.00f);
+    Colors[ImGuiCol_SliderGrab]             = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+    Colors[ImGuiCol_Button]                 = ImVec4(0.28f, 0.28f, 0.28f, 0.40f);
+    Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);
+    Colors[ImGuiCol_ButtonActive]           = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+    Colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.31f);
+    Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.17f, 0.17f, 0.18f, 0.80f);
+    Colors[ImGuiCol_HeaderActive]           = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
+    Colors[ImGuiCol_Separator]              = ImVec4(0.00f, 0.00f, 0.00f, 0.50f);
+    Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.23f, 0.23f, 0.23f, 0.78f);
+    Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
+    Colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.86f);
+    Colors[ImGuiCol_TabHovered]             = ImVec4(0.35f, 0.35f, 0.35f, 0.80f);
+    Colors[ImGuiCol_TabActive]              = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+    
     ImGui_ImplWin32_Init(WindowHandle);
     ImGui_ImplDX11_Init(pDevice, pDeviceContext);
 
@@ -80,7 +112,41 @@ void renderer::CreateNewWindow()
         ImGui::NewFrame();
 
         // Render
+        ImGui::SetNextWindowSize(ImVec2(IO.DisplaySize.x, IO.DisplaySize.y));
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
 
+        // If GWorld is not yet valid, don't render the tabs
+        if (*GWorld == nullptr || (*GWorld)->NetDriver() == nullptr)
+        {
+            if (ImGui::Begin("LoadingWindow", reinterpret_cast<bool*>(true), ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
+            {
+                ImGui::SetCursorPosX(IO.DisplaySize.x * .5 - ImGui::CalcTextSize("FortMP is loading...").x * .5);
+                ImGui::SetCursorPosY(IO.DisplaySize.y * .5 - ImGui::CalcTextSize("FortMP is loading...").y);
+                
+                ImGui::Text("FortMP is loading...");
+            }
+
+            ImGui::End();
+        }
+        else
+        {   
+            if (ImGui::Begin("FortMPGUI", reinterpret_cast<bool*>(true), ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
+            {
+                if (ImGui::BeginTabBar("MainTabBar"))
+                {
+                    if (ImGui::BeginTabItem("World"))
+                    {
+                        WorldTab::render();
+                        
+                        ImGui::EndTabItem();
+                    }
+                    
+                    ImGui::EndTabBar();
+                }
+            }
+
+            ImGui::End();
+        }
         
         ImGui::Render();
 
