@@ -179,8 +179,9 @@ void renderer::CreateNewWindow()
     UnregisterClass(WindowClass.lpszClassName, WindowClass.hInstance);
 
     spdlog::info(L"Closed GUI, terminating server...");
-    
-    //TODO: RequestExit
+
+    // Terminate program
+    RequestExitWithStatus(false, 0);
 }
 
 bool renderer::CreateDeviceD3D(HWND WindowHandle)

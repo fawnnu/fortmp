@@ -81,7 +81,7 @@ public:
             static void* native_property = FindPropertyByName(this->Class, L"AddressY");                                          
             static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
 
-            PlatformData_Offset = native_property_offset + 1;
+            PlatformData_Offset = native_property_offset + 3;
         }
         else if (GetEngineVersionEasy() < 423)
         {

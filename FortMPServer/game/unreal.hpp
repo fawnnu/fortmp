@@ -56,6 +56,9 @@ inline float (*SRand)();
 // TryLoadMips
 inline bool (*TryLoadMips)(void* Self, int FirstMipToLoad, void** OutMipData);
 
+// Request exit
+inline void (*RequestExitWithStatus)(bool bForce, uint8_t ReturnCode);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
