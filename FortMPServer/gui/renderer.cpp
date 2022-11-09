@@ -39,7 +39,7 @@ void renderer::CreateNewWindow()
 
     RegisterClassEx(&WindowClass);
 
-    HWND WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_CAPTION | WS_SYSMENU, 0, 0, 1000, 720, nullptr, nullptr, WindowClass.hInstance, nullptr);
+    HWND WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_CAPTION | WS_SYSMENU, 0, 0, 825, 595, nullptr, nullptr, WindowClass.hInstance, nullptr);
 
     if (CreateDeviceD3D(WindowHandle) == false)
     {
@@ -139,6 +139,15 @@ void renderer::CreateNewWindow()
                 {
                     if (ImGui::BeginTabItem("World"))
                     {
+                        ImGui::BeginChild("WorldDetails", ImVec2(IO.DisplaySize.x / 3.f, 0), true);
+                        {
+                            ImGui::EndChild();
+                        }
+
+                        ImGui::SameLine();
+                        
+                        ImGui::Image(pMapTexture, ImVec2(512, 512));
+                    
                         ImGui::EndTabItem();
                     }
                     
@@ -271,13 +280,6 @@ bool renderer::CreateTextureFromTexture2D(UTexture2D* InTexture2D, ID3D11ShaderR
         return false;
     }
     
-    SIZE_T ImageSize = InTexture2D->PlatformData()->SizeX * InTexture2D->PlatformData()->SizeY * 4;
-    
-    void* ImageDataCopy = nullptr;
-    ImageDataCopy = FMemory_Realloc(ImageDataCopy, ImageSize, 0);
-
-    memcpy(ImageDataCopy, ImageData, ImageSize);
-    
     if (OutWidth)
     {
         *OutWidth = InTexture2D->PlatformData()->SizeX;
@@ -301,7 +303,7 @@ bool renderer::CreateTextureFromTexture2D(UTexture2D* InTexture2D, ID3D11ShaderR
 
     ID3D11Texture2D* pTexture = nullptr;
     D3D11_SUBRESOURCE_DATA subResource;
-    subResource.pSysMem = ImageDataCopy;
+    subResource.pSysMem = ImageData;
     subResource.SysMemPitch = desc.Width * 2;
     subResource.SysMemSlicePitch = 0;
 
@@ -316,7 +318,6 @@ bool renderer::CreateTextureFromTexture2D(UTexture2D* InTexture2D, ID3D11ShaderR
     pDevice->CreateShaderResourceView(pTexture, &srvDesc, OutShaderResourceView);
     pTexture->Release();
 
-    FMemory_Free(ImageDataCopy);
     FMemory_Free(ImageData);
 
     return true;   
@@ -324,11 +325,14 @@ bool renderer::CreateTextureFromTexture2D(UTexture2D* InTexture2D, ID3D11ShaderR
 
 void renderer::LoadAssets()
 {
-    if (bLoadedAssets == false)
+    if (bLoadedAssets == false) // Crashes on 1.8, better if disabled there
     {
         bLoadedAssets = true;
-        
-        CreateTextureFromTexture2D(FindObject<UTexture2D>(L"/Game/Athena/HUD/MiniMap/MiniMapAthena.MiniMapAthena", true), &pMapTexture, nullptr, nullptr);
+
+        UTexture2D* MapTexture = FindObject<UTexture2D>(L"/Game/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap.Apollo_Terrain_Minimap", true) ?
+            FindObject<UTexture2D>(L"/Game/Athena/Apollo/Maps/UI/Apollo_Terrain_Minimap.Apollo_Terrain_Minimap", true) :
+            FindObject<UTexture2D>(L"/Game/Athena/HUD/MiniMap/MiniMapAthena.MiniMapAthena", true);
+        CreateTextureFromTexture2D(MapTexture, &pMapTexture, nullptr, nullptr);
     }
 }
 

@@ -47,6 +47,12 @@ void unreal_manager::setup_unreal_engine()
     
     INIT_POINTER(SRand, memory_manager::find_pattern("69 0D ? ? ? ? ? ? ? ? F3 0F 10 05 ? ? ? ? F3 0F 11 44 24 ? 81 C1 ? ? ? ? 89 0D ? ? ? ? 33 4C 24 08 81 E1 ? ? ? ? 31 4C 24 08 F3 0F 10 44 24 ?"));
 
+    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 30 4C 89 64 24"));
+    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 20 4C 89 64 24 ? 4D 8B F8"));
+    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("8B D6 4D 03 C6 48 8B CD E8 ? ? ? ? 84 C0", true, 9));
+    INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"Loading non-streamed mips from an external bulk file.  This is not desireable.  File %s"));
+    INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"TryLoadMips failed for %s, NumMipsCached: %d, LoadableMips: %d, FirstMipToLoad: %d"));
+    
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
         GetEngineVersionEasy() == 419 ||

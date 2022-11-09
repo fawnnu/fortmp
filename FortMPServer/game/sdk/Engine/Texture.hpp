@@ -45,11 +45,16 @@ struct FTexturePlatformData
 
     bool TryLoadMips(int FirstMipToLoad, void** OutMipData)
     {
-        static uintptr_t function_address = memory_manager::find_function_by_string(L"Loading non-streamed mips from an external bulk file.  This is not desireable.  File %s");
-        
-        if (function_address)
+        if (::TryLoadMips == nullptr)
         {
-            return reinterpret_cast<bool (*)(void*, int, void**)>(function_address)(this, FirstMipToLoad, OutMipData);
+            spdlog::error(L"Failed to call TryLoadMips: function not found.");
+            
+            return false;
+        }
+        
+        if (::TryLoadMips(this, FirstMipToLoad, OutMipData))
+        {
+            return true;
         }
         
         return false;

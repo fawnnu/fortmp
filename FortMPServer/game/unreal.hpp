@@ -53,6 +53,9 @@ inline void** GNatives;
 // SRand
 inline float (*SRand)();
 
+// TryLoadMips
+inline bool (*TryLoadMips)(void* Self, int FirstMipToLoad, void** OutMipData);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
