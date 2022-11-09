@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "../components/log_component.hpp"
 #include "../utils/stb_image.h"
 
 renderer::renderer()
@@ -148,6 +149,30 @@ void renderer::CreateNewWindow()
                         
                         ImGui::Image(pMapTexture, ImVec2(512, 512));
                     
+                        ImGui::EndTabItem();
+                    }
+
+                    if (ImGui::BeginTabItem("Log"))
+                    {
+                        if (ImGui::BeginChild("ConsoleContainer"))
+                        {
+                            for (auto& message : log_component::messages)
+                            {
+                                if (message.processed == false)
+                                {
+                                    message.processed = true;
+                                
+                                    ImGui::SetScrollY(ImGui::GetScrollMaxY());   
+                                }
+                            
+                                ImGui::PushStyleColor(ImGuiCol_Text, message.color);
+                                ImGui::Text(message.message.c_str());
+                                ImGui::PopStyleColor();
+                            }
+
+                            ImGui::EndChild();
+                        }
+                        
                         ImGui::EndTabItem();
                     }
                     

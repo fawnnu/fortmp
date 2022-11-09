@@ -171,6 +171,7 @@
     <ClInclude Include="components\interact_component.hpp" />
     <ClInclude Include="components\inventory_component.hpp" />
     <ClInclude Include="components\loader_component.hpp" />
+    <ClInclude Include="components\log_component.hpp" />
     <ClInclude Include="components\looting_component.hpp" />
     <ClInclude Include="components\modules_component.hpp" />
     <ClInclude Include="components\net_component.hpp" />
@@ -344,6 +345,7 @@
     <ClCompile Include="components\interact_component.cpp" />
     <ClCompile Include="components\inventory_component.cpp" />
     <ClCompile Include="components\loader_component.cpp" />
+    <ClCompile Include="components\log_component.cpp" />
     <ClCompile Include="components\looting_component.cpp" />
     <ClCompile Include="components\modules_component.cpp" />
     <ClCompile Include="components\net_component.cpp">

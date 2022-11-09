@@ -165,7 +165,7 @@ bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
     {
         if (in_playlist)
         {
-            spdlog::critical(L"Could not set playlist '{}', as playlist data pointer is invalid",
+            spdlog::error(L"Could not set playlist '{}', as playlist data pointer is invalid",
                 in_playlist->GetName().c_str());
                 
             return false;

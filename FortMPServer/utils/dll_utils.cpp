@@ -2,6 +2,7 @@
 #include "dll_utils.hpp"
 
 #include "spdlog/sinks/basic_file_sink.h"
+#include "../components/log_component.hpp"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -41,6 +42,9 @@ void dll_utils::create_spdlog_sink()
 
     // Add a file sink
     spdlog::default_logger()->sinks().push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(local_time_str.str(), false));
+
+    // Add a custom sink
+    spdlog::default_logger()->sinks().push_back(std::make_shared<fmp_log_sink<std::mutex>>());
 
     spdlog::default_logger()->flush_on(spdlog::level::debug);
 }
