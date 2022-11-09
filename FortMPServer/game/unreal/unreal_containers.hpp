@@ -87,6 +87,19 @@ struct TArray
     int Max;
 };
 
+template <typename T>
+struct TIndirectArray
+{
+    typedef TArray<void*> InternalArrayType;
+
+    FORCEINLINE T& operator[](int32_t Index)
+    {
+        return *static_cast<T*>(Array[Index]);
+    }
+    
+    InternalArrayType Array;
+};
+
 class UObject;
 
 template <typename T>

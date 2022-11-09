@@ -64,6 +64,7 @@
 #include "sdk/Engine/Interface.hpp"
 #include "sdk/FortniteGame/Items/FortItem.hpp"
 #include "sdk/Engine/GameplayTags.hpp"
+#include "sdk/Engine/Texture.hpp"
 #include "sdk/Engine/Net/NetConnection.hpp"
 
 #include "sdk/FortniteGame/Player/FortPlayerState.hpp"

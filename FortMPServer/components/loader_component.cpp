@@ -5,6 +5,8 @@
 #include "net_component.hpp"
 #include "pickup_component.hpp"
 
+#include "../gui/renderer.hpp"
+
 loader_component::loader_component()
 {
     AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
@@ -45,6 +47,9 @@ loader_component::loader_component()
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 {
     constexpr int listen_port = 7777;
+
+    // Get UI Ready
+    renderer::LoadAssets();
     
     // Listen for connections
     const FURL in_url((*GWorld)->GetName().c_str(), listen_port);

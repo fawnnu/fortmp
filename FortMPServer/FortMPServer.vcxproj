@@ -198,6 +198,7 @@
     <ClInclude Include="game\sdk\Engine\Kismet\KismetLibrary.hpp" />
     <ClInclude Include="game\sdk\Engine\Net\NetConnection.hpp" />
     <ClInclude Include="game\sdk\Engine\Net\NetDriver.hpp" />
+    <ClInclude Include="game\sdk\Engine\Texture.hpp" />
     <ClInclude Include="game\sdk\Engine\World.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Abilities\FortAbility.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\FortAircraft.hpp" />
@@ -226,13 +227,13 @@
     <ClInclude Include="game\unreal\unreal_math.hpp" />
     <ClInclude Include="game\unreal\unreal_net.hpp" />
     <ClInclude Include="game\unreal\unreal_string.hpp" />
-    <ClInclude Include="gui\Menu\WorldTab.hpp" />
     <ClInclude Include="gui\renderer.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\Containers.hpp" />
     <ClInclude Include="utils\dll_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
+    <ClInclude Include="utils\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ext\include\imgui\imgui.cpp">
@@ -494,7 +495,6 @@
       <AdditionalIncludeDirectories>E:\FortMP v2\fortmp-server\packages\Detours.4.0.1\build\native\..\..\lib\native\include\;E:\FortMP v2\fortmp-server\ext\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="gui\Menu\WorldTab.cpp" />
     <ClCompile Include="gui\renderer.cpp" />
     <ClCompile Include="include.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

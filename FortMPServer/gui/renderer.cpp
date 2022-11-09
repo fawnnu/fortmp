@@ -10,10 +10,13 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
-#include "Menu/WorldTab.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "../utils/stb_image.h"
 
 renderer::renderer()
 {
+    bLoadedAssets = false;
+
     CreateNewWindow();
 }
 
@@ -136,8 +139,6 @@ void renderer::CreateNewWindow()
                 {
                     if (ImGui::BeginTabItem("World"))
                     {
-                        WorldTab::render();
-                        
                         ImGui::EndTabItem();
                     }
                     
@@ -247,6 +248,87 @@ void renderer::DestroyRenderTarget()
         pRenderViewTarget->Release();
 
         pRenderViewTarget = nullptr;
+    }
+}
+
+bool renderer::CreateTextureFromTexture2D(UTexture2D* InTexture2D, ID3D11ShaderResourceView** OutShaderResourceView, int* OutWidth, int* OutHeight)
+{
+    if (InTexture2D == nullptr)
+    {
+        spdlog::error(L"renderer::CreateTextureFromTexture2D: Invalid InTexture2D");
+
+        return false;
+    }
+
+    void* ImageData = nullptr;
+    
+    InTexture2D->PlatformData()->TryLoadMips(0, &ImageData);
+    
+    if (ImageData == nullptr)
+    {
+        spdlog::error(L"renderer::CreateTextureFromTexture2D: Invalid Texture ImageData");
+
+        return false;
+    }
+    
+    SIZE_T ImageSize = InTexture2D->PlatformData()->SizeX * InTexture2D->PlatformData()->SizeY * 4;
+    
+    void* ImageDataCopy = nullptr;
+    ImageDataCopy = FMemory_Realloc(ImageDataCopy, ImageSize, 0);
+
+    memcpy(ImageDataCopy, ImageData, ImageSize);
+    
+    if (OutWidth)
+    {
+        *OutWidth = InTexture2D->PlatformData()->SizeX;
+    }
+    if (OutHeight)
+    {
+        *OutHeight = InTexture2D->PlatformData()->SizeY;
+    }
+
+    D3D11_TEXTURE2D_DESC desc;
+    ZeroMemory(&desc, sizeof desc);
+    desc.Width = InTexture2D->PlatformData()->SizeX;
+    desc.Height = InTexture2D->PlatformData()->SizeY;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_BC1_UNORM; 
+    desc.SampleDesc.Count = 1;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+
+    ID3D11Texture2D* pTexture = nullptr;
+    D3D11_SUBRESOURCE_DATA subResource;
+    subResource.pSysMem = ImageDataCopy;
+    subResource.SysMemPitch = desc.Width * 2;
+    subResource.SysMemSlicePitch = 0;
+
+    pDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+    
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    ZeroMemory(&srvDesc, sizeof srvDesc);
+    srvDesc.Format = DXGI_FORMAT_BC1_UNORM;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    pDevice->CreateShaderResourceView(pTexture, &srvDesc, OutShaderResourceView);
+    pTexture->Release();
+
+    FMemory_Free(ImageDataCopy);
+    FMemory_Free(ImageData);
+
+    return true;   
+}
+
+void renderer::LoadAssets()
+{
+    if (bLoadedAssets == false)
+    {
+        bLoadedAssets = true;
+        
+        CreateTextureFromTexture2D(FindObject<UTexture2D>(L"/Game/Athena/HUD/MiniMap/MiniMapAthena.MiniMapAthena", true), &pMapTexture, nullptr, nullptr);
     }
 }
 
