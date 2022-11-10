@@ -228,6 +228,13 @@ void loader_component::initialize_llamas()
         // Create a new FortSupplyDropInfo
         UFortSupplyDropInfo* NewSupplyDropInfo = static_cast<UFortSupplyDropInfo*>(UGameplayStatics::SpawnObject(FindObject(L"/Script/FortniteGame.FortSupplyDropInfo"), *GWorld));
 
+        if (NewSupplyDropInfo == nullptr)
+        {
+            spdlog::error(L"loader_component::initialize_llamas: Failed, invalid NewSupplyDropInfo");
+            
+            return;
+        }
+        
         // Set the supply drop info's class
         if (MapInfo->HasProperty(L"LlamaClass"))
         {

@@ -77,7 +77,7 @@ void renderer::CreateNewWindow()
     Colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.31f);
     Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.17f, 0.17f, 0.18f, 0.80f);
     Colors[ImGuiCol_HeaderActive]           = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
-    Colors[ImGuiCol_Separator]              = ImVec4(0.00f, 0.00f, 0.00f, 0.50f);
+    Colors[ImGuiCol_Separator]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
     Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.23f, 0.23f, 0.23f, 0.78f);
     Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
     Colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.86f);
@@ -114,7 +114,7 @@ void renderer::CreateNewWindow()
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-
+        
         // Render
         ImGui::SetNextWindowSize(ImVec2(IO.DisplaySize.x, IO.DisplaySize.y));
         ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -140,8 +140,39 @@ void renderer::CreateNewWindow()
                 {
                     if (ImGui::BeginTabItem("World"))
                     {
-                        ImGui::BeginChild("WorldDetails", ImVec2(IO.DisplaySize.x / 3.f, 0), true);
+                        if (ImGui::BeginChild("WorldDetails", ImVec2(IO.DisplaySize.x / 3.f, 0), true))
                         {
+                            UFortPlaylistAthena** ppCurrentPlaylist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+                                &(*GWorld)->GameState()->CurrentPlaylistData() :
+                                (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
+                                &(*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
+                                nullptr;
+
+                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Match Info");
+
+                            ImGui::Separator();
+
+                            ImGui::Text("Alive Players: %i/%i", (*GWorld)->GameState()->PlayersLeft(), (*GWorld)->NetDriver()->ClientConnections().Num());
+
+                            ImGui::Text("Current Playlist: %s", ppCurrentPlaylist == nullptr ? "NULL" : *ppCurrentPlaylist ? (*ppCurrentPlaylist)->sGetName().c_str() : "NULL");
+
+                            ImGui::Text("Current Gamephase: %i", (*GWorld)->GameState()->GamePhase());
+
+                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Match Shortcuts");
+
+                            ImGui::Separator();
+                            
+                            if (ImGui::Button("Start Match", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 10.f;
+                                (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.f;
+                            }
+                            
+                            if (ImGui::Button("Pause/Resume Storm", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                UKismetSystemLibrary::ExecuteConsoleCommand(L"pausesafezone");
+                            }
+                        
                             ImGui::EndChild();
                         }
 
@@ -154,7 +185,7 @@ void renderer::CreateNewWindow()
 
                     if (ImGui::BeginTabItem("Log"))
                     {
-                        if (ImGui::BeginChild("ConsoleContainer"))
+                        if (ImGui::BeginChild("ConsoleContainer", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 31)))
                         {
                             for (auto& message : log_component::messages)
                             {
@@ -172,6 +203,21 @@ void renderer::CreateNewWindow()
 
                             ImGui::EndChild();
                         }
+
+                        ImGui::Separator();
+                        
+                        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+                        
+                        if (ImGui::InputTextWithHint("", "Enter a console command...", strCommand, sizeof strCommand, ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            std::string str_command(strCommand);
+
+                            ZeroMemory(strCommand, sizeof strCommand);
+                            
+                            UKismetSystemLibrary::ExecuteConsoleCommand(std::wstring(str_command.begin(), str_command.end()).c_str());
+                        }
+
+                        ImGui::PopItemWidth();
                         
                         ImGui::EndTabItem();
                     }
@@ -182,7 +228,7 @@ void renderer::CreateNewWindow()
 
             ImGui::End();
         }
-        
+
         ImGui::Render();
 
         // Set clear color

@@ -25,6 +25,7 @@ private:
     static inline class ID3D11RenderTargetView* pRenderViewTarget;
 
     static inline ID3D11ShaderResourceView* pMapTexture;
+    static inline char strCommand[255];
 
 public:
 

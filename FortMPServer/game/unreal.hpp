@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <codecvt>
+
 #include "unreal/unreal_math.hpp"
 #include "unreal/unreal_containers.hpp"
 #include "unreal/unreal_string.hpp"
@@ -103,6 +105,13 @@ public:
     std::wstring GetName()
     {
         return NamePrivate.ToString();
+    }
+
+    std::string sGetName()
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+        return converter.to_bytes(NamePrivate.ToString());
     }
 
     void* GetInterfaceAddress(UObject* InterfaceClass)
