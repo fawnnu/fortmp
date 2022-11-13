@@ -34,6 +34,8 @@ namespace patches_component_hook
     inline __int64 (*TravelPatch)(UObject* GameInstance, char a1);
     inline __int64 (*LoadingScreenPatch)(__int64 Object);
 
+    DEFINE_FUNCTION_HOOK(__int64, FortPVPGameOverlayerCrash, ());
+
     // Prevents a crash related to updating the net debug stats widget
     void UpdateNetStats_Hook(UObject* NetDebugWidget);
 

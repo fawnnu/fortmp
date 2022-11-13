@@ -27,6 +27,9 @@ patches_component::patches_component()
     // Disable GC if needed
     //REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts."), patches_component_hook::TryCollectGarbage_Hook);
 
+    // Stop random crashing
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::FortPVPGameOverlayerCrash, memory_manager::find_function_by_string(L"Fortnite.Font.S.Normal"), patches_component_hook::FortPVPGameOverlayerCrash_Hook);
+    
     // Limit the tickrate
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetMaxTickRate, memory_manager::find_function_by_string(L"Hitching by request!"), patches_component_hook::GetMaxTickRate_Hook);
 
@@ -183,6 +186,12 @@ patches_component::patches_component()
     }
     
     DetourTransactionCommit();
+}
+
+long long patches_component_hook::FortPVPGameOverlayerCrash_Hook()
+{
+    // Do nothing to prevent crash
+    return 0;
 }
 
 bool patches_component_hook::TryCollectGarbage_Hook(int KeepFlags, bool bPerformFullPurge)
