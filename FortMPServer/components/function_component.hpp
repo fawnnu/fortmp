@@ -11,8 +11,10 @@
  *
  * Then, go into the C++ function implementation, and call the INIT_CUSTOM_FUNCTION() macro before executing any of your code.
  *
- * If your custom function uses parameters, do the same but register the function with REGISTER_CUSTOM_UFUNCTION_WITH_PARAMS, With the last param being the size of parameters
- * e.g. A function with an FString parameter only will have 0x10 of ParmsSize, due to the size of FString being 0x10
+ * If your custom function uses parameters, do the same and then initialize the function params with INIT_CUSTOM_FUNC_PARAMS, With the last param being the size of parameters
+ * e.g. A function with an FString parameter only will have 0x10 of ParmsSize, due to the size of FString being 0x10.
+ *
+ * The same logic applies to return values, you can initialize a function's return value with INIT_CUSTOM_FUNC_RET_OFFSET, with the last param being the offset of the returnvalue in the params struct.
  *
  * To read parameters in a custom function with parameters, go to the C++ function implementation and:
  * - If your function will be called by a blueprint, use GET_CUSTOM_FUNCTION_BP_PARAM. NOTE: This macro HAS to be called for EVERY function parameter, even ones you won't use
@@ -35,9 +37,19 @@
         function_component::create_custom_ufunction(#Function, Class, Function);\
     }
 
-#define REGISTER_CUSTOM_UFUNCTION_WITH_PARAMS(Function, Class, ParmsSize)\
+#define INIT_CUSTOM_FUNC_PARAMS(Function, Class, ParmsSize)\
     {\
-        function_component::create_custom_ufunction(#Function, Class, Function, ParmsSize);\
+        auto FunctionObj = FindFunctionByName(Class, #Function, 1);\
+        \
+        static_cast<UFunction*>(FunctionObj)->set_parms_size(ParmsSize);\
+        static_cast<UFunction*>(FunctionObj)->set_properties_size(ParmsSize);\
+    }
+
+#define INIT_CUSTOM_FUNC_RET_OFFSET(Function, Class, ReturnOffset)\
+    {\
+        auto FunctionObj = FindFunctionByName(Class, #Function, 1);\
+        \
+        static_cast<UFunction*>(FunctionObj)->set_return_value_offset(ReturnOffset);\
     }
 
 #define GET_CUSTOM_FUNCTION_BP_PARAM(ParameterType, ParameterName)\
@@ -55,7 +67,7 @@ class function_component
 public:
     function_component();
 
-    static void create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction, int ParmsSize = 0);
+    static void create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction);
 
 private:
     inline static DWORD FuncMap_Offset;

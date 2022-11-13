@@ -87,4 +87,19 @@ public:
             ProcessEvent(this, TargetFunction, &Params);
         }
     }
+
+    bool& OnUpdateStorm()
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnUpdateStorm", 1)))
+        {
+            struct
+            {
+                bool ReturnValue;
+            } Params;
+
+            ProcessEvent(this, TargetFunction, &Params);
+
+            return Params.ReturnValue;
+        }
+    }
 };

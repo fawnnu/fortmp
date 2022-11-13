@@ -13,7 +13,7 @@ function_component::function_component()
     INIT_POINTER(CreateLinkAndAddChildFunctionsToMap, memory_manager::find_pattern("E8 ? ? ? ? 8B ? ? 48 8B ? 28 48 89 44 24 ? 89 4C 24 20", true, 1));
 }
 
-void function_component::create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction, int ParmsSize)
+void function_component::create_custom_ufunction(const char* InName, UObject* InClass, void* NativeFunction)
 {
     if (StaticConstructObject == nullptr)
     {
@@ -69,10 +69,6 @@ void function_component::create_custom_ufunction(const char* InName, UObject* In
         FuncMap_Add(&FuncMap, &OutParam, reinterpret_cast<__int64**>(Pair), nullptr);
     }
 
-    // Initialize params
-    NewFunction->set_parms_size(ParmsSize);
-    NewFunction->set_properties_size(ParmsSize);
-    
     spdlog::info(L"Successfully created and registered new function: '{}'", UKismetSystemLibrary::GetPathName(NewFunction).c_str());
 }
 

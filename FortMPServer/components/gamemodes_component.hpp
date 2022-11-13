@@ -8,4 +8,6 @@ public:
     static void OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 
     static void OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
+
+    static void OnUpdateStorm(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue);
 };

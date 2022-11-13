@@ -291,6 +291,17 @@ public:
         *reinterpret_cast<int*>(uintptr_t(this) + parms_size_offset) = InParmsSize;
     }
 
+    void set_return_value_offset(int InReturnValueOffset)
+    {
+        static UObject* UStruct__Class = FindObject(L"/Script/CoreUObject.Struct");
+
+        static int UStruct_Size = *reinterpret_cast<int*>(uintptr_t(UStruct__Class) + CoreOffsets::StructSize);
+        
+        static int return_value_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0xA : 0x8;
+
+        *reinterpret_cast<int*>(uintptr_t(this) + return_value_offset) = InReturnValueOffset;
+    }
+
     void set_properties_size(int InPropertiesSize)
     {
         *reinterpret_cast<int*>(uintptr_t(this) + CoreOffsets::Children + 8) = InPropertiesSize;
