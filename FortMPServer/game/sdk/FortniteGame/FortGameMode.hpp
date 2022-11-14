@@ -117,4 +117,19 @@ public:
             return Params.ReturnValue;
         }
     }
+    
+    void OnEnterAircraft(APlayerController* TargetPlayer)
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnEnterAircraft", 1)))
+        {
+            struct
+            {
+                APlayerController* NewPlayer;
+            } Params;
+
+            Params.NewPlayer = TargetPlayer;
+
+            ProcessEvent(this, TargetFunction, &Params);
+        }
+    }
 };

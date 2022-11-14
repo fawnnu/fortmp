@@ -99,6 +99,8 @@ void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft*
             inventory_component::remove_item(FortPlayerControllerAthena, item_entry.ItemGuid(), -1, false);
         }
     }
+
+    (*GWorld)->AuthorityGameMode()->OnEnterAircraft(FortPlayerControllerAthena);
     
     return EnterAircraft(_this, Aircraft);
 }

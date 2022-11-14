@@ -2,6 +2,8 @@
 #include "gamemodes_component.hpp"
 
 #include "function_component.hpp"
+#include "inventory_component.hpp"
+#include "looting_component.hpp"
 
 gamemodes_component::gamemodes_component()
 {
@@ -16,9 +18,15 @@ gamemodes_component::gamemodes_component()
     
     REGISTER_CUSTOM_UFUNCTION(OnSetPlaylist, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_RET_OFFSET(OnSetPlaylist, AFortGameModeAthena::StaticClass(), 0x0);
+    
+    REGISTER_CUSTOM_UFUNCTION(OnEnterAircraft, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(OnEnterAircraft, AFortGameModeAthena::StaticClass(), 0x8);
 
     REGISTER_CUSTOM_UFUNCTION(SetSafeZoneStartDelay_Value, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(SetSafeZoneStartDelay_Value, AFortGameModeAthena::StaticClass(), 0x4);
+    
+    REGISTER_CUSTOM_UFUNCTION(GiveItemToPlayer, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(GiveItemToPlayer, AFortGameModeAthena::StaticClass(), 0x18);
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -47,6 +55,11 @@ void gamemodes_component::OnSetPlaylist(AFortGameModeAthena* FortGameModeAthena,
     *reinterpret_cast<UObject**>(ReturnValue) = nullptr;
 }
 
+void gamemodes_component::OnEnterAircraft(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();   
+}
+
 void gamemodes_component::SetSafeZoneStartDelay_Value(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     GET_CUSTOM_FUNCTION_BP_PARAM(float, InValue);
@@ -56,3 +69,13 @@ void gamemodes_component::SetSafeZoneStartDelay_Value(AFortGameModeAthena* FortG
     (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = InValue;
 }
 
+void gamemodes_component::GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    GET_CUSTOM_FUNCTION_BP_PARAM(AFortPlayerController*, PlayerController);   
+    GET_CUSTOM_FUNCTION_BP_PARAM(UFortItemDefinition*, InItemDefinition);   
+    GET_CUSTOM_FUNCTION_BP_PARAM(int, Count);
+
+    INIT_CUSTOM_FUNCTION();
+
+    inventory_component::add_item(PlayerController, InItemDefinition, Count, looting_component::get_default_loaded_ammo(InItemDefinition));
+}
