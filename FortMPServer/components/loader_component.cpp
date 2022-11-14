@@ -349,7 +349,7 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
             if (World->GameState()->WorldManager()->StreamedLevels().Num())
             {
                 // Start match if we have enough loaded levels
-                loader_component::start_match();
+                loader_component::start_match((*GWorld)->AuthorityGameMode()->OnSetPlaylist());
             }
         }
     }

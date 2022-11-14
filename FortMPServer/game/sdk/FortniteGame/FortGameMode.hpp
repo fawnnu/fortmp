@@ -102,4 +102,19 @@ public:
             return Params.ReturnValue;
         }
     }
+    
+    UFortPlaylistAthena*& OnSetPlaylist()
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnSetPlaylist", 1)))
+        {
+            struct
+            {
+                UFortPlaylistAthena* ReturnValue;
+            } Params;
+
+            ProcessEvent(this, TargetFunction, &Params);
+
+            return Params.ReturnValue;
+        }
+    }
 };
