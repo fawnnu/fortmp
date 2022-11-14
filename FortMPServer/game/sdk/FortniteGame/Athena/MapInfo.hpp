@@ -44,4 +44,6 @@ public:
     DEFINE_PROPERTY(UObject*, AmmoBoxClass);
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMinSpawnPercent);
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMaxSpawnPercent);
+
+    DEFINE_PROPERTY(FScalableFloat, SafeZoneStartDelay);
 };

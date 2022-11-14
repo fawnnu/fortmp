@@ -26,13 +26,13 @@ TMap<FName, Struct*> storm_component::get_game_data_table()
 
 void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode, int unk)
 {
+    // Call original function first
+    SetSafezoneValues(GameMode, unk);
+
     if (GameMode->OnUpdateStorm() == true)
     {
         return;
     }
-    
-    // Call original function first
-    SetSafezoneValues(GameMode, unk);
     
     if (GetEngineVersionEasy() > 425)
     {
