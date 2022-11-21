@@ -6,6 +6,8 @@ public:
     player_component();
 
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
+
+    static inline bool bEnableServerChoosePart;
 };
 
 namespace player_component_hooks

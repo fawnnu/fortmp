@@ -12,6 +12,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../components/log_component.hpp"
+#include "../components/player_component.hpp"
 #include "../utils/stb_image.h"
 
 renderer::renderer()
@@ -172,6 +173,12 @@ void renderer::CreateNewWindow()
                             {
                                 UKismetSystemLibrary::ExecuteConsoleCommand(L"pausesafezone");
                             }
+
+                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Misc");
+
+                            ImGui::Separator();
+
+                            ImGui::Checkbox("Enable Server Choose Part", &player_component::bEnableServerChoosePart);
                         
                             ImGui::EndChild();
                         }

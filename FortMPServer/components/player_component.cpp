@@ -37,6 +37,9 @@ player_component::player_component()
 
     // Finish spawning a player
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
+
+    // Server choose part is false by default
+    bEnableServerChoosePart = false;
 }
 
 AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_controller, FTransform spawn_transform)
@@ -78,9 +81,12 @@ void player_component_hooks::ServerReturnToMainMenu_Hook(AFortPlayerController* 
     FortPlayerController->ClientReturnToMainMenu(L"");   
 }
 
-void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn*, FFrame&)
+void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
 {
-    // Do nothing    
+    if (player_component::bEnableServerChoosePart == true)
+    {
+        ServerChoosePart(FortPlayerPawn, StackFrame);
+    }
 }
 
 void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer)
