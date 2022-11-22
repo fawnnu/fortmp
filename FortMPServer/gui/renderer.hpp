@@ -14,6 +14,8 @@ public:
 
     static bool CreateTextureFromTexture2D(UTexture2D* InTexture2D, class ID3D11ShaderResourceView** OutShaderResourceView, int* OutWidth, int* OutHeight);
     static void LoadAssets();
+
+    static float GetDistance(struct ImVec2 A, ImVec2 B);
     
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

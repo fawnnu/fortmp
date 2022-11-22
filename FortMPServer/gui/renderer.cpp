@@ -174,7 +174,7 @@ void renderer::CreateNewWindow()
                                 UKismetSystemLibrary::ExecuteConsoleCommand(L"pausesafezone");
                             }
 
-                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Misc");
+                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");
 
                             ImGui::Separator();
 
@@ -185,7 +185,45 @@ void renderer::CreateNewWindow()
 
                         ImGui::SameLine();
                         
+                        ImVec2 WorldCursorPos = ImGui::GetCursorPos(); // 0 0 in our image
+                        WorldCursorPos.x += 306;
+                        WorldCursorPos.y += 313;
+                        
                         ImGui::Image(pMapTexture, ImVec2(512, 512));
+
+                        // Draw a blip for each NetConnection we have
+                        for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+                        {
+                            UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                            if (Connection->PlayerController() == nullptr || Connection->PlayerController()->Pawn() == nullptr)
+                            {
+                                continue;
+                            }
+                            
+                            FVector PawnLocation = Connection->PlayerController()->Pawn()->K2_GetActorLocation();
+                            
+                            // Get this pawn's location on the server map
+                            ImVec2 PawnLocationRelative(PawnLocation.Y / 512 + WorldCursorPos.x, WorldCursorPos.y - PawnLocation.X / 512);
+
+                            // Draw the blip
+                            ImGui::GetWindowDrawList()->AddCircle(PawnLocationRelative, 5, IM_COL32(0, 0, 0, 255));
+                            ImGui::GetWindowDrawList()->AddCircleFilled(PawnLocationRelative, 4, IM_COL32(255, 255, 255, 255));
+
+                            // If we are hovering the blip, render a tooltip
+                            int CursorDistance = std::round(GetDistance(ImGui::GetMousePos(), PawnLocationRelative));
+                            
+                            if (CursorDistance <= 5) // If distance is less than radius, render tooltip
+                            {
+                                ImGui::BeginTooltip();
+
+                                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+                                ImGui::Text(converter.to_bytes(Connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str()).c_str());
+                                
+                                ImGui::EndTooltip();
+                            }
+                        }
                     
                         ImGui::EndTabItem();
                     }
@@ -413,6 +451,14 @@ void renderer::LoadAssets()
             FindObject<UTexture2D>(L"/Game/Athena/HUD/MiniMap/MiniMapAthena.MiniMapAthena", true);
         CreateTextureFromTexture2D(MapTexture, &pMapTexture, nullptr, nullptr);
     }
+}
+
+float renderer::GetDistance(ImVec2 A, ImVec2 B)
+{
+    const auto DistanceX = A.x - B.x;
+    const auto DistanceY = A.y - B.y;
+
+    return std::sqrt(DistanceX * DistanceX + DistanceY * DistanceY);
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
