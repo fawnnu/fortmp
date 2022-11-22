@@ -236,7 +236,7 @@ void renderer::CreateNewWindow()
                         {
                             UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
 
-                            if (Connection->PlayerController() == nullptr)
+                            if (Connection == nullptr || Connection->PlayerController() == nullptr)
                             {
                                 continue;
                             }
@@ -256,7 +256,7 @@ void renderer::CreateNewWindow()
 
                         ImGui::BeginChild("PlayerInfoPanel", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true);
 
-                        if ((*GWorld)->NetDriver()->ClientConnections().Num() > 0)
+                        if ((*GWorld)->NetDriver()->ClientConnections().Num() > selectedPlayerIndex)
                         {
                             UNetConnection* SelectedConnection = (*GWorld)->NetDriver()->ClientConnections()[selectedPlayerIndex];
 
