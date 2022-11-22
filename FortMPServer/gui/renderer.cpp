@@ -228,6 +228,67 @@ void renderer::CreateNewWindow()
                         ImGui::EndTabItem();
                     }
 
+                    if (ImGui::BeginTabItem("Players"))
+                    {
+                        ImGui::BeginChild("PlayerListPanel", ImVec2(200, 0), true);
+
+                        for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+                        {
+                            UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                            if (Connection->PlayerController() == nullptr)
+                            {
+                                continue;
+                            }
+
+                            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+                            // Add player to the list
+                            if (ImGui::Selectable(converter.to_bytes(Connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str()).c_str(), i == selectedPlayerIndex))
+                            {
+                                selectedPlayerIndex = i;
+                            }
+                        }
+                        
+                        ImGui::EndChild();
+
+                        ImGui::SameLine();
+
+                        ImGui::BeginChild("PlayerInfoPanel", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true);
+
+                        if ((*GWorld)->NetDriver()->ClientConnections().Num() > 0)
+                        {
+                            UNetConnection* SelectedConnection = (*GWorld)->NetDriver()->ClientConnections()[selectedPlayerIndex];
+
+                            if (SelectedConnection->PlayerController() && SelectedConnection->PlayerController()->Pawn())
+                            {
+                                ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Player Info");
+                                ImGui::Separator();
+                        
+                                ImGui::Text("Health: %i/100", (int)SelectedConnection->PlayerController()->Pawn()->GetHealth());
+                                ImGui::Text("Shield: %i/100", (int)SelectedConnection->PlayerController()->Pawn()->GetShield());
+                                ImGui::Text("bIsInvulnerable: %s", SelectedConnection->PlayerController()->Pawn()->bIsInvulnerable() ? "true" : "false");
+
+                                ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Utilities");
+                                ImGui::Separator();
+
+                                if (ImGui::Button("Toggle God Mode"))
+                                {
+                                    UKismetSystemLibrary::SetBoolPropertyByName(SelectedConnection->PlayerController()->Pawn(), L"bIsInvulnerable", !SelectedConnection->PlayerController()->Pawn()->bIsInvulnerable());
+                                }
+
+                                if (ImGui::Button("Kick"))
+                                {
+                                    SelectedConnection->PlayerController()->ClientReturnToMainMenu(L"Kicked by a server operator.");
+                                }
+                            }
+                        }
+                        
+                        ImGui::EndChild();
+
+                        ImGui::EndTabItem();
+                    }
+
                     if (ImGui::BeginTabItem("Log"))
                     {
                         if (ImGui::BeginChild("ConsoleContainer", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 31)))

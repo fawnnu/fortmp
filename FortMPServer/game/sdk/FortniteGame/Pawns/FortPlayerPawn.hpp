@@ -93,6 +93,16 @@ public:
     {
         Call(L"SetHealth", NewHealthVal);
     }
+
+    float GetHealth()
+    {
+        return Call<float>(L"GetHealth");
+    }
+    
+    float GetShield()
+    {
+        return Call<float>(L"GetShield");
+    }
 };
 
 

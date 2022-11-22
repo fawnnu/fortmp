@@ -29,6 +29,8 @@ private:
     static inline ID3D11ShaderResourceView* pMapTexture;
     static inline char strCommand[255];
 
+    static inline int selectedPlayerIndex;
+    
 public:
 
     static inline bool bLoadedAssets;
