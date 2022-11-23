@@ -277,6 +277,12 @@ void renderer::CreateNewWindow()
                                     UKismetSystemLibrary::SetBoolPropertyByName(SelectedConnection->PlayerController()->Pawn(), L"bIsInvulnerable", !SelectedConnection->PlayerController()->Pawn()->bIsInvulnerable());
                                 }
 
+                                if (ImGui::Button("Kill"))
+                                {
+                                    // Force suicide upon this player
+                                    SelectedConnection->PlayerController()->ServerSuicide();
+                                }
+
                                 if (ImGui::Button("Kick"))
                                 {
                                     SelectedConnection->PlayerController()->ClientReturnToMainMenu(L"Kicked by a server operator.");

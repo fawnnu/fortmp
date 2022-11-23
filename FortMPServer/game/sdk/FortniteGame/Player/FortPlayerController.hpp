@@ -157,6 +157,11 @@ public:
     {
         Call(L"ClientReportDamagedResourceBuilding", BuildingSMActor, PotentialResourceType, PotentialResourceCount, bDestroyed, bJustHitWeakpoint);
     }
+
+    void ServerSuicide()
+    {
+        Call(L"ServerSuicide");
+    }
 };
 
 class AFortPlayerControllerAthena : public AFortPlayerController
