@@ -29,7 +29,7 @@ void blueprint_component::BP_FindObject(UObject* Self, FFrame& StackFrame, void*
 
     INIT_CUSTOM_FUNCTION();
 
-    UObject* FoundObject = FindObject(InObjectName.c_str());
+    UObject* FoundObject = FindObject(InObjectName.c_str(), false, true);
 
     *reinterpret_cast<UObject**>(ReturnValue) = FoundObject;
 }
