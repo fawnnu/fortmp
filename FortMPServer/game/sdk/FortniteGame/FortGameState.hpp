@@ -164,6 +164,7 @@ public:
     
     DEFINE_PROPERTY(int, TotalPlayers);
     DEFINE_PROPERTY(int, PlayersLeft);
+    DEFINE_PROPERTY(int, TeamsLeft);
 
     DEFINE_PROPERTY(class AFortAthenaMapInfo*, MapInfo);
 

@@ -34,10 +34,16 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
     static std::map<FName, uint8_t> death_cause_map =
     {
         { L"Weapon.Ranged.Shotgun", death_cause_enum->GetEnumIndex(L"Shotgun") },
+        { L"Weapon.Ranged.Shotgun.Pump", death_cause_enum->GetEnumIndex(L"Shotgun") },
+        { L"Weapon.Ranged.Shotgun.Tactical", death_cause_enum->GetEnumIndex(L"Shotgun") },
         { L"Weapon.Ranged.Assault", death_cause_enum->GetEnumIndex(L"Rifle") },
+        { L"weapon.ranged.assault.burst", death_cause_enum->GetEnumIndex(L"Rifle") },
+        { L"weapon.ranged.assault.standard", death_cause_enum->GetEnumIndex(L"Rifle") },
+        { L"weapon.ranged.assault.silenced", death_cause_enum->GetEnumIndex(L"Rifle") },
         { L"Weapon.Ranged.LMG", death_cause_enum->GetEnumIndex(L"Rifle") },
         { L"Weapon.Ranged.Pistol", death_cause_enum->GetEnumIndex(L"Pistol") },
         { L"Weapon.Ranged.Sniper", death_cause_enum->GetEnumIndex(L"Sniper") },
+        { L"weapon.ranged.sniper.bolt", death_cause_enum->GetEnumIndex(L"Sniper") },
         { L"Weapon.Ranged.SMG", death_cause_enum->GetEnumIndex(L"SMG") },
         { L"Weapon.Ranged.Crossbow", death_cause_enum->GetEnumIndex(L"Bow") },
         { L"Weapon.Ranged.Minigun", death_cause_enum->GetEnumIndex(L"Minigun") },
@@ -148,6 +154,10 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         {
             // Remove player from alive list if function exists
             RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+        }
+
+        if ((*GWorld)->GameState()->TeamsLeft() == 1)
+        {
         }
  
         if (static bool b_should_spectate = GetEngineVersionEasy() < 422)
