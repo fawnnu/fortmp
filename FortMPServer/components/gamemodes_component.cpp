@@ -27,6 +27,9 @@ gamemodes_component::gamemodes_component()
     
     REGISTER_CUSTOM_UFUNCTION(GiveItemToPlayer, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(GiveItemToPlayer, AFortGameModeAthena::StaticClass(), 0x18);
+    
+    REGISTER_CUSTOM_UFUNCTION(OnPawnFinishedSpawning, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(OnPawnFinishedSpawning, AFortGameModeAthena::StaticClass(), 0x8);
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -78,4 +81,9 @@ void gamemodes_component::GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthe
     INIT_CUSTOM_FUNCTION();
 
     inventory_component::add_item(PlayerController, InItemDefinition, Count, looting_component::get_default_loaded_ammo(InItemDefinition));
+}
+
+void gamemodes_component::OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
 }

@@ -18,4 +18,6 @@ public:
     static void SetSafeZoneStartDelay_Value(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 
     static void GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
-};
+
+    static void OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
+};  
