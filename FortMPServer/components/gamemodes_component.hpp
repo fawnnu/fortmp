@@ -20,4 +20,6 @@ public:
     static void GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 
     static void OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
+
+    static void GetRandomLootPackageData(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue);
 };  

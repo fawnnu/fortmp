@@ -30,6 +30,10 @@ gamemodes_component::gamemodes_component()
     
     REGISTER_CUSTOM_UFUNCTION(OnPawnFinishedSpawning, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(OnPawnFinishedSpawning, AFortGameModeAthena::StaticClass(), 0x8);
+
+    REGISTER_CUSTOM_UFUNCTION(GetRandomLootPackageData, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 1024);
+    INIT_CUSTOM_FUNC_RET_OFFSET(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 0x10);
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -86,4 +90,14 @@ void gamemodes_component::GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthe
 void gamemodes_component::OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+}
+
+void gamemodes_component::GetRandomLootPackageData(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue)
+{
+    GET_CUSTOM_FUNCTION_BP_PARAM(UDataTable*, DataTable);
+    GET_CUSTOM_FUNCTION_BP_PARAM(FName, LootPackageID);
+    
+    INIT_CUSTOM_FUNCTION();
+
+    memcpy(ReturnValue, looting_component::get_random_loot_package_data_from_id(DataTable, LootPackageID), FFortLootPackageData::GetStructSize());
 }

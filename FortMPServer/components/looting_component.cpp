@@ -596,6 +596,67 @@ FFortLootPackageData* looting_component::get_random_loot_package_data(FFortLootT
     }
 
     return final_loot_package_data;
+}
+
+FFortLootPackageData* looting_component::get_random_loot_package_data_from_id(UDataTable* DataTable, FName loot_package_id)
+{
+    if (DataTable == nullptr)
+    {
+        return nullptr;
+    }
+
+    TMap<FName, FFortLootPackageData*> loot_package_data_map = *reinterpret_cast<TMap<FName, FFortLootPackageData*>*>(reinterpret_cast<uintptr_t>(DataTable) + 0x30);
+
+    // Row name and weight
+    std::vector<FName> category_row_names;
+
+    float max_weight = 0.0f;
+
+    for (auto element : loot_package_data_map)
+    {
+        // Category name
+        FName category_row_name = element.Element.Key;
+
+        // Loot tier data for the category
+        FFortLootPackageData* category_loot_tier_data = element.Element.Value;
+
+        if(category_loot_tier_data)
+        {
+            if (category_loot_tier_data->LootPackageID() == loot_package_id)
+            {
+                if (category_loot_tier_data->Weight() > 0.0f)
+                {
+                    category_row_names.push_back(category_row_name);
+                }
+            }   
+        }
+    }
+
+    for (FName category_row_name : category_row_names)
+    {
+        // Increase max weight based on each individual category weight
+        max_weight += loot_package_data_map[category_row_name].Value->Weight();
+    }
+
+    FFortLootPackageData* final_loot_package_data = nullptr;
+
+    // Generate random float between zero and the weight calculated
+    float random_weight = UKismetMathLibrary::RandomFloatInRange(0.0f, max_weight);
+    
+    for (FName category_row_name : category_row_names)
+    {
+        if (random_weight < loot_package_data_map[category_row_name].Value->Weight())
+        {
+            // Choose this row
+            final_loot_package_data = loot_package_data_map[category_row_name].Value;
+
+            break;
+        }
+
+        random_weight -= loot_package_data_map[category_row_name].Value->Weight();
+    }
+
+    return final_loot_package_data;
 }   
 
 UObject* looting_component::get_loot_tier_data()

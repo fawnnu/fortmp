@@ -19,6 +19,9 @@ public:
 
     // Get a random Loot package Data of a given Tier Data
     static FFortLootPackageData* get_random_loot_package_data(FFortLootTierData* loot_tier_data);
+    
+    // Get a random Loot package Data of a given LootPackageID
+    static FFortLootPackageData* get_random_loot_package_data_from_id(UDataTable* DataTable, FName loot_package_id);
 
     // Get Loot Tier Data Datatable from playlist, or default
     static UObject* get_loot_tier_data();
