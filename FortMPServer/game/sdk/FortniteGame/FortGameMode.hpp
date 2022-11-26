@@ -132,4 +132,19 @@ public:
             ProcessEvent(this, TargetFunction, &Params);
         }
     }
+    
+    void OnPawnFinishedSpawning(AFortPawn* TargetPawn)
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnPawnFinishedSpawning", 1)))
+        {
+            struct
+            {
+                AFortPawn* TargetPawn;
+            } Params;
+
+            Params.TargetPawn = TargetPawn;
+
+            ProcessEvent(this, TargetFunction, &Params);
+        }
+    }
 };
