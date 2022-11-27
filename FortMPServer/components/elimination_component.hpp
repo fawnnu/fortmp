@@ -12,6 +12,7 @@ namespace elimination_component_hooks
 {
     // Called when the player is eliminated
     DEFINE_FUNCTION_HOOK(void, ClientOnPawnDied, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, ClientNotifyWon, (UObject* Object, UObject* Function, void* Params));
 }
 
 // Remove player from alive player list
