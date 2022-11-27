@@ -84,7 +84,10 @@ void gamemodes_component::GiveItemToPlayer(AFortGameModeAthena* FortGameModeAthe
 
     INIT_CUSTOM_FUNCTION();
 
-    inventory_component::add_item(PlayerController, InItemDefinition, Count, looting_component::get_default_loaded_ammo(InItemDefinition));
+    if (InItemDefinition)
+    {
+        inventory_component::add_item(PlayerController, InItemDefinition, Count, looting_component::get_default_loaded_ammo(InItemDefinition));
+    }
 }
 
 void gamemodes_component::OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
