@@ -187,12 +187,6 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
     if (FortPlayerController->Pawn() && FortPlayerController->Pawn()->AbilitySystemComponent())
     {
         auto new_ability_spec = FGameplayAbilitySpec();
-
-        // Increase the handle of this spec
-        if (GHandle != nullptr)
-        {
-            new_ability_spec.Handle = (*GHandle)++;
-        }
         
         static auto AthenaSprayItemDefinition = FindObject(L"/Script/FortniteGame.AthenaSprayItemDefinition");
 
@@ -208,7 +202,11 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
         
         new_ability_spec.SourceObject = EmoteAsset; // set the sourceobject, in this case the emote we want to execute
         new_ability_spec.Level = 1; 
-        new_ability_spec.InputID = 1;
+        new_ability_spec.InputID = -1;
+        new_ability_spec.ReplicationID = -1;
+        new_ability_spec.ReplicationKey = -1;
+        new_ability_spec.MostRecentArrayReplicationKey = -1;
+        new_ability_spec.Handle = rand();
 
         const auto unk = new DWORD();
 
@@ -217,8 +215,6 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
         // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
         GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
     }
-    
-    return ServerPlayEmoteItem(FortPlayerController, StackFrame);
 }
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)

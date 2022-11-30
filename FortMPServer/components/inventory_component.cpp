@@ -454,6 +454,16 @@ void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame
 
     const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
 
+    if (player_controller == nullptr)
+    {
+        return;
+    }
+
+    if (player_controller->WorldInventory() == nullptr)
+    {
+        return;
+    }
+
     auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
     auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
 
