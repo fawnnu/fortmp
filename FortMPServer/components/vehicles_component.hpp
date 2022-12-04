@@ -14,3 +14,5 @@ namespace vehicles_component_hooks
     // sync vehicles
     DEFINE_FUNCTION_HOOK(void, ServerUpdatePhysicsParams, (AActor* Vehicle, FFrame& StackFrame));
 }
+
+inline void (*SetWorldLocationAndRotation)(USceneComponent* RootComponent, FVector& NewLocation, FQuat& NewRotation, bool bSweep, void* OutSweepHitResult, int ETeleportType);

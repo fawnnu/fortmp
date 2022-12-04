@@ -5,6 +5,8 @@
 
 vehicles_component::vehicles_component()
 {
+    INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 53 55 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 41 0F 10 00 4C 8B B4 24 ? ? ? ?"));
+    
     // Hook the last call in EquipAbilityWeapon
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
     
@@ -64,7 +66,21 @@ void vehicles_component_hooks::ServerUpdatePhysicsParams_Hook(AActor* Vehicle, F
 
     if (const auto RootComponent = Vehicle->RootComponent())
     {
-        RootComponent->K2_SetWorldLocation(InState.Translation, false, true, nullptr);
+        if (SetWorldLocationAndRotation)
+        {
+            // Credits: wiktorwiktor12
+            FQuat FixedRot;
+            FixedRot.X = InState.Rotation.X + -2.5;
+            FixedRot.Y = 3.333333 * InState.Rotation.Y + 3.18982 * pow(10,-7);
+            FixedRot.Z = InState.Rotation.Z + 2;
+            FixedRot.W = 8.26471 * pow(10,-6) - 0.833319 * InState.Rotation.W;
+            
+            SetWorldLocationAndRotation(RootComponent, InState.Translation, FixedRot, false, nullptr, 1);
+        }
+        else
+        {
+            spdlog::error(L"vehicles_component_hooks::ServerUpdatePhysicsParams_Hook: SetWorldLocationAndRotation is NULL.");
+        }
 
         RootComponent->SetPhysicsLinearVelocity(InState.LinearVelocity, false, L"None");
         
