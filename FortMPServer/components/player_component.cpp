@@ -14,6 +14,8 @@ player_component::player_component()
     {
         INIT_POINTER(ServerChoosePart_Implementation, FindObject(L"/Script/FortniteGame.Default__FortPlayerPawn")->VTable[index/8]);
     }
+
+    INIT_POINTER(UpdateZiplineState, memory_manager::find_function_by_string(L"AFortPlayerPawn::OnRep_ZiplineState"));
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -219,30 +221,16 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
 {
-    //TODO: fix zipline magnet not disappearing if you re-enter zipline
-    
     GET_PARAMETER(FZiplinePawnState, InZiplineState);
 
-    FortPlayerPawn->ZiplineState().Zipline() = InZiplineState.Zipline();
-    FortPlayerPawn->ZiplineState().bIsZiplining() = InZiplineState.bIsZiplining();
-    FortPlayerPawn->ZiplineState().bJumped() = InZiplineState.bJumped();
-    FortPlayerPawn->ZiplineState().AuthoritativeValue() = InZiplineState.AuthoritativeValue();
-    FortPlayerPawn->ZiplineState().SocketOffset() = InZiplineState.SocketOffset();
-    FortPlayerPawn->ZiplineState().TimeZipliningBegan() = InZiplineState.TimeZipliningBegan();
-    FortPlayerPawn->ZiplineState().TimeZipliningEndedFromJump() = InZiplineState.TimeZipliningEndedFromJump();
+    // Update pawn zipline state
+    memcpy(&FortPlayerPawn->ZiplineState(), &InZiplineState, FZiplinePawnState::GetStructSize());
 
-    if (FortPlayerPawn->ZiplineState().bIsZiplining())
+    // Update component
+    if (UpdateZiplineState)
     {
-        // Set movement mode to ziplines
-        FortPlayerPawn->CharacterMovement()->SetMovementMode(6, 8); // MOVE_Custom , Ziplining
+        UpdateZiplineState(FortPlayerPawn);
     }
-    else
-    {
-        //Set movement mode back to normal
-        FortPlayerPawn->CharacterMovement()->MovementMode() = 1; //MOVE_Falling
-    }
-    
-    return ServerSendZiplineState(FortPlayerPawn, StackFrame);
 }
 
 void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* Function, void* Params)
