@@ -157,7 +157,9 @@ void renderer::CreateNewWindow()
 
                             ImGui::Text("Current Playlist: %s", ppCurrentPlaylist == nullptr ? "NULL" : *ppCurrentPlaylist ? (*ppCurrentPlaylist)->sGetName().c_str() : "NULL");
 
-                            ImGui::Text("Current Gamephase: %i", (*GWorld)->GameState()->GamePhase());
+                            static UEnum* EGamePhase = FindObject<UEnum>(L"/Script/FortniteGame.EAthenaGamePhase");
+                            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                            ImGui::Text("Current Gamephase: %s", converter.to_bytes(EGamePhase->GetEnumName((*GWorld)->GameState()->GamePhase())).c_str());
 
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Match Shortcuts");
 

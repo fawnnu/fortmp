@@ -209,6 +209,17 @@ public:
 
         return 0;
     }
+
+    std::wstring GetEnumName(uint8_t EnumIndex)
+    {
+        // Get list of all enums
+        TArray<TPair<FName, __int64>> NamesList = *reinterpret_cast<TArray<TPair<FName, __int64>>*>(__int64(this) + 0x40);
+    
+        std::wstring full_enum_name = NamesList[EnumIndex].Key.ToString();
+        
+        // Return the associated FName
+        return full_enum_name.substr(full_enum_name.find_last_of(L":") + 1);
+    }
 };
 
 struct FFrame
