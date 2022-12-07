@@ -60,6 +60,12 @@ public:
     }
 };
 
+class AGameState : public AGameStateBase
+{
+public:
+    DEFINE_PROPERTY(FName, MatchState);
+};
+
 struct FAdditionalLevelStreamed
 {
     DEFINE_STRUCT_PROPERTY(FName, LevelName);
@@ -68,7 +74,7 @@ struct FAdditionalLevelStreamed
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AdditionalLevelStreamed");
 };
 
-class AFortGameState : public AGameStateBase
+class AFortGameState : public AGameState
 {
 public:
     DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);

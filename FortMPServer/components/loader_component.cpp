@@ -38,6 +38,7 @@ loader_component::loader_component()
     
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetMatchState, memory_manager::find_function_by_string(L"Match State Changed from %s to %s"), loader_component_hooks::SetMatchState_Hook);
     
     DetourTransactionCommit();
 
@@ -132,8 +133,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         (*GWorld)->AuthorityGameMode()->OnServerReady();
 
         // Notify the era server once the server is up
-        dll_utils::send_webhook_message(dll_utils::general_chat_webhook, req_body.dump());
-        dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, req_body.dump());
+        dll_utils::send_webhook_message(dll_utils::general_chat_webhook, on_server_ready_msg.dump());
+        dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, on_server_ready_msg.dump());
         
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
@@ -399,6 +400,17 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
                 }
             }
         }
+    }
+}
+
+void loader_component_hooks::SetMatchState_Hook(UObject* Self, FName NewState)
+{
+    // Call native function first
+    SetMatchState(Self, NewState);
+    
+    if (NewState == L"WaitingPostMatch")
+    {
+        UKismetSystemLibrary::K2_SetTimer((*GWorld)->AuthorityGameMode(), L"KillServer", (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay(), false);
     }
 }
 

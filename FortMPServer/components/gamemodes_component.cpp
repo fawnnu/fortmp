@@ -3,6 +3,7 @@
 
 #include "function_component.hpp"
 #include "inventory_component.hpp"
+#include "loader_component.hpp"
 #include "looting_component.hpp"
 
 gamemodes_component::gamemodes_component()
@@ -34,6 +35,8 @@ gamemodes_component::gamemodes_component()
     REGISTER_CUSTOM_UFUNCTION(GetRandomLootPackageData, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 1024);
     INIT_CUSTOM_FUNC_RET_OFFSET(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 0x10);
+
+    REGISTER_CUSTOM_UFUNCTION(KillServer, AFortGameModeAthena::StaticClass());
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -103,4 +106,19 @@ void gamemodes_component::GetRandomLootPackageData(AFortGameModeAthena* FortGame
     INIT_CUSTOM_FUNCTION();
 
     memcpy(ReturnValue, looting_component::get_random_loot_package_data_from_id(DataTable, LootPackageID), FFortLootPackageData::GetStructSize());
+}
+
+void gamemodes_component::KillServer(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    // Log
+    spdlog::info(L"The match is over! Server closing...");
+        
+    // Notify discord
+    dll_utils::send_webhook_message(dll_utils::general_chat_webhook, loader_component::on_server_restart_msg.dump());
+    dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, loader_component::on_server_restart_msg.dump());
+
+    // Terminate server
+    RequestExitWithStatus(true, 0);
 }

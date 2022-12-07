@@ -17,12 +17,25 @@ public:
     inline static bool is_server_ready = false;
 
 private:
-    inline static nlohmann::json req_body = R"({
+    inline static nlohmann::json on_server_ready_msg = R"({
             "content": null,
             "embeds": [
              {
                  "title": "Server Status",
-                  "description": "Servers are up on 4.2, press play or open erafn.org to join :white_check_mark:",
+                  "description": "Servers are up, press play or open erafn.org to join :white_check_mark:",
+                  "color": null
+               }
+            ],
+            "attachments": []
+        })"_json;
+    
+public:
+    inline static nlohmann::json on_server_restart_msg = R"({
+            "content": null,
+            "embeds": [
+             {
+                 "title": "Server Status",
+                  "description": "Servers are restarting!",
                   "color": null
                }
             ],
@@ -36,6 +49,8 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, UpdateLevelStreaming, (UWorld* World));
 
     DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
+    
+    DEFINE_FUNCTION_HOOK(void, SetMatchState, (UObject* Self, FName NewState));
 
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
 }

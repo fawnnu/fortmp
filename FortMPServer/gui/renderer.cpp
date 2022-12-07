@@ -366,7 +366,7 @@ void renderer::CreateNewWindow()
     spdlog::info(L"Closed GUI, terminating server...");
 
     // Terminate program
-    RequestExitWithStatus(false, 0);
+    RequestExitWithStatus(true, 0);
 }
 
 bool renderer::CreateDeviceD3D(HWND WindowHandle)
