@@ -250,7 +250,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     // Filter overlap capsule
     static UObject* fort_pickup_class = FindObject<UObject>(L"/Script/FortniteGame.FortPickupAthena");
 
-    if (UKismetMathLibrary::ClassIsChildOf(OtherActor->Class, fort_pickup_class))
+    if (OtherActor->IsA(fort_pickup_class))
     {
         // Cast overlap capsule to FortPickup instance
         AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
@@ -260,9 +260,9 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
         static UFortItemDefinition* trap_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortTrapItemDefinition");
         
-        if (UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, ammo_definition) ||
-            UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, resource_definition) ||
-            UKismetMathLibrary::ClassIsChildOf(fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->Class, trap_definition))
+        if (fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(ammo_definition) ||
+            fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(resource_definition) ||
+            fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(trap_definition))
         {
             if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
             {

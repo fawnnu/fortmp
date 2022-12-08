@@ -233,7 +233,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             }
 
             // If it's an AGID, remove it accordingly
-            if (UKismetMathLibrary::ClassIsChildOf(item_instance->ItemEntry().ItemDefinition()->Class, UFortGadgetItemDefinition::StaticClass()))
+            if (item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()))
             {
                 RemoveGadgetData(static_cast<UFortGadgetItemDefinition*>(item_instance->ItemEntry().ItemDefinition()), player_controller->GetInterfaceAddress(IFortInventoryOwnerInterface::StaticClass()), item_instance);
             }
@@ -248,7 +248,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
-            if (UKismetMathLibrary::ClassIsChildOf(item_instance->ItemEntry().ItemDefinition()->Class, UFortGadgetItemDefinition::StaticClass()) && player_controller->Pawn() != nullptr)
+            if (item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()) && player_controller->Pawn() != nullptr)
             {
                 // If it's an AGID, remove the character parts (Has to be done after removing from inventory)
                 player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
@@ -363,7 +363,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     static UObject* trap_definition_class = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
     static UObject* context_trap_class = FindObject(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
     
-    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, trap_definition_class))
+    if (item_definition->IsA(trap_definition_class))
     {
         // Equip trap
         PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(item_definition));
@@ -373,7 +373,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
             // Update entry GUID in current weapon
             PlayerController->Pawn()->CurrentWeapon()->ItemEntryGuid() = ItemGuid;
             
-            if (UKismetMathLibrary::ClassIsChildOf(PlayerController->Pawn()->CurrentWeapon()->Class, context_trap_class))
+            if (PlayerController->Pawn()->CurrentWeapon()->IsA(context_trap_class))
             {
                 // Update item definition if we have a context trap
                 reinterpret_cast<AFortDecoTool_ContextTrap*>(PlayerController->Pawn()->CurrentWeapon())->ContextTrapItemDefinition() = item_definition;
@@ -381,7 +381,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
         }
     }
     
-    if (UKismetMathLibrary::ClassIsChildOf(item_definition->Class, UFortGadgetItemDefinition::StaticClass()))
+    if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
     {
         PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition()));
 

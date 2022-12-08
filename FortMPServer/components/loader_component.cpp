@@ -362,7 +362,7 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
 
     UObject* Querier = QueryInstance->QueryResult().Get()->Owner().Get();
 
-    if (UKismetMathLibrary::ClassIsChildOf(Querier->Class, ABGAConsumableSpawner::StaticClass()))
+    if (Querier->IsA(ABGAConsumableSpawner::StaticClass()))
     {
         ABGAConsumableSpawner* ConsumableSpawner = static_cast<ABGAConsumableSpawner*>(Querier);
         
@@ -380,7 +380,7 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
         
         UBGAConsumableWrapperItemDefinition* ItemDefinition = static_cast<UBGAConsumableWrapperItemDefinition*>(LootPackageData->ItemDefinition().Get());
 
-        if (UKismetMathLibrary::ClassIsChildOf(ItemDefinition->Class, UBGAConsumableWrapperItemDefinition::StaticClass()))
+        if (ItemDefinition->IsA(UBGAConsumableWrapperItemDefinition::StaticClass()))
         {
             UObject* ConsumableClass = ItemDefinition->ConsumableClass().Get();
 

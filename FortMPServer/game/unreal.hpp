@@ -69,6 +69,7 @@ namespace CoreOffsets
     inline DWORD ElementSize;
     inline DWORD PropertyFlags;
     inline DWORD StructSize;
+    inline DWORD SuperStruct;
 }
 
 namespace NetworkOffsets
@@ -133,7 +134,15 @@ public:
 
     bool IsA(UObject* in_class)
     {
-        return in_class == Class;
+        for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+        {
+            if (CurrentClass == in_class)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     
     template<typename T = char, typename ...Params>
@@ -178,10 +187,6 @@ public:
 
             return *reinterpret_cast<T*>(__int64(params) + return_offset);
         }
-        
-        // Warn that the function does not exist
-        spdlog::error(L"Unable to call function '{}' due to no function existing",
-            function_name);
 
         return {};
     }

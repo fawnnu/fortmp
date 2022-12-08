@@ -193,7 +193,7 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
         static auto AthenaSprayItemDefinition = FindObject(L"/Script/FortniteGame.AthenaSprayItemDefinition");
 
         // set the ability in the newly created struct    TODO: ADD TOYS
-        if(UKismetMathLibrary::ClassIsChildOf(EmoteAsset->Class, AthenaSprayItemDefinition))
+        if (EmoteAsset->IsA(AthenaSprayItemDefinition))
         {
             new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
         }

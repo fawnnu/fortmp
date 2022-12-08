@@ -27,17 +27,17 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         player_controller->GetName().c_str(),
         receiving_actor->GetName().c_str());
     
-    if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, building_container_class))
+    if (receiving_actor->IsA(building_container_class))
     {
         // Handle any interactions with building containers
         handle_container_interaction(player_controller, reinterpret_cast<ABuildingContainer*>(receiving_actor));
     }
-    else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, player_pawn_class))
+    else if (receiving_actor->IsA(player_pawn_class))
     {
         // Handle any interactions with player pawns
         handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
     }
-    else if (UKismetMathLibrary::ClassIsChildOf(receiving_actor->Class, vending_machine_class))
+    else if (receiving_actor->IsA(vending_machine_class))
     {
         // Handle any interactions with vending machines
         handle_vending_machine_interaction(player_controller, reinterpret_cast<ABuildingItemCollectorActor*>(receiving_actor));

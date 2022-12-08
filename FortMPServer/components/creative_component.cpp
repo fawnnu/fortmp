@@ -89,7 +89,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                 // Prevent a crash on later builds and when more people are joining
                 if (Component)
                 {
-                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
                     {
                         UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
 
@@ -119,7 +119,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
                         return;
                     }
-                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UFortLevelSaveComponent::StaticClass()))
+                    if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
                     {
                         UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
 
@@ -159,7 +159,7 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     // Add to the array
     for (UActorComponent* Component : Portal->LinkedVolume()->BlueprintCreatedComponents())
     {
-        if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+        if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
         {
             static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData().Add(PlayerPawn->Controller()->NetConnection()->PlayerID());
         }
@@ -206,7 +206,7 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
             {
                 if(Component != nullptr)
                 {
-                    if (UKismetMathLibrary::ClassIsChildOf(Component->Class, UPlaysetLevelStreamComponent::StaticClass()))
+                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
                     {
                         TArrayManager<FUniqueNetIdRepl> PlayersWithValidPlaysetData = TArrayManager<FUniqueNetIdRepl>(&static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData(), sizeof FUniqueNetIdRepl);
 

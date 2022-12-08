@@ -16,12 +16,12 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
     static UObject* FortWeapon_Class = FindObject(L"/Script/FortniteGame.FortWeapon");
     static UObject* FortWeaponMeleeItemDefinition_Class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
     
-    if (UKismetMathLibrary::ClassIsChildOf(building_actor->Class, BuildingSMActor_Class))
+    if (building_actor->IsA(BuildingSMActor_Class))
     {
         // Make sure a player is damaging the building with their pickaxe
         if (building_actor->AttributeInitLevelSource() != 1 &&
-            UKismetMathLibrary::ClassIsChildOf(damage_causer->Class, FortWeapon_Class) &&
-            UKismetMathLibrary::ClassIsChildOf(static_cast<AFortWeapon*>(damage_causer)->WeaponData()->Class, FortWeaponMeleeItemDefinition_Class))
+            damage_causer->IsA(FortWeapon_Class) &&
+            static_cast<AFortWeapon*>(damage_causer)->WeaponData()->IsA(FortWeaponMeleeItemDefinition_Class))
         {
             const bool bIsDestroyed = building_actor->GetHealth() - damage < 1;
             const bool bIsWeakSpot = damage == 100;
@@ -117,7 +117,7 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
     
     if (HitActor)
     {
-        if (UKismetMathLibrary::ClassIsChildOf(HitActor->Class, building_actor_class))
+        if (HitActor->IsA(building_actor_class))
         {
             if (player_controller->Pawn()->CurrentWeapon())
             {
