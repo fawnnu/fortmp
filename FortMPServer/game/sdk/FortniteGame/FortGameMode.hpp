@@ -6,10 +6,22 @@ public:
     DEFINE_PROPERTY(int, MaxPlayers);
 };
 
+class AFortGameSessionDedicatedAthena : public AGameSession
+{
+public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameSessionDedicatedAthena");
+        
+        return static_class;
+    }
+};
+
 class AGameModeBase : public UObject
 {
 public:
     DEFINE_PROPERTY(AGameSession*, GameSession);
+    DEFINE_PROPERTY(UObject*, GameSessionClass);
     
     AFortPlayerPawn* SpawnDefaultPawnAtTransform(APlayerController* NewPlayer, FTransform SpawnTransform)
     {
@@ -37,6 +49,7 @@ class AFortGameMode : public AGameMode
 {
 public:
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, ConnectedPlayerControllers);
+    DEFINE_PROPERTY(AGameSession*, FortGameSession);
 };
 
 class AFortGameModeZone : public AFortGameMode

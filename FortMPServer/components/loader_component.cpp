@@ -38,7 +38,6 @@ loader_component::loader_component()
     
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetMatchState, memory_manager::find_function_by_string(L"Match State Changed from %s to %s"), loader_component_hooks::SetMatchState_Hook);
     
     DetourTransactionCommit();
 
@@ -138,9 +137,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
-
-        // Server is ready
-        is_server_ready = true;
     }
 }
 
@@ -320,12 +316,18 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
     // Call original function first
     UpdateLevelStreaming(World);
     
-    if (World->GameState() && !loader_component::is_server_ready)
+    if (World->GameState() && World->GameState()->MatchState() == L"WaitingToStart")
     {
         if (World->GameState()->WorldManager())
         {
             if (World->AuthorityGameMode())
             {
+                if (!World->AuthorityGameMode()->GameSession()->IsA(AFortGameSessionDedicatedAthena::StaticClass()))
+                {
+                    World->AuthorityGameMode()->GameSession() = SpawnDefaultActor<AGameSession>(World, AFortGameSessionDedicatedAthena::StaticClass());
+                    World->AuthorityGameMode()->FortGameSession() = World->AuthorityGameMode()->GameSession();
+                }
+            
                 // allows vehicles to spawn
                 if (static bool b_has_property = (*GWorld)->AuthorityGameMode()->HasProperty(L"bMapInfoInitialized"))
                 {
@@ -400,17 +402,6 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
                 }
             }
         }
-    }
-}
-
-void loader_component_hooks::SetMatchState_Hook(UObject* Self, FName NewState)
-{
-    // Call native function first
-    SetMatchState(Self, NewState);
-    
-    if (NewState == L"WaitingPostMatch")
-    {
-        UKismetSystemLibrary::K2_SetTimer((*GWorld)->AuthorityGameMode(), L"KillServer", (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay(), false);
     }
 }
 

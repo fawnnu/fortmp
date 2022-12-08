@@ -14,8 +14,6 @@ public:
     static void initialize_llamas();
     static void initialize_bga();
 
-    inline static bool is_server_ready = false;
-
 private:
     inline static nlohmann::json on_server_ready_msg = R"({
             "content": null,
@@ -50,7 +48,5 @@ namespace loader_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
     
-    DEFINE_FUNCTION_HOOK(void, SetMatchState, (UObject* Self, FName NewState));
-
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
 }
