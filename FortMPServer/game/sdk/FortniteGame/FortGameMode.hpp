@@ -6,7 +6,18 @@ public:
     DEFINE_PROPERTY(int, MaxPlayers);
 };
 
-class AFortGameSessionDedicatedAthena : public AGameSession
+class AFortGameSessionDedicated : public AGameSession
+{
+public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameSessionDedicated");
+        
+        return static_class;
+    }
+};
+
+class AFortGameSessionDedicatedAthena : public AFortGameSessionDedicated
 {
 public:
     static UObject* StaticClass()

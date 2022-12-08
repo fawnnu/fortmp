@@ -141,7 +141,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     }
 
     // only proceed if Respawn isn't enabled
-    if (current_playlist->HasProperty(L"RespawnType") == false ||
+    if (current_playlist == nullptr ||
+        current_playlist->HasProperty(L"RespawnType") == false ||
         current_playlist->HasProperty(L"RespawnType") == true &&
         current_playlist->RespawnType() == 0)
     {
@@ -156,11 +157,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             // Remove player from alive list if function exists
             RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
         }
-
-        if ((*GWorld)->GameState()->TeamsLeft() == 1)
-        {
-        }
- 
+        
         if (static bool b_should_spectate = GetEngineVersionEasy() < 422)
         {
             // Start spectating after 5 seconds

@@ -26,7 +26,7 @@ loader_component::loader_component()
         }
 
         // Hook begin play for the classes we need
-        REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+        //REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
     }
     else
     {
@@ -322,9 +322,12 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
         {
             if (World->AuthorityGameMode())
             {
-                if (!World->AuthorityGameMode()->GameSession()->IsA(AFortGameSessionDedicatedAthena::StaticClass()))
+                UObject* NewGameSessionClass = AFortGameSessionDedicatedAthena::StaticClass() ? AFortGameSessionDedicatedAthena::StaticClass() : AFortGameSessionDedicated::StaticClass();
+                
+                if (World->AuthorityGameMode()->GameSession() &&
+                    !World->AuthorityGameMode()->GameSession()->IsA(NewGameSessionClass))
                 {
-                    World->AuthorityGameMode()->GameSession() = SpawnDefaultActor<AGameSession>(World, AFortGameSessionDedicatedAthena::StaticClass());
+                    World->AuthorityGameMode()->GameSession() = SpawnDefaultActor<AGameSession>(World, NewGameSessionClass);
                     World->AuthorityGameMode()->FortGameSession() = World->AuthorityGameMode()->GameSession();
                 }
             
