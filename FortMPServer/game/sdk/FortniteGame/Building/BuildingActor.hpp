@@ -58,25 +58,33 @@ public:
     void InitializeKismetSpawnedBuildingActor(ABuildingActor* BuildingOwner, AFortPlayerController* SpawningController)
     {
         static bool has_spawning_anim_arg = FindPropertyByName(FindObject(L"/Script/FortniteGame.BuildingActor.InitializeKismetSpawnedBuildingActor"), L"bUsePlayerBuildAnimations") != nullptr;
+
+        STATIC_FINDFUNCTION(InitializeKismetSpawnedBuildingActor)
         
         // Spawn building actor depending on property
         has_spawning_anim_arg ?
-            Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController, true) : Call(L"InitializeKismetSpawnedBuildingActor", BuildingOwner, SpawningController);
+            Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController, true) : Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController);
     }
 
     float GetHealth()
     {
-        return Call<float>(L"GetHealth");
+        STATIC_FINDFUNCTION(GetHealth)
+        
+        return Call<float>(Function_GetHealth);
     }
 
     float GetMaxHealth()
     {
-        return Call<float>(L"GetMaxHealth");
+        STATIC_FINDFUNCTION(GetMaxHealth)
+        
+        return Call<float>(Function_GetMaxHealth);
     }
 
     void SetTeam(uint8_t TeamIndex)
     {
-        Call(L"SetTeam", TeamIndex);
+        STATIC_FINDFUNCTION(SetTeam)
+        
+        Call(Function_SetTeam, TeamIndex);
     }
 };
 
@@ -93,12 +101,16 @@ public:
     
     void SetMirrored(bool bMirrored)
     {
-        Call(L"SetMirrored", bMirrored);
+        STATIC_FINDFUNCTION(SetMirrored)
+        
+        Call(Function_SetMirrored, bMirrored);
     }
 
     void RepairBuilding(AFortPlayerController* RepairingController, int ResourcesSpent)
     {
-        Call(L"RepairBuilding", RepairingController, ResourcesSpent);
+        STATIC_FINDFUNCTION(RepairBuilding)
+        
+        Call(Function_RepairBuilding, RepairingController, ResourcesSpent);
     }
 };
 
@@ -118,12 +130,16 @@ public:
 
     int GetDepositAmount(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
     {
-        return Call<int>(L"GetDepositAmount", FortPlayerController, InInputItem);
+        STATIC_FINDFUNCTION(GetDepositAmount)
+        
+        return Call<int>(Function_GetDepositAmount, FortPlayerController, InInputItem);
     }
     
     int GetDepositGoal(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
     {
-        return Call<int>(L"GetDepositGoal", FortPlayerController, InInputItem);
+        STATIC_FINDFUNCTION(GetDepositGoal)
+        
+        return Call<int>(Function_GetDepositGoal, FortPlayerController, InInputItem);
     }
 };
 
@@ -134,7 +150,9 @@ public:
     
     void SetRarityColors(FColor Color)
     {
-        Call(L"SetRarityColors", Color);
+        STATIC_FINDFUNCTION(SetRarityColors)
+        
+        Call(Function_SetRarityColors, Color);
     }
 };
 
@@ -159,7 +177,9 @@ public:
 
     void OnRep_DefaultMetadata()
     {
-        Call(L"OnRep_DefaultMetadata");
+        STATIC_FINDFUNCTION(OnRep_DefaultMetadata)
+        
+        Call(Function_OnRep_DefaultMetadata);
     }
 };
 
@@ -181,7 +201,9 @@ public:
 
     void OnRep_bAlreadySearched()
     {
-        Call(L"OnRep_bAlreadySearched");
+        STATIC_FINDFUNCTION(OnRep_bAlreadySearched)
+        
+        Call(Function_OnRep_bAlreadySearched);
     }
 };
 
@@ -212,7 +234,9 @@ public:
 
     void SetSpawnMachineState(uint8_t NewState)
     {
-        Call(L"SetSpawnMachineState", NewState);
+        STATIC_FINDFUNCTION(SetSpawnMachineState)
+        
+        Call(Function_SetSpawnMachineState, NewState);
     }
 };
 

@@ -38,17 +38,23 @@ public:
     
     void Possess(AFortPlayerPawn* InPawn)
     {
-        Call(L"Possess", InPawn);
+        STATIC_FINDFUNCTION(Possess)
+        
+        Call(Function_Possess, InPawn);
     }
 
     void SetControlRotation(FRotator in_rotation)
     {
-        Call(L"SetControlRotation", in_rotation);
+        STATIC_FINDFUNCTION(SetControlRotation)
+        
+        Call(Function_SetControlRotation, in_rotation);
     }
 
     AActor* GetViewTarget()
     {
-        return Call<AActor*>(L"GetViewTarget");
+        STATIC_FINDFUNCTION(GetViewTarget)
+        
+        return Call<AActor*>(Function_GetViewTarget);
     }
 };
 
@@ -68,17 +74,23 @@ public:
 
     void SwitchLevel(FString URL)
     {
-        Call(L"SwitchLevel", URL);
+        STATIC_FINDFUNCTION(SwitchLevel)
+        
+        Call(Function_SwitchLevel, URL);
     }
 
     void ClientGotoState(FName NewState)
     {
-        Call(L"ClientGotoState", NewState);
+        STATIC_FINDFUNCTION(ClientGotoState)
+        
+        Call(Function_ClientGotoState, NewState);
     }
 
     void ClientSetViewTarget(AActor* Target)
     {
-        Call(L"ClientSetViewTarget", Target, FViewTargetTransitionParams{});
+        STATIC_FINDFUNCTION(ClientSetViewTarget)
+        
+        Call(Function_ClientSetViewTarget, Target, FViewTargetTransitionParams{});
     }
 };
 
@@ -110,57 +122,79 @@ public:
 
     bool IsInAircraft()
     {
-        return Call<bool>(L"IsInAircraft");
+        STATIC_FINDFUNCTION(IsInAircraft)
+        
+        return Call<bool>(Function_IsInAircraft);
     }
 
     void ServerExecuteInventoryItem(FGuid ItemGuid)
     {
-        Call(L"ServerExecuteInventoryItem", ItemGuid);
+        STATIC_FINDFUNCTION(ServerExecuteInventoryItem)
+        
+        Call(Function_ServerExecuteInventoryItem, ItemGuid);
     }
 
     void ServerAttemptAircraftJump(FRotator ClientRotation)
     {
-        Call(L"ServerAttemptAircraftJump", ClientRotation);
+        STATIC_FINDFUNCTION(ServerAttemptAircraftJump)
+        
+        Call(Function_ServerAttemptAircraftJump, ClientRotation);
     }
 
     void ClientEquipItem(FGuid ItemGuid, bool bForceExecution)
     {
-        Call(L"ClientEquipItem", ItemGuid, bForceExecution);
+        STATIC_FINDFUNCTION(ClientEquipItem)
+        
+        Call(Function_ClientEquipItem, ItemGuid, bForceExecution);
     }
 
     void ClientReturnToMainMenu(FString in_reason)
     {
-        Call(L"ClientReturnToMainMenu", in_reason);
+        STATIC_FINDFUNCTION(ClientReturnToMainMenu)
+        
+        Call(Function_ClientReturnToMainMenu, in_reason);
     }
 
     UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)
     {
-        return Call<UFortItem*>(L"BP_GetInventoryItemWithGuid", ItemGuid);
+        STATIC_FINDFUNCTION(BP_GetInventoryItemWithGuid)
+        
+        return Call<UFortItem*>(Function_BP_GetInventoryItemWithGuid, ItemGuid);
     }
 
     UFortItem* K2_GetInventoryItemWithGuid(FGuid ItemGuid)
     {
-        return Call<UFortItem*>(L"K2_GetInventoryItemWithGuid", ItemGuid);
+        STATIC_FINDFUNCTION(K2_GetInventoryItemWithGuid)
+        
+        return Call<UFortItem*>(Function_K2_GetInventoryItemWithGuid, ItemGuid);
     }
 
     UFortItem* BP_FindExistingItemForDefinition(UFortItemDefinition* ItemDefinition, bool bInStorageVault = false)
     {
-        return Call<UFortItem*>(L"BP_FindExistingItemForDefinition", ItemDefinition, bInStorageVault);
+        STATIC_FINDFUNCTION(BP_FindExistingItemForDefinition)
+        
+        return Call<UFortItem*>(Function_BP_FindExistingItemForDefinition, ItemDefinition, bInStorageVault);
     }
 
     UFortItem* K2_FindExistingItemForDefinition(UFortItemDefinition* ItemDefinition, bool bInStorageVault = false)
     {
-        return Call<UFortItem*>(L"K2_FindExistingItemForDefinition", ItemDefinition, bInStorageVault);
+        STATIC_FINDFUNCTION(K2_FindExistingItemForDefinition)
+        
+        return Call<UFortItem*>(Function_K2_FindExistingItemForDefinition, ItemDefinition, bInStorageVault);
     }
 
     void ClientReportDamagedResourceBuilding(class ABuildingSMActor* BuildingSMActor, uint8_t PotentialResourceType, int PotentialResourceCount, bool bDestroyed, bool bJustHitWeakpoint)
     {
-        Call(L"ClientReportDamagedResourceBuilding", BuildingSMActor, PotentialResourceType, PotentialResourceCount, bDestroyed, bJustHitWeakpoint);
+        STATIC_FINDFUNCTION(ClientReportDamagedResourceBuilding)
+        
+        Call(Function_ClientReportDamagedResourceBuilding, BuildingSMActor, PotentialResourceType, PotentialResourceCount, bDestroyed, bJustHitWeakpoint);
     }
 
     void ServerSuicide()
     {
-        Call(L"ServerSuicide");
+        STATIC_FINDFUNCTION(ServerSuicide)
+        
+        Call(Function_ServerSuicide);
     }
 };
 
@@ -176,22 +210,30 @@ public:
 
     void OnRep_CreativePlotLinkedVolume()
     {
-        Call(L"OnRep_CreativePlotLinkedVolume");
+        STATIC_FINDFUNCTION(OnRep_CreativePlotLinkedVolume)
+        
+        Call(Function_OnRep_CreativePlotLinkedVolume);
     }
 
     void SpectateOnDeath()
     {
-        Call(L"SpectateOnDeath");
+        STATIC_FINDFUNCTION(SpectateOnDeath)
+        
+        Call(Function_SpectateOnDeath);
     }
 
     void PreLobbyIslandTeleport()
     {
-        Call(L"PreLobbyIslandTeleport");
+        STATIC_FINDFUNCTION(PreLobbyIslandTeleport)
+        
+        Call(Function_PreLobbyIslandTeleport);
     }
 
     void PostLobbyIslandTeleport(AFortPlayerPawn* FortPlayerPawn)
     {
-        Call(L"PostLobbyIslandTeleport", FortPlayerPawn);
+        STATIC_FINDFUNCTION(PostLobbyIslandTeleport)
+        
+        Call(Function_PostLobbyIslandTeleport, FortPlayerPawn);
     }
 };
 

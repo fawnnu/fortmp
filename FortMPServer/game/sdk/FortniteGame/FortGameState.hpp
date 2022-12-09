@@ -56,7 +56,9 @@ public:
 
     void OnRep_GameModeClass()
     {
-        Call(L"OnRep_GameModeClass");
+        STATIC_FINDFUNCTION(OnRep_GameModeClass)
+        
+        Call(Function_OnRep_GameModeClass);
     }
 };
 
@@ -84,7 +86,9 @@ public:
     
     void OnRep_AdditionalPlaylistLevelsStreamed()
     {
-        Call(L"OnRep_AdditionalPlaylistLevelsStreamed");
+        STATIC_FINDFUNCTION(OnRep_AdditionalPlaylistLevelsStreamed)
+        
+        Call(Function_OnRep_AdditionalPlaylistLevelsStreamed);
     }
 
     void HandlePlaylistStreamedLevels(UFortPlaylistAthena* in_playlist)
@@ -178,11 +182,15 @@ public:
     
     void OnRep_CurrentPlaylistInfo()
     {
-        Call(L"OnRep_CurrentPlaylistInfo");
+        STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)
+        
+        Call(Function_OnRep_CurrentPlaylistInfo);
     }
 
     void OnRep_CurrentPlaylistData()
     {
-        Call(L"OnRep_CurrentPlaylistData");
+        STATIC_FINDFUNCTION(OnRep_CurrentPlaylistData)
+        
+        Call(Function_OnRep_CurrentPlaylistData);
     }
 };

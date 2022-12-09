@@ -44,52 +44,72 @@ public:
     
     FTransform GetTransform()
     {
-        return Call<FTransform>(L"GetTransform");
+        STATIC_FINDFUNCTION(GetTransform)
+        
+        return Call<FTransform>(Function_GetTransform);
     }
 
     FVector K2_GetActorLocation()
     {
-        return Call<FVector>(L"K2_GetActorLocation");
+        STATIC_FINDFUNCTION(K2_GetActorLocation)
+        
+        return Call<FVector>(Function_K2_GetActorLocation);
     }
     
     FRotator K2_GetActorRotation()
     {
-        return Call<FRotator>(L"K2_GetActorRotation");
+        STATIC_FINDFUNCTION(K2_GetActorRotation)
+        
+        return Call<FRotator>(Function_K2_GetActorRotation);
     }
 
     bool K2_SetActorRotation(FRotator NewRotation, bool bTeleportPhysics)
     {
-        return Call<bool>(L"K2_SetActorRotation", NewRotation, bTeleportPhysics);
+        STATIC_FINDFUNCTION(K2_SetActorRotation)
+        
+        return Call<bool>(Function_K2_SetActorRotation, NewRotation, bTeleportPhysics);
     }
 
     bool K2_TeleportTo(FVector DestLocation, FRotator DestRotation)
     {
-        return Call<bool>(L"K2_TeleportTo", DestLocation, DestRotation);
+        STATIC_FINDFUNCTION(K2_TeleportTo)
+        
+        return Call<bool>(Function_K2_TeleportTo, DestLocation, DestRotation);
     }
 
     void SetOwner(UObject* NewOwner)
     {
-        Call(L"SetOwner", NewOwner);
+        STATIC_FINDFUNCTION(SetOwner)
+        
+        Call(Function_SetOwner, NewOwner);
     }
 
     AActor* GetOwner()
     {
-        return Call<AActor*>(L"GetOwner");
+        STATIC_FINDFUNCTION(GetOwner)
+    
+        return Call<AActor*>(Function_GetOwner);
     }
 
     float GetDistanceTo(AActor* OtherActor)
     {
-        return Call<float>(L"GetDistanceTo", OtherActor);
+        STATIC_FINDFUNCTION(GetDistanceTo)
+        
+        return Call<float>(Function_GetDistanceTo, OtherActor);
     }
 
     void ForceNetUpdate()
     {
-        Call(L"ForceNetUpdate");
+        STATIC_FINDFUNCTION(ForceNetUpdate)
+        
+        Call(Function_ForceNetUpdate);
     }
 
     void K2_DestroyActor()
     {
-        Call(L"K2_DestroyActor");
+        STATIC_FINDFUNCTION(K2_DestroyActor)
+        
+        Call(Function_K2_DestroyActor);
     }
 };
 

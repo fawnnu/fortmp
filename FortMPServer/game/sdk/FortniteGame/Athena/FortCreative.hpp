@@ -36,37 +36,51 @@ public:
 
     void OnRep_PortalOpen()
     {
-        Call(L"OnRep_PortalOpen");
+        STATIC_FINDFUNCTION(OnRep_PortalOpen)
+        
+        Call(Function_OnRep_PortalOpen);
     }
 
     void OnRep_OwningPlayer()
     {
-        Call(L"OnRep_OwningPlayer");
+        STATIC_FINDFUNCTION(OnRep_OwningPlayer)
+        
+        Call(Function_OnRep_OwningPlayer);
     }
 
     void OnRep_PlayersReady()
     {
-        Call(L"OnRep_PlayersReady");
+        STATIC_FINDFUNCTION(OnRep_PlayersReady)
+        
+        Call(Function_OnRep_PlayersReady);
     }
     
     void OwningPlayerChanged()
     {
-        Call(L"OwningPlayerChanged");
+        STATIC_FINDFUNCTION(OwningPlayerChanged)
+        
+        Call(Function_OwningPlayerChanged);
     }
 
     void PortalOpenChanged()
     {
-        Call(L"PortalOpenChanged");
+        STATIC_FINDFUNCTION(PortalOpenChanged)
+        
+        Call(Function_PortalOpenChanged);
     }
 
     void OnPlayerPawnTeleported(AFortPlayerPawn* FortPlayerPawn)
     {
-        Call(L"OnPlayerPawnTeleported", FortPlayerPawn);
+        STATIC_FINDFUNCTION(OnPlayerPawnTeleported)
+        
+        Call(Function_OnPlayerPawnTeleported, FortPlayerPawn);
     }
 
     void NotifyTeleportedPlayerPawn(AFortPlayerPawn* FortPlayerPawn)
     {
-        Call(L"NotifyTeleportedPlayerPawn", FortPlayerPawn);
+        STATIC_FINDFUNCTION(NotifyTeleportedPlayerPawn)
+        
+        Call(Function_NotifyTeleportedPlayerPawn, FortPlayerPawn);
     }
 };
 
@@ -79,7 +93,9 @@ public:
 
     void MarkPortalUsed(AFortAthenaCreativePortal* PortalUsed)
     {
-        Call(L"MarkPortalUsed", PortalUsed);
+        STATIC_FINDFUNCTION(MarkPortalUsed)
+        
+        Call(Function_MarkPortalUsed, PortalUsed);
     }
 };
 
@@ -136,7 +152,9 @@ public:
 
     void OnRep_PlotPermissionsChanged()
     {
-        Call(L"OnRep_PlotPermissionsChanged");
+        STATIC_FINDFUNCTION(OnRep_PlotPermissionsChanged)
+        
+        Call(Function_OnRep_PlotPermissionsChanged);
     }
 };
 
@@ -159,21 +177,29 @@ public:
 
     void SetPlayset(UFortPlaysetItemDefinition* NewPlayset)
     {
-        Call(L"SetPlayset", NewPlayset);
+        STATIC_FINDFUNCTION(SetPlayset)
+        
+        Call(Function_SetPlayset, NewPlayset);
     }
 
     void OnRep_ClientPlaysetData()
     {
-        Call(L"OnRep_ClientPlaysetData");
+        STATIC_FINDFUNCTION(OnRep_ClientPlaysetData)
+        
+        Call(Function_OnRep_ClientPlaysetData);
     }
 
     void OnFinishedLoading()
     {
-        Call(L"OnFinishedLoading");
+        STATIC_FINDFUNCTION(OnFinishedLoading)
+        
+        Call(Function_OnFinishedLoading);
     }
 
     void OnFinishedLoading_Internal()
     {
-        Call(L"OnFinishedLoading_Internal");
+        STATIC_FINDFUNCTION(OnFinishedLoading_Internal)
+        
+        Call(Function_OnFinishedLoading_Internal);
     }
 };

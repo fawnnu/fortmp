@@ -36,12 +36,16 @@ public:
     
     AFortPlayerPawn* SpawnDefaultPawnAtTransform(APlayerController* NewPlayer, FTransform SpawnTransform)
     {
-        return Call<AFortPlayerPawn*>(L"SpawnDefaultPawnAtTransform", NewPlayer, SpawnTransform);
+        STATIC_FINDFUNCTION(SpawnDefaultPawnAtTransform)
+        
+        return Call<AFortPlayerPawn*>(Function_SpawnDefaultPawnAtTransform, NewPlayer, SpawnTransform);
     }
 
     AActor* ChoosePlayerStart(APlayerController* NewPlayer)
     {
-        return Call<AActor*>(L"ChoosePlayerStart", NewPlayer);
+        STATIC_FINDFUNCTION(ChoosePlayerStart)
+        
+        return Call<AActor*>(Function_ChoosePlayerStart, NewPlayer);
     }
 };
 
@@ -52,7 +56,9 @@ public:
 
     void StartMatch()
     {
-        Call(L"StartMatch");
+        STATIC_FINDFUNCTION(StartMatch)
+        
+        Call(Function_StartMatch);
     }
 };
 
@@ -94,7 +100,9 @@ public:
     // Custom event
     void OnServerReady()
     {
-        Call(L"OnServerReady");
+        STATIC_FINDFUNCTION(OnServerReady)
+        
+        Call(Function_OnServerReady);
     }
 
     void OnPlayerJoined(APlayerController* NewPlayer)

@@ -5,7 +5,9 @@ class UActorComponent : public UObject
 public:
     AActor* GetOwner()
     {
-        return Call<AActor*>(L"GetOwner");
+        STATIC_FINDFUNCTION(GetOwner)
+        
+        return Call<AActor*>(Function_GetOwner);
     }
 };
 
@@ -22,17 +24,23 @@ class USceneComponent : public UActorComponent
 public:
     void K2_SetWorldLocation(FVector Translation, bool bSweep, bool bTeleport, struct FHitResult* OutHitResult)
     {
-        Call(L"K2_SetWorldLocation", Translation, bSweep, OutHitResult, bTeleport);
+        STATIC_FINDFUNCTION(K2_SetWorldLocation)
+        
+        Call(Function_K2_SetWorldLocation, Translation, bSweep, OutHitResult, bTeleport);
     }
 
     void SetPhysicsLinearVelocity(FVector LinearVelocity, bool bAddToCurrent, FName BoneName)
     {
-        Call(L"SetPhysicsLinearVelocity", LinearVelocity, bAddToCurrent, BoneName);
+        STATIC_FINDFUNCTION(SetPhysicsLinearVelocity)
+        
+        Call(Function_SetPhysicsLinearVelocity, LinearVelocity, bAddToCurrent, BoneName);
     }
     
     void SetPhysicsAngularVelocityInRadians(FVector AngularVelocity, bool bAddToCurrent, FName BoneName)
     {
-        Call(L"SetPhysicsAngularVelocityInRadians", AngularVelocity, bAddToCurrent, BoneName);
+        STATIC_FINDFUNCTION(SetPhysicsAngularVelocityInRadians)
+        
+        Call(Function_SetPhysicsAngularVelocityInRadians, AngularVelocity, bAddToCurrent, BoneName);
     }
 };
 

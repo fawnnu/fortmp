@@ -146,13 +146,11 @@ public:
     }
     
     template<typename T = char, typename ...Params>
-    T Call(const wchar_t* function_name, Params... args)
+    T Call(UObject* function_object, Params... args)
     {
         char offset_vector_iterator = 0;
         
-        if (UObject* function_object = FindFunctionByName(this->Class, function_name, 1) ?
-            FindFunctionByName(this->Class, function_name, 1) :
-            StaticFindObject(nullptr, nullptr, function_name, false))
+        if (function_object)
         {
             int16_t return_offset = 0;
             int16_t parms_size = 0;

@@ -61,11 +61,15 @@ public:
     
     void ClientReportKill(AFortPlayerStateAthena* Player)
     {
-        Call(L"ClientReportKill", Player);
+        STATIC_FINDFUNCTION(ClientReportKill)
+        
+        Call(Function_ClientReportKill, Player);
     }
 
     uint8_t ToDeathCause(FGameplayTagContainer InTags, bool bWasDBNO)
     {
-        return Call<uint8_t>(L"ToDeathCause", InTags, bWasDBNO);
+        STATIC_FINDFUNCTION(ToDeathCause)
+        
+        return Call<uint8_t>(Function_ToDeathCause, InTags, bWasDBNO);
     }
 };

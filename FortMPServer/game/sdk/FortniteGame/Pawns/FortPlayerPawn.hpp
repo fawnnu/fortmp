@@ -44,7 +44,9 @@ public:
     
     void SetMovementMode(uint8_t CustomMovementMode, uint8_t MovementMode)
     {
-        Call(L"SetMovementMode", CustomMovementMode, MovementMode);
+        STATIC_FINDFUNCTION(SetMovementMode)
+        
+        Call(Function_SetMovementMode, CustomMovementMode, MovementMode);
     }
 };
 
@@ -71,37 +73,51 @@ public:
     
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
-        return Call<AFortWeapon*>(L"EquipWeaponDefinition", WeaponData, ItemEntryGuid);
+        STATIC_FINDFUNCTION(EquipWeaponDefinition)
+    
+        return Call<AFortWeapon*>(Function_EquipWeaponDefinition, WeaponData, ItemEntryGuid);
     }
 
     bool IsDBNO()
     {
-        return Call<bool>(L"IsDBNO");
+        STATIC_FINDFUNCTION(IsDBNO)
+        
+        return Call<bool>(Function_IsDBNO);
     }
 
     bool IsDead()
     {
-        return Call<bool>(L"IsDead");
+        STATIC_FINDFUNCTION(IsDead)
+        
+        return Call<bool>(Function_IsDead);
     }
 
     bool PickUpActor(AActor* PickupTarget, UFortDecoItemDefinition* PlacementDecoItemDefinition)
     {
-        return Call<bool>(L"PickUpActor", PickupTarget, PlacementDecoItemDefinition);
+        STATIC_FINDFUNCTION(PickUpActor)
+        
+        return Call<bool>(Function_PickUpActor, PickupTarget, PlacementDecoItemDefinition);
     }
 
     void SetHealth(float NewHealthVal)
     {
-        Call(L"SetHealth", NewHealthVal);
+        STATIC_FINDFUNCTION(SetHealth)
+        
+        Call(Function_SetHealth, NewHealthVal);
     }
 
     float GetHealth()
     {
-        return Call<float>(L"GetHealth");
+        STATIC_FINDFUNCTION(GetHealth)
+        
+        return Call<float>(Function_GetHealth);
     }
     
     float GetShield()
     {
-        return Call<float>(L"GetShield");
+        STATIC_FINDFUNCTION(GetShield)
+        
+        return Call<float>(Function_GetShield);
     }
 };
 
@@ -112,20 +128,10 @@ public:
     DEFINE_PROPERTY(UObject*, Owner);
     
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
-
-    void ServerHandlePickup(AFortPickup* Pickup, float InFlyTime, FVector InStartDirection, bool bPlayPickupSound)
-    {
-        Call(L"ServerHandlePickup", Pickup, InFlyTime, InStartDirection, bPlayPickupSound);
-    }
-
+    
     void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)
     {
         ServerChoosePart_Implementation(this, Part, ChosenCharacterPart);
-    }
-
-    void ServerChooseGender(uint8_t Gender)
-    {
-        Call(L"ServerChooseGender", Gender);
     }
 };
 
@@ -136,7 +142,9 @@ public:
 
     void TeleportToSkyDive(float HeighAboveGround)
     {
-        Call(L"TeleportToSkyDive", HeighAboveGround);
+        STATIC_FINDFUNCTION(TeleportToSkyDive)
+        
+        Call(Function_TeleportToSkyDive, HeighAboveGround);
     }
 };
 
@@ -145,12 +153,16 @@ class AFortAIPawn : public UObject
 public:
     void AddFortAbilitySet(UObject* FortAbilitySet)
     {
-        Call(L"/Script/FortniteGame.FortAIPawn.AddFortAbilitySet", FortAbilitySet);
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortAIPawn.AddFortAbilitySet")
+        
+        Call(FunctionObject, FortAbilitySet);
     }
 
     void GrabPickupCustomized(AFortPickup* FortPickup, float FlyTime)
     {
-        Call(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized", FortPickup, FlyTime);
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortAIPawn.GrabPickupCustomized")
+        
+        Call(FunctionObject, FortPickup, FlyTime);
     }
 };
 

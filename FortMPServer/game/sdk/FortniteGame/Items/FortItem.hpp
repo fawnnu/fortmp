@@ -9,22 +9,30 @@ class UFortItem : public UObject
 public:
     UFortItemDefinition* GetItemDefinitionBP()
     {
-        return Call<UFortItemDefinition*>(L"GetItemDefinitionBP");
+        STATIC_FINDFUNCTION(GetItemDefinitionBP)
+        
+        return Call<UFortItemDefinition*>(Function_GetItemDefinitionBP);
     }
 
     FGuid GetItemGuid()
     {
-        return Call<FGuid>(L"GetItemGuid");
+        STATIC_FINDFUNCTION(GetItemGuid)
+        
+        return Call<FGuid>(Function_GetItemGuid);
     }
 
     int GetMaxStackSize(class UAbilitySystemComponent* AbilityComponent)
     {
-        return Call<int>(L"GetMaxStackSize", AbilityComponent);
+        STATIC_FINDFUNCTION(GetMaxStackSize)
+        
+        return Call<int>(Function_GetMaxStackSize, AbilityComponent);
     }
 
     int GetRemainingAmmo()
     {
-        return Call<int>(L"GetRemainingAmmo");
+        STATIC_FINDFUNCTION(GetRemainingAmmo)
+        
+        return Call<int>(Function_GetRemainingAmmo);
     }
 };
 
@@ -44,7 +52,9 @@ public:
     
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)
     {
-        return Call<UFortItem*>(L"CreateTemporaryItemInstanceBP", Count, Level);
+        STATIC_FINDFUNCTION(CreateTemporaryItemInstanceBP)
+        
+        return Call<UFortItem*>(Function_CreateTemporaryItemInstanceBP, Count, Level);
     }
 };
 
@@ -66,15 +76,19 @@ public:
     
     UFortItemDefinition* GetDecoItemDefinition()
     {
-        if(!HasFunction(L"GetWeaponItemDefinition"))
+        STATIC_FINDFUNCTION(GetWeaponItemDefinition)
+        
+        if(!Function_GetWeaponItemDefinition)
         {
+            STATIC_FINDFUNCTION(GetDecoItemDefinition)
+            
             // Used on early versions
-            return Call<UFortItemDefinition*>(L"GetDecoItemDefinition");   
+            return Call<UFortItemDefinition*>(Function_GetDecoItemDefinition);   
         }
         else
         {
             // Used on later builds
-            return Call<UFortItemDefinition*>(L"GetWeaponItemDefinition");
+            return Call<UFortItemDefinition*>(Function_GetWeaponItemDefinition);
         }
     }
 };
@@ -94,7 +108,9 @@ public:
     
     UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()
     {
-        return Call<UFortWorldItemDefinition*>(L"GetAmmoWorldItemDefinition_BP");
+        STATIC_FINDFUNCTION(GetAmmoWorldItemDefinition_BP)
+        
+        return Call<UFortWorldItemDefinition*>(Function_GetAmmoWorldItemDefinition_BP);
     }
 };
 
@@ -162,7 +178,9 @@ public:
 
     void HandleInventoryLocalUpdate()
     {
-        Call(L"HandleInventoryLocalUpdate");
+        STATIC_FINDFUNCTION(HandleInventoryLocalUpdate)
+        
+        Call(Function_HandleInventoryLocalUpdate);
     }
 };
 

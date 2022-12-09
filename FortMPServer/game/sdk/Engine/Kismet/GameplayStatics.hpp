@@ -6,15 +6,19 @@ public:
     static APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.GetPlayerController")
         
-        return Default__GameplayStatics->Call<APlayerController*>(L"GetPlayerController", WorldContextObject, PlayerIndex);
+        return Default__GameplayStatics->Call<APlayerController*>(FunctionObject, WorldContextObject, PlayerIndex);
     }
 
     static UObject* SpawnObject(UObject* Class, UObject* Outer)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.SpawnObject")
         
-        return Default__GameplayStatics->Call<UObject*>(L"SpawnObject", Class, Outer);
+        return Default__GameplayStatics->Call<UObject*>(FunctionObject, Class, Outer);
     }
 
     template <typename T = AActor>

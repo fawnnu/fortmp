@@ -63,6 +63,13 @@
 #define STATIC_HASPROPERTY(Object, PropertyName)\
     static bool bExists_##PropertyName = Object->HasProperty(#PropertyName)
 
+#define STATIC_FINDFUNCTION(FunctionName)\
+    static FName NAME_##FunctionName##(#FunctionName);\
+    \
+    static UObject* Function_##FunctionName = FindFunctionByName(this->Class, NAME_##FunctionName, 1);
+
+#define STATIC_FINDFUNCTIONOBJECT(FunctionName)\
+    static UObject* FunctionObject = FindObject(FunctionName);
 
 #include "sdk/Engine/GameFramework/Actor.hpp"
 #include "sdk/Engine/Interface.hpp"

@@ -118,6 +118,8 @@ public:
 
     void ClientActivateAbilityFailed(FGameplayAbilitySpecHandle AbilityToActivate, int16_t PredictionKey)
     {
-        Call(L"ClientActivateAbilityFailed", AbilityToActivate, PredictionKey);
+        STATIC_FINDFUNCTION(ClientActivateAbilityFailed)
+        
+        Call(Function_ClientActivateAbilityFailed, AbilityToActivate, PredictionKey);
     }
 };

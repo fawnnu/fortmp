@@ -8,12 +8,16 @@ public:
 
     void SetCurrentPlayset(UFortPlaysetItemDefinition* NewPlayset)
     {
-        Call(L"SetCurrentPlayset", NewPlayset);
+        STATIC_FINDFUNCTION(SetCurrentPlayset)
+        
+        Call(Function_SetCurrentPlayset, NewPlayset);
     }
 
     void OnRep_CurrentPlayset()
     {
-        Call(L"OnRep_CurrentPlayset");
+        STATIC_FINDFUNCTION(OnRep_CurrentPlayset);
+        
+        Call(Function_OnRep_CurrentPlayset);
     }
 };
 

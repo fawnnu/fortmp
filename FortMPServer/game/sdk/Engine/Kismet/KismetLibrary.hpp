@@ -13,14 +13,18 @@ public:
         // Static function so use default object
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
 
-        Default__KismetSystemLibrary->Call(L"SetBoolPropertyByName", Target, PropertyName, Value);
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.SetBoolPropertyByName")
+        
+        Default__KismetSystemLibrary->Call(FunctionObject, Target, PropertyName, Value);
     }
 
     static void ExecuteConsoleCommand(FString Command)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.ExecuteConsoleCommand")
         
-        Default__KismetSystemLibrary->Call(L"ExecuteConsoleCommand", *GWorld, Command, nullptr);
+        Default__KismetSystemLibrary->Call(FunctionObject, *GWorld, Command, nullptr);
     }
 
     static FString GetPathName(UObject* Object)
@@ -77,56 +81,70 @@ public:
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.Conv_RotatorToVector")
         
-        return Default__KismetMathLibrary->Call<FVector>(L"Conv_RotatorToVector", InRotator);
+        return Default__KismetMathLibrary->Call<FVector>(FunctionObject, InRotator);
     }
     
     static FVector RandomUnitVectorInConeInDegrees(FVector InDir, float ConeHalfAngle)
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomUnitVectorInConeInDegrees")
         
-        return Default__KismetMathLibrary->Call<FVector>(L"RandomUnitVectorInConeInDegrees", InDir, ConeHalfAngle);
+        return Default__KismetMathLibrary->Call<FVector>(FunctionObject, InDir, ConeHalfAngle);
     }
 
     static FVector Add_VectorVector(FVector A, FVector B)
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.Add_VectorVector")
         
-        return Default__KismetMathLibrary->Call<FVector>(L"Add_VectorVector", A, B); 
+        return Default__KismetMathLibrary->Call<FVector>(FunctionObject, A, B); 
     }
     
     static float RandomFloatInRange(float Min, float Max)
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomFloatInRange")
         
-        return Default__KismetMathLibrary->Call<float>(L"RandomFloatInRange", Min, Max);
+        return Default__KismetMathLibrary->Call<float>(FunctionObject, Min, Max);
     }
     
     static int RandomIntegerInRange(int Min, int Max)
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomIntegerInRange")
         
-        return Default__KismetMathLibrary->Call<int>(L"RandomIntegerInRange", Min, Max);
+        return Default__KismetMathLibrary->Call<int>(FunctionObject, Min, Max);
     }
     
     static bool RandomBool()
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomBool")
         
-        return Default__KismetMathLibrary->Call<bool>(L"RandomBool");
+        return Default__KismetMathLibrary->Call<bool>(FunctionObject);
     }
     
     static bool RandomBoolWithWeight(float Weight)
     {
         // Static function to use default object
         static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomBoolWithWeight")
         
-        return Default__KismetMathLibrary->Call<bool>(L"RandomBoolWithWeight", Weight);
+        return Default__KismetMathLibrary->Call<bool>(FunctionObject, Weight);
     }
 };
 
@@ -169,18 +187,13 @@ public:
         return function_params.ReturnValue;
     }
 
-    static FString Concat(FString A, FString B)
-    {
-        static UKismetStringLibrary* Default__KismetStringLibrary = FindObject<UKismetStringLibrary>(L"/Script/Engine.Default__KismetStringLibrary");
-        
-        return Default__KismetStringLibrary->Call<FString>(L"Concat_StrStr", A, B);
-    }
-
     static bool Equals(FString A, FString B)
     {
         static UKismetStringLibrary* Default__KismetStringLibrary = FindObject<UKismetStringLibrary>(L"/Script/Engine.Default__KismetStringLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetStringLibrary.EqualEqual_StrStr")
         
-        return Default__KismetStringLibrary->Call<bool>(L"EqualEqual_StrStr", A, B);
+        return Default__KismetStringLibrary->Call<bool>(FunctionObject, A, B);
     }
 };
 
@@ -198,7 +211,9 @@ public:
     {
         // Static function to use default object
         static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortKismetLibrary.EqualEqual_UniqueNetIdReplUniqueNetIdRepl")
         
-        return Default__FortKismetLibrary->Call<bool>(L"EqualEqual_UniqueNetIdReplUniqueNetIdRepl", A, B);
+        return Default__FortKismetLibrary->Call<bool>(FunctionObject, A, B);
     }
 };

@@ -57,7 +57,9 @@ public:
     
     AWorldSettings* K2_GetWorldSettings()
     {
-        return Call<AWorldSettings*>(L"K2_GetWorldSettings");
+        STATIC_FINDFUNCTION(K2_GetWorldSettings)
+        
+        return Call<AWorldSettings*>(Function_K2_GetWorldSettings);
     }
 };
 

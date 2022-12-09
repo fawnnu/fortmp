@@ -12,7 +12,9 @@ class UGameplayAbility : public UObject
 public:
     void K2_CancelAbility()
     {
-        Call(L"K2_CancelAbility");
+        STATIC_FINDFUNCTION(K2_CancelAbility)
+        
+        Call(Function_K2_CancelAbility);
     }
 };
 
@@ -23,11 +25,15 @@ public:
 
     AFortPawn* GetActivatingPawn()
     {
-        return Call<AFortPawn*>(L"GetActivatingPawn");
+        STATIC_FINDFUNCTION(GetActivatingPawn)
+        
+        return Call<AFortPawn*>(Function_GetActivatingPawn);
     }
 
     AFortWeapon* GetCurrentSourceWeapon()
     {
-        return Call<AFortWeapon*>(L"GetCurrentSourceWeapon");
+        STATIC_FINDFUNCTION(GetCurrentSourceWeapon)
+        
+        return Call<AFortWeapon*>(Function_GetCurrentSourceWeapon);
     }
 };

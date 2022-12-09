@@ -51,6 +51,8 @@ public:
     {
         static UEnvQueryManager* EnvQueryManager__Default = FindObject<UEnvQueryManager>(L"/Script/AIModule.Default__EnvQueryManager");
 
-        return EnvQueryManager__Default->Call<UEnvQueryInstanceBlueprintWrapper*>(L"RunEQSQuery", WorldContextObject, QueryTemplate, Querier, RunMode, WrapperClass);
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/AIModule.EnvQueryManager.RunEQSQuery")
+        
+        return EnvQueryManager__Default->Call<UEnvQueryInstanceBlueprintWrapper*>(FunctionObject, WorldContextObject, QueryTemplate, Querier, RunMode, WrapperClass);
     }
 };

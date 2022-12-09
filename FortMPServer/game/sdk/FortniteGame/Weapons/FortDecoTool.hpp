@@ -21,7 +21,9 @@ public:
 
     void OnRep_AttachedTo()
     {
-        Call(L"OnRep_AttachedTo");
+        STATIC_FINDFUNCTION(OnRep_AttachedTo)
+        
+        Call(Function_OnRep_AttachedTo);
     }
 };
 
@@ -32,6 +34,8 @@ public:
 
     void SetContextTrapItemDefinition(UFortItemDefinition* InContextTrapItemDefinition)
     {
-        Call(L"SetContextTrapItemDefinition", InContextTrapItemDefinition);
+        STATIC_FINDFUNCTION(SetContextTrapItemDefinition)
+        
+        Call(Function_SetContextTrapItemDefinition, InContextTrapItemDefinition);
     }
 };

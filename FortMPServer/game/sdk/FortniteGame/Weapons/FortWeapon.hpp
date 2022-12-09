@@ -17,12 +17,16 @@ public:
 
     int GetLocalMagazineAmmoCount()
     {
-        return Call<int>(L"GetLocalMagazineAmmoCount");
+        STATIC_FINDFUNCTION(GetLocalMagazineAmmoCount)
+        
+        return Call<int>(Function_GetLocalMagazineAmmoCount);
     }
     
     int GetRemainingAmmo()
     {
-        return Call<int>(L"GetRemainingAmmo");
+        STATIC_FINDFUNCTION(GetRemainingAmmo)
+        
+        return Call<int>(Function_GetRemainingAmmo);
     }
 };
 

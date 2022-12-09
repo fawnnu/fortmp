@@ -38,7 +38,9 @@ public:
 
     void ServerActivateSlotInternal(uint8_t InQuickbar, int Slot)
     {
-        Call(L"ServerActivateSlotInternal", InQuickbar, Slot, 0.f, false);
+        STATIC_FINDFUNCTION(ServerActivateSlotInternal)
+        
+        Call(Function_ServerActivateSlotInternal, InQuickbar, Slot, 0.f, false);
     }
 
     void ServerRemoveItemInternal(FGuid InGuid, bool bIsSwapping = false)

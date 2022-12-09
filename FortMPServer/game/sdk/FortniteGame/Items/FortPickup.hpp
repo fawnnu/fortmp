@@ -30,15 +30,19 @@ public:
     void TossPickup(FVector FinalLocation, AFortPlayerPawn* ItemOwner, int OverrideMaxStackCount, bool bToss)
     {
         static bool b_has_toss_argument = FindPropertyByName(FindObject(L"/Script/FortniteGame.FortPickup.TossPickup"), L"bToss") != nullptr;
+
+        STATIC_FINDFUNCTION(TossPickup)
         
         b_has_toss_argument ?
-            Call(L"TossPickup", FinalLocation, ItemOwner, OverrideMaxStackCount, bToss) :
-            Call(L"TossPickup", FinalLocation, ItemOwner, OverrideMaxStackCount);
+            Call(Function_TossPickup, FinalLocation, ItemOwner, OverrideMaxStackCount, bToss) :
+            Call(Function_TossPickup, FinalLocation, ItemOwner, OverrideMaxStackCount);
     }
 
     void OnRep_PickupLocationData()
     {
-        Call(L"OnRep_PickupLocationData");
+        STATIC_FINDFUNCTION(OnRep_PickupLocationData)
+        
+        Call(Function_OnRep_PickupLocationData);
     }
 };
 
