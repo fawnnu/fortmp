@@ -55,7 +55,20 @@ bool net_component::listen(FURL in_url)
             // Error caused by InitListen (if any)
             FString in_error;
 
-            return InitListen(net_driver, in_notify, in_url, false, in_error);
+            if (!InitListen(net_driver, in_notify, in_url, false, in_error))
+            {
+                return false;
+            }
+
+            if ((net_driver->MaxInternetClientRate() < net_driver->MaxClientRate()) && (net_driver->MaxInternetClientRate() > 2500))
+            {
+                spdlog::info(net_driver->MaxClientRate());
+                spdlog::info(net_driver->MaxInternetClientRate());
+                
+                net_driver->MaxClientRate() = net_driver->MaxInternetClientRate();
+            }
+
+            return true;
         }
     }
 

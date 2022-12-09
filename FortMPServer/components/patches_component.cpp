@@ -211,12 +211,6 @@ bool patches_component_hook::SpawnPlayActor_Hook(ULocalPlayer* LocalPlayer, uint
 
 float patches_component_hook::GetMaxTickRate_Hook(UObject* Engine, float DeltaTime, bool bAllowSmoothing)
 {
-    // Force this function to act like on an actual dedicated server
-    if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
-    {
-        return NetDriver->NetServerMaxTickRate();
-    }
-
     return 30.f;
 }
 

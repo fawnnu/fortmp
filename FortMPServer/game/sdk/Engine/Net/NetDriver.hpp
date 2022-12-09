@@ -13,4 +13,7 @@ public:
     DEFINE_PROPERTY(FName, NetDriverName);
 
     DEFINE_PROPERTY(int, NetServerMaxTickRate);
+
+    DEFINE_PROPERTY(int, MaxInternetClientRate);
+    DEFINE_PROPERTY(int, MaxClientRate);
 };

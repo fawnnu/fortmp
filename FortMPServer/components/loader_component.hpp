@@ -26,19 +26,6 @@ private:
             ],
             "attachments": []
         })"_json;
-    
-public:
-    inline static nlohmann::json on_server_restart_msg = R"({
-            "content": null,
-            "embeds": [
-             {
-                 "title": "Server Status",
-                  "description": "Servers are restarting!",
-                  "color": null
-               }
-            ],
-            "attachments": []
-        })"_json;
 };
 
 namespace loader_component_hooks
