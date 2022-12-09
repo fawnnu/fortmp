@@ -107,8 +107,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = APlayerPawn_Athena_C::StaticClass();
         
         // setup warmup time
-        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
-        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
+        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 90.f;
+        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 90.f;
+        (*GWorld)->AuthorityGameMode()->WarmupRequiredPlayerCount() = 20;
 
         if ((*GWorld)->AuthorityGameMode()->HasProperty(L"EndGameKickPlayersDelay"))
         {
@@ -116,11 +117,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         // Start match
-        if (in_playlist &&
-            in_playlist->HasProperty(L"bEnableCreativeMode") &&
-            in_playlist->bEnableCreativeMode() == false ||
-            in_playlist == nullptr ||
-            in_playlist->HasProperty(L"bEnableCreativeMode") == false)
+        if (GetEngineVersionEasy() > 423)
         {
             (*GWorld)->AuthorityGameMode()->StartMatch();
         }

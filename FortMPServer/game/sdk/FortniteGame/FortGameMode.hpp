@@ -86,6 +86,7 @@ public:
     }
     
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
+    DEFINE_PROPERTY(int, WarmupRequiredPlayerCount);
     DEFINE_PROPERTY(float, WarmupEarlyCountdownDuration);
     DEFINE_PROPERTY(float, EndGameKickPlayersDelay);
     
