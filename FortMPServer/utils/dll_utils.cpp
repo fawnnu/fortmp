@@ -77,7 +77,7 @@ nlohmann::json dll_utils::get_banlist()
 
 void dll_utils::send_webhook_message(std::string target_webhook, std::string message)
 {
-#ifndef SILENCE_WEBHOOKS
+#ifdef _RELEASE
     httplib::Client client("https://discord.com");
     
     client.Post(target_webhook, message, "application/json");

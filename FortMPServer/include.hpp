@@ -4,7 +4,6 @@
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
-#define SILENCE_WEBHOOKS
 
 #include <Windows.h>
 #include <Psapi.h>
