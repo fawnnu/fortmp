@@ -156,7 +156,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     StateValues.Add(NewStateValue);
 
     // Support force quickbar focus when item gets added to inventory
-    if (item_definition->HasProperty(L"bForceFocusWhenAdded"))
+    if (STATIC_HASPROPERTY(item_definition, bForceFocusWhenAdded))
     {
         if(static_cast<UFortWorldItemDefinition*>(item_definition)->bForceFocusWhenAdded() == true)
         {
@@ -202,7 +202,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
 
             UFortWorldItemDefinition* world_item_definition = reinterpret_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
 
-            if (world_item_definition->HasProperty(L"bPersistInInventoryWhenFinalStackEmpty"))
+            if (STATIC_HASPROPERTY(world_item_definition, bPersistInInventoryWhenFinalStackEmpty))
             {
                 if(world_item_definition->bPersistInInventoryWhenFinalStackEmpty() == true)
                 {
@@ -255,9 +255,9 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             }
             
             // has to be done on older builds
-            static bool b_legacy_quickbars = player_controller->HasProperty(L"QuickBars");
+            STATIC_HASPROPERTY(player_controller, QuickBars);
             
-            if (b_legacy_quickbars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
+            if (bExists_QuickBars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
             {
                 player_controller->QuickBars()->ServerRemoveItemInternal(item_guid, b_is_swapping);
             }
@@ -288,7 +288,9 @@ bool inventory_component::is_inventory_full(AFortPlayerController* player_contro
 
 bool inventory_component::has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
 {
-    AFortQuickBars* player_quickbars = player_controller->HasProperty("QuickBars") ?
+    STATIC_HASPROPERTY(player_controller, QuickBars);
+    
+    AFortQuickBars* player_quickbars = bExists_QuickBars ?
         player_controller->QuickBars() : player_controller->ClientQuickBars();
 
     // Slot for all normal inventory items (skip the harvesting tool slot)
@@ -409,38 +411,41 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     {
         if (AFortWeapon* CurrentWeapon = PlayerController->Pawn()->CurrentWeapon())
         {
-            if (CurrentWeapon->HasProperty(L"DefaultMetadata"))
+            if (CurrentWeapon->IsA(AFortWeap_BuildingTool::StaticClass()))
             {
-                UBuildingEditModeMetadata*& Metadata = reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->DefaultMetadata();
-
-                static UFortItemDefinition* Roof = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS");
-                static UFortItemDefinition* Stairs = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W");
-                static UFortItemDefinition* Floor = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor");
-                static UFortItemDefinition* Wall = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall");
-
-                static UBuildingEditModeMetadata* RoofMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Roof/EMP_Roof_RoofC.EMP_Roof_RoofC");
-                static UBuildingEditModeMetadata* StairsMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Stair/EMP_Stair_StairW.EMP_Stair_StairW");
-                static UBuildingEditModeMetadata* FloorMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Floor/EMP_Floor_Floor.EMP_Floor_Floor");
-                static UBuildingEditModeMetadata* WallMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Wall/EMP_Wall_Solid.EMP_Wall_Solid");
-
-                if (fort_item->GetItemDefinitionBP() == Wall)
+                if (STATIC_HASPROPERTY(CurrentWeapon, DefaultMetadata))
                 {
-                    Metadata = WallMetadata;
-                }
-                else if (fort_item->GetItemDefinitionBP() == Floor)
-                {
-                    Metadata = FloorMetadata;
-                }
-                else if (fort_item->GetItemDefinitionBP() == Stairs)
-                {
-                    Metadata = StairsMetadata;
-                }
-                else if (fort_item->GetItemDefinitionBP() == Roof)
-                {
-                    Metadata = RoofMetadata;
-                }
+                    UBuildingEditModeMetadata*& Metadata = reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->DefaultMetadata();
 
-                reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->OnRep_DefaultMetadata();
+                    static UFortItemDefinition* Roof = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_RoofS.BuildingItemData_RoofS");
+                    static UFortItemDefinition* Stairs = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Stair_W.BuildingItemData_Stair_W");
+                    static UFortItemDefinition* Floor = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Floor.BuildingItemData_Floor");
+                    static UFortItemDefinition* Wall = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/BuildingItemData_Wall.BuildingItemData_Wall");
+
+                    static UBuildingEditModeMetadata* RoofMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Roof/EMP_Roof_RoofC.EMP_Roof_RoofC");
+                    static UBuildingEditModeMetadata* StairsMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Stair/EMP_Stair_StairW.EMP_Stair_StairW");
+                    static UBuildingEditModeMetadata* FloorMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Floor/EMP_Floor_Floor.EMP_Floor_Floor");
+                    static UBuildingEditModeMetadata* WallMetadata = FindObject<UBuildingEditModeMetadata>(L"/Game/Building/EditModePatterns/Wall/EMP_Wall_Solid.EMP_Wall_Solid");
+
+                    if (fort_item->GetItemDefinitionBP() == Wall)
+                    {
+                        Metadata = WallMetadata;
+                    }
+                    else if (fort_item->GetItemDefinitionBP() == Floor)
+                    {
+                        Metadata = FloorMetadata;
+                    }
+                    else if (fort_item->GetItemDefinitionBP() == Stairs)
+                    {
+                        Metadata = StairsMetadata;
+                    }
+                    else if (fort_item->GetItemDefinitionBP() == Roof)
+                    {
+                        Metadata = RoofMetadata;
+                    }
+
+                    reinterpret_cast<AFortWeap_BuildingTool*>(CurrentWeapon)->OnRep_DefaultMetadata();
+                }
             }
         }
     }

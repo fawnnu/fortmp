@@ -107,7 +107,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     }
 
     // Register quest manager
-    if(NewPlayer->HasProperty(L"XPComponent"))
+    if(STATIC_HASPROPERTY(NewPlayer, XPComponent))
     {
         static_cast<AFortPlayerController*>(NewPlayer)->XPComponent()->bRegisteredWithQuestManager() = true;
     }
@@ -144,7 +144,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
 
     // Bind OnStartedRespawn delegate
-    if (NewPlayer->HasProperty(L"OnStartedRespawn"))
+    if (STATIC_HASPROPERTY(NewPlayer, OnStartedRespawn))
     {
         static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Add(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
     }

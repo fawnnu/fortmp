@@ -102,3 +102,17 @@ bool FString::operator==(FString in_str)
 {
     return UKismetStringLibrary::Equals(*this, in_str);
 }
+
+UFortPlaylistAthena* GetPlaylistEasy()
+{
+    STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);
+    STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistInfo);
+    
+    UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
+            (*GWorld)->GameState()->CurrentPlaylistData() :
+            bExists_CurrentPlaylistInfo ?
+            (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
+            nullptr;
+
+    return current_playlist;
+}

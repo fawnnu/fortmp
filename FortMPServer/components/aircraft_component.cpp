@@ -74,7 +74,9 @@ void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAi
 
 void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft* Aircraft)
 {
-    AFortPlayerControllerAthena* FortPlayerControllerAthena = _this->HasProperty(L"CurrentAircraft") ?
+    STATIC_HASPROPERTY(_this, CurrentAircraft);
+    
+    AFortPlayerControllerAthena* FortPlayerControllerAthena = bExists_CurrentAircraft ?
         static_cast<AFortPlayerControllerAthena*>(static_cast<UFortControllerComponent_Aircraft*>(_this)->GetOwner()) :
         static_cast<AFortPlayerControllerAthena*>(_this);
     

@@ -34,16 +34,13 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
 
             int Count = 0;
 
-            UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
-                (*GWorld)->GameState()->CurrentPlaylistData() :
-                (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
-                (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
-                nullptr;
+            UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
             // Get resource rates table
             UCurveTable* OverrideResourceRates = nullptr;
 
-            if (current_playlist != nullptr && current_playlist->HasProperty(L"ResourceRates"))
+            STATIC_HASPROPERTY(current_playlist, ResourceRates);
+            if (current_playlist != nullptr && bExists_ResourceRates)
             {
                 OverrideResourceRates = current_playlist->ResourceRates().Get();
             }

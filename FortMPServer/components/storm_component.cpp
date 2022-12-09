@@ -15,7 +15,8 @@ storm_component::storm_component()
 TMap<FName, Struct*> storm_component::get_game_data_table()
 {
     // Get current playlist
-    static UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+    STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);
+    static UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
         (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
     // Get game data table

@@ -148,6 +148,13 @@ public:
 class AFortWeap_BuildingTool : public AActor
 {
 public:
+    static UObject* StaticClass()
+    {
+        static UObject* static_class = FindObject(L"/Script/FortniteGame/FortWeap_BuildingTool");
+
+        return static_class;
+    }
+    
     DEFINE_PROPERTY(class UBuildingEditModeMetadata*, DefaultMetadata);
 
     void OnRep_DefaultMetadata()

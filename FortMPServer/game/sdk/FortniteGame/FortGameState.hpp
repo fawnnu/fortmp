@@ -95,7 +95,7 @@ public:
             return;
         }
         
-        if (in_playlist->HasProperty(L"AdditionalLevels"))
+        if (STATIC_HASPROPERTY(in_playlist, AdditionalLevels))
         {
             for (auto streamed_world : in_playlist->AdditionalLevels())
             {

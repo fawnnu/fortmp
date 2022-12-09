@@ -533,3 +533,5 @@ inline float GetFortniteVersionEasy()
         
     return std::stod(engine_version.substr(34, 4));
 }
+
+class UFortPlaylistAthena* GetPlaylistEasy();

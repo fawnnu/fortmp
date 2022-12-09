@@ -53,7 +53,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
 
-    if (static bool HasProperty = fort_pickup->HasProperty("bServerStoppedSimulation"))
+    if (STATIC_HASPROPERTY(fort_pickup, bServerStoppedSimulation))
     {
         if (fort_pickup->bServerStoppedSimulation())
         {
@@ -62,7 +62,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         }
     }
 
-    if (static bool HasProperty = fort_pickup->HasProperty(L"bRandomRotation"))
+    if (STATIC_HASPROPERTY(fort_pickup, bRandomRotation))
     {
         fort_pickup->bRandomRotation() = true;
     }
@@ -113,7 +113,7 @@ void pickup_component::toss_pickup(AFortPickup* fort_pickup, ABuildingActor* con
     // Now setup the pickup
     fort_pickup->bTossedFromContainer() = true;
 
-    if (fort_pickup->HasProperty("bCombinePickupsWhenTossCompletes"))
+    if (STATIC_HASPROPERTY(fort_pickup, bCombinePickupsWhenTossCompletes))
     {
         fort_pickup->bCombinePickupsWhenTossCompletes() = false;
     }

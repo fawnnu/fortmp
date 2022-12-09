@@ -142,14 +142,14 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
 bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
 {
-    if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistData"))
+    if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData))
     {
         (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
 
         // Load playlist on the server
         (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
     }
-    else if ((*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo"))
+    else if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistInfo))
     {
         (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
         (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
@@ -233,7 +233,7 @@ void loader_component::initialize_llamas()
         }
         
         // Set the supply drop info's class
-        if (MapInfo->HasProperty(L"LlamaClass"))
+        if (STATIC_HASPROPERTY(MapInfo, LlamaClass))
         {
             NewSupplyDropInfo->SupplyDropClass() = MapInfo->LlamaClass();
 
@@ -315,8 +315,10 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {
     // Call original function first
     UpdateLevelStreaming(World);
+
+    static FName NAME_WaitingToStart(L"WaitingToStart");
     
-    if (World->GameState() && World->GameState()->MatchState() == L"WaitingToStart")
+    if (World->GameState() && World->GameState()->MatchState() == NAME_WaitingToStart)
     {
         if (World->GameState()->WorldManager())
         {
@@ -332,7 +334,7 @@ void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
                 }
             
                 // allows vehicles to spawn
-                if (static bool b_has_property = (*GWorld)->AuthorityGameMode()->HasProperty(L"bMapInfoInitialized"))
+                if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bMapInfoInitialized))
                 {
                     bool& bMapInfoInitialized = (*GWorld)->AuthorityGameMode()->bMapInfoInitialized();
                     

@@ -19,11 +19,7 @@ creative_component::creative_component()
 
 void creative_component::handle_player_join(UNetConnection* NetConnection)
 {
-    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
-            (*GWorld)->GameState()->CurrentPlaylistData() :
-            (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
-            (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
-            nullptr;
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
     if (current_playlist == nullptr)
     {
@@ -31,8 +27,9 @@ void creative_component::handle_player_join(UNetConnection* NetConnection)
 
         return;
     }
-    
-    if (current_playlist->HasProperty(L"bEnableCreativeMode") &&
+
+    STATIC_HASPROPERTY(current_playlist, bEnableCreativeMode);
+    if (bExists_bEnableCreativeMode &&
         current_playlist->bEnableCreativeMode() == true)
     {
         // Assign portal to player
@@ -125,7 +122,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
                         LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
                     
-                        if (LevelSaveComponent->HasProperty(L"PlotPermissions"))
+                        if (STATIC_HASPROPERTY(LevelSaveComponent, PlotPermissions))
                         {
                             /* @ Private = 0
                              * @ Public = 1 */

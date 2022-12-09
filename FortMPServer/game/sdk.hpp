@@ -60,6 +60,10 @@
         return *reinterpret_cast<PropertyType*>(__int64(this) + native_property_offset);                                        \
     }
 
+#define STATIC_HASPROPERTY(Object, PropertyName)\
+    static bool bExists_##PropertyName = Object->HasProperty(#PropertyName)
+
+
 #include "sdk/Engine/GameFramework/Actor.hpp"
 #include "sdk/Engine/Interface.hpp"
 #include "sdk/FortniteGame/Items/FortItem.hpp"

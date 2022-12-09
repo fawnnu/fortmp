@@ -73,11 +73,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     AFortPlayerController* VictimPlayerController = reinterpret_cast<AFortPlayerController*>(Object);
 
     // Get playlist
-    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
-        (*GWorld)->GameState()->CurrentPlaylistData() :
-        (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
-        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
-        nullptr;
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
     
     if (DeathReport.KillerPlayerState())
     {
@@ -140,10 +136,12 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
     }
 
+    STATIC_HASPROPERTY(current_playlist, RespawnType);
+
     // only proceed if Respawn isn't enabled
     if (current_playlist == nullptr ||
-        current_playlist->HasProperty(L"RespawnType") == false ||
-        current_playlist->HasProperty(L"RespawnType") == true &&
+        bExists_RespawnType == false ||
+        bExists_RespawnType == true &&
         current_playlist->RespawnType() == 0)
     {
         if (RemoveFromAlivePlayerList)

@@ -19,7 +19,7 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
     // Set team
     player_controller->PlayerState()->TeamIndex() = team_index;
 
-    if (player_controller->PlayerState()->HasProperty(L"SquadId"))
+    if (STATIC_HASPROPERTY(player_controller->PlayerState(), SquadId))
     {
         player_controller->PlayerState()->SquadId() = team_index;
     }
@@ -66,11 +66,7 @@ int team_component::get_team_size()
     constexpr int max_team_size_override = 1;
     
     // Get current playlist
-    UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
-        (*GWorld)->GameState()->CurrentPlaylistData() :
-        (*GWorld)->GameState()->HasProperty("CurrentPlaylistInfo") ?
-        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() :
-        nullptr;
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
     return current_playlist ? current_playlist->MaxTeamSize() : max_team_size_override;
 }

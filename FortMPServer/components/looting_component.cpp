@@ -668,7 +668,8 @@ UObject* looting_component::get_loot_tier_data()
     
     if (b_has_playlist) // make sure there's a playlist property
     {
-        UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+        STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);
+        UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
         if (UObject* playlist_loot_tier_data = current_playlist->LootTierData().Get())
@@ -690,7 +691,8 @@ UObject* looting_component::get_loot_tier_packages()
     
     if (b_has_playlist) // make sure there's a playlist property
     {
-        UFortPlaylistAthena* current_playlist = (*GWorld)->GameState()->HasProperty("CurrentPlaylistData") ?
+        STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);
+        UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
     
         if (UObject* playlist_loot_tier_packages = current_playlist->LootPackages().Get())

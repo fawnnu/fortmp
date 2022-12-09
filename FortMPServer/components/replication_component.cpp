@@ -624,9 +624,7 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
         return 0;
     }
 
-    static bool has_replication_driver = NetDriver->HasProperty(L"ReplicationDriver");
-
-    if (has_replication_driver)
+    if (STATIC_HASPROPERTY(NetDriver, ReplicationDriver))
     {
         if (NetDriver->ReplicationDriver())
         {
