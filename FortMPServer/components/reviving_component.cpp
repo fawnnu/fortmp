@@ -26,6 +26,9 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
 
     if (player_to_revive->IsDBNO())
     {
+        // Null deathinfo
+        ZeroMemory(&player_to_revive->PlayerState()->DeathInfo(), FDeathInfo::GetStructSize());
+        
         // Using SetBoolPropertyByName as property changes from boolean -> bit
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDBNO", false);
@@ -45,8 +48,6 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
                     replicated_instance->K2_CancelAbility();
                 }
             }
-
-            // TODO: Check if NonReplicatedInstances is even needed?
             
             for (UGameplayAbility* non_replicated_instance : ability_spec.NonReplicatedInstances)
             {
@@ -61,7 +62,14 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
             }
         }
 
-        // TODO: Might need SendGameplayEventToActor
+        // Create payload
+        auto NewPayload = FGameplayEventData::Create();
+        NewPayload->Instigator() = player_controller->Pawn();
+        NewPayload->Target() = player_to_revive;
+        NewPayload->EventTag() = player_to_revive->EventReviveTag();
+
+        // Send gameplay event
+        UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(player_to_revive, player_to_revive->EventReviveTag(), NewPayload);
 
         // Set health
         player_to_revive->SetHealth(30.0f);

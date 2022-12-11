@@ -217,3 +217,38 @@ public:
         return Default__FortKismetLibrary->Call<bool>(FunctionObject, A, B);
     }
 };
+
+class UAbilitySystemBlueprintLibrary : public UObject
+{
+public:
+    static void SendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData* Payload)
+    {
+        static UObject* Default__AbilitySystemBlueprintLibrary = FindObject(L"/Script/GameplayAbilities.Default__AbilitySystemBlueprintLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/GameplayAbilities.AbilitySystemBlueprintLibrary.SendGameplayEventToActor");
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+            
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(FunctionObject) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+            
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // SET PARAMS
+        struct FunctionParams
+        {
+            AActor* Actor;
+            FGameplayTag EventTag;
+            FGameplayEventData Payload;
+        };
+
+        FunctionParams* params = static_cast<FunctionParams*>(alloca(parms_size));
+        params->Actor = Actor;
+        params->EventTag = EventTag;
+        memcpy(&params->Payload, Payload, FGameplayEventData::GetStructSize());
+    }
+};

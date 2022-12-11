@@ -126,7 +126,7 @@ class AFortPlayerPawn : public AFortPawn
 {
 public:
     DEFINE_PROPERTY(UObject*, Owner);
-    
+    DEFINE_PROPERTY(FGameplayTag, EventReviveTag);
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
     
     void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)

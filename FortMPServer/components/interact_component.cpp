@@ -23,10 +23,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
-    spdlog::info(L"handle_interaction: player_controller: {}, receiving_actor: {}",
-        player_controller->GetName().c_str(),
-        receiving_actor->GetName().c_str());
-    
     if (receiving_actor->IsA(building_container_class))
     {
         // Handle any interactions with building containers

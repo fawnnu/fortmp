@@ -74,11 +74,6 @@ struct FGameplayAttributeData
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAttributeData");
 };
 
-struct FGameplayEventData
-{
-    
-};
-
 struct FScalableFloat
 {
     DEFINE_STRUCT_PROPERTY(float, Value);

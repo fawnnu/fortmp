@@ -137,8 +137,6 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     // Prevent duplication
     if (Pickup->bPickedUp())
     {
-        spdlog::error(L"Attempting to pick up {}, but bPickedUp is true", Pickup->GetName().c_str());
-        
         return;
     }
     
