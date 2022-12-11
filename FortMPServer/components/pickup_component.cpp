@@ -197,9 +197,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 // Swap item
                 inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
 
-                if (spawned_item != nullptr)
+                if (spawned_item)
                 {
-                    if (TryAddToQuickBar != nullptr)
+                    if (TryAddToQuickBar)
                     {
                         TryAddToQuickBar(PlayerController, spawned_item);
                     }
@@ -210,7 +210,7 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             }
             else
             {
-                if (spawned_item != nullptr)
+                if (spawned_item)
                 {
                     // Unable to swap
                     inventory_component::remove_item(PlayerController, spawned_item->ItemEntry().ItemGuid(), -1);   

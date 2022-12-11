@@ -22,13 +22,6 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     
-    REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_function_by_string(L"AFortPlayerControllerZone::OnGamepadAbilityRelease: Item", {0xe8,0x100,0x100,0x100,0xff}, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
-
-    if (!inventory_component_hooks::UnknownQuickbarFunction)
-    {
-        REGISTER_FUNCTION_DETOUR(inventory_component_hooks::UnknownQuickbarFunction, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B F0 48 85 C0 0F 84 ? ? ? ? 44 8B 15 ? ? ? ?", true, 1), inventory_component_hooks::UnknownQuickbarFunction_Hook);
-    }
-    
     DetourTransactionCommit();
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
@@ -167,7 +160,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Mark for replication
     player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
 
-    if (TryAddToQuickBar != nullptr)
+    if (TryAddToQuickBar)
     {
         TryAddToQuickBar(player_controller, world_item);
     }
@@ -511,20 +504,6 @@ void inventory_component_hooks::ServerAttemptInventoryDrop_Hook(AFortPlayerContr
     inventory_component::remove_item(PlayerController, ItemGuid, Count);
     
     return ServerAttemptInventoryDrop(PlayerController, StackFrame);
-}
-
-uintptr_t inventory_component_hooks::UnknownQuickbarFunction_Hook(AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot)
-{
-    const uintptr_t return_value = UnknownQuickbarFunction(FortQuickBars, QuickbarIndex, QuickbarSlot);
-    
-    if (return_value && memory_manager::is_bad_read_pointer(reinterpret_cast<LPVOID>(return_value)))
-    {
-        spdlog::error(L"UnknownQuickbarFunction attempted to return a bad pointer.");
-        
-        return 0;
-    }
-    
-    return return_value;
 }
 
 int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(AFortPlayerController* PlayerController, UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval)

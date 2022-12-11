@@ -62,9 +62,6 @@ bool net_component::listen(FURL in_url)
 
             if ((net_driver->MaxInternetClientRate() < net_driver->MaxClientRate()) && (net_driver->MaxInternetClientRate() > 2500))
             {
-                spdlog::info(net_driver->MaxClientRate());
-                spdlog::info(net_driver->MaxInternetClientRate());
-                
                 net_driver->MaxClientRate() = net_driver->MaxInternetClientRate();
             }
 

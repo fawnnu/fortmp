@@ -29,9 +29,6 @@ namespace inventory_component_hooks
     // Called when player tries to drop item from inventory
     DEFINE_FUNCTION_HOOK(void, ServerAttemptInventoryDrop, (AFortPlayerController* PlayerController, FFrame& StackFrame));
 
-    // Experimental hook, fixes server crashes on 4.2 and more versions probably, but is probably useless after Quickbar functions aren't called anymore above ue 4.19
-    DEFINE_FUNCTION_HOOK(uintptr_t, UnknownQuickbarFunction, (AFortQuickBars* FortQuickBars, char QuickbarIndex, int QuickbarSlot));
-
     DEFINE_FUNCTION_HOOK(int, K2_RemoveItemFromPlayer, (class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int AmountToRemove, bool bForceRemoval));
     
     DEFINE_FUNCTION_HOOK(int, K2_RemoveItemFromPlayerByGuid, (class AFortPlayerController* PlayerController, struct FGuid ItemGuid, int AmountToRemove, bool bForceRemoval));
