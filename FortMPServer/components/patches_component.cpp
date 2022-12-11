@@ -46,6 +46,8 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_pattern("40 53 48 81 EC ? ? ? ? 48 83 79 ? ? 48 8B D9 74 0E B8 ? ? ? ? 48 81 C4 ? ? ? ? 5B"), patches_component_hook::WorldGetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_function_by_string(L"not creating navigation on clients", {0xe8}, 1), patches_component_hook::WorldGetNetMode_Hook);
 
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
+    
     if (GetEngineVersionEasy() > 421)
     {
         // Only apply patches on S7+ to prevent errors on earlier versions
@@ -259,4 +261,17 @@ UFortClientSettingsRecord* patches_component_hook::GetClientSettingsRecord_Hook(
     }
 
     return LocalPlayer->ClientSettingsRecord();
+}
+
+void patches_component_hook::AddSquadMember_Hook(void* Self, APlayerState* PlayerState)
+{
+    if (memory_manager::is_bad_read_pointer(PlayerState))
+    {
+        spdlog::error(L"patches_component_hook::AddSquadMember_Hook: PlayerState is bad read pointer.");
+
+        // The c++ function can handle nullptr playerstates
+        PlayerState = nullptr;
+    }
+
+    return AddSquadMember(Self, PlayerState);
 }
