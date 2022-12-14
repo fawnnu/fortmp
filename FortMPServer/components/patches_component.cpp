@@ -24,8 +24,8 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    // Disable GC if needed
-    //REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts."), patches_component_hook::TryCollectGarbage_Hook);
+    // Re-implement GC checks
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts."), patches_component_hook::TryCollectGarbage_Hook);
 
     // Stop random crashing
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FortPVPGameOverlayerCrash, memory_manager::find_function_by_string(L"Fortnite.Font.S.Normal"), patches_component_hook::FortPVPGameOverlayerCrash_Hook);
@@ -198,8 +198,24 @@ long long patches_component_hook::FortPVPGameOverlayerCrash_Hook()
 
 bool patches_component_hook::TryCollectGarbage_Hook(int KeepFlags, bool bPerformFullPurge)
 {
-    // Do not collect garbage, if the hook is enabled
-    return false;   
+    if (*GWorld && (*GWorld)->AuthorityGameMode() && (*GWorld)->GameState())
+    {
+        if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bDisableGCOnServerDuringMatch))
+        {
+            const bool bDisableGCOnServerDuringMatch = (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch();
+
+            static FName NAME_InProgress(L"InProgress");
+            
+            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->GameState()->MatchState() == NAME_InProgress)
+            {
+                return false;
+            }
+        }
+    }
+
+    spdlog::info(L"Performing garbage collection.");
+
+    return TryCollectGarbage(KeepFlags, bPerformFullPurge);
 }
 
 bool patches_component_hook::SpawnPlayActor_Hook(ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World)

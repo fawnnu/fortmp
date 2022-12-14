@@ -84,6 +84,8 @@ public:
 
         return static_class;
     }
+
+    DEFINE_PROPERTY(bool, bDisableGCOnServerDuringMatch);
     
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
     DEFINE_PROPERTY(int, WarmupRequiredPlayerCount);

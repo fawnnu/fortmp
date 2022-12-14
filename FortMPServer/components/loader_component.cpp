@@ -127,6 +127,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         {
             (*GWorld)->AuthorityGameMode()->StartMatch();
         }
+
+        // Disable GC during match
+        if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bDisableGCOnServerDuringMatch))
+        {
+            (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch() = true;
+        }
         
         // Mark world as ready
         UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
