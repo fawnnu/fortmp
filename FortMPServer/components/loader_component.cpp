@@ -38,6 +38,7 @@ loader_component::loader_component()
     
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
     
     DetourTransactionCommit();
 
@@ -465,4 +466,28 @@ void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContaine
             }   
         }
     }
+}
+
+bool loader_component_hooks::SetGameMode_Hook()
+{
+    if (*GWorld)
+    {
+        AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
+
+        if (AuthorityGameMode == nullptr)
+        {
+            AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
+        }
+
+        if (AuthorityGameMode && (*GWorld)->AuthorityGameMode() == nullptr)
+        {
+            (*GWorld)->AuthorityGameMode() = AuthorityGameMode;
+
+            spdlog::info(L"loader_component_hooks::SetGameMode_Hook: AuthorityGameMode created.");
+            
+            return true;
+        }
+    }
+
+    return false;
 }

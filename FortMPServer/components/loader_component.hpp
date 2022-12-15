@@ -36,4 +36,6 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
     
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
+
+    DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
 }
