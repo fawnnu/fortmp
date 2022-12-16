@@ -136,7 +136,7 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
         GET_PARAMETER(FCreateBuildingActorData, CreateBuildingData);
 
         // Used to get building class from a building class handle
-        static TArray<UObject*> building_actor_classes = (*GWorld)->GameState()->AllPlayerBuildableClasses();
+        TArray<UObject*> building_actor_classes = (*GWorld)->GameState()->AllPlayerBuildableClasses();
         
         // Update existing properties
         building_class = building_actor_classes[CreateBuildingData.BuildingClassHandle()];

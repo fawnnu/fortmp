@@ -39,10 +39,12 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
             // Get resource rates table
             UCurveTable* OverrideResourceRates = nullptr;
 
-            STATIC_HASPROPERTY(current_playlist, ResourceRates);
-            if (current_playlist != nullptr && bExists_ResourceRates)
+            if (current_playlist != nullptr)
             {
-                OverrideResourceRates = current_playlist->ResourceRates().Get();
+                if (STATIC_HASPROPERTY(current_playlist, ResourceRates))
+                {
+                    OverrideResourceRates = current_playlist->ResourceRates().Get();
+                }
             }
             
             auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(OverrideResourceRates ?

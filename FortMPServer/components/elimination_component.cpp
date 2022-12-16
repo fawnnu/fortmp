@@ -136,12 +136,10 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
     }
 
-    STATIC_HASPROPERTY(current_playlist, RespawnType);
-
     // only proceed if Respawn isn't enabled
     if (current_playlist == nullptr ||
-        bExists_RespawnType == false ||
-        bExists_RespawnType == true &&
+        current_playlist->HasProperty(L"RespawnType") == false ||
+        current_playlist->HasProperty(L"RespawnType") == true &&
         current_playlist->RespawnType() == 0)
     {
         if (RemoveFromAlivePlayerList)
