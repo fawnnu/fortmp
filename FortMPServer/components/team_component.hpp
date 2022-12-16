@@ -8,6 +8,8 @@ public:
     static void set_team(AFortPlayerController* player_controller, uint8_t team_index);
     static uint8_t find_team(AFortPlayerController* player_controller);
     static int get_team_size();
+    static int get_default_first_team();
+    static int get_default_last_team();
 };
 
 namespace team_component_hooks

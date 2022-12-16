@@ -33,15 +33,23 @@ void dll_utils::create_spdlog_sink()
     tm local_time;
 
     localtime_s(&local_time, &current_time);
+    
+    std::string log_file_path(get_current_path());
+    log_file_path.append("/FortMP/FortMP.log");
 
-    std::string current_dll_path(get_current_path());
-    current_dll_path.append("/FortMP/FortMPLog_%m-%d_%H-%M-%S.log");
+    if (std::filesystem::exists(log_file_path))
+    {
+        std::string backup_log_path = log_file_path.substr(0, log_file_path.find("FortMP.log"));
+        backup_log_path.append("FortMPLog_Backup_%m-%d_%H-%M-%S.log");
 
-    std::stringstream local_time_str;
-    local_time_str << std::put_time(&local_time, current_dll_path.c_str());
+        std::stringstream backup_log_filename;
+        backup_log_filename << std::put_time(&local_time, backup_log_path.c_str());
+
+        std::filesystem::rename(log_file_path, backup_log_filename.str());
+    }
 
     // Add a file sink
-    spdlog::default_logger()->sinks().push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(local_time_str.str(), false));
+    spdlog::default_logger()->sinks().push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path, false));
 
     // Add a custom sink
     spdlog::default_logger()->sinks().push_back(std::make_shared<fmp_log_sink<std::mutex>>());

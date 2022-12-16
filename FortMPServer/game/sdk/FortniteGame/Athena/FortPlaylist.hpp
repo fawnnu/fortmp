@@ -7,7 +7,8 @@ public:
     DEFINE_PROPERTY(TSoftObjectPtr<class UDataTable>, LootPackages);
     DEFINE_PROPERTY(TSoftObjectPtr<class UCurveTable>, GameData);
     DEFINE_PROPERTY(TSoftObjectPtr<class UCurveTable>, ResourceRates);
-
+    DEFINE_PROPERTY(uint8_t, DefaultFirstTeam);
+    DEFINE_PROPERTY(uint8_t, DefaultLastTeam);
     DEFINE_PROPERTY(int, MaxTeamSize);
 };
 

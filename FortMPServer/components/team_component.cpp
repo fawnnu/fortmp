@@ -71,20 +71,78 @@ int team_component::get_team_size()
     return current_playlist ? current_playlist->MaxTeamSize() : max_team_size_override;
 }
 
+int team_component::get_default_first_team()
+{
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
+    
+    uint8_t DefaultFirstTeam = 0;
+
+    if (current_playlist)
+    {
+        if (STATIC_HASPROPERTY(current_playlist, DefaultFirstTeam))
+        {
+            DefaultFirstTeam = current_playlist->DefaultFirstTeam();
+        }
+        else
+        {
+            DefaultFirstTeam = 2;
+        }
+    }
+    else
+    {
+        DefaultFirstTeam = 2;
+    }
+
+    return DefaultFirstTeam;
+}
+
+int team_component::get_default_last_team()
+{
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
+    
+    uint8_t DefaultLastTeam = 0;
+
+    if (current_playlist)
+    {
+        if (STATIC_HASPROPERTY(current_playlist, DefaultLastTeam))
+        {
+            DefaultLastTeam = current_playlist->DefaultLastTeam();
+        }
+        else
+        {
+            DefaultLastTeam = 102;
+        }
+    }
+    else
+    {
+        DefaultLastTeam = 102;
+    }
+
+    return DefaultLastTeam;
+}
+
 uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
 {
     // List of all teams
     TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
 
-    for (int team_idx = 3; team_idx < all_teams.Num(); team_idx++)
+    const uint8_t DefaultFirstTeam = team_component::get_default_first_team();
+    const uint8_t DefaultLastTeam = team_component::get_default_last_team();
+    
+    for (uint8_t TeamIdx = DefaultFirstTeam; TeamIdx < DefaultLastTeam; TeamIdx++)
     {
-        if (all_teams[team_idx]->TeamMembers().Num() < team_component::get_team_size())
+        for (AFortTeamInfo* TeamInfo : all_teams)
         {
-            // Add player to team list
-            TArrayManager(&all_teams[team_idx]->TeamMembers(), sizeof(UObject*)).Add(&PlayerController);
-
-            // Return chosen team
-            return team_idx;
+            if (TeamInfo->Team() == TeamIdx)
+            {
+                if (TeamInfo->TeamMembers().Num() < team_component::get_team_size())
+                {
+                    // Add player to team list
+                    TArrayManager(&all_teams[TeamIdx]->TeamMembers(), sizeof(UObject*)).Add(&PlayerController);
+                    
+                    return TeamIdx;
+                }
+            }
         }
     }
     
