@@ -26,6 +26,14 @@
         return *reinterpret_cast<PropertyType*>(__int64(this) + PropertyOffset);      \
     }
 
+#define DEFINE_STATIC_CLASS(ClassFullName)\
+    static UObject* StaticClass()\
+    {\
+        static UObject* static_class = FindObject(ClassFullName);\
+        \
+        return static_class;\
+    }
+
 #define GET_PARAMETER(PropertyType, PropertyName)                                                                                   \
     static void* PropertyName##_property = FindPropertyByName(StackFrame.Node, #PropertyName);                                      \
     static int PropertyName##_offset = *reinterpret_cast<int*>(__int64(PropertyName##_property) + CoreOffsets::Offset_Internal);    \
@@ -77,6 +85,7 @@
 #include "sdk/Engine/GameplayTags.hpp"
 #include "sdk/Engine/Texture.hpp"
 #include "sdk/Engine/Net/NetConnection.hpp"
+#include "sdk/Engine/EngineSettings.hpp"
 
 #include "sdk/FortniteGame/Player/FortPlayerState.hpp"
 #include "sdk/FortniteGame/Pawns/FortPlayerPawn.hpp"

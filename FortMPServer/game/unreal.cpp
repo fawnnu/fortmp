@@ -1,8 +1,9 @@
 ﻿#include "include.hpp"
 #include "unreal.hpp"
 
-void unreal_manager::setup_unreal_engine()
+unreal_manager::unreal_manager()
 {
+    
     INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
     INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
     INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
@@ -55,6 +56,8 @@ void unreal_manager::setup_unreal_engine()
     INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"TryLoadMips failed for %s, NumMipsCached: %d, LoadableMips: %d, FirstMipToLoad: %d"));
 
     INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
+
+    INIT_POINTER(CreateDefaultObject_Internal, *(void**)(reinterpret_cast<uintptr_t>(FindObject(L"/Script/CoreUObject.Default__PackageMap")->VTable) - 8));
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||

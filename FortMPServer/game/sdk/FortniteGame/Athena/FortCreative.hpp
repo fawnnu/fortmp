@@ -140,12 +140,7 @@ public:
 class UFortLevelSaveComponent : public UActorComponent
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortLevelSaveComponent");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortLevelSaveComponent")
     
     DEFINE_PROPERTY(FUniqueNetIdRepl, AccountIdOfOwner);
     DEFINE_PROPERTY(FFortCreativePlotPermissionData, PlotPermissions);
@@ -161,12 +156,7 @@ public:
 class UPlaysetLevelStreamComponent : public UActorComponent
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.PlaysetLevelStreamComponent");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.PlaysetLevelStreamComponent")
     
     DEFINE_BIT_PROPERTY(uint8, bAutoLoadLevel);
     DEFINE_PROPERTY(UFortPlaysetItemDefinition*, CurrentPlayset);

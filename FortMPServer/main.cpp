@@ -31,10 +31,11 @@
 
 void Setup()
 {
+    // Setup logging (File sinks)
     new log_component();
     
     // Setup Unreal Engine
-    unreal_manager::setup_unreal_engine();
+    new unreal_manager();
 
     // Initialize function's component
     new function_component();
@@ -42,7 +43,7 @@ void Setup()
     // Load Server Paks
     new pak_component();
 
-    // Setup rendered on another thread
+    // Setup renderer on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
         new renderer();

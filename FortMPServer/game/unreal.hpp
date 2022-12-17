@@ -10,7 +10,7 @@
 class unreal_manager
 {
 public:
-    static void setup_unreal_engine();
+    unreal_manager();
 };
 
 class UWorld;
@@ -60,6 +60,9 @@ inline bool (*TryLoadMips)(void* Self, int FirstMipToLoad, void** OutMipData);
 
 // Request exit
 inline void (*RequestExitWithStatus)(bool bForce, uint8_t ReturnCode);
+
+// CreateDefaultObject
+inline UObject* (*CreateDefaultObject_Internal)(UObject* SelfClass);
 
 namespace CoreOffsets
 {
@@ -533,3 +536,9 @@ inline float GetFortniteVersionEasy()
 }
 
 class UFortPlaylistAthena* GetPlaylistEasy();
+
+template <typename T>
+T* CreateDefaultObject()
+{
+    return reinterpret_cast<T*>(CreateDefaultObject_Internal(T::StaticClass()));
+}

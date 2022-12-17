@@ -197,6 +197,7 @@
     <ClInclude Include="game\sdk\Engine\Components\ActorComponent.hpp" />
     <ClInclude Include="game\sdk\Engine\CurveTable.hpp" />
     <ClInclude Include="game\sdk\Engine\DataTable.hpp" />
+    <ClInclude Include="game\sdk\Engine\EngineSettings.hpp" />
     <ClInclude Include="game\sdk\Engine\GameFramework\Actor.hpp" />
     <ClInclude Include="game\sdk\Engine\GameplayAbilities\AbilitySystemComponent.hpp" />
     <ClInclude Include="game\sdk\Engine\GameplayTags.hpp" />

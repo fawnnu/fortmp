@@ -9,23 +9,13 @@ public:
 class AFortGameSessionDedicated : public AGameSession
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameSessionDedicated");
-        
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameSessionDedicated")
 };
 
 class AFortGameSessionDedicatedAthena : public AFortGameSessionDedicated
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameSessionDedicatedAthena");
-        
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameSessionDedicatedAthena")
 };
 
 class AGameModeBase : public UObject
@@ -78,12 +68,7 @@ public:
 class AFortGameModeAthena : public AFortGameModeZone
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGameModeAthena");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameModeAthena")
 
     DEFINE_PROPERTY(bool, bDisableGCOnServerDuringMatch);
     

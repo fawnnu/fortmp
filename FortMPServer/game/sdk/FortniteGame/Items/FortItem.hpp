@@ -62,12 +62,7 @@ class UFortGadgetItemDefinition : public UFortItemDefinition
 {
 public:
 
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGadgetItemDefinition")
     
     DEFINE_PROPERTY(TArray<class UCustomCharacterPart*>, CharacterParts)
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AbilitySet)
@@ -140,12 +135,7 @@ public:
 class UBGAConsumableWrapperItemDefinition : public UFortItemDefinition
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.BGAConsumableWrapperItemDefinition");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BGAConsumableWrapperItemDefinition")
     
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, ConsumableClass);
 };

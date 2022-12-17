@@ -9,10 +9,5 @@ public:
 class IFortInventoryOwnerInterface : public IInterface
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortInventoryOwnerInterface");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortInventoryOwnerInterface");
 };

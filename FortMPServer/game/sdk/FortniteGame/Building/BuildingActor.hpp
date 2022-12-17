@@ -166,12 +166,7 @@ public:
 class AFortWeap_BuildingTool : public AActor
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame/FortWeap_BuildingTool");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame/FortWeap_BuildingTool")
     
     DEFINE_PROPERTY(class UBuildingEditModeMetadata*, DefaultMetadata);
 
@@ -243,12 +238,7 @@ public:
 class ABGAConsumableSpawner : public ABuildingActor
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.BGAConsumableSpawner");
-        
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BGAConsumableSpawner")
     
     DEFINE_PROPERTY(FName, SpawnLootTierGroup);
     DEFINE_PROPERTY(UEnvQuery*, QueryTemplate);

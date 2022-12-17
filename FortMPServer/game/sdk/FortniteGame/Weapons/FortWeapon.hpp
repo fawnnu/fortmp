@@ -3,12 +3,7 @@
 class AFortWeapon : public AActor
 {
 public:
-    static UObject* StaticClass()
-    {
-        static UObject* static_class = FindObject(L"/Script/FortniteGame.FortWeapon");
-
-        return static_class;
-    }
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeapon")
     
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortWeapon>, OnLocalAmmoChanged);
     DEFINE_PROPERTY(int, AmmoCount);
