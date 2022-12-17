@@ -7,6 +7,8 @@
 class log_component
 {
 public:
+    log_component();
+    
     struct log_msg
     {
         log_msg() = default;

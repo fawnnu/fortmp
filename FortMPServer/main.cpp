@@ -23,6 +23,7 @@
 #include "components/function_component.hpp"
 #include "components/gamemodes_component.hpp"
 #include "components/blueprint_component.hpp"
+#include "components/log_component.hpp"
 #include "components/pak_component.hpp"
 #include "components/modules_component.hpp"
 
@@ -30,20 +31,10 @@
 
 void Setup()
 {
-    // Initialize utils
-    new dll_utils();
-    
-    // Create a file sink
-    dll_utils::create_spdlog_sink();
-
-    // Bypass anti tampering TODO: Check commit name
-    //new anti_tampering_bypass();
+    new log_component();
     
     // Setup Unreal Engine
     unreal_manager::setup_unreal_engine();
-
-    // Disable unwanted modules
-    //new modules_component();
 
     // Initialize function's component
     new function_component();

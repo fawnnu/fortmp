@@ -141,10 +141,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
 
-        // Notify the era server once the server is up
-        dll_utils::send_webhook_message(dll_utils::general_chat_webhook, on_server_ready_msg.dump());
-        dll_utils::send_webhook_message(dll_utils::multiplayer_news_webhook, on_server_ready_msg.dump());
-        
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
     }

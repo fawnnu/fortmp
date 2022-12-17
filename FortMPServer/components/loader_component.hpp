@@ -13,19 +13,6 @@ public:
     static void initialize_vending_machines();
     static void initialize_llamas();
     static void initialize_bga();
-
-private:
-    inline static nlohmann::json on_server_ready_msg = R"({
-            "content": null,
-            "embeds": [
-             {
-                 "title": "Server Status",
-                  "description": "Servers are up, press play or open erafn.org to join :white_check_mark:",
-                  "color": null
-               }
-            ],
-            "attachments": []
-        })"_json;
 };
 
 namespace loader_component_hooks

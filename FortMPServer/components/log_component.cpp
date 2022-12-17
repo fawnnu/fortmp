@@ -1,6 +1,40 @@
 ﻿#include "include.hpp"
 #include "log_component.hpp"
 
+#include <spdlog/sinks/basic_file_sink.h>
+
+log_component::log_component()
+{
+    // Setup file sink for logging
+    const time_t current_time = std::time(nullptr);
+    
+    tm local_time;
+
+    localtime_s(&local_time, &current_time);
+    
+    std::string log_file_path(dll_utils::get_current_path());
+    log_file_path.append("/FortMP/FortMP.log");
+
+    if (std::filesystem::exists(log_file_path))
+    {
+        std::string backup_log_path = log_file_path.substr(0, log_file_path.find("FortMP.log"));
+        backup_log_path.append("FortMPLog_Backup_%m-%d_%H-%M-%S.log");
+
+        std::stringstream backup_log_filename;
+        backup_log_filename << std::put_time(&local_time, backup_log_path.c_str());
+
+        std::filesystem::rename(log_file_path, backup_log_filename.str());
+    }
+
+    // Add a file sink
+    spdlog::default_logger()->sinks().push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path, false));
+
+    // Add a custom sink
+    spdlog::default_logger()->sinks().push_back(std::make_shared<fmp_log_sink<std::mutex>>());
+
+    spdlog::default_logger()->flush_on(spdlog::level::debug);
+}
+
 log_component::log_msg::log_msg(std::string in_message, spdlog::level::level_enum in_level)
 {
     processed = false;
