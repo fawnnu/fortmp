@@ -20,6 +20,12 @@ class UFortClientSettingsRecord : public UObject
 public:
 };
 
+class UCheatManager : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.CheatManager");
+};
+
 class ULocalPlayer : public UPlayer
 {
 public:
@@ -71,7 +77,8 @@ public:
     DEFINE_PROPERTY(UObject*, AcknowledgedPawn);
     DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
     DEFINE_PROPERTY(APlayerCameraManager*, PlayerCameraManager);
-
+    DEFINE_PROPERTY(UCheatManager*, CheatManager);
+    
     void SwitchLevel(FString URL)
     {
         STATIC_FINDFUNCTION(SwitchLevel)

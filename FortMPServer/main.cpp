@@ -24,6 +24,7 @@
 #include "components/gamemodes_component.hpp"
 #include "components/blueprint_component.hpp"
 #include "components/log_component.hpp"
+#include "components/moderation_component.hpp"
 #include "components/pak_component.hpp"
 #include "components/modules_component.hpp"
 
@@ -114,6 +115,7 @@ void Setup()
                     new storm_component();
                     new replication_component();
                     new creative_component();
+                    new moderation_component();
                     
                     break;
                 }

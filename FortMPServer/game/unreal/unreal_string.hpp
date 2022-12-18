@@ -33,6 +33,11 @@ struct FString : private TArray<wchar_t>
     {
         return Data;
     }
+
+    bool IsValid()
+    {
+        return Data;
+    }
 };
 
 struct FName

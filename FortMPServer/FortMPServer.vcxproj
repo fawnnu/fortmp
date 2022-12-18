@@ -179,6 +179,7 @@
     <ClInclude Include="components\loader_component.hpp" />
     <ClInclude Include="components\log_component.hpp" />
     <ClInclude Include="components\looting_component.hpp" />
+    <ClInclude Include="components\moderation_component.hpp" />
     <ClInclude Include="components\modules_component.hpp" />
     <ClInclude Include="components\net_component.hpp" />
     <ClInclude Include="components\pak_component.hpp" />
@@ -287,6 +288,7 @@
     <ClCompile Include="components\loader_component.cpp" />
     <ClCompile Include="components\log_component.cpp" />
     <ClCompile Include="components\looting_component.cpp" />
+    <ClCompile Include="components\moderation_component.cpp" />
     <ClCompile Include="components\modules_component.cpp" />
     <ClCompile Include="components\net_component.cpp" />
     <ClCompile Include="components\pak_component.cpp" />

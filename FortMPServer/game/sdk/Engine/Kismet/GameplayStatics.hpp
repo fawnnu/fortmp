@@ -20,6 +20,27 @@ public:
         
         return Default__GameplayStatics->Call<UObject*>(FunctionObject, Class, Outer);
     }
+    
+    static FString ParseOption(FString Options, FString Key)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.ParseOption")
+
+        struct
+        {
+            FString Options;
+            FString Key;
+            FString ReturnValue;
+        } params;
+
+        params.Options = Options;
+        params.Key = Key;
+        
+        ProcessEvent(Default__GameplayStatics, FunctionObject, &params);
+
+        return params.ReturnValue;
+    }
 
     template <typename T = AActor>
     static TArray<T*> GetAllActorsOfClass(UWorld* WorldContextObject, UObject* ActorClass)
