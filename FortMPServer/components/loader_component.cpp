@@ -110,8 +110,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         // setup warmup time
 #ifdef _RELEASE
-        (*GWorld)->AuthorityGameMode()->WarmupRequiredPlayerCount() = 20;
-        
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 90.f;
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 90.f;
 #elif _TESTING
