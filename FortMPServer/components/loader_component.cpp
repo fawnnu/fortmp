@@ -6,6 +6,7 @@
 #include "pickup_component.hpp"
 
 #include "../gui/renderer.hpp"
+#include "../utils/webhook_manager.hpp"
 
 loader_component::loader_component()
 {
@@ -140,6 +141,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
+
+        // Notify eventual discord servers
+        webhook_manager::send_all();
 
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());

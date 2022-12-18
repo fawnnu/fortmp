@@ -242,6 +242,7 @@
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\memory.hpp" />
     <ClInclude Include="utils\stb_image.h" />
+    <ClInclude Include="utils\webhook_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ext\include\imgui\imgui.cpp">
@@ -309,6 +310,7 @@
     <ClCompile Include="utils\dll_utils.cpp" />
     <ClCompile Include="utils\hook.cpp" />
     <ClCompile Include="utils\memory.cpp" />
+    <ClCompile Include="utils\webhook_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

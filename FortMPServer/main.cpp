@@ -28,11 +28,15 @@
 #include "components/modules_component.hpp"
 
 #include "gui/renderer.hpp"
+#include "utils/webhook_manager.hpp"
 
 void Setup()
 {
     // Setup logging (File sinks)
     new log_component();
+
+    // Setup webhooks (config file)
+    new webhook_manager();
     
     // Setup Unreal Engine
     new unreal_manager();
