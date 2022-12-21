@@ -4,6 +4,7 @@
 #include "looting_component.hpp"
 #include "net_component.hpp"
 #include "pickup_component.hpp"
+#include "team_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -59,6 +60,10 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
+        // Empty teams reservations from past matches
+        team_component::reserved_teams.clear();
+        team_component::team_codes_map.clear();
+        
         if (in_playlist == nullptr)
         {
             // Use default playlist if none specified

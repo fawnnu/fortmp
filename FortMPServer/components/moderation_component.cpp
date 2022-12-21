@@ -1,5 +1,6 @@
 ﻿#include "include.hpp"
 #include "moderation_component.hpp"
+#include "team_component.hpp"
 
 moderation_component::moderation_component()
 {
@@ -14,6 +15,18 @@ moderation_component::moderation_component()
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
     AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
+
+    if (NewPlayerController)
+    {
+        if (UGameplayStatics::HasOption(Options, TEXT("TeamCode")))
+        {
+            // Get the team code value
+            const FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
+
+            // Add every player controller to the given team code key
+            team_component::team_codes_map[TeamCode.c_str()].push_back(NewPlayerController);
+        }
+    }
 
     return NewPlayerController;
 }

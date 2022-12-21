@@ -6,10 +6,14 @@ public:
     team_component();
 
     static void set_team(AFortPlayerController* player_controller, uint8_t team_index);
-    static uint8_t find_team(AFortPlayerController* player_controller);
+    static AFortTeamInfo* find_team(AFortPlayerController* player_controller);
     static int get_team_size();
     static int get_default_first_team();
     static int get_default_last_team();
+    static uint8_t find_free_team(bool bMustBeEmpty = false, bool bMustBeReserved = false, std::wstring team_code = L"");
+
+    static inline std::map<std::wstring, std::vector<AFortPlayerController*>> team_codes_map;
+    static inline std::map<std::wstring, uint8_t> reserved_teams;
 };
 
 namespace team_component_hooks

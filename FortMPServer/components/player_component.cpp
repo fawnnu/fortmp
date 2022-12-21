@@ -134,7 +134,14 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     }
 
     // Assign team
-    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)));
+    if (team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)) == nullptr)
+    {
+        spdlog::error(L"Couldn't find a valid team for player '{}'", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
+        
+        static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
+    }
+    
+    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer))->Team());
 
     // Make pawn invulnerable on spawn island
     UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);

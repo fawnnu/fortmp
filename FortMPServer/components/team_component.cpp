@@ -41,7 +41,7 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
     }
 }
 
-uint8_t team_component::find_team(AFortPlayerController* player_controller)
+AFortTeamInfo* team_component::find_team(AFortPlayerController* player_controller)
 {
     // List of all teams
     TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
@@ -53,12 +53,12 @@ uint8_t team_component::find_team(AFortPlayerController* player_controller)
             if (team_member == player_controller)
             {
                 // Return found team
-                return team_info->Team();
+                return team_info;
             }
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 int team_component::get_team_size()
@@ -121,30 +121,115 @@ int team_component::get_default_last_team()
     return DefaultLastTeam;
 }
 
-uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
+uint8_t team_component::find_free_team(bool bMustBeEmpty, bool bMustBeReserved, std::wstring in_team_code)
 {
     // List of all teams
     TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
-
-    const uint8_t DefaultFirstTeam = team_component::get_default_first_team();
-    const uint8_t DefaultLastTeam = team_component::get_default_last_team();
     
-    for (uint8_t TeamIdx = DefaultFirstTeam; TeamIdx < DefaultLastTeam; TeamIdx++)
+    const uint8_t DefaultFirstTeam = get_default_first_team();
+    const uint8_t DefaultLastTeam = get_default_last_team();
+
+    for (uint8_t TeamIdx = DefaultFirstTeam; TeamIdx <= DefaultLastTeam; TeamIdx++)
     {
         for (AFortTeamInfo* TeamInfo : all_teams)
         {
             if (TeamInfo->Team() == TeamIdx)
             {
-                if (TeamInfo->TeamMembers().Num() < team_component::get_team_size())
+                bool bIsValidReservedTeam = false;
+                bool bIsReservedTeam = false;
+                
+                for (const auto& [team_code, reserved_team_idx] : reserved_teams)
                 {
-                    // Add player to team list
-                    TArrayManager(&all_teams[TeamIdx]->TeamMembers(), sizeof(UObject*)).Add(&PlayerController);
+                    if (reserved_team_idx == TeamIdx && team_code == in_team_code)
+                    {
+                        bIsValidReservedTeam = true;
+                        break;
+                    }
+                    if (reserved_team_idx == TeamIdx)
+                    {
+                        bIsReservedTeam = true;
+                        break;
+                    }
+                }
+
+                if (bIsValidReservedTeam == true && bMustBeReserved == true)
+                {
+                    if (TeamInfo->TeamMembers().Num() < get_team_size())
+                    {
+                        return TeamIdx;
+                    }
                     
-                    return TeamIdx;
+                    return 0;
+                }
+                
+                if (bIsValidReservedTeam == false && bMustBeReserved == true)
+                {
+                    break;
+                }
+
+                if (bIsReservedTeam == true)
+                {
+                    break;
+                }
+
+                if (bMustBeEmpty == true)
+                {
+                    if (TeamInfo->TeamMembers().Num() == 0)
+                    {
+                        return TeamIdx;
+                    }
+                }
+                else
+                {
+                    if (TeamInfo->TeamMembers().Num() < get_team_size())
+                    {
+                        return TeamIdx;
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
+uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
+{
+    // See if this PlayerController has a team code
+    for (const auto& [team_code, players] : team_component::team_codes_map)
+    {
+        for (const AFortPlayerController* player : players)
+        {
+            // Found a team code with this playercontroller
+            if (player == PlayerController)
+            {
+                if (const uint8_t found_team = team_component::find_free_team(false, true, team_code); found_team > 0)
+                {
+                    return found_team;
+                }
+                
+                if (const uint8_t found_team = team_component::find_free_team(true, false); found_team > 0)
+                {
+                    if (team_component::reserved_teams.contains(team_code) == false)
+                    {
+                        team_component::reserved_teams[team_code] = found_team;
+                    
+                        return found_team;
+                    }
                 }
             }
         }
     }
+
+    // else find a free team and make sure it's valid
+    if (const uint8_t found_team = team_component::find_free_team(); found_team > 0)
+    {
+        return found_team;
+    }
+
+    spdlog::error(L"team_component_hooks::PickTeam_Hook implementation couldn't find a valid team, calling PickTeam...");
     
     return PickTeam(FortGameMode, InTeamIndex, PlayerController);
 }
