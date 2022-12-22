@@ -166,7 +166,7 @@ public:
 class AFortWeap_BuildingTool : public AActor
 {
 public:
-    DEFINE_STATIC_CLASS(L"/Script/FortniteGame/FortWeap_BuildingTool")
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeap_BuildingTool")
     
     DEFINE_PROPERTY(class UBuildingEditModeMetadata*, DefaultMetadata);
 

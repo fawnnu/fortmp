@@ -171,9 +171,20 @@ void renderer::CreateNewWindow()
                                 (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 10.f;
                             }
                             
-                            if (ImGui::Button("Pause/Resume Storm", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            if (ImGui::Button("Restart Match", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
                             {
-                                UKismetSystemLibrary::ExecuteConsoleCommand(L"pausesafezone");
+                                // To restart a match, kick everyone in the session
+                                for (int ConnIdx = 0; ConnIdx < (*GWorld)->NetDriver()->ClientConnections().Num(); ConnIdx++)
+                                {
+                                    UNetConnection* CurrentConnection = (*GWorld)->NetDriver()->ClientConnections()[ConnIdx];
+
+                                    if (CurrentConnection && CurrentConnection->PlayerController())
+                                    {
+                                        CurrentConnection->PlayerController()->ClientReturnToMainMenu(L"Restarting Server.");
+                                    }
+                                }
+
+                                spdlog::info(L"Performing server restart.");
                             }
 
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");
