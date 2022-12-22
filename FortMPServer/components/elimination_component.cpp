@@ -182,14 +182,18 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
-    GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
-    GET_PROCESS_EVENT_PARAMETER(uint8_t, DeathCause);
-
-    FinisherPawn = reinterpret_cast<AFortPlayerControllerAthena*>(Object)->Pawn();
-
-    if (FinisherPawn && FinisherPawn->CurrentWeapon())
+    if (FindPropertyByName(Function, TEXT("FinisherPawn")) &&
+        FindPropertyByName(Function, TEXT("FinishingWeapon")) &&
+        FindPropertyByName(Function, TEXT("DeathCause")))
     {
-        FinishingWeapon = FinisherPawn->CurrentWeapon()->WeaponData();
+        GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
+        GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
+
+        FinisherPawn = reinterpret_cast<AFortPlayerControllerAthena*>(Object)->Pawn();
+
+        if (FinisherPawn && FinisherPawn->CurrentWeapon())
+        {
+            FinishingWeapon = FinisherPawn->CurrentWeapon()->WeaponData();
+        }
     }
 }
