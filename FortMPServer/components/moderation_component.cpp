@@ -21,10 +21,14 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
         if (UGameplayStatics::HasOption(Options, TEXT("TeamCode")))
         {
             // Get the team code value
-            const FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
+            FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
 
-            // Add every player controller to the given team code key
-            team_component::team_codes_map[TeamCode.c_str()].push_back(NewPlayerController);
+            // If the team code is valid
+            if (TeamCode.IsValid())
+            {
+                // Add every player controller to the given team code key
+                team_component::team_codes_map[TeamCode.c_str()].push_back(NewPlayerController);
+            }
         }
     }
 
