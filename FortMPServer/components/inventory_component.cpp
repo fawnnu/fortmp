@@ -187,6 +187,13 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
 
         if (replicated_entry.ItemGuid() == item_guid)
         {
+            if (item_count > replicated_entry.Count())
+            {
+                spdlog::error(L"Player '{}' tried to drop more items than they have, aborting.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                
+                return;
+            }
+            
             if (should_drop_item)
             {
                 // Spawn dropped item as pickup

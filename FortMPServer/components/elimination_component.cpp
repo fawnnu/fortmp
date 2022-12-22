@@ -183,8 +183,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
 {
     if (FindPropertyByName(Function, TEXT("FinisherPawn")) &&
-        FindPropertyByName(Function, TEXT("FinishingWeapon")) &&
-        FindPropertyByName(Function, TEXT("DeathCause")))
+        FindPropertyByName(Function, TEXT("FinishingWeapon")))
     {
         GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
         GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
