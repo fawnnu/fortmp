@@ -10,6 +10,13 @@ public:
     DEFINE_PROPERTY(UFortItemDefinition*, WeaponData);
     DEFINE_PROPERTY(FGuid, ItemEntryGuid);
 
+    float GetRange()
+    {
+        STATIC_FINDFUNCTION(GetRange)
+
+        return Call<float>(Function_GetRange);
+    }
+
     int GetLocalMagazineAmmoCount()
     {
         STATIC_FINDFUNCTION(GetLocalMagazineAmmoCount)

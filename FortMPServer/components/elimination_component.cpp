@@ -91,6 +91,20 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 // Get distance from killer pawn to eliminated pawn
                 VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
             }
+
+            // Range check (AntiCheat)
+            if (DeathReport.DamageCauser())
+            {
+                if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
+                {
+                    if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > static_cast<AFortWeapon*>(DeathReport.DamageCauser())->GetRange())
+                    {
+                        spdlog::error(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+
+                        DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT("Kicked by AntiCheat."));
+                    }
+                }
+            }
         }
 
         // Update finisher/downer in kill feed
