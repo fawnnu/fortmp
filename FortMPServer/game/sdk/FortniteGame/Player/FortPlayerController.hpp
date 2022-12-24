@@ -208,6 +208,8 @@ public:
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerControllerAthena");
+    
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
 
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
