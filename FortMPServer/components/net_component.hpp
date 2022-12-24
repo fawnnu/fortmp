@@ -7,7 +7,7 @@ public:
     
     static bool listen(FURL in_url);
     
-    static int server_replicate_actors(UNetDriver* net_driver, float delta_seconds);
+    static void FlushActorDormancy(UNetDriver* net_driver, AActor* Actor);
 };
 
 namespace net_component_hooks
@@ -31,3 +31,6 @@ inline bool (*InitListen)(UObject* NetDriver, void* InNotify, FURL& LocalURL, bo
 
 // Set world for net driver
 inline void (*SetWorld)(UObject* NetDriver, UObject* World);
+
+// Flush actor dormancy
+inline void (*FlushDormancy)(UNetConnection* Self, AActor* Actor);

@@ -9,6 +9,7 @@ net_component::net_component()
     INIT_POINTER(FindNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d",{0xe8, 0x100, 0x100, 0x100 , 0x0}, 1, false));
     INIT_POINTER(InitListen, memory_manager::find_function_by_string(L"Failed to init net driver ListenURL: %s: %s"));
     INIT_POINTER(SetWorld, memory_manager::find_function_by_string(L"Demo playback failed: %s", { 0xE8 }, 1));
+    INIT_POINTER(FlushDormancy, memory_manager::find_function_by_string(L"FlushDormancy: %s. Connection: %s"));
 
     if (uintptr_t set_world_address = memory_manager::find_pattern("FF 90 ? ? ? ? ? 89 ? 9F 49 8D ? 28 ? 89 ? A7 4C 8D 4D 9F 48 8B 03 4C 8D 45 C7 48 8B CB FF 90 ? ? ? ?"))
     {
@@ -21,6 +22,12 @@ net_component::net_component()
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"STAT_NetTickFlush"), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"UDemoNetDriver::TickFlush: ReplayStreamer ERROR: %s", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::GetBool, memory_manager::find_function_by_string(L"UseAudioThread", {0xe8}, 1, false), net_component_hooks::GetBool_Hook);
+
+    // Only legacy replication builds
+    if (UFortReplicationGraph::StaticClass() == nullptr)
+    {
+        REGISTER_CALL_DETOUR_WITH_ADDRESS(memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8E ? ? ? ? 48 85 C9 74 0D 48 3B CF 74 08 48 8B D3"), FlushActorDormancy);
+    }
     
     DetourTransactionCommit();
 }
@@ -71,6 +78,24 @@ bool net_component::listen(FURL in_url)
     }
 
     return false;
+}
+
+void net_component::FlushActorDormancy(UNetDriver* net_driver, AActor* Actor)
+{
+    if (Actor == nullptr)
+    {
+        return;
+    }
+
+    for (int i = 0; i < net_driver->ClientConnections().Num(); i++)
+    {
+        UNetConnection* NetConnection = net_driver->ClientConnections()[i];
+
+        if (NetConnection && FlushDormancy)
+        {
+            FlushDormancy(NetConnection, Actor);
+        }
+    }
 }
 
 void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds)

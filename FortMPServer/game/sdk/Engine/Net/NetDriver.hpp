@@ -17,3 +17,9 @@ public:
     DEFINE_PROPERTY(int, MaxInternetClientRate);
     DEFINE_PROPERTY(int, MaxClientRate);
 };
+
+class UFortReplicationGraph : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortReplicationGraph");
+};
