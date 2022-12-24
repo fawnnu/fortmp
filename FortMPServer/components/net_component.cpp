@@ -20,7 +20,8 @@ net_component::net_component()
     
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"STAT_NetTickFlush"), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"UDemoNetDriver::TickFlush: ReplayStreamer ERROR: %s", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1), net_component_hooks::TickFlush_Hook);
-
+    REGISTER_FUNCTION_DETOUR(net_component_hooks::GetBool, memory_manager::find_function_by_string(L"UseAudioThread", {0xe8}, 1, false), net_component_hooks::GetBool_Hook);
+    
     DetourTransactionCommit();
 }
 
@@ -88,4 +89,20 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
     }
 
     return TickFlush(NetDriver, DeltaSeconds);
+}
+
+void net_component_hooks::GetBool_Hook(void* Self, const wchar_t* Section, const wchar_t* Key, bool* Value, void* File)
+{
+    if (wcsstr(Key, TEXT("bDDoSDetection")) ||
+        wcsstr(Key, TEXT("bDDoSAnalytics")))
+    {
+        if (Value)
+        {
+            *Value = true;
+
+            return;
+        }
+    }
+    
+    return GetBool(Self, Section, Key, Value, File);
 }

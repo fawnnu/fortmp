@@ -15,7 +15,9 @@ namespace net_component_hooks
     inline void (*TickFlush)(UNetDriver* NetDriver, float DeltaSeconds);
 
     // Called on the NetDriver every tick
-    void TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds);  
+    void TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds);
+
+    DEFINE_FUNCTION_HOOK(void, GetBool, (void* Self, const wchar_t* Section, const wchar_t* Key, bool* Value, void* File));
 };
 
 // Create a net driver from name

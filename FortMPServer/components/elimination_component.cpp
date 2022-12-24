@@ -97,7 +97,9 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             {
                 if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
                 {
-                    if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > static_cast<AFortWeapon*>(DeathReport.DamageCauser())->GetRange())
+                    const float Range = static_cast<AFortWeapon*>(DeathReport.DamageCauser())->GetRange();
+                    
+                    if (Range > 0 && VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > Range)
                     {
                         spdlog::error(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
 
