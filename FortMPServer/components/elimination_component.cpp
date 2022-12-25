@@ -72,6 +72,11 @@ void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthen
 {
     INIT_CUSTOM_FUNCTION();
 
+    if (Self == nullptr)
+    {
+        return;
+    }
+
     if (AFortPlayerStateAthena* FinisherOrDowner = static_cast<AFortPlayerStateAthena*>(Self->PlayerState()->DeathInfo().FinisherOrDowner()))
     {
         if (AFortPlayerPawn* Pawn = reinterpret_cast<AFortPlayerController*>(FinisherOrDowner->Owner())->Pawn())
@@ -83,6 +88,14 @@ void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthen
                 Self->SpectateOnDeath();
             }
         }
+        else
+        {
+            Self->SpectateOnDeath();
+        }
+    }
+    else
+    {
+        Self->SpectateOnDeath();
     }
 }
 

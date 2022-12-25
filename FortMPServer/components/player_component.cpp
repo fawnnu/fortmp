@@ -254,6 +254,9 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
 
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
+        
+        // Equip the pickaxe
+        NewPlayer->ServerExecuteInventoryItem(inventory_component::get_pickaxe(NewPlayer)->ItemEntry().ItemGuid());
 
         // Implementable event
         (*GWorld)->AuthorityGameMode()->OnPawnFinishedSpawning(NewPlayer->Pawn());

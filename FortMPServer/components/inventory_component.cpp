@@ -453,6 +453,28 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     return ServerExecuteInventoryItem(PlayerController, StackFrame);
 }
 
+UFortWorldItem* inventory_component::get_pickaxe(AFortPlayerController* player_controller)
+{
+    if (player_controller == nullptr || player_controller->WorldInventory() == nullptr)
+    {
+        return nullptr;
+    }
+    
+    auto item_instances = TArrayManager<UFortWorldItem*>(&player_controller->WorldInventory()->Inventory().ItemInstances(), sizeof(UFortWorldItem*));
+
+    for (int i = 0; i < item_instances.Num(); i++)
+    {
+        UFortWorldItem* CurrentItemInstance = item_instances[i];
+
+        if (CurrentItemInstance && CurrentItemInstance->ItemEntry().ItemDefinition()->IsA(UFortWeaponMeleeItemDefinition::StaticClass()))
+        {
+            return CurrentItemInstance;
+        }
+    }
+    
+    return nullptr;   
+}
+
 void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();

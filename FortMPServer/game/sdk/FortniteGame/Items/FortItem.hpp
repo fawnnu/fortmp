@@ -115,6 +115,12 @@ public:
     DEFINE_PROPERTY(struct FTableRowHandle, WeaponStatHandle);
 };
 
+class UFortWeaponMeleeItemDefinition : public UFortWeaponItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+};
+
 class UAthenaCosmeticItemDefinition : public UFortItemDefinition
 {
 };
