@@ -8,6 +8,21 @@ struct FVector
         X(InX), Y(InY), Z(InZ)
     {
     }
+
+    FORCEINLINE FVector operator-(const FVector& V) const
+    {
+        return FVector(X - V.X, Y - V.Y, Z - V.Z);
+    }
+
+    FORCEINLINE float operator|(const FVector& V) const
+    {
+        return X*V.X + Y*V.Y + Z*V.Z;
+    }
+
+    FORCEINLINE float SizeSquared() const
+    {
+        return X*X + Y*Y + Z*Z;
+    }
         
     // Vector's X component
     float X;
@@ -91,4 +106,88 @@ struct alignas(16) FTransform
     FVector Scale3D;
     
     char Unk01[0x4];
+};
+
+struct FGenericPlatformMath
+{
+    /**
+     * Converts a float to an integer with truncation towards zero.
+     * @param F		Floating point value to convert
+     * @return		Truncated integer.
+     */
+    static constexpr FORCEINLINE int32_t TruncToInt(float F)
+    {
+        return (int32_t)F;
+    }
+
+    /**
+     * Converts a float to an integer value with truncation towards zero.
+     * @param F		Floating point value to convert
+     * @return		Truncated integer value.
+     */
+    static constexpr FORCEINLINE float TruncToFloat(float F)
+    {
+        return (float)TruncToInt(F);
+    }
+
+    /**
+     * Converts a float to a nearest less or equal integer.
+     * @param F		Floating point value to convert
+     * @return		An integer less or equal to 'F'.
+     */
+    static FORCEINLINE int32_t FloorToInt(float F)
+    {
+        return TruncToInt(floorf(F));
+    }
+
+    /**
+    * Converts a float to the nearest less or equal integer.
+    * @param F		Floating point value to convert
+    * @return		An integer less or equal to 'F'.
+    */
+    static FORCEINLINE float FloorToFloat(float F)
+    {
+        return floorf(F);
+    }
+
+    /**
+    * Converts a double to a less or equal integer.
+    * @param F		Floating point value to convert
+    * @return		The nearest integer value to 'F'.
+    */
+    static FORCEINLINE double FloorToDouble(double F)
+    {
+        return floor(F);
+    }
+
+    /**
+     * Converts a float to the nearest integer. Rounds up when the fraction is .5
+     * @param F		Floating point value to convert
+     * @return		The nearest integer to 'F'.
+     */
+    static FORCEINLINE int32_t RoundToInt(float F)
+    {
+        return FloorToInt(F + 0.5f);
+    }
+
+    template< class T > 
+    static constexpr FORCEINLINE T Max( const T A, const T B )
+    {
+        return (A>=B) ? A : B;
+    }
+
+    template< class T > 
+    static FORCEINLINE T Clamp( const T X, const T Min, const T Max )
+    {
+        return X<Min ? Min : X<Max ? X : Max;
+    }
+};
+
+struct FMath : FGenericPlatformMath
+{
+    template< class T > 
+    static FORCEINLINE T Square( const T A )
+    {
+        return A*A;
+    }
 };

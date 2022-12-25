@@ -183,6 +183,46 @@ void replication_component::SetChannelActorForDestroy(UChannel* Channel, FActorD
     SendBunch(Channel, &SendBunchParameter, CloseBunch, false);
 }
 
+
+FActorPriority::FActorPriority(UNetConnection* InConnection, UActorChannel* InChannel, FNetworkObjectInfo* InActorInfo, const TArray<FNetViewer>& Viewers, bool bLowBandwidth)
+    : ActorInfo(InActorInfo), Channel(InChannel), DestructionInfo(NULL)
+{
+    float Time  = Channel ? (InConnection->Driver()->Time() - Channel->LastUpdateTime()) : InConnection->Driver()->SpawnPrioritySeconds();
+    // take the highest priority of the viewers on this connection
+    Priority = 0;
+    for (int32 i = 0; i < Viewers.Num(); i++)
+    {
+        Priority = FGenericPlatformMath::Max<int32_t>(Priority, FGenericPlatformMath::RoundToInt(65536.0f * ActorInfo->Actor->GetNetPriority(Viewers[i].ViewLocation, Viewers[i].ViewDir, Viewers[i].InViewer, Viewers[i].ViewTarget, InChannel, Time, bLowBandwidth)));
+    }
+}
+
+FActorPriority::FActorPriority(UNetConnection* InConnection, FActorDestructionInfo* Info, const TArray<FNetViewer>& Viewers)
+    : ActorInfo(NULL), Channel(NULL), DestructionInfo(Info)
+{
+    Priority = 0;
+
+    for (int32 i = 0; i < Viewers.Num(); i++)
+    {
+        float Time  = InConnection->Driver()->SpawnPrioritySeconds();
+
+        FVector Dir = DestructionInfo->DestroyedPosition - Viewers[i].ViewLocation;
+        float DistSq = Dir.SizeSquared();
+		
+        // adjust priority based on distance and whether actor is in front of viewer
+        if ( (Viewers[i].ViewDir | Dir) < 0.f )
+        {
+            if ( DistSq > NEARSIGHTTHRESHOLDSQUARED )
+                Time *= 0.2f;
+            else if ( DistSq > CLOSEPROXIMITYSQUARED )
+                Time *= 0.4f;
+        }
+        else if ( DistSq > MEDSIGHTTHRESHOLDSQUARED )
+            Time *= 0.4f;
+
+        Priority = FMath::Max<int32>(Priority, 65536.0f * Time);
+    }   
+}
+
 int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* NetDriver, float DeltaSeconds)
 {
     int NumClientsToTick = NetDriver->ClientConnections().Num();
@@ -335,10 +375,10 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
             // Calculate min delta and max delta
             const float MinOptimalDelta = 1.0f / Actor->NetUpdateFrequency();
-            const float MaxOptimalDelta = std::max(1.0f / Actor->MinNetUpdateFrequency(), MinOptimalDelta);
+            const float MaxOptimalDelta = FMath::Max(1.0f / Actor->MinNetUpdateFrequency(), MinOptimalDelta);
 
             // Interpolate between MinOptimalDelta and MaxOptimalDelta
-            const float Alpha = std::clamp((LastReplicateDelta - ScaleDownStartTime) / ScaleDownTimeRange, 0.0f, 1.0f);
+            const float Alpha = FMath::Clamp((LastReplicateDelta - ScaleDownStartTime) / ScaleDownTimeRange, 0.0f, 1.0f);
 
             // Update optimal net delta
             ActorInfo->OptimalNetUpdateDelta = MinOptimalDelta + Alpha * (MaxOptimalDelta - MinOptimalDelta);
@@ -437,7 +477,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
             else
             {
                 // TODO: Fix time, this doesn't work properly
-                /*if (IsActorDormant(ActorInfo, WeakConnection)) //TODO: fix this returning false even when actor is dormant
+                if (IsActorDormant(ActorInfo, WeakConnection)) //TODO: fix this returning false even when actor is dormant
                 {
                     // Skip actor if dormant
                     continue;
@@ -447,13 +487,13 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 {
                     // Channel is marked to go dormant now once all properties have been replicated
                     StartBecomingDormant(Channel);
-                }*/
+                }
             }
 
             // TODO: UE uses a check for NetTag here
 
             {
-                OutPriorityList[FinalSortedCount] = FActorPriority(ActorInfo, Channel);
+                OutPriorityList[FinalSortedCount] =  FActorPriority( PriorityConnection, Channel, ActorInfo, ConnectionViewers, bLowNetBandwidth );
                 OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
 
                 FinalSortedCount++;
@@ -461,18 +501,18 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
         }
 
         // Add destroyed actors
-        //TODO: fix crashes caused by destroying (most likely by FOutBunch size)
         /*for (FNetworkGUID NetworkGuid : *reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors))
         {
             FActorDestructionInfo& DInfo = DestroyedStartupOrDormantActors[NetworkGuid];
             
-            OutPriorityList[FinalSortedCount] = FActorPriority(&DInfo);
+            OutPriorityList[FinalSortedCount] =  FActorPriority( Connection, &DInfo, ConnectionViewers );
             OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
 
             FinalSortedCount++;
         }*/
 
-        // TODO: Sort by priority
+        // Sort by priority
+        Sort(OutPriorityActors, FinalSortedCount, FCompareFActorPriority());
     }
     
     return FinalSortedCount;

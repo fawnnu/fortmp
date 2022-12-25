@@ -16,6 +16,8 @@ public:
 
     DEFINE_PROPERTY(int, MaxInternetClientRate);
     DEFINE_PROPERTY(int, MaxClientRate);
+
+    DEFINE_PROPERTY(float, SpawnPrioritySeconds);
 };
 
 class UFortReplicationGraph : public UObject

@@ -106,14 +106,16 @@ struct FActorPriority
     {
     }
     
-    FActorPriority(FNetworkObjectInfo* InActorInfo, UActorChannel* InChannel) :
-        Priority(0), ActorInfo(InActorInfo), Channel(InChannel), DestructionInfo(nullptr)
-    {
-    }
+    FActorPriority(UNetConnection* InConnection, UActorChannel* InChannel, FNetworkObjectInfo* InActorInfo, const TArray<FNetViewer>& Viewers, bool bLowBandwidth);
     
-    FActorPriority(FActorDestructionInfo* InDestructionInfo) :
-        Priority(0), ActorInfo(nullptr), Channel(nullptr), DestructionInfo(InDestructionInfo)
+    FActorPriority(UNetConnection* InConnection, FActorDestructionInfo * DestructInfo, const TArray<struct FNetViewer>& Viewers );
+};
+
+struct FCompareFActorPriority
+{
+    FORCEINLINE bool operator()( const FActorPriority& A, const FActorPriority& B ) const
     {
+        return B.Priority < A.Priority;
     }
 };
 

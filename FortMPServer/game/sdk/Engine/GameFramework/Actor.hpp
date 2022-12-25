@@ -1,5 +1,14 @@
 ﻿#pragma once
 
+#define CLOSEPROXIMITY					500.f
+#define NEARSIGHTTHRESHOLD				2000.f
+#define MEDSIGHTTHRESHOLD				3162.f
+#define FARSIGHTTHRESHOLD				8000.f
+#define CLOSEPROXIMITYSQUARED			(CLOSEPROXIMITY*CLOSEPROXIMITY)
+#define NEARSIGHTTHRESHOLDSQUARED		(NEARSIGHTTHRESHOLD*NEARSIGHTTHRESHOLD)
+#define MEDSIGHTTHRESHOLDSQUARED		(MEDSIGHTTHRESHOLD*MEDSIGHTTHRESHOLD)
+#define FARSIGHTTHRESHOLDSQUARED		(FARSIGHTTHRESHOLD*FARSIGHTTHRESHOLD)
+
 struct UNetConnection;
 
 enum class ENetRole : uint8_t
@@ -27,6 +36,8 @@ public:
     DEFINE_PROPERTY(class USceneComponent*, RootComponent);
 
     DEFINE_PROPERTY(TArray<class UActorComponent*>, BlueprintCreatedComponents);
+
+    DEFINE_PROPERTY(AActor*, Instigator);
     
     DEFINE_PROPERTY(ENetRole, RemoteRole);
     DEFINE_PROPERTY(ENetRole, Role);
@@ -41,6 +52,9 @@ public:
     DEFINE_BIT_PROPERTY(bool, bNetStartup);
     DEFINE_BIT_PROPERTY(bool, bOnlyRelevantToOwner);
     DEFINE_BIT_PROPERTY(bool, bTearOff);
+    DEFINE_BIT_PROPERTY(bool, bNetUseOwnerRelevancy);
+    DEFINE_BIT_PROPERTY(bool, bHidden);
+    DEFINE_PROPERTY(float, NetPriority);
     
     FTransform GetTransform()
     {
@@ -110,6 +124,56 @@ public:
         STATIC_FINDFUNCTION(K2_DestroyActor)
         
         Call(Function_K2_DestroyActor);
+    }
+
+    float GetNetPriority(const FVector& ViewPos, const FVector& ViewDir, AActor* Viewer, AActor* ViewTarget, class UActorChannel* InChannel, float Time, bool bLowBandwidth)
+    {
+        AActor* Actor = this;
+        
+        if (!Actor) return 0;
+
+        if (Actor->bNetUseOwnerRelevancy() && Actor->Owner())
+        {
+            // If we should use our owner's priority, pass it through
+            return Actor->Owner()->GetNetPriority(ViewPos, ViewDir, Viewer, ViewTarget, InChannel, Time, bLowBandwidth);
+        }
+
+        if (ViewTarget && (Actor == ViewTarget || Actor->Instigator() == ViewTarget))
+        {
+            // If we're the view target or owned by the view target, use a high priority
+            Time *= 4.f;
+        }
+        else if (!Actor->bHidden() && Actor->RootComponent() != NULL)
+        {
+            // If this actor has a location, adjust priority based on location
+            FVector Dir = Actor->K2_GetActorLocation() - ViewPos;
+            float DistSq = Dir.SizeSquared();
+
+            // Adjust priority based on distance and whether actor is in front of viewer
+            if ((ViewDir | Dir) < 0.f)
+            {
+                if (DistSq > NEARSIGHTTHRESHOLDSQUARED)
+                {
+                    Time *= 0.2f;
+                }
+                else if (DistSq > CLOSEPROXIMITYSQUARED)
+                {
+                    Time *= 0.4f;
+                }
+            }
+            else if ((DistSq < FARSIGHTTHRESHOLDSQUARED) && (FMath::Square(ViewDir | Dir) > 0.5f * DistSq))
+            {
+                // Compute the amount of distance along the ViewDir vector. Dir is not normalized
+                // Increase priority if we're being looked directly at
+                Time *= 2.f;
+            }
+            else if (DistSq > MEDSIGHTTHRESHOLDSQUARED)
+            {
+                Time *= 0.4f;
+            }
+        }
+
+        return Actor->NetPriority() * Time;
     }
 };
 
