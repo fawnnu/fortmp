@@ -113,6 +113,7 @@ nlohmann::json webhook_manager::get_webhook_by_name(std::string in_name)
     return webhook_to_return;
 #endif
 
+#ifdef _TESTING
     nlohmann::json webhook_to_return = R"({
                     "name": "",
                     "URL": "",
@@ -122,6 +123,7 @@ nlohmann::json webhook_manager::get_webhook_by_name(std::string in_name)
     webhook_to_return["name"] = in_name;
     
     return webhook_to_return;
+#endif
 }
 
 void webhook_manager::send_webhook(nlohmann::json payload)
