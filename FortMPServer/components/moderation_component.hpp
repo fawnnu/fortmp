@@ -4,6 +4,9 @@ class moderation_component
 {
 public:
     moderation_component();
+
+    // Password that admins will use to log-in 
+    inline static std::vector<FString> passwords;
 };
 
 namespace moderation_component_hooks
