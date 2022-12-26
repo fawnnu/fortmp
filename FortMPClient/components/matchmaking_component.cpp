@@ -109,6 +109,9 @@ void matchmaking_component::send_join(websocketpp::connection_hdl handle)
         }},
         {"name", "Play"}
     };
-
+    
     server.send(handle, res.dump(), websocketpp::frame::opcode::text, err);
+
+    // Close the connection
+    server.close(handle, 1000, "Successfully closed connection to our peer");
 }
