@@ -430,8 +430,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     
     if (MaxSortedActors > 0)
     {
-        OutPriorityList = new FActorPriority[MaxSortedActors];
-        OutPriorityActors = new FActorPriority*[MaxSortedActors];
+        OutPriorityList = (FActorPriority*)alloca(sizeof FActorPriority * MaxSortedActors);
+        OutPriorityActors = (FActorPriority**)alloca(sizeof (FActorPriority*) * MaxSortedActors);
 
         for (FNetworkObjectInfo* ActorInfo : ConsiderList)
         {
