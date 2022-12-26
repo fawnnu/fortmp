@@ -30,6 +30,8 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(bool, TryCollectGarbage, (int KeepFlags, bool bPerformFullPurge));
 
     DEFINE_FUNCTION_HOOK(void, AddSquadMember, (void* Self, APlayerState* PlayerState));
+
+    DEFINE_FUNCTION_HOOK(void*, StatManagerFunc, (void* Self, uint8_t Unk1, int unk2));
     
     inline void (*UpdateNetStats)(UObject* NetDebugWidget);
     inline bool (*GetTagsFromPawnLocation)(AFortPoiVolume* FortPoiVolume, __int64 Tags);
