@@ -9,6 +9,7 @@ moderation_component::moderation_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_FUNCTION_DETOUR(moderation_component_hooks::Login, memory_manager::find_function_by_string(L"Login: Couldn't spawn player controller of class %s"), moderation_component_hooks::Login_Hook);    
+    REGISTER_UFUNCTION_DETOUR(moderation_component_hooks::ServerCheat, L"/Script/FortniteGame.FortPlayerController.ServerCheat", moderation_component_hooks::ServerCheat_Hook);
     
     DetourTransactionCommit();
 
@@ -82,4 +83,16 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
 
     return NewPlayerController;
 }
+
+void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(FString, Msg);
+
+    // Only allow admins to execute commands on server
+    if (Self->CheatManager())
+    {
+        UKismetSystemLibrary::ExecuteConsoleCommand(Msg);
+    }
+}
+
 
