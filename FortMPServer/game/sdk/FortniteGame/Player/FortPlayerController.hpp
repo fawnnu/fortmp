@@ -99,6 +99,24 @@ public:
         
         Call(Function_ClientSetViewTarget, Target, FViewTargetTransitionParams{});
     }
+
+    void ClientMessage(FString S)
+    {
+        STATIC_FINDFUNCTION(ClientMessage)
+
+        struct
+        {
+            FString S;
+            FName Type;
+            float MsgLifeTime;
+        } params;
+
+        params.S = S;
+        params.Type = FName(TEXT("None"));
+        params.MsgLifeTime = 0.f;
+
+        ProcessEvent(this, Function_ClientMessage, &params);
+    }
 };
 
 class UFortPlayerControllerAthenaXPComponent : public UObject

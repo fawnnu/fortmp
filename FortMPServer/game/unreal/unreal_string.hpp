@@ -12,6 +12,10 @@ inline void (*FName_ToString)(FName*, FString&);
 // FMemory::Free
 inline void (*FMemory_Free)(void* DataToFree);
 
+// FParse::Command
+inline bool (*Parse__CommandInternal)(const TCHAR** Stream, const TCHAR* Match);
+inline bool (*Parse__TokenInternal)(const TCHAR*& Stream, FString& Arg, bool bUseEscape);
+
 struct FString : private TArray<wchar_t>
 {
     FString() = default;
@@ -152,4 +156,27 @@ struct FStringAssetReference
 {
     // Path to the asset
     FString AssetReference;
+};
+
+struct FParse
+{
+    static bool Command(const TCHAR** Stream, const TCHAR* Match)
+    {
+        if (Parse__CommandInternal)
+        {
+            return Parse__CommandInternal(Stream, Match);
+        }
+        
+        return false;
+    }
+
+    static bool Token(const TCHAR*& Stream, FString& Arg, bool bUseEscape)
+    {
+        if (Parse__TokenInternal)
+        {
+            return Parse__TokenInternal(Stream, Arg, bUseEscape);   
+        }
+        
+        return false;
+    }
 };

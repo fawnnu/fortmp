@@ -58,6 +58,9 @@ unreal_manager::unreal_manager()
     INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
 
     INIT_POINTER(CreateDefaultObject_Internal, *(void**)(reinterpret_cast<uintptr_t>(FindObject(L"/Script/CoreUObject.Default__PackageMap")->VTable) - 8));
+
+    INIT_POINTER(Parse__CommandInternal, memory_manager::find_function_by_string(TEXT("DEMOSPEED"), {0xe8}, 1, false));
+    INIT_POINTER(Parse__TokenInternal, memory_manager::find_function_by_string(TEXT("You must specify a speed in the form of a float"), {0xe8}, 1));
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||

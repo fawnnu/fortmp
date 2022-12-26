@@ -36,3 +36,4 @@
 #include "sdk/KismetLibrary.hpp"
 #include "sdk/GameplayStatics.hpp"
 #include "sdk/Engine.hpp"
+#include "sdk/PlayerController.hpp"

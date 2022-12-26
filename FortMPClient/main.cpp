@@ -50,7 +50,25 @@ void Setup()
             
             Sleep(500);
         }
-    } 
+    }
+
+    while (true)
+    {
+        if (*GWorld)
+        {
+            UObject* player_controller = FindObject<UGameplayStatics>(XOR(L"/Script/Engine.Default__GameplayStatics"))->GetPlayerController(*GWorld, 0);
+                
+            if (player_controller)
+            {
+                if (static_cast<APlayerController*>(player_controller)->CheatManager() == nullptr)
+                {
+                    static_cast<APlayerController*>(player_controller)->CheatManager() = FindObject<UGameplayStatics>(XOR(L"/Script/Engine.Default__GameplayStatics"))->SpawnObject(FindObject(XOR(L"/Script/Engine.CheatManager")), player_controller);
+                }
+            }
+        }
+            
+        Sleep(500);
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,

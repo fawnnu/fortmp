@@ -23,6 +23,70 @@ moderation_component::moderation_component()
     };
 }
 
+AFortPlayerController* moderation_component::get_player_by_name(FString InPlayerName)
+{
+    if (*GWorld)
+    {
+        if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
+        {
+            for (int i = 0; i < NetDriver->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = NetDriver->ClientConnections()[i];
+
+                if (ClientConnection)
+                {
+                    if (AFortPlayerController* PlayerController = ClientConnection->PlayerController())
+                    {
+                        if (UFortRegisteredPlayerInfo* MyPlayerInfo = PlayerController->MyPlayerInfo())
+                        {
+                            if (MyPlayerInfo->PlayerName() == InPlayerName)
+                            {
+                                // Found eligible player
+                                return PlayerController;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return nullptr;    
+}
+
+void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString PlayerName;
+            
+    if (!FParse::Token(InStream, PlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing PlayerName parameter."));
+        return;
+    }
+
+    FString OptionalKickReason;
+
+    if (!FParse::Token(InStream, OptionalKickReason, 0))
+    {
+        OptionalKickReason = TEXT("Kicked by a server admin.");
+    }
+
+    if (AFortPlayerController* TargetPlayerController = get_player_by_name(PlayerName))
+    {
+        TargetPlayerController->ClientReturnToMainMenu(OptionalKickReason);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Specified player could not be found."));
+    }
+}
+
+void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    // Log everything to the player's console
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+}
+
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
     AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
@@ -88,10 +152,23 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
 {
     GET_PARAMETER(FString, Msg);
 
+    const TCHAR* Stream = Msg.c_str();
+    
     // Only allow admins to execute commands on server
     if (Self->CheatManager())
     {
-        UKismetSystemLibrary::ExecuteConsoleCommand(Msg);
+        if (FParse::Command(&Stream, TEXT("KICKPLAYER")))
+        {
+            moderation_component::HandleKickPlayerCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("HELP")))
+        {
+            moderation_component::HandleHelpCommand(Stream, Self);
+        }
+        else
+        {
+            UKismetSystemLibrary::ExecuteConsoleCommand(Msg);
+        }
     }
 }
 

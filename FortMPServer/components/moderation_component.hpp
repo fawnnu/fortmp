@@ -5,6 +5,13 @@ class moderation_component
 public:
     moderation_component();
 
+    // get player by username
+    static AFortPlayerController* get_player_by_name(FString InPlayerName);
+
+    // Commands
+    static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+
     // Password that admins will use to log-in 
     inline static std::vector<FString> passwords;
 };

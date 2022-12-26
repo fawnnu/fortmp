@@ -198,6 +198,7 @@
     <ClInclude Include="game\sdk\Engine.hpp" />
     <ClInclude Include="game\sdk\GameplayStatics.hpp" />
     <ClInclude Include="game\sdk\KismetLibrary.hpp" />
+    <ClInclude Include="game\sdk\PlayerController.hpp" />
     <ClInclude Include="game\sdk\World.hpp" />
     <ClInclude Include="game\unreal.hpp" />
     <ClInclude Include="game\unreal\unreal_containers.hpp" />
