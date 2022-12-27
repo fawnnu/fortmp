@@ -133,7 +133,7 @@ public:
     DEFINE_BIT_PROPERTY(bool, bIsDisconnecting);
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
     DEFINE_PROPERTY(UFortRegisteredPlayerInfo*, MyPlayerInfo);
-
+    DEFINE_PROPERTY(AFortPlayerPawn*, MyFortPawn);
     DEFINE_PROPERTY(UFortPlayerControllerAthenaXPComponent*, XPComponent);
     
     DEFINE_PROPERTY(bool, bHasServerFinishedLoading);

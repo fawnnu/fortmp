@@ -430,8 +430,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     
     if (MaxSortedActors > 0)
     {
-        OutPriorityList = (FActorPriority*)alloca(sizeof FActorPriority * MaxSortedActors);
-        OutPriorityActors = (FActorPriority**)alloca(sizeof (FActorPriority*) * MaxSortedActors);
+        OutPriorityList = new FActorPriority[MaxSortedActors];
+        OutPriorityActors = new FActorPriority*[MaxSortedActors];
 
         for (FNetworkObjectInfo* ActorInfo : ConsiderList)
         {
@@ -818,6 +818,10 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
                     }
                 }
             }
+
+            // Free memory
+            delete[] PriorityList;
+            delete[] PriorityActors;
             
             for (int j = 0; j < ConnectionViewers.Num(); j++)
             {

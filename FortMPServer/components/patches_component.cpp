@@ -48,6 +48,7 @@ patches_component::patches_component()
 
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::NotifyAcceptingConnection, memory_manager::find_pattern("40 55 48 83 EC 50 48 8B 41 10 48 8B E9 48 83 78 ? ? 74 45 80 3D ? ? ? ? ? 72 34 48 8B 05 ? ? ? ? 4C 8D 44 24 ? 48 89 44 24 ? 48 8D 0D ? ? ? ? 48 8D 05 ? ? ? ? 41 B9 ? ? ? ? BA ? ? ? ? 48 89 44 24 ? E8 ? ? ? ?"), patches_component_hook::NotifyAcceptingConnection_Hook);
     
     if (GetEngineVersionEasy() > 421)
     {
@@ -297,11 +298,31 @@ void* patches_component_hook::StatManagerFunc_Hook(void* Self, uint8_t Unk1, int
 {
     void* Result = StatManagerFunc(Self, Unk1, unk2);
 
-    if (memory_manager::is_bad_read_pointer(Result))
+    if (Result != nullptr)
     {
-        spdlog::error(L"patches_component_hook::StatManagerFunc_Hook returned a BadReadPtr, making it nullptr...");
-        return nullptr;
+        if (memory_manager::is_bad_read_pointer(Result))
+        {
+            spdlog::error(L"Found a bad read pointer in StatManagerFunc_Hook. Returning NULL.");
+            return nullptr;
+        }
     }
     
     return Result;
+}
+
+int patches_component_hook::NotifyAcceptingConnection_Hook(UWorld* Self)
+{
+    if (*GWorld && (*GWorld)->AuthorityGameMode() && (*GWorld)->NetDriver())
+    {
+        if (AGameSession* GameSession = (*GWorld)->AuthorityGameMode()->GameSession())
+        {
+            if ((*GWorld)->NetDriver()->ClientConnections().Num() >= GameSession->MaxPlayers())
+            {
+                // Reject
+                return 0;
+            }
+        }
+    }
+
+    return NotifyAcceptingConnection(Self);
 }

@@ -137,6 +137,11 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {
+    if (PlayerController == nullptr || PlayerController->MyFortPawn() == nullptr)
+    {
+        return;
+    }
+    
     // Call native function first
     PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
     
