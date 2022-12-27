@@ -141,6 +141,13 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
     {
         return;
     }
+
+    if (memory_manager::is_bad_read_pointer(PlayerController->MyFortPawn()))
+    {
+        spdlog::error(L"PlayerController->MyFortPawn is bad read pointer.");
+        
+        return;
+    }
     
     // Call native function first
     PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
