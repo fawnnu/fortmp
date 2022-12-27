@@ -88,22 +88,15 @@ void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthen
                     Self->PlayerToSpectateOnDeath() = Pawn;
 
                     Self->SpectateOnDeath();
+                    
+                    return;
                 }
             }
-            else
-            {
-                Self->SpectateOnDeath();
-            }
-        }
-        else
-        {
-            Self->SpectateOnDeath();
         }
     }
-    else
-    {
-        Self->SpectateOnDeath();
-    }
+
+    // If no Target pawn was found, just call SpectateOnDeath
+    Self->SpectateOnDeath();
 }
 
 void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject* Function, void* Params)
