@@ -167,7 +167,7 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
         }
         else
         {
-            UKismetSystemLibrary::ExecuteConsoleCommand(Msg);
+            UKismetSystemLibrary::ExecuteConsoleCommand(Msg, Self);
         }
     }
 }

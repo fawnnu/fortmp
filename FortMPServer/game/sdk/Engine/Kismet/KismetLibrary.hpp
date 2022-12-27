@@ -18,13 +18,13 @@ public:
         Default__KismetSystemLibrary->Call(FunctionObject, Target, PropertyName, Value);
     }
 
-    static void ExecuteConsoleCommand(FString Command)
+    static void ExecuteConsoleCommand(FString Command, APlayerController* SpecificPlayer = nullptr)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
 
         STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.ExecuteConsoleCommand")
         
-        Default__KismetSystemLibrary->Call(FunctionObject, *GWorld, Command, nullptr);
+        Default__KismetSystemLibrary->Call(FunctionObject, *GWorld, Command, SpecificPlayer);
     }
 
     static FString GetPathName(UObject* Object)
