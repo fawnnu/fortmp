@@ -24,46 +24,62 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
 {
     if (is_building_class_valid(building_class))
     {
-         // Spawn a building actor in the world
-         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
+        // Check if the player has enough materials
+        if (ABuildingSMActor* BuildingActorToTest = CreateDefaultObject<ABuildingSMActor>(building_class))
+        {
+            if (UFortItemDefinition* ResourceItemDefinition = get_building_resource(BuildingActorToTest); ResourceItemDefinition && building_owner)
+            {
+                if (UFortItem* FoundItem = inventory_component::get_inventory_item_by_definition(building_owner, ResourceItemDefinition))
+                {
+                    if (static_cast<UFortWorldItem*>(FoundItem)->ItemEntry().Count() < 10)
+                    {
+                        // Player is probably cheating with buildfree, don't spawn the building
+                        return false;
+                    }
+                }
+            }
+        }
+            
+        // Spawn a building actor in the world
+        ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
      
-         if (building_actor)
-         {
-             // Set mirrored
-             building_actor->SetMirrored(is_mirrored);
+        if (building_actor)
+        {
+            // Set mirrored
+            building_actor->SetMirrored(is_mirrored);
              
-             if (building_owner)
-             {
-                 uint8_t new_team = building_owner->PlayerState()->TeamIndex();
+            if (building_owner)
+            {
+                uint8_t new_team = building_owner->PlayerState()->TeamIndex();
                  
-                 // Only allow members of the team to edit the building actor
-                 building_actor->Team() = new_team;
+                // Only allow members of the team to edit the building actor
+                building_actor->Team() = new_team;
 
-                 building_actor->SetTeam(new_team);
+                building_actor->SetTeam(new_team);
      
-                 // Initialize building actor
-                 building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
+                // Initialize building actor
+                building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
 
-                 // Pay building cost
-                 UFortItemDefinition* building_resource_definition = get_building_resource(building_actor);
+                // Pay building cost
+                UFortItemDefinition* building_resource_definition = get_building_resource(building_actor);
                  
-                 auto replicated_entries = TArrayManager<FFortItemEntry>(&building_owner->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+                auto replicated_entries = TArrayManager<FFortItemEntry>(&building_owner->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
                  
-                 for (int i = 0; i < replicated_entries.Num(); i++)
-                 {
-                     FFortItemEntry& replicated_entry = replicated_entries[i];
+                for (int i = 0; i < replicated_entries.Num(); i++)
+                {
+                    FFortItemEntry& replicated_entry = replicated_entries[i];
 
-                     if (replicated_entry.ItemDefinition() == building_resource_definition)
-                     {
-                         inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
+                    if (replicated_entry.ItemDefinition() == building_resource_definition)
+                    {
+                        inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
 
-                         break;
-                     }
-                 }
-             }
+                        break;
+                    }
+                }
+            }
      
-             return true;
-         }   
+            return true;
+        }
     }
     
     return false;

@@ -542,3 +542,10 @@ T* CreateDefaultObject()
 {
     return reinterpret_cast<T*>(CreateDefaultObject_Internal(T::StaticClass()));
 }
+
+template <typename T>
+T* CreateDefaultObject(UObject* InClass)
+{
+    return reinterpret_cast<T*>(CreateDefaultObject_Internal(InClass));
+}
+
