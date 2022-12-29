@@ -1,5 +1,10 @@
 ﻿#include "include.hpp"
 #include "moderation_component.hpp"
+
+#include "inventory_component.hpp"
+#include "looting_component.hpp"
+#include "net_component.hpp"
+#include "pickup_component.hpp"
 #include "team_component.hpp"
 #include "../utils/webhook_manager.hpp"
 
@@ -71,20 +76,271 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
         OptionalKickReason = TEXT("Kicked by a server admin.");
     }
 
-    if (AFortPlayerController* TargetPlayerController = get_player_by_name(PlayerName))
+    if (PlayerName.IsValid())
     {
-        TargetPlayerController->ClientReturnToMainMenu(OptionalKickReason);
-    }
-    else
-    {
-        ExecutingPlayerController->ClientMessage(TEXT("Specified player could not be found."));
+        if (AFortPlayerController* TargetPlayerController = get_player_by_name(PlayerName))
+        {
+            if (OptionalKickReason.IsValid())
+            {
+                TargetPlayerController->ClientReturnToMainMenu(OptionalKickReason);
+            }
+            
+            ExecutingPlayerController->ClientMessage(TEXT("Player successfully kicked!"));
+        }
+        else
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Specified player could not be found."));
+        }
     }
 }
 
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <deop> (Revokes access to admin commands, doesn't work on players who join with ?adminpassword)\ncheat fly (Toggles fly)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+}
+
+void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    if (UWorld* CurrentWorld = *GWorld)
+    {
+        if (AFortGameModeAthena* CurrentGameMode = CurrentWorld->AuthorityGameMode())
+        {
+            // Update the countdown to 10 seconds, in order to start the match 
+            CurrentGameMode->WarmupCountdownDuration() = 10.f;
+            CurrentGameMode->WarmupEarlyCountdownDuration() = 10.f;
+
+            ExecutingPlayerController->ClientMessage(TEXT("Starting match..."));
+        }
+    }
+}
+
+void moderation_component::HandleRestartServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    if (UWorld* CurrentWorld = *GWorld)
+    {
+        if (UNetDriver* CurrentNetDriver = CurrentWorld->NetDriver())
+        {
+            // Loop through each netconnection and close it
+            for (int i = 0; i < CurrentNetDriver->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = CurrentNetDriver->ClientConnections()[i];
+
+                if (ClientConnection)
+                {
+                    // If there is an associated PlayerController, kick it properly
+                    if (AFortPlayerController* PlayerController = ClientConnection->PlayerController())
+                    {
+                        PlayerController->ClientReturnToMainMenu(TEXT("Restarting Server."));
+                    }
+
+                    // Close connection anyways to prevent bypasses
+                    NetConnection__Close(ClientConnection);
+                }
+            }
+        }
+    }
+}
+
+void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InServerPassword;
+
+    if (!FParse::Token(InStream, InServerPassword, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing InServerPassword parameter."));
+        return;
+    }
+
+    if (InServerPassword.IsValid())
+    {
+        // Set a password
+        FortMpGlobals::ServerKey = InServerPassword;
+
+        ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+    }
+}
+
+void moderation_component::HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FortMpGlobals::bIsWhitelistEnabled = !FortMpGlobals::bIsWhitelistEnabled;
+
+    ExecutingPlayerController->ClientMessage(FortMpGlobals::bIsWhitelistEnabled ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
+}
+
+void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    // OP a player (Give them cheatmanager, without registering them as admin)
+    FString TargetPlayerName;
+
+    if (!FParse::Token(InStream, TargetPlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        return;
+    }
+
+    if (TargetPlayerName.IsValid())
+    {
+        if (AFortPlayerController* TargetPlayer = get_player_by_name(TargetPlayerName))
+        {
+            if (TargetPlayer == nullptr)
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+                return;
+            }
+
+            if (TargetPlayer->CheatManager() != nullptr)
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("The specified player is already an admin!"));
+                return;
+            }
+
+            // Op!
+            TargetPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), TargetPlayer));
+
+            ExecutingPlayerController->ClientMessage(TEXT("Successfully opped player!"));
+        }
+    }
+}
+
+void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    // OP a player (Give them cheatmanager, without registering them as admin)
+    FString TargetPlayerName;
+
+    if (!FParse::Token(InStream, TargetPlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        return;
+    }
+
+    if (TargetPlayerName.IsValid())
+    {
+        if (AFortPlayerController* TargetPlayer = get_player_by_name(TargetPlayerName))
+        {
+            if (TargetPlayer == nullptr)
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+                return;
+            }
+
+            if (TargetPlayer->CheatManager() == nullptr)
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("The specified player is not opped!"));
+                return;
+            }
+
+            // If the player is not a registered admin, de-op it
+            if (std::find(FortMpGlobals::ServerAdmins.begin(), FortMpGlobals::ServerAdmins.end(), TargetPlayer) == FortMpGlobals::ServerAdmins.end())
+            {
+                TargetPlayer->CheatManager() = nullptr;
+
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
+            }
+            else
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("You can't deop a server admin!"));
+            }
+        }
+    }
+}
+
+void moderation_component::HandleFlyCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    if (AFortPlayerPawn* MyFortPawn = ExecutingPlayerController->MyFortPawn())
+    {
+        static UEnum* EMovementMode = FindObject<UEnum>(L"/Script/Engine.EMovementMode");
+        static uint8_t MOVE_Flying = EMovementMode->GetEnumIndex(TEXT("MOVE_Flying"));
+        static uint8_t MOVE_Walking = EMovementMode->GetEnumIndex(TEXT("MOVE_Walking"));
+        static float DefaultRunValue = MyFortPawn->MovementSet()->RunSpeed().CurrentValue();
+
+        // Set the movement mode
+        MyFortPawn->CharacterMovement()->MovementMode() = MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Flying ? MOVE_Walking : MOVE_Flying;
+
+        // Toggle bCheatFlying
+        UKismetSystemLibrary::SetBoolPropertyByName(MyFortPawn->CharacterMovement(), TEXT("bCheatFlying"), !MyFortPawn->CharacterMovement()->bCheatFlying());
+
+        // Change speed
+        if (MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Flying)
+        {
+            MyFortPawn->MovementSet()->RunSpeed().CurrentValue() = 1600.f;
+        }
+        else if (MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Walking)
+        {
+            MyFortPawn->MovementSet()->RunSpeed().CurrentValue() = DefaultRunValue;
+        }
+
+        ExecutingPlayerController->ClientMessage(TEXT("Toggled fly!"));
+    }
+}
+
+void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InPlayerName;
+
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        return;
+    }
+
+    if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
+    {
+        FString InWID;
+
+        if (!FParse::Token(InStream, InWID, 0))
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Item parameter."));
+            return;
+        }
+
+        UFortItemDefinition* TargetItemDefinition = FindObject<UFortItemDefinition>(InWID.c_str(), false, true);
+
+        if (TargetItemDefinition == nullptr)
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified item."));
+            return;
+        }
+
+        FString InCount;
+
+        if (!FParse::Token(InStream, InCount, 0))
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
+            return;
+        }
+
+        std::wstring wInCount = InCount.c_str();
+        int Count = std::stoi(wInCount);
+
+        // Make sure the count is positive
+        if (Count > 0)
+        {
+            // If the given player has space in their inventory, give the item, else spawn it as a pickup
+            if (TargetPlayer->WorldInventory() && TargetPlayer->MyFortPawn())
+            {
+                if (inventory_component::is_inventory_full(TargetPlayer))
+                {
+                    // Spawn a pickup
+                    pickup_component::spawn_pickup(TargetItemDefinition, TargetPlayer->MyFortPawn()->K2_GetActorLocation(), Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
+                }
+                else
+                {
+                    inventory_component::add_item(TargetPlayer, TargetItemDefinition, Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
+                }
+
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully granted item!"));
+            }
+        }
+        else
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Invalid count."));
+        }
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
 }
 
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
@@ -106,9 +362,28 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
             }
         }
 
-        if (UGameplayStatics::HasOption(Options, TEXT("Password")) && UGameplayStatics::HasOption(Options, TEXT("Name")))
+        // If whitelist is enabled, only let allowed users to join
+        if (FortMpGlobals::bIsWhitelistEnabled)
         {
-            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("Password"));
+            if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
+            {
+                FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
+
+                if (UserPassword != FortMpGlobals::ServerKey)
+                {
+                    // Don't let the user login
+                    return nullptr;
+                }
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+
+        if (UGameplayStatics::HasOption(Options, TEXT("AdminPassword")) && UGameplayStatics::HasOption(Options, TEXT("Name")))
+        {
+            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("AdminPassword"));
             FString UserName = UGameplayStatics::ParseOption(Options, TEXT("Name"));
 
             if (UserPassword.IsValid() && UserName.IsValid())
@@ -119,6 +394,9 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
                     {
                         // user is now logged in as administrator, give them cheatmanager
                         NewPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayerController));
+
+                        // Register the player as admin
+                        FortMpGlobals::ServerAdmins.push_back(NewPlayerController);
 
                         // Get admin player info
                         const std::wstring AdminPlayerName = UserName.c_str();
@@ -164,6 +442,38 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
         else if (FParse::Command(&Stream, TEXT("HELP")))
         {
             moderation_component::HandleHelpCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("STARTMATCH")))
+        {
+            moderation_component::HandleStartMatchCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("RESTARTSERVER")))
+        {
+            moderation_component::HandleRestartServerCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("SETSERVERPASSWORD")))
+        {
+            moderation_component::HandleSetServerPasswordCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("TOGGLEWHITELIST")))
+        {
+            moderation_component::HandleToggleWhitelistCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("OP")))
+        {
+            moderation_component::HandleOpCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("DEOP")))
+        {
+            moderation_component::HandleDeopCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("FLY")))
+        {
+            moderation_component::HandleFlyCommand(Stream, Self);
+        }
+        else if (FParse::Command(&Stream, TEXT("GIVEITEM")))
+        {
+            moderation_component::HandleGiveItemCommand(Stream, Self);
         }
         else
         {

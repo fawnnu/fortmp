@@ -193,6 +193,7 @@
     <ClInclude Include="components\team_component.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
     <ClInclude Include="components\vehicles_component.hpp" />
+    <ClInclude Include="game\fortmp_globals.hpp" />
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\Engine\AI\AI.hpp" />
     <ClInclude Include="game\sdk\Engine\Components\ActorComponent.hpp" />

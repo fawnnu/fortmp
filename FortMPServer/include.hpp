@@ -40,3 +40,4 @@
 #include "utils/hook.hpp"
 
 #include "utils/Containers.hpp"
+#include "game/fortmp_globals.hpp"

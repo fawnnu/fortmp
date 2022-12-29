@@ -11,6 +11,14 @@ public:
     // Commands
     static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleRestartServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleDeopCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleFlyCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveItemCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
     inline static std::vector<FString> passwords;

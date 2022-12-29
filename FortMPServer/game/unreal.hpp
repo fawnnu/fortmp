@@ -205,11 +205,21 @@ public:
         {
             // Enum name
             std::wstring EnumKey = NamesList[i].Key.ToString();
-            
-            if (EnumKey.erase(EnumKey.find(this->GetName()), this->GetName().length() + 2) == EnumName)
+
+            if (EnumKey.find(this->GetName()) != std::wstring::npos)
             {
-                // If given enum name matches the current enum name (with E[...]:: removed), return current index
-                return i;
+                if (EnumKey.erase(EnumKey.find(this->GetName()), this->GetName().length() + 2) == EnumName)
+                {
+                    // If given enum name matches the current enum name (with E[...]:: removed), return current index
+                    return i;
+                }
+            }
+            else
+            {
+                if (EnumKey == EnumName)
+                {
+                    return i;
+                }
             }
         }
 

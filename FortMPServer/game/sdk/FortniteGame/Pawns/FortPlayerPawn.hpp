@@ -41,6 +41,7 @@ class UCharacterMovementComponent : public UObject
 {
 public:
     DEFINE_PROPERTY(uint8_t, MovementMode);
+    DEFINE_BIT_PROPERTY(bool, bCheatFlying);
     
     void SetMovementMode(uint8_t CustomMovementMode, uint8_t MovementMode)
     {
@@ -64,12 +65,19 @@ public:
     DEFINE_PROPERTY(UCharacterMovementComponent*, CharacterMovement);
 };
 
+class UFortMovementSet : public UObject
+{
+public:
+    DEFINE_PROPERTY(struct FGameplayAttributeData, RunSpeed);
+};
+
 class AFortPawn : public ACharacter
 {
 public:
     DEFINE_PROPERTY(AFortPlayerController*, Controller);
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
     DEFINE_PROPERTY(class UAbilitySystemComponent*, AbilitySystemComponent);
+    DEFINE_PROPERTY(UFortMovementSet*, MovementSet);
     
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
