@@ -83,6 +83,7 @@ namespace NetworkOffsets
     inline DWORD DestroyedStartupOrDormantActors_NetDriver;
     inline DWORD TimeSeconds;
     inline DWORD IsNetRelevantForVTableIdx;
+    inline DWORD GetNetOwnerVTableIdx;
 }
 
 class UObject

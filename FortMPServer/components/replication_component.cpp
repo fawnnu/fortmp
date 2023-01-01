@@ -68,6 +68,7 @@ replication_component::replication_component()
             if (reinterpret_cast<uintptr_t>(Function) == IsNetRelevantBaseFunction)
             {
                 NetworkOffsets::IsNetRelevantForVTableIdx = TableIdx;
+                NetworkOffsets::GetNetOwnerVTableIdx = NetworkOffsets::IsNetRelevantForVTableIdx + 6;
                 
                 break;
             }
@@ -145,7 +146,7 @@ bool replication_component::ShouldActorGoDormant(AActor* Actor, TArray<FNetViewe
 
 UNetConnection* replication_component::IsActorOwnedByAndRelevantToConnection(AActor* Actor, TArray<FNetViewer>& ConnectionViewers, bool& bOutHasNullViewTarget)
 {
-    AActor* ActorOwner = Actor->Owner();
+    AActor* ActorOwner = Actor->GetNetOwner();
 
     bOutHasNullViewTarget = false;
 
@@ -465,7 +466,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 // This actor should be owned by a particular connection
                 bool bHasNullViewTarget = false;
 
-                //PriorityConnection = IsActorOwnedByAndRelevantToConnection(Actor, ConnectionViewers, bHasNullViewTarget);
+                PriorityConnection = IsActorOwnedByAndRelevantToConnection(Actor, ConnectionViewers, bHasNullViewTarget);
 
                 if (PriorityConnection == nullptr)
                 {

@@ -55,6 +55,11 @@ public:
     DEFINE_BIT_PROPERTY(bool, bNetUseOwnerRelevancy);
     DEFINE_BIT_PROPERTY(bool, bHidden);
     DEFINE_PROPERTY(float, NetPriority);
+
+    AActor* GetNetOwner()
+    {
+        return reinterpret_cast<AActor* (*)(AActor* Self)>(this->VTable[NetworkOffsets::GetNetOwnerVTableIdx])(this);
+    }
     
     FTransform GetTransform()
     {
