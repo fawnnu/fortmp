@@ -42,6 +42,8 @@ public:
 
     DEFINE_PROPERTY(TArray<UChannel*>, OpenChannels);
 
+    DEFINE_PROPERTY(TArray<AActor*>, SentTemporaries);
+    
     DEFINE_PROPERTY(UPackageMap*, PackageMap);
 
     EConnectionState State()

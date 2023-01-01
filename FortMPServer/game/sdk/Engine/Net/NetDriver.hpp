@@ -18,6 +18,8 @@ public:
     DEFINE_PROPERTY(int, MaxClientRate);
 
     DEFINE_PROPERTY(float, SpawnPrioritySeconds);
+
+    DEFINE_PROPERTY_BY_OFFSET(int32, NetTag, NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver - 0x48);
 };
 
 class UFortReplicationGraph : public UObject

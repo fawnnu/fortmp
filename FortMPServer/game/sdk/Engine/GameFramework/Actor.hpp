@@ -45,7 +45,7 @@ public:
     DEFINE_PROPERTY(AActor*, Owner);
 
     DEFINE_PROPERTY(FName, NetDriverName);
-
+    DEFINE_PROPERTY(int, NetTag);
     DEFINE_PROPERTY(float, NetUpdateFrequency);
     DEFINE_PROPERTY(float, MinNetUpdateFrequency);
 

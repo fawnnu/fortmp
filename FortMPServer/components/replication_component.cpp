@@ -414,7 +414,12 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
 int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors)
 {
-    // TODO: NetTag++
+    NetDriver->NetTag()++;
+
+    for ( int32 j = 0; j < Connection->SentTemporaries().Num(); j++ )
+    {
+        Connection->SentTemporaries()[j]->NetTag() = NetDriver->NetTag();
+    }
 
     int FinalSortedCount = 0;
     int DeletedCount = 0;
@@ -490,9 +495,10 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
                 }
             }
 
-            // TODO: UE uses a check for NetTag here
-
+            if (Actor->NetTag() != NetDriver->NetTag())
             {
+                Actor->NetTag() = NetDriver->NetTag();
+                
                 OutPriorityList[FinalSortedCount] =  FActorPriority( PriorityConnection, Channel, ActorInfo, ConnectionViewers, bLowNetBandwidth );
                 OutPriorityActors[FinalSortedCount] = OutPriorityList + FinalSortedCount;
 
