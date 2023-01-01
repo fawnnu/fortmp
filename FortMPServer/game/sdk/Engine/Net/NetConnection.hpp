@@ -14,6 +14,14 @@ class UPackageMap : public UObject
 public:
 };
 
+enum EConnectionState
+{
+    USOCK_Invalid   = 0, // Connection is invalid, possibly uninitialized.
+    USOCK_Closed    = 1, // Connection permanently closed.
+    USOCK_Pending	= 2, // Connection is awaiting connection.
+    USOCK_Open      = 3, // Connection is open.
+};
+
 class UNetConnection : public UPlayer
 {
 public:
@@ -35,6 +43,14 @@ public:
     DEFINE_PROPERTY(TArray<UChannel*>, OpenChannels);
 
     DEFINE_PROPERTY(UPackageMap*, PackageMap);
+
+    EConnectionState State()
+    {
+        static void* native_property = FindPropertyByName(this->Class, "PlayerId");                                                                              
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+
+        return *reinterpret_cast<EConnectionState*>(reinterpret_cast<uintptr_t>(this) + native_property_offset - 0x2C);
+    }
 };
 
 class UChildConnection : public UNetConnection

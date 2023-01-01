@@ -194,6 +194,20 @@ class UChannel : public UObject
 public:
     DEFINE_PROPERTY(UNetConnection*, Connection);
 
+    uint32_t Closing()
+    {
+        static void* native_property = FindPropertyByName(this->Class, "Connection");                                                                              
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+
+        struct BitField
+        {
+            uint32_t OpenAcked : 1;
+            uint32_t Closing : 1;
+        };
+        
+        return reinterpret_cast<BitField*>(reinterpret_cast<uintptr_t>(this) + native_property_offset + 8)->Closing;
+    }
+
     // Fix for non-UProperty bit field
     DEFINE_PROPERTY_BY_OFFSET(UChannelBitField, BitField, 0x30);
 };
