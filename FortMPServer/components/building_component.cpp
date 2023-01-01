@@ -175,16 +175,18 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
     }
 
     // Setup parameters for double building check
-    __int64 first_parameter[2];
+    TArray<AActor*> HoveredActors;
     __int64 second_parameter;
     
-    first_parameter[0] = 0;
-    first_parameter[1] = 0;
-    
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, reinterpret_cast<__int64>(first_parameter), reinterpret_cast<__int64>(&second_parameter))) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, reinterpret_cast<__int64>(&second_parameter))) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
     {
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
         {
+            // If the build was placed, destroy all Hovered Actors
+            for (AActor* HoveredActor : HoveredActors)
+            {
+                HoveredActor->K2_DestroyActor();
+            }
         }
     } 
     

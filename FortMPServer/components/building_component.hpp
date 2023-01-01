@@ -31,4 +31,4 @@ namespace building_component_hooks
 // Used to replace an existing building actor with a new building class
 inline void* (*ReplaceBuildingActor)(UObject* InBuilding, uint8_t ReplacementDestructionReason, UObject* NewBuildingClass, uint8_t BuildingLevel, int RotationIterations, bool bIsMirrored, void* OutFortBuildingEditedParams);
 
-inline uint8_t (*CanPlaceBuildingActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, bool bMirrored, __int64 unk, __int64 unk2);
+inline uint8_t (*CanPlaceBuildingActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, bool bMirrored, TArray<AActor*>* OutHoveredActors, __int64 unk2);

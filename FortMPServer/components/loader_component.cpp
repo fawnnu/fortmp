@@ -28,7 +28,7 @@ loader_component::loader_component()
         }
 
         // Hook begin play for the classes we need
-        //REGISTER_VTABLE_HOOK(FindObject(L"/Script/FortniteGame.Default__BuildingContainer")->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
     }
     else
     {
@@ -428,48 +428,13 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
 void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContainer* Target)
 {
     ABuildingContainer_BeginPlay(Target);
-    
-    static AFortAthenaMapInfo* MapInfo = (*GWorld)->GameState()->MapInfo() ? (*GWorld)->GameState()->MapInfo() : SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C", true));
 
-    if (MapInfo)
+    if (looting_component::get_random_loot_tier_data(looting_component::redirect_tier_group(Target->SearchLootTierGroup())) == nullptr)
     {
-        // New class for Ammo
-        static UObject* Tiered_Ammo_Athena_C = FindObject(L"/Game/Building/ActorBlueprints/Containers/Tiered_Ammo_Athena.Tiered_Ammo_Athena_C", true);
-
-        // New class for Chests
-        static UObject* Tiered_Chest_Athena_C = FindObject(L"/Game/Building/ActorBlueprints/Containers/Tiered_Chest_Athena.Tiered_Chest_Athena_C", true);
-
-        if(MapInfo->HasProperty(L"TreasureChestMinSpawnPercent") && MapInfo->HasProperty(L"AmmoBoxMinSpawnPercent"))
-        {
-            if (Target->IsA(Tiered_Chest_Athena_C) || MapInfo->HasProperty(L"TreasureChestClass") && Target->IsA(MapInfo->TreasureChestClass()))
-            {
-                // Get a random percentage
-                static float RandomPercentage = UKismetMathLibrary::RandomFloatInRange(MapInfo->TreasureChestMinSpawnPercent().GetValueAtLevel(0, nullptr), MapInfo->TreasureChestMaxSpawnPercent().GetValueAtLevel(0, nullptr));
-
-                // Now get a random bool with that percentage
-                bool bShouldSpawn = UKismetMathLibrary::RandomBoolWithWeight(RandomPercentage / 100);
-
-                if (bShouldSpawn == false)
-                {   
-                    // Destroy the chest if needed
-                    Target->K2_DestroyActor();
-                }
-            }
-            else if (Target->IsA(Tiered_Ammo_Athena_C) || MapInfo->HasProperty(L"AmmoBoxClass") && Target->IsA(MapInfo->AmmoBoxClass()))
-            {
-                // Get a random percentage
-                static float RandomPercentage = UKismetMathLibrary::RandomFloatInRange(MapInfo->AmmoBoxMinSpawnPercent().GetValueAtLevel(0, nullptr), MapInfo->AmmoBoxMaxSpawnPercent().GetValueAtLevel(0, nullptr));
-
-                // Now get a random bool with that percentage
-                bool bShouldSpawn = UKismetMathLibrary::RandomBoolWithWeight(RandomPercentage / 100);
-
-                if (bShouldSpawn == false)
-                {   
-                    // Destroy the chest if needed
-                    Target->K2_DestroyActor();
-                }
-            }   
-        }
+        UKismetSystemLibrary::SetBoolPropertyByName(Target, TEXT("bAlreadySearched"), true);
+        
+        // Actor might be dormant
+        Target->ForceNetUpdate();
     }
 }
 

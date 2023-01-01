@@ -186,6 +186,7 @@ public:
 class ABuildingContainer : public ABuildingSMActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingContainer");
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
     DEFINE_PROPERTY(FVector, LootSpawnLocation);
