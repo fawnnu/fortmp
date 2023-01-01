@@ -228,6 +228,9 @@ int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* Net
 {
     int NumClientsToTick = NetDriver->ClientConnections().Num();
 
+    // Don't process more than 50 clients every tick
+    NumClientsToTick = FMath::Min(NumClientsToTick, 50);
+
     // Decides whether any connections are ready to tick yet
     bool bFoundReadyConnection = false;
 
@@ -834,6 +837,24 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
             {
                 GenericArray_Remove(&ConnectionViewers, net_viewer_property, j);
             }
+        }
+    }
+
+    if (NumClientsToTick < NetDriver->ClientConnections().Num())
+    {
+        int32 NumConnectionsToMove = NumClientsToTick;
+        while (NumConnectionsToMove > 0)
+        {
+            // move all the ticked connections to the end of the list so that the other connections are considered first for the next frame
+            UNetConnection *Connection = NetDriver->ClientConnections()[0];
+
+            // Remove as we already processed this connection
+            static auto net_connections_property = FindPropertyByName(NetDriver->Class, L"ClientConnections");
+            GenericArray_Remove(&NetDriver->ClientConnections(), net_connections_property, 0);
+
+            // Move it at the top (Will be proceeded on the tick after if there's too many connections)
+            NetDriver->ClientConnections().Add(Connection);
+            NumConnectionsToMove--;
         }
     }
     
