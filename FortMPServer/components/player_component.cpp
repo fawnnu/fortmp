@@ -153,7 +153,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Bind OnStartedRespawn delegate
     if (STATIC_HASPROPERTY(NewPlayer, OnStartedRespawn))
     {
-        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Add(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
+        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
     }
 
     // Creative support

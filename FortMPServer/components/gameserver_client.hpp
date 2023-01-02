@@ -29,6 +29,7 @@ public:
     // Send events
     void SendJoin(std::string IP);
     void SendUpdate();
+    void SendHeartbeat();
 
     // Client WS object
     websocketpp::client<websocketpp::config::asio_tls_client> Client_WS;
@@ -44,4 +45,7 @@ public:
     
     // Message ref
     int MessageRef;
+
+    // Static pointer to self
+    inline static gameserver_client* Client;
 };

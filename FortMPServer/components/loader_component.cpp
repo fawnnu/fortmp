@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "function_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
 #include "pickup_component.hpp"
@@ -45,6 +46,7 @@ loader_component::loader_component()
     DetourTransactionCommit();
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
+    REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -126,6 +128,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         {
             (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;   
         }
+
+        // Bind delegate for gamephase updates
+        (*GWorld)->GameState()->GamePhaseChanged().Bind(TScriptDelegate((*GWorld)->GameState(), TEXT("OnGamePhaseUpdated")));
         
         // Start match
         if (GetEngineVersionEasy() > 423)
@@ -146,9 +151,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
-
-        // Notify eventual discord servers
-        webhook_manager::send_all();
 
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
@@ -194,6 +196,16 @@ void loader_component::update_max_players(int MaxPlayers)
         // Update max player count
         (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers() = MaxPlayers;
     }
+}
+
+int loader_component::get_max_players()
+{
+    if ((*GWorld)->AuthorityGameMode()->GameSession())
+    {
+        return (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers();
+    }
+    
+    return 100; // Default   
 }
 
 void loader_component::spawn_floor_loot(UObject* Class, FName LootTier)
@@ -318,14 +330,25 @@ void loader_component::initialize_bga()
     {
         if (UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(*GWorld, BGAConsumableSpawner->QueryTemplate(), BGAConsumableSpawner, 3, nullptr))
         {
-            if (QueryInstance->OnQueryFinishedEvent().InvocationList.Num() == 0)
-            {
-                QueryInstance->OnQueryFinishedEvent().Add(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
-            }
+            QueryInstance->OnQueryFinishedEvent().Bind(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
         }
     }
 }
-    
+
+void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+
+    if (Self->GamePhase() == Aircraft)
+    {
+        gameserver_client::Client->GameServer_Status.accepting_players = false;
+        gameserver_client::Client->SendUpdate();
+    }
+}
+
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {
     // Call original function first
@@ -442,6 +465,13 @@ bool loader_component_hooks::SetGameMode_Hook()
 {
     if (*GWorld)
     {
+        // Notify era services
+        gameserver_client::Client->GameServer_Status.status = "offline";
+        gameserver_client::Client->GameServer_Status.accepting_players = false;
+        gameserver_client::Client->GameServer_Status.number_of_players = 0;
+        gameserver_client::Client->GameServer_Status.max_players = 0;
+        gameserver_client::Client->SendUpdate();
+        
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
         if (AuthorityGameMode == nullptr)

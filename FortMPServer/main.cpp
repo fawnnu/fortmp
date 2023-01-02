@@ -59,8 +59,7 @@ void Setup()
     // Initialize the gameserver client
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
-        FortMpGlobals::GameServer_Client = new gameserver_client();
-        FortMpGlobals::GameServer_Client->Client_WS.run();
+        new gameserver_client();
             
         return 0;    
     }, nullptr, 0, nullptr);

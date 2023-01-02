@@ -5,6 +5,7 @@
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
 #include "looting_component.hpp"
+#include "../utils/webhook_manager.hpp"
 
 gamemodes_component::gamemodes_component()
 {
@@ -40,11 +41,24 @@ gamemodes_component::gamemodes_component()
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    // Notify era services
+    gameserver_client::Client->GameServer_Status.accepting_players = true;
+    gameserver_client::Client->GameServer_Status.max_players = loader_component::get_max_players();
+    gameserver_client::Client->GameServer_Status.status = "online";
+    gameserver_client::Client->SendUpdate();
+        
+    // Notify eventual discord servers
+    webhook_manager::send_all();
 }
 
 void gamemodes_component::OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
-    INIT_CUSTOM_FUNCTION();   
+    INIT_CUSTOM_FUNCTION();
+
+    // Notify era services
+    gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
+    gameserver_client::Client->SendUpdate();
 }
 
 void gamemodes_component::OnUpdateStorm(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue)

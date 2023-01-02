@@ -13,7 +13,4 @@ namespace FortMpGlobals
 
     // List of registered server admins
     inline std::vector<AFortPlayerController*> ServerAdmins;
-
-    // Handler for API
-    inline gameserver_client* GameServer_Client;
 }

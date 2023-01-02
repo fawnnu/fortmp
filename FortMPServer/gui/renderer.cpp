@@ -377,8 +377,8 @@ void renderer::CreateNewWindow()
     spdlog::info(L"Closed GUI, terminating server...");
 
     // Reset this server's info on Era Services
-    FortMpGlobals::GameServer_Client->GameServer_Status = gameserver_status();
-    FortMpGlobals::GameServer_Client->SendUpdate();
+    gameserver_client::Client->GameServer_Status = gameserver_status();
+    gameserver_client::Client->SendUpdate();
     
     // Terminate program
     RequestExitWithStatus(true, 0);

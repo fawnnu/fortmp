@@ -399,9 +399,9 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
         auto NewWeapon = PlayerController->Pawn()->EquipWeaponDefinition(item_definition, ItemGuid);
 
         // Bind a delegate to keep loadedammo updated
-        if (NewWeapon != nullptr && NewWeapon->OnLocalAmmoChanged().InvocationList.Num() == 0)
+        if (NewWeapon != nullptr)
         {
-            NewWeapon->OnLocalAmmoChanged().Add(TScriptDelegate(NewWeapon, L"UpdateWeaponLoadedAmmo"));
+            NewWeapon->OnLocalAmmoChanged().Bind(TScriptDelegate(NewWeapon, L"UpdateWeaponLoadedAmmo"));
         }
     }
 

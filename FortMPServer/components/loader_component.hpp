@@ -9,10 +9,13 @@ public:
 
     static bool initialize_playlist(UFortPlaylistAthena* in_playlist);
     static void update_max_players(int MaxPlayers);
+    static int get_max_players();
     static void spawn_floor_loot(UObject* Class, FName LootTier);
     static void initialize_vending_machines();
     static void initialize_llamas();
     static void initialize_bga();
+
+    static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
 };
 
 namespace loader_component_hooks

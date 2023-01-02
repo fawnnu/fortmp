@@ -507,9 +507,13 @@ struct TScriptMulticastDelegate
 {
     TArray<TScriptDelegate<T>> InvocationList;
 
-    void Add(const TScriptDelegate<T>& InDelegate)
+    void Bind(const TScriptDelegate<T>& InDelegate)
     {
-        InvocationList.Add(InDelegate);
+        // only bind if nothing is bound to this delegate
+        if (InvocationList.Num() == 0)
+        {
+            InvocationList.Add(InDelegate);
+        }
     }
 };
 

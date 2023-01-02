@@ -153,9 +153,11 @@ struct FGameMemberInfoArray : FFastArraySerializer
 class AFortGameStateAthena : public AFortGameState
 {
 public:
+    DEFINE_STATIC_CLASS(TEXT("/Script/FortniteGame.FortGameStateAthena"));
+    
     DEFINE_PROPERTY(TArray<UObject*>, BuildingActorClasses);
     DEFINE_PROPERTY(TArray<UObject*>, AllPlayerBuildableClasses);
-
+    DEFINE_PROPERTY(TScriptMulticastDelegate<AFortGameStateAthena>, GamePhaseChanged);
     DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
     DEFINE_PROPERTY(AActor*, Aircraft);
 
