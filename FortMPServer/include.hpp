@@ -4,6 +4,9 @@
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+#define ASIO_STANDALONE
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+#define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
 
 #include <Windows.h>
 #include <Psapi.h>
@@ -29,6 +32,9 @@
 #include <Detours.h>
 #include <nlohmann/json.hpp>
 #include <httplib/httplib.h>
+#include "websocketpp/config/asio_client.hpp"
+#include "websocketpp/client.hpp"
+#include "components/gameserver_client.hpp"
 
 #include "fstream"
 #include "utils/memory.hpp"

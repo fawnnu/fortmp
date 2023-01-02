@@ -1,0 +1,47 @@
+﻿#pragma once
+
+struct gameserver_status
+{
+    gameserver_status()
+    {
+        accepting_players = false;
+        ip = "0.0.0.0";
+        max_players = 0;
+        number_of_players = 0;
+        status = "offline";
+    }
+
+    bool accepting_players;
+    std::string ip;
+    int max_players;
+    int number_of_players;
+    std::string status;
+};
+
+class gameserver_client
+{
+public:
+    gameserver_client();
+
+    // Event called when a connection is established
+    void OnConnected(websocketpp::connection_hdl handle);
+
+    // Send events
+    void SendJoin(std::string IP);
+    void SendUpdate();
+
+    // Client WS object
+    websocketpp::client<websocketpp::config::asio_tls_client> Client_WS;
+
+    // Connection handle
+    websocketpp::connection_hdl Connection_Handle;
+
+    // GameServer status
+    gameserver_status GameServer_Status;
+
+    // Channel
+    std::string Channel;
+    
+    // Message ref
+    int MessageRef;
+};
