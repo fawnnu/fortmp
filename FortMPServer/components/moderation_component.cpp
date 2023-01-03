@@ -431,53 +431,56 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
     GET_PARAMETER(FString, Msg);
 
     const TCHAR* Stream = Msg.c_str();
-    
-    // Only allow admins to execute commands on server
-    if (Self->CheatManager())
+
+    if (Msg.IsValid())
     {
-        if (FParse::Command(&Stream, TEXT("KICKPLAYER")))
+        // Only allow admins to execute commands on server
+        if (Self->CheatManager())
         {
-            moderation_component::HandleKickPlayerCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("HELP")))
-        {
-            moderation_component::HandleHelpCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("STARTMATCH")))
-        {
-            moderation_component::HandleStartMatchCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("RESTARTSERVER")))
-        {
-            moderation_component::HandleRestartServerCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("SETSERVERPASSWORD")))
-        {
-            moderation_component::HandleSetServerPasswordCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("TOGGLEWHITELIST")))
-        {
-            moderation_component::HandleToggleWhitelistCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("OP")))
-        {
-            moderation_component::HandleOpCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("DEOP")))
-        {
-            moderation_component::HandleDeopCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("FLY")))
-        {
-            moderation_component::HandleFlyCommand(Stream, Self);
-        }
-        else if (FParse::Command(&Stream, TEXT("GIVEITEM")))
-        {
-            moderation_component::HandleGiveItemCommand(Stream, Self);
-        }
-        else
-        {
-            UKismetSystemLibrary::ExecuteConsoleCommand(Msg, Self);
+            if (FParse::Command(&Stream, TEXT("KICKPLAYER")))
+            {
+                moderation_component::HandleKickPlayerCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("HELP")))
+            {
+                moderation_component::HandleHelpCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("STARTMATCH")))
+            {
+                moderation_component::HandleStartMatchCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("RESTARTSERVER")))
+            {
+                moderation_component::HandleRestartServerCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SETSERVERPASSWORD")))
+            {
+                moderation_component::HandleSetServerPasswordCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("TOGGLEWHITELIST")))
+            {
+                moderation_component::HandleToggleWhitelistCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("OP")))
+            {
+                moderation_component::HandleOpCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("DEOP")))
+            {
+                moderation_component::HandleDeopCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("FLY")))
+            {
+                moderation_component::HandleFlyCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVEITEM")))
+            {
+                moderation_component::HandleGiveItemCommand(Stream, Self);
+            }
+            else
+            {
+                UKismetSystemLibrary::ExecuteConsoleCommand(Msg, Self);
+            }
         }
     }
 }
