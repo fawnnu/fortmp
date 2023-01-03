@@ -59,7 +59,32 @@ gameserver_client::gameserver_client()
 void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 {
 #ifdef _RELEASE
-    Channel = "server:63779a6f-7e6e-4c3e-bfdd-ebc136cb5f31";
+    const std::string config_path = std::string(dll_utils::get_current_path()) + "/Config";
+
+    std::filesystem::create_directories(config_path);
+
+    if (!std::filesystem::exists(config_path + "/server.json"))
+    {
+        std::ofstream new_file;
+
+        new_file.open(config_path + "/server.json");
+
+        const nlohmann::json new_file_body = R"(
+            {
+                "uuid": ""
+            }
+        )"_json;
+
+        new_file << std::setw(4) << new_file_body << std::endl;
+
+        new_file.close();
+    }
+
+    std::ifstream table(config_path+"/server.json");
+        
+    nlohmann::json webhook_config = nlohmann::json::parse(table);
+
+    Channel = "server:" + std::string(webhook_config["uuid"]);
 
     // Get the IP using ipify's API
     httplib::Client client("https://api64.ipify.org");
