@@ -42,6 +42,7 @@ void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena,
 {
     INIT_CUSTOM_FUNCTION();
 
+#ifdef _RELEASE
     // Notify era services
     gameserver_client::Client->GameServer_Status.accepting_players = true;
     gameserver_client::Client->GameServer_Status.max_players = loader_component::get_max_players();
@@ -50,15 +51,18 @@ void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena,
         
     // Notify eventual discord servers
     webhook_manager::send_all();
+#endif
 }
 
 void gamemodes_component::OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
 
+#ifdef _RELEASE
     // Notify era services
     gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
     gameserver_client::Client->SendUpdate();
+#endif
 }
 
 void gamemodes_component::OnUpdateStorm(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue)

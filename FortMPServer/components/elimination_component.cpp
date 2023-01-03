@@ -204,9 +204,11 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
         }
 
+#ifdef _RELEASE
         // Notify Era Services
         gameserver_client::Client->GameServer_Status.number_of_players = (*GWorld)->AuthorityGameMode()->AlivePlayers().Num();
         gameserver_client::Client->SendUpdate();
+#endif
         
         // only spectate where spectating is stripped
         if (GetEngineVersionEasy() < 422)

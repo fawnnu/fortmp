@@ -60,6 +60,60 @@ AFortPlayerController* moderation_component::get_player_by_name(FString InPlayer
     return nullptr;    
 }
 
+void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString UserPassword;
+
+    if (!FParse::Token(InStream, UserPassword, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Password parameter."));
+        return;
+    }
+
+    if (UserPassword.IsValid())
+    {
+        for (FString& password_to_check : passwords)
+        {
+            if (password_to_check == UserPassword)
+            {
+                // user is now logged in as administrator, give them cheatmanager
+                ExecutingPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), ExecutingPlayerController));
+
+                // Get admin player info
+                const std::wstring AdminPlayerName = ExecutingPlayerController->MyPlayerInfo() ? ExecutingPlayerController->MyPlayerInfo()->PlayerName().c_str() : L"INVALID";
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                std::string sAdminPlayerName = converter.to_bytes(AdminPlayerName);
+                std::string sAdminIPAddress = static_cast<UIpConnection*>(ExecutingPlayerController->NetConnection())->RemoteAddr().Get()->ToString();
+
+                // Cache IP
+                auto config = config_manager::get_server_config();
+                config["server_admins"].push_back(sAdminIPAddress);
+                config_manager::save_server_config(config);
+                        
+                // Format message
+                char Body[1024];
+                sprintf_s(Body, "Player '%s' [%s] logged in as administrator.", sAdminPlayerName.c_str(), sAdminIPAddress.c_str());
+                std::string sBody(Body);
+
+                // Get webhook
+                nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-adminlogin");
+                payload["body"] = Body;
+
+                // Send webhook
+                webhook_manager::send_webhook(payload);
+
+                // Notify player
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully logged in!"));
+                        
+                return;
+            }
+        }
+
+        // Failed login
+        ExecutingPlayerController->ClientMessage(TEXT("Invalid password."));
+    }
+}
+
 void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     FString PlayerName;
@@ -243,7 +297,8 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
             std::string TargetPlayerIP =static_cast<UIpConnection*>(TargetPlayer->NetConnection())->RemoteAddr().Get()->ToString();
 
             // Make sure the player is not an admin
-            for (auto& elem : config_manager::get_server_config()["server_admins"].items())
+            auto config = config_manager::get_server_config();
+            for (auto& elem : config["server_admins"].items())
             {
                 if (std::string(elem.value()) == TargetPlayerIP)
                 {
@@ -400,47 +455,21 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
             }
         }
 
-        if (UGameplayStatics::HasOption(Options, TEXT("AdminPassword")) && UGameplayStatics::HasOption(Options, TEXT("Name")))
+        // Check if the player is a cached admin
+        bool bIsAdmin = false;
+        auto config = config_manager::get_server_config();
+        for (auto& elem : config["server_admins"].items())
         {
-            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("AdminPassword"));
-            FString UserName = UGameplayStatics::ParseOption(Options, TEXT("Name"));
-
-            if (UserPassword.IsValid() && UserName.IsValid())
+            if (std::string(elem.value()) == static_cast<UIpConnection*>(NewPlayer)->RemoteAddr().Get()->ToString())
             {
-                for (FString& password_to_check : moderation_component::passwords)
-                {
-                    if (password_to_check == UserPassword)
-                    {
-                        // user is now logged in as administrator, give them cheatmanager
-                        NewPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayerController));
-
-                        // Get admin player info
-                        const std::wstring AdminPlayerName = UserName.c_str();
-                        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                        std::string sAdminPlayerName = converter.to_bytes(AdminPlayerName);
-                        std::string sAdminIPAddress = static_cast<UIpConnection*>(NewPlayer)->RemoteAddr().Get()->ToString();
-
-                        // Cache IP
-                        auto config = config_manager::get_server_config();
-                        config["server_admins"].push_back(sAdminIPAddress);
-                        config_manager::save_server_config(config);
-                        
-                        // Format message
-                        char Body[1024];
-                        sprintf_s(Body, "Player '%s' [%s] logged in as administrator.", sAdminPlayerName.c_str(), sAdminIPAddress.c_str());
-                        std::string sBody(Body);
-
-                        // Get webhook
-                        nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-adminlogin");
-                        payload["body"] = Body;
-
-                        // Send webhook
-                        webhook_manager::send_webhook(payload);
-                        
-                        break;
-                    }
-                }
+                bIsAdmin = true;
+                break;
             }
+        }
+        if (bIsAdmin)
+        {
+            // user is now logged in as administrator, give them cheatmanager
+            NewPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayerController));
         }
     }
 
@@ -455,6 +484,15 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
 
     if (Msg.IsValid())
     {
+        // Commands for non-admins
+        if (Self->CheatManager() == nullptr)
+        {
+            if (FParse::Command(&Stream, TEXT("ADMINLOGIN")))
+            {
+                moderation_component::HandleAdminLoginCommand(Stream, Self);
+            }
+        }
+        
         // Only allow admins to execute commands on server
         if (Self->CheatManager())
         {

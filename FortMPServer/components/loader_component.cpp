@@ -339,6 +339,7 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+#ifdef _RELEASE
     static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
     uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
 
@@ -347,6 +348,7 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         gameserver_client::Client->GameServer_Status.accepting_players = false;
         gameserver_client::Client->SendUpdate();
     }
+#endif
 }
 
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
@@ -465,12 +467,14 @@ bool loader_component_hooks::SetGameMode_Hook()
 {
     if (*GWorld)
     {
+#ifdef _RELEASE
         // Notify era services
         gameserver_client::Client->GameServer_Status.status = "offline";
         gameserver_client::Client->GameServer_Status.accepting_players = false;
         gameserver_client::Client->GameServer_Status.number_of_players = 0;
         gameserver_client::Client->GameServer_Status.max_players = 0;
         gameserver_client::Client->SendUpdate();
+#endif
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

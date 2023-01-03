@@ -9,6 +9,7 @@ public:
     static AFortPlayerController* get_player_by_name(FString InPlayerName);
 
     // Commands
+    static void HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
