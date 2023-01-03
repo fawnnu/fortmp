@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "gameserver_client.hpp"
 
+#include "config_manager.hpp"
+
 void HeartbeatThread()
 {
     while (true)
@@ -59,32 +61,9 @@ gameserver_client::gameserver_client()
 void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 {
 #ifdef _RELEASE
-    const std::string config_path = std::string(dll_utils::get_current_path()) + "/Config";
+    nlohmann::json server_config = config_manager::get_server_config();
 
-    std::filesystem::create_directories(config_path);
-
-    if (!std::filesystem::exists(config_path + "/server.json"))
-    {
-        std::ofstream new_file;
-
-        new_file.open(config_path + "/server.json");
-
-        const nlohmann::json new_file_body = R"(
-            {
-                "uuid": ""
-            }
-        )"_json;
-
-        new_file << std::setw(4) << new_file_body << std::endl;
-
-        new_file.close();
-    }
-
-    std::ifstream table(config_path+"/server.json");
-        
-    nlohmann::json webhook_config = nlohmann::json::parse(table);
-
-    Channel = "server:" + std::string(webhook_config["uuid"]);
+    Channel = "server:" + std::string(server_config["uuid"]);
 
     // Get the IP using ipify's API
     httplib::Client client("https://api64.ipify.org");

@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "moderation_component.hpp"
 
+#include "config_manager.hpp"
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
@@ -154,8 +155,14 @@ void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream
 
     if (InServerPassword.IsValid())
     {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+        std::string sInServerPassword = converter.to_bytes(InServerPassword.c_str());
+        
         // Set a password
-        FortMpGlobals::ServerKey = InServerPassword;
+        auto config = config_manager::get_server_config();
+        config["server_key"] = sInServerPassword;
+        config_manager::save_server_config(config);
 
         ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
     }
@@ -163,9 +170,11 @@ void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream
 
 void moderation_component::HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    FortMpGlobals::bIsWhitelistEnabled = !FortMpGlobals::bIsWhitelistEnabled;
+    auto config = config_manager::get_server_config();
+    config["bIsWhitelistEnabled"] = !bool(config["bIsWhitelistEnabled"]);
+    config_manager::save_server_config(config);
 
-    ExecutingPlayerController->ClientMessage(FortMpGlobals::bIsWhitelistEnabled ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
+    ExecutingPlayerController->ClientMessage(bool(config["bIsWhitelistEnabled"]) ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
 }
 
 void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -230,17 +239,23 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
                 return;
             }
 
-            // If the player is not a registered admin, de-op it
-            if (std::find(FortMpGlobals::ServerAdmins.begin(), FortMpGlobals::ServerAdmins.end(), TargetPlayer) == FortMpGlobals::ServerAdmins.end())
-            {
-                TargetPlayer->CheatManager() = nullptr;
+            // Get the IP as std::string
+            std::string TargetPlayerIP =static_cast<UIpConnection*>(TargetPlayer->NetConnection())->RemoteAddr().Get()->ToString();
 
-                ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
-            }
-            else
+            // Make sure the player is not an admin
+            for (auto& elem : config_manager::get_server_config()["server_admins"].items())
             {
-                ExecutingPlayerController->ClientMessage(TEXT("You can't deop a server admin!"));
+                if (std::string(elem.value()) == TargetPlayerIP)
+                {
+                    ExecutingPlayerController->ClientMessage(TEXT("You can't deop a server admin!"));
+                    return;
+                }
             }
+
+            // If the player is not a registered admin, de-op it
+            TargetPlayer->CheatManager() = nullptr;
+
+            ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
         }
     }
 }
@@ -363,13 +378,17 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
         }
 
         // If whitelist is enabled, only let allowed users to join
-        if (FortMpGlobals::bIsWhitelistEnabled)
+        if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
         {
             if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
             {
                 FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
 
-                if (UserPassword != FortMpGlobals::ServerKey)
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+                std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
+
+                if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
                 {
                     // Don't let the user login
                     return nullptr;
@@ -395,15 +414,17 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
                         // user is now logged in as administrator, give them cheatmanager
                         NewPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayerController));
 
-                        // Register the player as admin
-                        FortMpGlobals::ServerAdmins.push_back(NewPlayerController);
-
                         // Get admin player info
                         const std::wstring AdminPlayerName = UserName.c_str();
                         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                         std::string sAdminPlayerName = converter.to_bytes(AdminPlayerName);
                         std::string sAdminIPAddress = static_cast<UIpConnection*>(NewPlayer)->RemoteAddr().Get()->ToString();
 
+                        // Cache IP
+                        auto config = config_manager::get_server_config();
+                        config["server_admins"].push_back(sAdminIPAddress);
+                        config_manager::save_server_config(config);
+                        
                         // Format message
                         char Body[1024];
                         sprintf_s(Body, "Player '%s' [%s] logged in as administrator.", sAdminPlayerName.c_str(), sAdminIPAddress.c_str());

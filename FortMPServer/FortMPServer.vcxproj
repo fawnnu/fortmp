@@ -169,6 +169,7 @@
     <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\blueprint_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
+    <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
     <ClInclude Include="components\function_component.hpp" />
@@ -194,7 +195,6 @@
     <ClInclude Include="components\team_component.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
     <ClInclude Include="components\vehicles_component.hpp" />
-    <ClInclude Include="game\fortmp_globals.hpp" />
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\Engine\AI\AI.hpp" />
     <ClInclude Include="game\sdk\Engine\Components\ActorComponent.hpp" />
@@ -280,6 +280,7 @@
     <ClCompile Include="components\aircraft_component.cpp" />
     <ClCompile Include="components\blueprint_component.cpp" />
     <ClCompile Include="components\building_component.cpp" />
+    <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />
     <ClCompile Include="components\function_component.cpp" />
