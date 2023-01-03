@@ -4,6 +4,7 @@
 #include "ability_component.hpp"
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
+#include "moderation_component.hpp"
 #include "net_component.hpp"
 #include "team_component.hpp"
 
@@ -95,9 +96,12 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
 {
     // Call native function
     PostLogin(FortGameModeAthena, NewPlayer);
+
+    // Grant admin permission if the player is an admin
+    moderation_component::grant_admin_permission_safe(static_cast<AFortPlayerController*>(NewPlayer));
     
-    // Make sure the player is joining for the first time
-    if (NewPlayer->PlayerState()->NumRejoins() > 0)
+    // Make sure the player is joining for the first time (ONLY FOR NON-ADMINS)
+    if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr)
     {
         spdlog::error(L"Player {} attempted to rejoin. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
                 

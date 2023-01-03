@@ -60,6 +60,34 @@ AFortPlayerController* moderation_component::get_player_by_name(FString InPlayer
     return nullptr;    
 }
 
+void moderation_component::grant_admin_permission_safe(AFortPlayerController* JoiningPlayer)
+{
+    if (JoiningPlayer && JoiningPlayer->PlayerState())
+    {
+        // get the IP
+        std::wstring wJoiningPlayerIP = JoiningPlayer->PlayerState()->SavedNetworkAddress().c_str();
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        std::string JoiningPlayerIP = converter.to_bytes(wJoiningPlayerIP);
+        
+        // Check if the player is a cached admin
+        bool bIsAdmin = false;
+        auto config = config_manager::get_server_config();
+        for (auto& elem : config["server_admins"].items())
+        {
+            if (std::string(elem.value()) == JoiningPlayerIP)
+            {
+                bIsAdmin = true;
+                break;
+            }
+        }
+        if (bIsAdmin)
+        {
+            // user is now logged in as administrator, give them cheatmanager
+            JoiningPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), JoiningPlayer));
+        }
+    }
+}
+
 void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     FString UserPassword;
@@ -83,7 +111,8 @@ void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFort
                 const std::wstring AdminPlayerName = ExecutingPlayerController->MyPlayerInfo() ? ExecutingPlayerController->MyPlayerInfo()->PlayerName().c_str() : L"INVALID";
                 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                 std::string sAdminPlayerName = converter.to_bytes(AdminPlayerName);
-                std::string sAdminIPAddress = static_cast<UIpConnection*>(ExecutingPlayerController->NetConnection())->RemoteAddr().Get()->ToString();
+                const std::wstring AdminIPAddress = ExecutingPlayerController->PlayerState()->SavedNetworkAddress().c_str();
+                std::string sAdminIPAddress = converter.to_bytes(AdminIPAddress);
 
                 // Cache IP
                 auto config = config_manager::get_server_config();
@@ -294,7 +323,9 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
             }
 
             // Get the IP as std::string
-            std::string TargetPlayerIP =static_cast<UIpConnection*>(TargetPlayer->NetConnection())->RemoteAddr().Get()->ToString();
+            std::wstring wTargetPlayerIP = TargetPlayer->PlayerState()->SavedNetworkAddress().c_str();
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            std::string TargetPlayerIP = converter.to_bytes(wTargetPlayerIP);
 
             // Make sure the player is not an admin
             auto config = config_manager::get_server_config();
@@ -453,23 +484,6 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
             {
                 return nullptr;
             }
-        }
-
-        // Check if the player is a cached admin
-        bool bIsAdmin = false;
-        auto config = config_manager::get_server_config();
-        for (auto& elem : config["server_admins"].items())
-        {
-            if (std::string(elem.value()) == static_cast<UIpConnection*>(NewPlayer)->RemoteAddr().Get()->ToString())
-            {
-                bIsAdmin = true;
-                break;
-            }
-        }
-        if (bIsAdmin)
-        {
-            // user is now logged in as administrator, give them cheatmanager
-            NewPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayerController));
         }
     }
 

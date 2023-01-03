@@ -8,6 +8,9 @@ public:
     // get player by username
     static AFortPlayerController* get_player_by_name(FString InPlayerName);
 
+    // Check if the player's IP is marked as Administrator, if so, grant admin permission
+    static void grant_admin_permission_safe(AFortPlayerController* JoiningPlayer);
+
     // Commands
     static void HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);

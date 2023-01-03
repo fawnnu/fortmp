@@ -66,11 +66,12 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     Channel = "server:" + std::string(server_config["uuid"]);
 
     // Get the IP using ipify's API
-    httplib::Client client("https://api64.ipify.org");
+    // TODO: Fix vps crashes on code below
+    /*httplib::Client client("https://api64.ipify.org");
     auto Result = client.Get("/?format=json");
-    nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
+    nlohmann::json JsonResult = nlohmann::json::parse(Result->body);*/
 
-    GameServer_Status.ip = JsonResult["ip"];
+    GameServer_Status.ip = "0.0.0.0";
 
     SendJoin(GameServer_Status.ip);
     SendUpdate();
