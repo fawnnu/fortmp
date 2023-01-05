@@ -509,8 +509,19 @@ struct TScriptMulticastDelegate
 
     void Bind(const TScriptDelegate<T>& InDelegate)
     {
+        bool bIsAlreadyBound = false;
+
+        for (auto InvokedDelegate : InvocationList)
+        {
+            if (InvokedDelegate.FunctionName == InDelegate.FunctionName)
+            {
+                bIsAlreadyBound = true;
+                break;
+            }
+        }
+        
         // only bind if nothing is bound to this delegate
-        if (InvocationList.Num() == 0)
+        if (!bIsAlreadyBound)
         {
             InvocationList.Add(InDelegate);
         }
