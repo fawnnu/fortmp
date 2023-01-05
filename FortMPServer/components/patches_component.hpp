@@ -28,6 +28,7 @@ namespace patches_component_hook
 
     DEFINE_FUNCTION_HOOK(float, GetMaxTickRate, (UObject* Engine, float DeltaTime, bool bAllowSmoothing));
     DEFINE_FUNCTION_HOOK(bool, TryCollectGarbage, (int KeepFlags, bool bPerformFullPurge));
+    DEFINE_FUNCTION_HOOK(void, ConditionalCollectGarbage, (UObject* Self));
 
     DEFINE_FUNCTION_HOOK(void, AddSquadMember, (void* Self, APlayerState* PlayerState));
 

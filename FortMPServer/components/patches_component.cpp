@@ -25,7 +25,8 @@ patches_component::patches_component()
     DetourUpdateThread(GetCurrentThread());
 
     // Re-implement GC checks
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 422 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 421 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::ConditionalCollectGarbage, GetEngineVersionEasy() > 420 ? memory_manager::find_function_by_string(L"STAT_GCSweepTime") : 0, patches_component_hook::ConditionalCollectGarbage_Hook);
 
     // Stop random crashing
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FortPVPGameOverlayerCrash, memory_manager::find_function_by_string(L"Fortnite.Font.S.Normal"), patches_component_hook::FortPVPGameOverlayerCrash_Hook);
@@ -219,6 +220,27 @@ bool patches_component_hook::TryCollectGarbage_Hook(int KeepFlags, bool bPerform
 
     return TryCollectGarbage(KeepFlags, bPerformFullPurge);
 }
+
+void patches_component_hook::ConditionalCollectGarbage_Hook(UObject* Self)
+{
+    if (*GWorld && (*GWorld)->AuthorityGameMode() && (*GWorld)->GameState())
+    {
+        if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bDisableGCOnServerDuringMatch))
+        {
+            const bool bDisableGCOnServerDuringMatch = (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch();
+
+            static FName NAME_InProgress(L"InProgress");
+            
+            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->GameState()->MatchState() == NAME_InProgress)
+            {
+                return;
+            }
+        }
+    }
+
+    return ConditionalCollectGarbage(Self);
+}
+
 
 bool patches_component_hook::SpawnPlayActor_Hook(ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World)
 {
