@@ -191,9 +191,9 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     {
         static void* currentweaponlist_property = FindPropertyByName(VictimPlayerController->Pawn()->Class, L"CurrentWeaponList");
 
-        if (currentweaponlist_property)
+        if (currentweaponlist_property && VictimPlayerController->Pawn()->CurrentWeaponList().Num() > 0)
         {
-            for (auto i = VictimPlayerController->Pawn()->CurrentWeaponList().Num() - 1; i >= 0; i++)
+            for (auto i = VictimPlayerController->Pawn()->CurrentWeaponList().Num() - 1; i >= 0; i--)
             {
                 // Clear the array
                 GenericArray_Remove(&VictimPlayerController->Pawn()->CurrentWeaponList(), currentweaponlist_property, i);
