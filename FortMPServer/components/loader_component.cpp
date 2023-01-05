@@ -147,7 +147,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
 
         // Bind delegate for gamephase updates
-        (*GWorld)->GameState()->GamePhaseChanged().Bind(TScriptDelegate((*GWorld)->GameState(), TEXT("OnGamePhaseUpdated")));
+        static int DefaultNumBinds = (*GWorld)->GameState()->GamePhaseChanged().InvocationList.Num();
+
+        if ((*GWorld)->GameState()->GamePhaseChanged().InvocationList.Num() < DefaultNumBinds + 1)
+        {
+            (*GWorld)->GameState()->GamePhaseChanged().InvocationList.Add(TScriptDelegate((*GWorld)->GameState(), TEXT("OnGamePhaseUpdated")));
+        }
         
         // Start match
         if (GetEngineVersionEasy() > 423)
