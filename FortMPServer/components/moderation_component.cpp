@@ -181,7 +181,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <deop> (Revokes access to admin commands, doesn't work on players who join with ?adminpassword)\ncheat fly (Toggles fly)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -444,8 +444,64 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
     }
 }
 
+void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InPlaylistName;
+
+    if (!FParse::Token(InStream, InPlaylistName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Playlist parameter."));
+        return;
+    }
+
+    if (InPlaylistName.IsValid())
+    {
+        if (FindObject(InPlaylistName.c_str(), false, true))
+        {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+            std::string sInPlaylistName = converter.to_bytes(InPlaylistName.c_str());
+
+            // Set in config
+            auto config = config_manager::get_server_config();
+            config["override_playlist"] = sInPlaylistName;
+            config_manager::save_server_config(config);
+
+            // notify player
+            ExecutingPlayerController->ClientMessage(TEXT("Successfully set playlist."));
+        }
+        else
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Invalid playlist."));
+        }
+    }
+}   
+
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
+    // If whitelist is enabled, only let allowed users to join
+    if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
+    {
+        if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
+        {
+            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
+
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+            std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
+
+            if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
+            {
+                // Don't let the user login
+                return nullptr;
+            }
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+    
     AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
 
     if (NewPlayerController)
@@ -460,29 +516,6 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
             {
                 // Add every player controller to the given team code key
                 team_component::team_codes_map[TeamCode.c_str()].push_back(NewPlayerController);
-            }
-        }
-
-        // If whitelist is enabled, only let allowed users to join
-        if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
-        {
-            if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
-            {
-                FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
-
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        
-                std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
-
-                if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
-                {
-                    // Don't let the user login
-                    return nullptr;
-                }
-            }
-            else
-            {
-                return nullptr;
             }
         }
     }
@@ -549,6 +582,10 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("GIVEITEM")))
             {
                 moderation_component::HandleGiveItemCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SETPLAYLIST")))
+            {
+                moderation_component::HandleSetPlaylistCommand(Stream, Self);
             }
             else
             {

@@ -6,6 +6,7 @@
 #include "net_component.hpp"
 #include "pickup_component.hpp"
 #include "team_component.hpp"
+#include "config_manager.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -68,8 +69,24 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         if (in_playlist == nullptr)
         {
-            // Use default playlist if none specified
-            in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
+            // See if server.json is overriding the playlist
+            auto config = config_manager::get_server_config();
+            std::string sOverridePlaylist = config["override_playlist"];
+            std::wstring wOverridePlaylist = std::wstring(sOverridePlaylist.begin(), sOverridePlaylist.end());
+
+            if (UFortPlaylistAthena* override_playlist = FindObject<UFortPlaylistAthena>(wOverridePlaylist.c_str(), false, true))
+            {
+                if (override_playlist->IsA(UFortPlaylistAthena::StaticClass()))
+                {
+                    in_playlist = override_playlist;
+                }
+            }
+
+            if (in_playlist == nullptr)
+            {
+                // Use default playlist if none specified
+                in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
+            }
         }
 
         // Initialize playlist
