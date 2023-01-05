@@ -186,6 +186,21 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
     }
 
+    // Current weapon list crash fix
+    if (VictimPlayerController->Pawn())
+    {
+        static void* currentweaponlist_property = FindPropertyByName(VictimPlayerController->Pawn()->Class, L"CurrentWeaponList");
+
+        if (currentweaponlist_property)
+        {
+            for (auto i = VictimPlayerController->Pawn()->CurrentWeaponList().Num() - 1; i >= 0; i++)
+            {
+                // Clear the array
+                GenericArray_Remove(&VictimPlayerController->Pawn()->CurrentWeaponList(), currentweaponlist_property, i);
+            }
+        }
+    }
+
     // only proceed if Respawn isn't enabled
     if (current_playlist == nullptr ||
         current_playlist->HasProperty(L"RespawnType") == false ||

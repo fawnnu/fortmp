@@ -78,6 +78,7 @@ public:
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
     DEFINE_PROPERTY(class UAbilitySystemComponent*, AbilitySystemComponent);
     DEFINE_PROPERTY(UFortMovementSet*, MovementSet);
+    DEFINE_PROPERTY(TArray<AFortWeapon*>, CurrentWeaponList);
     
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
