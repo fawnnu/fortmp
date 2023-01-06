@@ -492,6 +492,15 @@ bool loader_component_hooks::SetGameMode_Hook()
         gameserver_client::Client->GameServer_Status.max_players = 0;
         gameserver_client::Client->SendUpdate();
 #endif
+
+        if (loader_component::bPendingShutdown)
+        {
+            // Log
+            spdlog::info(L"Closing server: bPendingShutdown is true.");
+            
+            // Quit
+            RequestExitWithStatus(true, 0);
+        }
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

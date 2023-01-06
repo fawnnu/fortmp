@@ -16,6 +16,8 @@ public:
     static void initialize_bga();
 
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
+
+    inline static bool bPendingShutdown;
 };
 
 namespace loader_component_hooks

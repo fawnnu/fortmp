@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "../components/loader_component.hpp"
 #include "../components/log_component.hpp"
 #include "../components/player_component.hpp"
 #include "../utils/stb_image.h"
@@ -185,6 +186,11 @@ void renderer::CreateNewWindow()
                                 }
 
                                 spdlog::info(L"Performing server restart.");
+                            }
+
+                            if (ImGui::Button("Safe Restart Server", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                loader_component::bPendingShutdown = true;
                             }
 
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");

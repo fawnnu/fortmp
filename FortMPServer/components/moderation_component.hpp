@@ -17,6 +17,8 @@ public:
     static void HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleRestartServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSafeResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);

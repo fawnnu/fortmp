@@ -3,6 +3,7 @@
 
 #include "config_manager.hpp"
 #include "inventory_component.hpp"
+#include "loader_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
 #include "pickup_component.hpp"
@@ -182,7 +183,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -225,6 +226,45 @@ void moderation_component::HandleRestartServerCommand(const TCHAR*& InStream, AF
             }
         }
     }
+}
+
+void moderation_component::HandleResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    if (UWorld* CurrentWorld = *GWorld)
+    {
+        if (UNetDriver* CurrentNetDriver = CurrentWorld->NetDriver())
+        {
+            // Loop through each netconnection and close it
+            for (int i = 0; i < CurrentNetDriver->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = CurrentNetDriver->ClientConnections()[i];
+
+                if (ClientConnection)
+                {
+                    // If there is an associated PlayerController, kick it properly
+                    if (AFortPlayerController* PlayerController = ClientConnection->PlayerController())
+                    {
+                        PlayerController->ClientReturnToMainMenu(TEXT("Restarting Server."));
+                    }
+
+                    // Close connection anyways to prevent bypasses
+                    NetConnection__Close(ClientConnection);
+                }
+            }
+        }
+    }
+    
+    // Quit
+    RequestExitWithStatus(true, 0);
+}
+
+void moderation_component::HandleSafeResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    // Mark the server as pending shutdown
+    loader_component::bPendingShutdown = true;
+
+    // Notify
+    ExecutingPlayerController->ClientMessage(TEXT("The server is going to perform a full restart as soon as the match ends."));
 }
 
 void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -575,6 +615,14 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("RESTARTSERVER")))
             {
                 moderation_component::HandleRestartServerCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("RESETSERVER")))
+            {
+                moderation_component::HandleResetServerCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SAFERESETSERVER")))
+            {
+                moderation_component::HandleSafeResetServerCommand(Stream, Self);
             }
             else if (FParse::Command(&Stream, TEXT("SETSERVERPASSWORD")))
             {
