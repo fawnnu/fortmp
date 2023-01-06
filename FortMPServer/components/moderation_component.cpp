@@ -82,6 +82,14 @@ void moderation_component::grant_admin_permission_safe(AFortPlayerController* Jo
                 break;
             }
         }
+        for (auto& elem : config["opped_players"].items())
+        {
+            if (std::string(elem.value()) == JoiningPlayerIP)
+            {
+                bIsAdmin = true;
+                break;
+            }
+        }
         if (bIsAdmin)
         {
             // user is now logged in as administrator, give them cheatmanager
@@ -269,36 +277,80 @@ void moderation_component::HandleSafeResetServerCommand(const TCHAR*& InStream, 
 
 void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    FString InServerPassword;
-
-    if (!FParse::Token(InStream, InServerPassword, 0))
+    // get the IP
+    std::wstring wExecutingPlayerIP = ExecutingPlayerController->PlayerState()->SavedNetworkAddress().c_str();
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string ExecutingPlayerIP = converter.to_bytes(wExecutingPlayerIP);
+    
+    // Make sure the player is an admin
+    bool bIsAdmin = false;
+    
     {
-        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing InServerPassword parameter."));
-        return;
-    }
-
-    if (InServerPassword.IsValid())
-    {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        
-        std::string sInServerPassword = converter.to_bytes(InServerPassword.c_str());
-        
-        // Set a password
         auto config = config_manager::get_server_config();
-        config["server_key"] = sInServerPassword;
-        config_manager::save_server_config(config);
+        for (auto& elem : config["server_admins"].items())
+        {
+            if (std::string(elem.value()) == ExecutingPlayerIP)
+            {
+                bIsAdmin = true;
+                break;
+            }
+        }
+    }
+    
+    if (bIsAdmin)
+    {
+        FString InServerPassword;
 
-        ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+        if (!FParse::Token(InStream, InServerPassword, 0))
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing InServerPassword parameter."));
+            return;
+        }
+
+        if (InServerPassword.IsValid())
+        {
+            std::string sInServerPassword = converter.to_bytes(InServerPassword.c_str());
+        
+            // Set a password
+            auto config = config_manager::get_server_config();
+            config["server_key"] = sInServerPassword;
+            config_manager::save_server_config(config);
+
+            ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+        }
     }
 }
 
 void moderation_component::HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    auto config = config_manager::get_server_config();
-    config["bIsWhitelistEnabled"] = !bool(config["bIsWhitelistEnabled"]);
-    config_manager::save_server_config(config);
+    // get the IP
+    std::wstring wExecutingPlayerIP = ExecutingPlayerController->PlayerState()->SavedNetworkAddress().c_str();
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string ExecutingPlayerIP = converter.to_bytes(wExecutingPlayerIP);
+    
+    // Make sure the player is an admin
+    bool bIsAdmin = false;
+    
+    {
+        auto config = config_manager::get_server_config();
+        for (auto& elem : config["server_admins"].items())
+        {
+            if (std::string(elem.value()) == ExecutingPlayerIP)
+            {
+                bIsAdmin = true;
+                break;
+            }
+        }
+    }
+    
+    if (bIsAdmin)
+    {
+        auto config = config_manager::get_server_config();
+        config["bIsWhitelistEnabled"] = !bool(config["bIsWhitelistEnabled"]);
+        config_manager::save_server_config(config);
 
-    ExecutingPlayerController->ClientMessage(bool(config["bIsWhitelistEnabled"]) ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
+        ExecutingPlayerController->ClientMessage(bool(config["bIsWhitelistEnabled"]) ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
+    }
 }
 
 void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -330,6 +382,16 @@ void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerCo
 
             // Op!
             TargetPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), TargetPlayer));
+
+            // Get IP
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            const std::wstring AdminIPAddress = TargetPlayer->PlayerState()->SavedNetworkAddress().c_str();
+            std::string sAdminIPAddress = converter.to_bytes(AdminIPAddress);
+            
+            // Save as opped
+            auto config = config_manager::get_server_config();
+            config["opped_players"].push_back(sAdminIPAddress);
+            config_manager::save_server_config(config);
 
             ExecutingPlayerController->ClientMessage(TEXT("Successfully opped player!"));
         }
@@ -378,11 +440,32 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
                     return;
                 }
             }
+            
+            // Make sure the player is opped
+            std::vector<std::string> opped_players;
+            for (auto& elem : config["opped_players"].items())
+            {
+                opped_players.push_back(std::string(elem.value()));
+            }
 
-            // If the player is not a registered admin, de-op it
-            TargetPlayer->CheatManager() = nullptr;
+            if (std::find(opped_players.begin(), opped_players.end(), TargetPlayerIP) != opped_players.end())
+            {
+                // Remove from the vector
+                opped_players.erase(std::find(opped_players.begin(), opped_players.end(), TargetPlayerIP));
 
-            ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
+                // Save the config
+                config["opped_players"] = R"([])"_json;
+                for (auto opped_player : opped_players)
+                {
+                    config["opped_players"].push_back(opped_player);
+                }
+                config_manager::save_server_config(config);
+                
+                // If the player is not a registered admin, de-op it
+                TargetPlayer->CheatManager() = nullptr;
+
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
+            }
         }
     }
 }
