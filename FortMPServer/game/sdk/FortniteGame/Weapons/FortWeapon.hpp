@@ -62,3 +62,53 @@ struct FAthenaBatchedDamageGameplayCues
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaBatchedDamageGameplayCues");
 };
+
+struct FMountedWeaponInfoRepped
+{
+    DEFINE_STRUCT_PROPERTY(AActor*, HostVehicleCachedActor);
+    DEFINE_STRUCT_PROPERTY(int, HostVehicleSeatIndexCached);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.MountedWeaponInfoRepped");
+};
+
+class AFortWeaponRangedForVehicle : public AFortWeapon
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponRangedForVehicle");
+
+    DEFINE_PROPERTY(FMountedWeaponInfoRepped, MountedWeaponInfoRepped);
+
+    void OnHostVehicleSetup()
+    {
+        STATIC_FINDFUNCTION(OnHostVehicleSetup)
+
+        Call(Function_OnHostVehicleSetup);
+    }
+    void OnRep_MountedWeaponInfoRepped()
+    {
+        STATIC_FINDFUNCTION(OnRep_MountedWeaponInfoRepped)
+
+        Call(Function_OnRep_MountedWeaponInfoRepped);
+    }
+};
+
+class AFortWeaponRangedDualForVehicle : public AFortWeapon
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponRangedDualForVehicle");
+
+    DEFINE_PROPERTY(FMountedWeaponInfoRepped, MountedWeaponInfoRepped);
+
+    void OnHostVehicleSetup()
+    {
+        STATIC_FINDFUNCTION(OnHostVehicleSetup)
+
+        Call(Function_OnHostVehicleSetup);
+    }
+    void OnRep_MountedWeaponInfoRepped()
+    {
+        STATIC_FINDFUNCTION(OnRep_MountedWeaponInfoRepped)
+
+        Call(Function_OnRep_MountedWeaponInfoRepped);
+    }
+};

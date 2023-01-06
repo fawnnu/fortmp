@@ -4,6 +4,9 @@ class vehicles_component
 {
 public:
     vehicles_component();
+
+    static void equip_vehicle_weapon(AFortPlayerController* target_player_controller, UFortWeaponItemDefinition* weapon_item_definition);
+    static void unequip_vehicle_weapon(AFortPlayerController* target_player_controller);
 };
 
 namespace vehicles_component_hooks

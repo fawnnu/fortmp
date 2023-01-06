@@ -5,6 +5,7 @@
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
 #include "reviving_component.hpp"
+#include "vehicles_component.hpp"
 
 interact_component::interact_component()
 {
@@ -37,6 +38,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interactions with vending machines
         handle_vending_machine_interaction(player_controller, reinterpret_cast<ABuildingItemCollectorActor*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AFortAthenaVehicle::StaticClass()))
+    {
+        // Handle any interactions with vending machines
+        handle_vehicle_interaction(player_controller, reinterpret_cast<AFortAthenaVehicle*>(receiving_actor));
     }
 }
 
@@ -134,6 +140,34 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
         }
     }
 }
+
+void interact_component::handle_vehicle_interaction(AFortPlayerController* player_controller, AFortAthenaVehicle* vehicle)
+{
+    // Make sure the component class exists in this version
+    if (UFortVehicleSeatWeaponComponent::StaticClass())
+    {
+        if (player_controller->Pawn()->IsInVehicle())
+        {
+            unsigned char SeatIndex = player_controller->Pawn()->GetVehicleSeatIndex();
+
+            if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = vehicle->GetSeatWeaponComponent(SeatIndex))
+            {
+                UFortWeaponItemDefinition* VehicleWeapon = nullptr;
+                TArrayManager WeaponSeatDefinitions = TArrayManager<FWeaponSeatDefinition>(&SeatWeaponComponent->WeaponSeatDefinitions(), FWeaponSeatDefinition::GetStructSize());
+                
+                for (FWeaponSeatDefinition& SeatDefinition : WeaponSeatDefinitions)
+                {
+                    if (SeatDefinition.SeatIndex() == SeatIndex)
+                    {
+                        VehicleWeapon = SeatDefinition.VehicleWeapon();
+                    }
+                }
+                
+                vehicles_component::equip_vehicle_weapon(player_controller, VehicleWeapon);
+            }
+        }
+    }
+}   
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {

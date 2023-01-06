@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../../Engine/Components/ActorComponent.hpp"
 
 inline uintptr_t (*ServerChoosePart_Implementation)(class AFortPlayerPawn*, int, UCustomCharacterPart*);
 
@@ -137,10 +138,59 @@ public:
     DEFINE_PROPERTY(UObject*, Owner);
     DEFINE_PROPERTY(FGameplayTag, EventReviveTag);
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
-    
+
+    bool IsInVehicle()
+    {
+        STATIC_FINDFUNCTION(IsInVehicle)
+
+        return Call<bool>(Function_IsInVehicle);
+    }
+    class AFortAthenaVehicle* GetVehicle()
+    {
+        STATIC_FINDFUNCTION(GetVehicle)
+
+        return Call<AFortAthenaVehicle*>(Function_GetVehicle);
+    }
+    unsigned char GetVehicleSeatIndex()
+    {
+        STATIC_FINDFUNCTION(GetVehicleSeatIndex)
+
+        return Call<unsigned char>(Function_GetVehicleSeatIndex);
+    }
     void ServerChoosePart(uint8_t Part, UCustomCharacterPart* ChosenCharacterPart)
     {
         ServerChoosePart_Implementation(this, Part, ChosenCharacterPart);
+    }
+};
+
+struct FWeaponSeatDefinition
+{
+    DEFINE_STRUCT_PROPERTY(int, SeatIndex);
+    DEFINE_STRUCT_PROPERTY(UFortWeaponItemDefinition*, VehicleWeapon);
+    DEFINE_STRUCT_PROPERTY(UFortWeaponItemDefinition*, VehicleWeaponOverride);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.WeaponSeatDefinition");
+};
+
+class UFortVehicleSeatWeaponComponent : public UActorComponent
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortVehicleSeatWeaponComponent")
+    DEFINE_PROPERTY(TArray<FWeaponSeatDefinition>, WeaponSeatDefinitions);
+    DEFINE_PROPERTY(AFortWeapon*, CachedWeapon);
+    DEFINE_PROPERTY(UFortWeaponItemDefinition*, CachedWeaponDef);
+};
+
+class AFortAthenaVehicle : public APawn
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaVehicle")
+
+    UFortVehicleSeatWeaponComponent* GetSeatWeaponComponent(int SeatIndex)
+    {
+        STATIC_FINDFUNCTION(GetSeatWeaponComponent)
+
+        return Call<UFortVehicleSeatWeaponComponent*>(Function_GetSeatWeaponComponent, SeatIndex);
     }
 };
 
