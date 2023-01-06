@@ -22,6 +22,7 @@ public:
     static void HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleDeopCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleFlyCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSetSpeedCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveItemCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleSCPCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);

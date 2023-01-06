@@ -70,6 +70,7 @@ class UFortMovementSet : public UObject
 {
 public:
     DEFINE_PROPERTY(struct FGameplayAttributeData, RunSpeed);
+    DEFINE_PROPERTY(struct FGameplayAttributeData, SpeedMultiplier);
 };
 
 class AFortPawn : public ACharacter

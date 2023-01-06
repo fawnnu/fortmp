@@ -182,7 +182,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -354,25 +354,34 @@ void moderation_component::HandleFlyCommand(const TCHAR*& InStream, AFortPlayerC
         static UEnum* EMovementMode = FindObject<UEnum>(L"/Script/Engine.EMovementMode");
         static uint8_t MOVE_Flying = EMovementMode->GetEnumIndex(TEXT("MOVE_Flying"));
         static uint8_t MOVE_Walking = EMovementMode->GetEnumIndex(TEXT("MOVE_Walking"));
-        static float DefaultRunValue = MyFortPawn->MovementSet()->RunSpeed().CurrentValue();
-
+        
         // Set the movement mode
         MyFortPawn->CharacterMovement()->MovementMode() = MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Flying ? MOVE_Walking : MOVE_Flying;
 
         // Toggle bCheatFlying
         UKismetSystemLibrary::SetBoolPropertyByName(MyFortPawn->CharacterMovement(), TEXT("bCheatFlying"), !MyFortPawn->CharacterMovement()->bCheatFlying());
 
-        // Change speed
-        if (MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Flying)
-        {
-            MyFortPawn->MovementSet()->RunSpeed().CurrentValue() = 1600.f;
-        }
-        else if (MyFortPawn->CharacterMovement()->MovementMode() == MOVE_Walking)
-        {
-            MyFortPawn->MovementSet()->RunSpeed().CurrentValue() = DefaultRunValue;
-        }
-
         ExecutingPlayerController->ClientMessage(TEXT("Toggled fly!"));
+    }
+}
+
+void moderation_component::HandleSetSpeedCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString NewSpeedValue;
+
+    if (!FParse::Token(InStream, NewSpeedValue, 0))
+    {
+        NewSpeedValue = TEXT("1");
+    }
+
+    if (AFortPlayerPawn* MyFortPawn = ExecutingPlayerController->MyFortPawn())
+    {
+        std::wstring wNewSpeedValue = NewSpeedValue.c_str();
+        float fNewSpeedValue = std::stof(wNewSpeedValue);
+        
+        MyFortPawn->MovementSet()->SpeedMultiplier().CurrentValue() = fNewSpeedValue;
+        
+        ExecutingPlayerController->ClientMessage(TEXT("Updated speed!"));
     }
 }
 
@@ -586,6 +595,10 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("FLY")))
             {
                 moderation_component::HandleFlyCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SETSPEED")))
+            {
+                moderation_component::HandleSetSpeedCommand(Stream, Self);
             }
             else if (FParse::Command(&Stream, TEXT("GIVEITEM")))
             {
