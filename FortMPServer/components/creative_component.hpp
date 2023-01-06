@@ -7,6 +7,9 @@ public:
     // Init
     creative_component();
 
+    // Tells if we are currently playing creative
+    static bool is_creative_enabled();
+    
     // Assign a portal to the joining player
     static void assign_portal_to_player(UNetConnection* NetConnection, int PortalIndex);
     

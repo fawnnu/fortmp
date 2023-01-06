@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "building_component.hpp"
 
+#include "creative_component.hpp"
 #include "inventory_component.hpp"
 
 building_component::building_component()
@@ -24,17 +25,20 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
 {
     if (is_building_class_valid(building_class))
     {
-        // Check if the player has enough materials
-        if (ABuildingSMActor* BuildingActorToTest = CreateDefaultObject<ABuildingSMActor>(building_class))
+        // Check if the player has enough materials (Only if not in creative)
+        if (!creative_component::is_creative_enabled())
         {
-            if (UFortItemDefinition* ResourceItemDefinition = get_building_resource(BuildingActorToTest); ResourceItemDefinition && building_owner)
+            if (ABuildingSMActor* BuildingActorToTest = CreateDefaultObject<ABuildingSMActor>(building_class))
             {
-                if (UFortItem* FoundItem = inventory_component::get_inventory_item_by_definition(building_owner, ResourceItemDefinition))
+                if (UFortItemDefinition* ResourceItemDefinition = get_building_resource(BuildingActorToTest); ResourceItemDefinition && building_owner)
                 {
-                    if (static_cast<UFortWorldItem*>(FoundItem)->ItemEntry().Count() < 10)
+                    if (UFortItem* FoundItem = inventory_component::get_inventory_item_by_definition(building_owner, ResourceItemDefinition))
                     {
-                        // Player is probably cheating with buildfree, don't spawn the building
-                        return false;
+                        if (static_cast<UFortWorldItem*>(FoundItem)->ItemEntry().Count() < 10)
+                        {
+                            // Player is probably cheating with buildfree, don't spawn the building
+                            return false;
+                        }
                     }
                 }
             }

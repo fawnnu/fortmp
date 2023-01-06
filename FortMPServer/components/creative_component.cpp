@@ -17,6 +17,28 @@ creative_component::creative_component()
     DetourTransactionCommit();
 }
 
+bool creative_component::is_creative_enabled()
+{
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
+
+    if (current_playlist == nullptr)
+    {
+        spdlog::error(L"creative_component::handle_player_join: nullptr playlist");
+
+        return false;
+    }
+
+    STATIC_HASPROPERTY(current_playlist, bEnableCreativeMode);
+    if (bExists_bEnableCreativeMode &&
+        current_playlist->bEnableCreativeMode() == true)
+    {
+        // Assign portal to player
+        return true;
+    }
+
+    return false;
+}
+
 void creative_component::handle_player_join(UNetConnection* NetConnection)
 {
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();

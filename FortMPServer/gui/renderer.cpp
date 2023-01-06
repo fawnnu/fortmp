@@ -376,9 +376,11 @@ void renderer::CreateNewWindow()
 
     spdlog::info(L"Closed GUI, terminating server...");
 
+#ifdef _RELEASE
     // Reset this server's info on Era Services
     gameserver_client::Client->GameServer_Status = gameserver_status();
     gameserver_client::Client->SendUpdate();
+#endif
     
     // Terminate program
     RequestExitWithStatus(true, 0);
