@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "patches_component.hpp"
 
+#include "net_component.hpp"
+
 anti_tampering_bypass::anti_tampering_bypass()
 {
     DetourTransactionBegin();
@@ -189,6 +191,28 @@ patches_component::patches_component()
             spdlog::error(L"Failed to fix reservations, pattern not found");
         }
     }
+
+    {
+        // Don't kick on "ServerUpdateLevelVisibility() ignored non-existant package"
+        if (const uintptr_t target_address = memory_manager::find_function_by_string(L"ServerUpdateLevelVisibility() ignored non-existant package"))
+        {
+            // Get all calls inside the function we found
+            auto calls = memory_manager::get_all_calls_in_function(target_address);
+
+            for (auto call : calls)
+            {
+                if (auto called_function = call + 5 + *reinterpret_cast<int*>(call + 1))
+                {
+                    if (called_function == reinterpret_cast<uintptr_t>(NetConnection__Close))
+                    {
+                        // Call hook
+                        memory_manager::call_hook(call, reinterpret_cast<uintptr_t>(patches_component_hook::NetConnection__Close__Replacement));
+                        break;
+                    }
+                }
+            }
+        }
+    }
     
     DetourTransactionCommit();
 }
@@ -346,4 +370,9 @@ int patches_component_hook::NotifyAcceptingConnection_Hook(UWorld* Self)
     }
 
     return NotifyAcceptingConnection(Self);
+}
+
+void patches_component_hook::NetConnection__Close__Replacement()
+{
+    // Do nothing   
 }

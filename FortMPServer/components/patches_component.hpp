@@ -54,4 +54,7 @@ namespace patches_component_hook
 
     // Prevents a crash related to the loading screen
     __int64 LoadingScreenPatch_Hook(__int64 Object);
+
+    // Replace call to NetConnection::Close
+    void NetConnection__Close__Replacement();
 };
