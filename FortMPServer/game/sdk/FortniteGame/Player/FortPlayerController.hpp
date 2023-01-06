@@ -279,3 +279,9 @@ class UAthenaResurrectionComponent : public UObject
 public:
     DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
 };
+
+class AAthena_PlayerController_C : public AFortPlayerControllerAthena
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Athena_PlayerController.Athena_PlayerController_C");
+};

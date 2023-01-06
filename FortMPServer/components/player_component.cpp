@@ -99,77 +99,81 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
 
     // Grant admin permission if the player is an admin
     moderation_component::grant_admin_permission_safe(static_cast<AFortPlayerController*>(NewPlayer));
-    
-    // Make sure the player is joining for the first time (ONLY FOR NON-ADMINS)
-    if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr)
+
+    // Only proceed if this is an athena playercontroller
+    if (NewPlayer->IsA(AAthena_PlayerController_C::StaticClass()))
     {
-        spdlog::error(L"Player {} attempted to rejoin. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
+        // Make sure the player is joining for the first time (ONLY FOR NON-ADMINS)
+        if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr)
+        {
+            spdlog::error(L"Player {} attempted to rejoin. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
                 
-        static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"You aren't allowed to rejoin. Please restart the game with a different name and try again.");
+            static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"You aren't allowed to rejoin. Please restart the game with a different name and try again.");
 
-        return;
-    }
+            return;
+        }
 
-    // Register quest manager
-    if(STATIC_HASPROPERTY(NewPlayer, XPComponent))
-    {
-        static_cast<AFortPlayerController*>(NewPlayer)->XPComponent()->bRegisteredWithQuestManager() = true;
-    }
+        // Register quest manager
+        if(STATIC_HASPROPERTY(NewPlayer, XPComponent))
+        {
+            static_cast<AFortPlayerController*>(NewPlayer)->XPComponent()->bRegisteredWithQuestManager() = true;
+        }
             
-    // Spawn QuickBars
-    AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
+        // Spawn QuickBars
+        AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
             
-    AFortQuickBars*& player_quickbars = NewPlayer->HasProperty(L"QuickBars") ?
-        static_cast<AFortPlayerController*>(NewPlayer)->QuickBars() : static_cast<AFortPlayerController*>(NewPlayer)->ClientQuickBars();
+        AFortQuickBars*& player_quickbars = NewPlayer->HasProperty(L"QuickBars") ?
+            static_cast<AFortPlayerController*>(NewPlayer)->QuickBars() : static_cast<AFortPlayerController*>(NewPlayer)->ClientQuickBars();
 
-    // Set quickbars
-    player_quickbars = new_quickbars;
+        // Set quickbars
+        player_quickbars = new_quickbars;
             
-    // Set ownership
-    player_quickbars->SetOwner(NewPlayer);
+        // Set ownership
+        player_quickbars->SetOwner(NewPlayer);
 
-    // Grant harvesting tool
-    inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
+        // Grant harvesting tool
+        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
             
-    for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
-    {
-        // Grant default item
-        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), starting_item.Item, starting_item.Count);
-    }
+        for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
+        {
+            // Grant default item
+            inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), starting_item.Item, starting_item.Count);
+        }
 
-    // Assign team
-    if (team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)) == nullptr)
-    {
-        spdlog::error(L"Couldn't find a valid team for player '{}'", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
+        // Assign team
+        if (team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)) == nullptr)
+        {
+            spdlog::error(L"Couldn't find a valid team for player '{}'", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
         
-        static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
-    }
+            static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
+        }
     
-    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer))->Team());
+        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer))->Team());
 
-    // Make pawn invulnerable on spawn island
-    UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
+        // Make pawn invulnerable on spawn island
+        UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
 
-    // Prevent camera from shaking while spectating or when using the guided missile
-    NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
-    NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
+        // Prevent camera from shaking while spectating or when using the guided missile
+        NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
+        NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
 
-    // Bind OnStartedRespawn delegate
-    if (STATIC_HASPROPERTY(NewPlayer, OnStartedRespawn))
-    {
-        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
+        // Bind OnStartedRespawn delegate
+        if (STATIC_HASPROPERTY(NewPlayer, OnStartedRespawn))
+        {
+            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
+        }
+
+        // Creative support
+        creative_component::handle_player_join(NewPlayer->NetConnection());
+
+        // Drop loading screen
+        static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
+
+        // Notify gamemode
+        (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
+
+        spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
     }
-
-    // Creative support
-    creative_component::handle_player_join(NewPlayer->NetConnection());
-
-    // Drop loading screen
-    static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
-
-    // Notify gamemode
-    (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
-
-    spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
 }
 
 UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
