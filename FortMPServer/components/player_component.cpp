@@ -45,6 +45,23 @@ player_component::player_component()
     bEnableServerChoosePart = false;
 }
 
+bool player_component::is_live_spectator(APlayerController* player_controller)
+{
+    STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), LiveSpectatorPlayerControllerClass);   
+    STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), LiveBroadcastPlayerControllerClass);
+
+    if (bExists_LiveBroadcastPlayerControllerClass && bExists_LiveSpectatorPlayerControllerClass)
+    {
+        if (player_controller->IsA((*GWorld)->AuthorityGameMode()->LiveBroadcastPlayerControllerClass()) ||
+            player_controller->IsA((*GWorld)->AuthorityGameMode()->LiveSpectatorPlayerControllerClass()))
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_controller, FTransform spawn_transform)
 {
     AFortPlayerPawn* player_pawn = (*GWorld)->AuthorityGameMode()->SpawnDefaultPawnAtTransform(player_controller, spawn_transform);
@@ -100,8 +117,19 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Grant admin permission if the player is an admin
     moderation_component::grant_admin_permission_safe(static_cast<AFortPlayerController*>(NewPlayer));
 
+    // If livespectator, make sure the player is an admin
+    if (player_component::is_live_spectator(NewPlayer))
+    {
+        if (NewPlayer->CheatManager() == nullptr)
+        {
+            static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"Only Server Admins are allowed to live spectate.");
+            
+            return;
+        }
+    }
+    
     // Only proceed if this is an athena playercontroller
-    if (NewPlayer->IsA(AAthena_PlayerController_C::StaticClass()))
+    if (NewPlayer->IsA(FortGameModeAthena->PlayerControllerClass()))
     {
         // Make sure the player is joining for the first time (ONLY FOR NON-ADMINS)
         if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr)

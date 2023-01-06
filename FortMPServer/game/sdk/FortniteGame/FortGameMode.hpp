@@ -23,6 +23,7 @@ class AGameModeBase : public UObject
 public:
     DEFINE_PROPERTY(AGameSession*, GameSession);
     DEFINE_PROPERTY(UObject*, GameSessionClass);
+    DEFINE_PROPERTY(UObject*, PlayerControllerClass);
     
     AFortPlayerPawn* SpawnDefaultPawnAtTransform(APlayerController* NewPlayer, FTransform SpawnTransform)
     {
@@ -70,6 +71,9 @@ class AFortGameModeAthena : public AFortGameModeZone
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameModeAthena")
 
+    DEFINE_PROPERTY(UObject*, LiveSpectatorPlayerControllerClass);
+    DEFINE_PROPERTY(UObject*, LiveBroadcastPlayerControllerClass);
+    
     DEFINE_PROPERTY(bool, bDisableGCOnServerDuringMatch);
     
     DEFINE_PROPERTY(float, WarmupCountdownDuration);
