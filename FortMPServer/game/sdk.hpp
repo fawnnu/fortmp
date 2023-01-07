@@ -40,6 +40,21 @@
                                                                                                                                     \
     PropertyType##& PropertyName## = *reinterpret_cast<PropertyType##*>(StackFrame.Locals + PropertyName##_offset);
 
+#define UNPACK_BP_PARAMS()\
+    std::vector<char*> all_params;\
+    for (UObject* Property = *reinterpret_cast<UObject**>(__int64(StackFrame.Node) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))\
+    {\
+        all_params.push_back(reinterpret_cast<char*>(alloca(128)));\
+        \
+        StackFrame.Step(StackFrame.Object, &all_params[all_params.size() - 1]);\
+    }\
+    int current_param = 0;\
+    \
+    StackFrame.Code++;\
+
+#define READ_BP_PARAM(PropertyType, PropertyName)\
+    PropertyType##& PropertyName## = *reinterpret_cast<PropertyType##*>(&all_params[current_param++]);
+
 #define GET_PROCESS_EVENT_PARAMETER(PropertyType, PropertyName)                                                                     \
     static void* PropertyName##_property = FindPropertyByName(Function, #PropertyName);                                             \
     static int PropertyName##_offset = *reinterpret_cast<int*>(__int64(PropertyName##_property) + CoreOffsets::Offset_Internal);    \
