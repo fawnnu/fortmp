@@ -6,27 +6,11 @@
 #include "components/matchmaking_component.hpp"
 
 void Setup()
-{
+{;
     unreal_manager::setup_unreal_engine();
 
-    ssl_bypass_component::redirect_url = dll_utils::get_redirect_url();
+    ssl_bypass_component::redirect_url = XOR("https://api.v1.external.erafn.org/api/external/fortnite");
 
-    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
-    {
-        // Start the API on another thread
-        new api_component();
-        
-        return 0;
-    }, nullptr, 0, nullptr);
-
-    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
-    {
-        // Start the matchmaker on another thread
-        new matchmaking_component();
-        
-        return 0;
-    }, nullptr, 0, nullptr);
-    
     //Instantly start the SSL bypass
     new ssl_bypass_component();
 
