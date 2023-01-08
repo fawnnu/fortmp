@@ -5,6 +5,8 @@ class team_component
 public:
     team_component();
 
+    static void Login(AFortPlayerController* player_controller, const FString& Options);
+
     static void set_team(AFortPlayerController* player_controller, uint8_t team_index);
     static AFortTeamInfo* find_team(AFortPlayerController* player_controller);
     static int get_team_size();

@@ -25,7 +25,8 @@ nlohmann::json config_manager::get_server_config()
                 "opped_players": [],
                 "server_key": "",
                 "override_playlist": "",
-                "bIsWhitelistEnabled": false
+                "bIsWhitelistEnabled": false,
+                "bOnlyMatchMaking": false
             }
         )"_json;
 

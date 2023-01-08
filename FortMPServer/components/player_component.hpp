@@ -5,6 +5,7 @@ class player_component
 public:
     player_component();
 
+    static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static bool is_live_spectator(APlayerController* player_controller);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 

@@ -63,10 +63,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
-        // Empty teams reservations from past matches
-        team_component::reserved_teams.clear();
-        team_component::team_codes_map.clear();
-        
         if (in_playlist == nullptr)
         {
             // See if server.json is overriding the playlist
@@ -501,6 +497,10 @@ bool loader_component_hooks::SetGameMode_Hook()
             // Quit
             RequestExitWithStatus(true, 0);
         }
+
+        // Clear temporary arrays
+        team_component::reserved_teams.clear();
+        team_component::team_codes_map.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

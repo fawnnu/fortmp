@@ -619,48 +619,20 @@ void moderation_component::HandleToggleSCPCommand(const TCHAR*& InStream, AFortP
 
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
-    // If whitelist is enabled, only let allowed users to join
-    if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
+    if (player_component::Login(UniqueID, Options))
     {
-        if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
+        AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
+
+        if (NewPlayerController)
         {
-            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
-
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        
-            std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
-
-            if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
-            {
-                // Don't let the user login
-                return nullptr;
-            }
+            team_component::Login(NewPlayerController, Options);
         }
-        else
-        {
-            return nullptr;
-        }
-    }
-    
-    AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
 
-    if (NewPlayerController)
-    {
-        if (UGameplayStatics::HasOption(Options, TEXT("TeamCode")))
-        {
-            // Get the team code value
-            FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
-
-            // If the team code is valid
-            if (TeamCode.IsValid())
-            {
-                // Add every player controller to the given team code key
-                team_component::team_codes_map[TeamCode.c_str()].push_back(NewPlayerController);
-            }
-        }
+        return NewPlayerController;
     }
 
-    return NewPlayerController;
+    // If FortMP Login fails, return
+    return nullptr;
 }
 
 void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, FFrame& StackFrame)

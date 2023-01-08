@@ -2,6 +2,7 @@
 #include "player_component.hpp"
 
 #include "ability_component.hpp"
+#include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
 #include "moderation_component.hpp"
@@ -43,6 +44,47 @@ player_component::player_component()
 
     // Server choose part is false by default
     bEnableServerChoosePart = false;
+}
+
+bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Options)
+{
+    // If whitelist is enabled, only let allowed users to join
+    if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
+    {
+        if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
+        {
+            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
+
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+            std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
+
+            if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
+            {
+                // Don't let the user login
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    // Only let people with a valid encryption token join
+    if (bool(config_manager::get_server_config()["bOnlyMatchMaking"]))
+    {
+        if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
+        {
+            FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
+
+            if (EncryptionToken.IsValid())
+            {
+                // TODO: Validate the encryptiontoken
+                return true;
+            }
+        }
+    }
+    
+    return false;   
 }
 
 bool player_component::is_live_spectator(APlayerController* player_controller)

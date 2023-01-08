@@ -14,6 +14,22 @@ team_component::team_component()
     DetourTransactionCommit();
 }
 
+void team_component::Login(AFortPlayerController* player_controller, const FString& Options)
+{
+    if (UGameplayStatics::HasOption(Options, TEXT("TeamCode")))
+    {
+        // Get the team code value
+        FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
+
+        // If the team code is valid
+        if (TeamCode.IsValid())
+        {
+            // Add every player controller to the given team code key
+            team_codes_map[TeamCode.c_str()].push_back(player_controller);
+        }
+    }
+}   
+
 void team_component::set_team(AFortPlayerController* player_controller, uint8_t team_index)
 {
     // Set team
