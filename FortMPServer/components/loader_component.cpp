@@ -7,6 +7,7 @@
 #include "pickup_component.hpp"
 #include "team_component.hpp"
 #include "config_manager.hpp"
+#include "player_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -501,6 +502,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         // Clear temporary arrays
         team_component::reserved_teams.clear();
         team_component::team_codes_map.clear();
+        player_component::EncryptionTokenList.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

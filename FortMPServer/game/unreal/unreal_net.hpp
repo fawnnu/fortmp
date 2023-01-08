@@ -63,7 +63,9 @@ struct FFastArraySerializer
 
 struct FUniqueNetIdRepl
 {
-    char unk[0x28];
+    char unk[0x18];
+
+    TArray<unsigned char> ReplicationBytes;
 };
 
 struct FNetworkGUID

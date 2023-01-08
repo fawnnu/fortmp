@@ -70,6 +70,7 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
     }
 
     // Only let people with a valid encryption token join
+#ifdef _RELEASE
     if (bool(config_manager::get_server_config()["bOnlyMatchMaking"]))
     {
         if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
@@ -78,11 +79,24 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
 
             if (EncryptionToken.IsValid())
             {
-                // TODO: Validate the encryptiontoken
-                return true;
+                if (auto result = std::find(EncryptionTokenList.begin(), EncryptionTokenList.end(), EncryptionToken); result != EncryptionTokenList.end())
+                {
+                    EncryptionTokenList.erase(result);
+
+                    spdlog::info(L"EncryptionToken successfully validated.");
+                    
+                    return true;
+                }
             }
+
+            spdlog::error(L"Invalid EncryptionToken received, kicking...");
+        }
+        else
+        {
+            spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
         }
     }
+#endif
     
     return false;   
 }

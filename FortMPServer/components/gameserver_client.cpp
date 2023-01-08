@@ -2,6 +2,7 @@
 #include "gameserver_client.hpp"
 
 #include "config_manager.hpp"
+#include "player_component.hpp"
 
 void HeartbeatThread()
 {
@@ -33,6 +34,8 @@ gameserver_client::gameserver_client()
 
     // Set handlers
     Client_WS.set_open_handler(websocketpp::lib::bind(&gameserver_client::OnConnected, this, websocketpp::lib::placeholders::_1));
+    
+    Client_WS.set_message_handler(websocketpp::lib::bind(&gameserver_client::OnMessageReceived, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
     
     Client_WS.set_tls_init_handler([this](websocketpp::connection_hdl)
     {
@@ -67,14 +70,52 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 
     // Get the IP using ipify's API
     // TODO: Fix vps crashes on code below
-    /*httplib::Client client("https://api64.ipify.org");
+    httplib::Client client("https://api64.ipify.org");
     auto Result = client.Get("/?format=json");
-    nlohmann::json JsonResult = nlohmann::json::parse(Result->body);*/
+    nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
-    GameServer_Status.ip = "0.0.0.0";
+    GameServer_Status.ip = JsonResult["ip"];
 
     SendJoin(GameServer_Status.ip);
     SendUpdate();
+#endif
+}
+
+void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, websocketpp::config::asio_client::message_type::ptr message)
+{
+#ifdef _RELEASE
+    auto payload = message->get_payload();
+
+    auto JsonPayload = nlohmann::json::parse(payload);
+
+    std::vector<std::string> VectorPayloadString;
+    nlohmann::json JsonPayloadData;
+    for (auto& elem : JsonPayload.items())
+    {
+        if (elem.value().is_string())
+        {
+            VectorPayloadString.push_back(elem.value());
+        }
+
+        if (elem.value().is_object())
+        {
+            JsonPayloadData = elem.value();
+        }
+    }
+
+    // Make sure it's a phoenix message
+    if (VectorPayloadString.size() == 2)
+    {
+        // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
+        if (VectorPayloadString[1] == "player")
+        {
+            std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
+            std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
+           
+            // Add to the valid EncryptionToken list
+            player_component::EncryptionTokenList.push_back(wEncryptionToken.c_str());
+        }
+    }
 #endif
 }
 

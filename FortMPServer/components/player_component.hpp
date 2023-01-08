@@ -10,6 +10,7 @@ public:
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
     static inline bool bEnableServerChoosePart;
+    static inline std::vector<FString> EncryptionTokenList;
 };
 
 namespace player_component_hooks
