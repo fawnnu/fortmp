@@ -67,6 +67,20 @@ patches_component::patches_component()
     }
 
     {
+        // Allow matchmaking
+        if (uintptr_t target_address = memory_manager::find_function_by_string(L"NotifyControlMessage: Client connecting with invalid version. LocalNetworkVersion: %i, RemoteNetworkVersion: %i", {0x7f}, 0 , false, false, true))
+        {
+            DWORD new_protect, old_protect;
+
+            VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+
+            *reinterpret_cast<unsigned char*>(target_address) = 0x7E;
+
+            VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, old_protect, &new_protect);
+        }            
+    }
+
+    {
         // FLASHING FIX
 
         if (const uintptr_t target_address = memory_manager::find_pattern("FF 90 ? ? ? ? F2 0F 10 44 24 ? 8B 44 24 28 48 8B 8C 24 ? ? ? ?"))

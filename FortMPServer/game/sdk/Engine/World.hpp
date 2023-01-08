@@ -36,7 +36,15 @@ public:
 class UGameInstance : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.GameInstance");
+    
     DEFINE_PROPERTY(TArray<ULocalPlayer*>, LocalPlayers);
+};
+
+class UFortGameInstance : public UGameInstance
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameInstance");
 };
 
 class UWorld : public UObject
