@@ -191,7 +191,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat togglewhitelist (Toggles a whitelist, if on, players will have to join with ?serverpassword=<serverpassword>)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -318,38 +318,6 @@ void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream
 
             ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
         }
-    }
-}
-
-void moderation_component::HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
-{
-    // get the IP
-    std::wstring wExecutingPlayerIP = ExecutingPlayerController->PlayerState()->SavedNetworkAddress().c_str();
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::string ExecutingPlayerIP = converter.to_bytes(wExecutingPlayerIP);
-    
-    // Make sure the player is an admin
-    bool bIsAdmin = false;
-    
-    {
-        auto config = config_manager::get_server_config();
-        for (auto& elem : config["server_admins"].items())
-        {
-            if (std::string(elem.value()) == ExecutingPlayerIP)
-            {
-                bIsAdmin = true;
-                break;
-            }
-        }
-    }
-    
-    if (bIsAdmin)
-    {
-        auto config = config_manager::get_server_config();
-        config["bIsWhitelistEnabled"] = !bool(config["bIsWhitelistEnabled"]);
-        config_manager::save_server_config(config);
-
-        ExecutingPlayerController->ClientMessage(bool(config["bIsWhitelistEnabled"]) ? TEXT("Whitelist Enabled!") : TEXT("Whitelist Disabled!"));
     }
 }
 
@@ -682,10 +650,6 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("SETSERVERPASSWORD")))
             {
                 moderation_component::HandleSetServerPasswordCommand(Stream, Self);
-            }
-            else if (FParse::Command(&Stream, TEXT("TOGGLEWHITELIST")))
-            {
-                moderation_component::HandleToggleWhitelistCommand(Stream, Self);
             }
             else if (FParse::Command(&Stream, TEXT("OP")))
             {

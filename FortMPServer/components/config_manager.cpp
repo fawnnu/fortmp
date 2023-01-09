@@ -20,13 +20,10 @@ nlohmann::json config_manager::get_server_config()
 
         const nlohmann::json new_file_body = R"(
             {
-                "uuid": "",
                 "server_admins": [],
                 "opped_players": [],
                 "server_key": "",
-                "override_playlist": "",
-                "bIsWhitelistEnabled": false,
-                "bOnlyMatchMaking": false
+                "override_playlist": ""
             }
         )"_json;
 

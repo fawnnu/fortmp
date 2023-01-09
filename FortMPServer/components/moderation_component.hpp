@@ -20,7 +20,6 @@ public:
     static void HandleResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSafeResetServerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSetServerPasswordCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
-    static void HandleToggleWhitelistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleOpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleDeopCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleFlyCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);

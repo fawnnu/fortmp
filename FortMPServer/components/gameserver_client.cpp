@@ -66,17 +66,16 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 #ifdef _RELEASE
     nlohmann::json server_config = config_manager::get_server_config();
 
-    Channel = "server:" + std::string(server_config["uuid"]);
-
-    // Get the IP using ipify's API
-    // TODO: Fix vps crashes on code below
-    httplib::Client client("https://api64.ipify.org");
-    auto Result = client.Get("/?format=json");
+    httplib::Client client("https://api.v1.internal.erafn.org");
+    httplib::Headers headers = {
+        { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+    };
+    auto Result = client.Post("/api/internal/game/servers", headers, R"({"region": "EU"})"_json.dump(), "application/json");
     nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
-    GameServer_Status.ip = JsonResult["ip"];
-
-    SendJoin(GameServer_Status.ip);
+    Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
+    
+    SendJoin();
     SendUpdate();
 #endif
 }
@@ -119,7 +118,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 #endif
 }
 
-void gameserver_client::SendJoin(std::string IP)
+void gameserver_client::SendJoin()
 {
 #ifdef _RELEASE
     nlohmann::json payload = R"([])"_json;
@@ -129,7 +128,6 @@ void gameserver_client::SendJoin(std::string IP)
     payload.push_back(Channel); // Channel
     payload.push_back("phx_join"); // Event Type
     payload.push_back(std::map<std::string, std::string>{
-        {"ip", IP}
     }); // param
 
     // Send
@@ -148,10 +146,26 @@ void gameserver_client::SendUpdate()
     payload.push_back("update"); // Event Type
     payload.push_back(std::map<std::string, std::string>{
         {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
-        {"ip", GameServer_Status.ip},
         {"max_players", std::to_string(GameServer_Status.max_players)},
         {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
         {"status", GameServer_Status.status}
+    }); // param
+
+    // Send
+    Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+#endif
+}
+
+void gameserver_client::SendLeave()
+{
+#ifdef _RELEASE
+    nlohmann::json payload = R"([])"_json;
+
+    payload.push_back(0); // Channel Ref
+    payload.push_back(MessageRef++); // Message ref
+    payload.push_back(Channel); // Channel
+    payload.push_back("leave"); // Event Type
+    payload.push_back(std::map<std::string, std::string>{
     }); // param
 
     // Send

@@ -5,14 +5,12 @@ struct gameserver_status
     gameserver_status()
     {
         accepting_players = false;
-        ip = "0.0.0.0";
         max_players = 0;
         number_of_players = 0;
         status = "offline";
     }
 
     bool accepting_players;
-    std::string ip;
     int max_players;
     int number_of_players;
     std::string status;
@@ -28,8 +26,9 @@ public:
     void OnMessageReceived(websocketpp::connection_hdl handle, websocketpp::config::asio_client::message_type::ptr message);
 
     // Send events
-    void SendJoin(std::string IP);
+    void SendJoin();
     void SendUpdate();
+    void SendLeave();
     void SendHeartbeat();
 
     // Client WS object

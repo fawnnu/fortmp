@@ -48,54 +48,30 @@ player_component::player_component()
 
 bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Options)
 {
-    // If whitelist is enabled, only let allowed users to join
-    if (bool(config_manager::get_server_config()["bIsWhitelistEnabled"]))
-    {
-        if (UGameplayStatics::HasOption(Options, TEXT("ServerPassword")))
-        {
-            FString UserPassword = UGameplayStatics::ParseOption(Options, TEXT("ServerPassword"));
-
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        
-            std::string sUserPassword = converter.to_bytes(UserPassword.c_str());
-
-            if (sUserPassword != std::string(config_manager::get_server_config()["server_key"]))
-            {
-                // Don't let the user login
-                return false;
-            }
-        }
-
-        return false;
-    }
-
     // Only let people with a valid encryption token join
 #ifdef _RELEASE
-    if (bool(config_manager::get_server_config()["bOnlyMatchMaking"]))
+    if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
     {
-        if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
-        {
-            FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
+        FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
 
-            if (EncryptionToken.IsValid())
+        if (EncryptionToken.IsValid())
+        {
+            if (auto result = std::find(EncryptionTokenList.begin(), EncryptionTokenList.end(), EncryptionToken); result != EncryptionTokenList.end())
             {
-                if (auto result = std::find(EncryptionTokenList.begin(), EncryptionTokenList.end(), EncryptionToken); result != EncryptionTokenList.end())
-                {
-                    EncryptionTokenList.erase(result);
+                EncryptionTokenList.erase(result);
 
-                    spdlog::info(L"EncryptionToken successfully validated.");
+                spdlog::info(L"EncryptionToken successfully validated.");
                     
-                    return true;
-                }
+                return true;
             }
+        }
 
-            spdlog::error(L"Invalid EncryptionToken received, kicking...");
-        }
-        else
-        {
-            spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
-        }
+        spdlog::error(L"Invalid EncryptionToken received, kicking...");
     }
+    else
+    {
+        spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
+    }    
 #endif
     
     return false;   

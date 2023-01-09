@@ -18,6 +18,10 @@ public:
 class UFortClientSettingsRecord : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortClientSettingsRecord");
+
+    DEFINE_PROPERTY(FString, LastKnownBestRegionId);
+    DEFINE_PROPERTY(FString, SelectedRegionId);
 };
 
 class UCheatManager : public UObject

@@ -384,8 +384,7 @@ void renderer::CreateNewWindow()
 
 #ifdef _RELEASE
     // Reset this server's info on Era Services
-    gameserver_client::Client->GameServer_Status = gameserver_status();
-    gameserver_client::Client->SendUpdate();
+    gameserver_client::Client->SendLeave();
 #endif
     
     // Terminate program
