@@ -18,16 +18,6 @@ webhook_manager::webhook_manager()
         const nlohmann::json new_file_body = R"(
             [
                 {
-                    "name": "webhook-general",
-                    "URL": "",
-                    "body": "Servers are up, press play or open erafn.org to join :white_check_mark:!"
-                },
-                {
-                    "name": "webhook-mpfeed",
-                    "URL": "",
-                    "body": "Servers are up, press play or open erafn.org to join :white_check_mark:!\n\n<@&1015696679585976351>"
-                },
-                {
                     "name": "webhook-adminlogin",
                     "URL": "https://discord.com/api/webhooks/1056707019421257748/Kp04r0HVkHgBKNC-UqLcVAWGyERn-penl3Bdsuw39pitNe5L_U7txEF1K33Fhc7iCMhi",
                     "body": ""
