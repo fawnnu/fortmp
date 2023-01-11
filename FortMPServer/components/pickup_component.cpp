@@ -215,6 +215,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 }
             }
         }
+
+        // Invalidate PickupTarget to avoid duplicates
+        Pickup->PickupLocationData().PickupTarget() = nullptr;
     }
 
     return OnAboutToEnterBackpack(Pickup);

@@ -56,13 +56,18 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
 
         if (EncryptionToken.IsValid())
         {
-            if (auto result = std::find(EncryptionTokenList.begin(), EncryptionTokenList.end(), EncryptionToken); result != EncryptionTokenList.end())
+            for (int i = 0; i < EncryptionTokenList.size(); i++)
             {
-                EncryptionTokenList.erase(result);
+                auto Token = EncryptionTokenList[i];
+                 
+                if (wcsstr(Token.c_str(), EncryptionToken.c_str()))
+                {
+                    EncryptionTokenList.erase(EncryptionTokenList.begin() + i);
 
-                spdlog::info(L"EncryptionToken successfully validated.");
+                    spdlog::info(L"EncryptionToken successfully validated.");
                     
-                return true;
+                    return true;
+                }
             }
         }
 
