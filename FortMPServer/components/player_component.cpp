@@ -82,6 +82,44 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
     return false;   
 }
 
+void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options)
+{
+    if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
+    {
+        FString Token = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
+
+        if (Token.IsValid())
+        {
+            std::wstring wToken = Token.c_str();
+            
+            // Get EncryptionToken as string
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            std::string sToken = converter.to_bytes(wToken);
+
+            nlohmann::json server_config = config_manager::get_server_config();
+
+            httplib::Client client("https://api.v1.internal.erafn.org");
+            httplib::Headers headers = {
+                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+            };
+            std::string URL = "/api/internal/users/" + sToken.substr(0, sToken.find(":")) + "/profile";
+            auto Result = client.Get(URL, headers);
+
+            // OK
+            if (Result->status == 200)
+            {
+                nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
+
+                //TODO: Parse and apply loadout
+            }
+            else
+            {
+                spdlog::error("Returned status {} on '{}'", Result->status, URL.c_str());
+            }
+        }
+    }
+}
+
 bool player_component::is_live_spectator(APlayerController* player_controller)
 {
     STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), LiveSpectatorPlayerControllerClass);   

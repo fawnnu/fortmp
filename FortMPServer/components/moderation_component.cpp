@@ -608,6 +608,7 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
 
         if (NewPlayerController)
         {
+            player_component::Setup(NewPlayerController, Options);
             team_component::Login(NewPlayerController, Options);
         }
 
