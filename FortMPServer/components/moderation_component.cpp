@@ -310,13 +310,28 @@ void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream
         if (InServerPassword.IsValid())
         {
             std::string sInServerPassword = converter.to_bytes(InServerPassword.c_str());
-        
-            // Set a password
-            auto config = config_manager::get_server_config();
-            config["server_key"] = sInServerPassword;
-            config_manager::save_server_config(config);
 
-            ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+            if (sInServerPassword.length() >= 4)
+            {
+                // Set a password
+                auto config = config_manager::get_server_config();
+                config["server_key"] = sInServerPassword;
+                config_manager::save_server_config(config);
+
+#ifdef _RELEASE
+                if (gameserver_client* Client = gameserver_client::Client)
+                {
+                    Client->GameServer_Status.private_matchmaking_key = sInServerPassword;
+                    Client->SendUpdate();
+                }
+#endif
+
+                ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+            }
+            else
+            {
+                ExecutingPlayerController->ClientMessage(TEXT("ServerPassword has to be atleast 4 characters long!"));
+            }
         }
     }
 }

@@ -13,6 +13,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../components/loader_component.hpp"
 #include "../components/log_component.hpp"
+#include "../components/net_component.hpp"
 #include "../components/player_component.hpp"
 #include "../utils/stb_image.h"
 
@@ -183,6 +184,10 @@ void renderer::CreateNewWindow()
                                     {
                                         CurrentConnection->PlayerController()->ClientReturnToMainMenu(L"Restarting Server.");
                                     }
+                                    else if (CurrentConnection)
+                                    {
+                                        NetConnection__Close(CurrentConnection);
+                                    }
                                 }
 
                                 spdlog::info(L"Performing server restart.");
@@ -305,6 +310,7 @@ void renderer::CreateNewWindow()
                                 if (ImGui::Button("Kick"))
                                 {
                                     SelectedConnection->PlayerController()->ClientReturnToMainMenu(L"Kicked by a server operator.");
+                                    NetConnection__Close(SelectedConnection);
                                 }
                             }
                         }
@@ -380,12 +386,30 @@ void renderer::CreateNewWindow()
     DestroyWindow(WindowHandle);
     UnregisterClass(WindowClass.lpszClassName, WindowClass.hInstance);
 
-    spdlog::info(L"Closed GUI, terminating server...");
-
+    // Unregister server
 #ifdef _RELEASE
     // Reset this server's info on Era Services
     gameserver_client::Client->SendLeave();
 #endif
+    
+    if (*GWorld && (*GWorld)->NetDriver())
+    {
+        for (int ConnIdx = 0; ConnIdx < (*GWorld)->NetDriver()->ClientConnections().Num(); ConnIdx++)
+        {
+            UNetConnection* CurrentConnection = (*GWorld)->NetDriver()->ClientConnections()[ConnIdx];
+
+            if (CurrentConnection && CurrentConnection->PlayerController())
+            {
+                CurrentConnection->PlayerController()->ClientReturnToMainMenu(L"Server Closed.");
+            }
+            else if (CurrentConnection)
+            {
+                NetConnection__Close(CurrentConnection);
+            }
+        }
+    }
+    
+    spdlog::info(L"Closed GUI, terminating server...");
     
     // Terminate program
     RequestExitWithStatus(true, 0);

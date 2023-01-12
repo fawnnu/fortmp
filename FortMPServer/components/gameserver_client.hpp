@@ -14,6 +14,7 @@ struct gameserver_status
     int max_players;
     int number_of_players;
     std::string status;
+    std::string private_matchmaking_key;
 };
 
 class gameserver_client

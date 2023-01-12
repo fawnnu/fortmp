@@ -74,6 +74,16 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
     Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
+
+    // Parse private_matchmaking_key
+    if (server_config.contains("server_key"))
+    {
+        std::string server_key = server_config["server_key"];
+        if (server_key.length() > 4)
+        {
+            GameServer_Status.private_matchmaking_key = server_key;
+        }
+    }
     
     SendJoin();
     SendUpdate();
@@ -112,7 +122,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
             std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
            
             // Add to the valid EncryptionToken list
-            player_component::EncryptionTokenList.push_back(wEncryptionToken.c_str());
+            player_component::EncryptionTokenList.push_back(wEncryptionToken);
         }
     }
 #endif
@@ -128,6 +138,7 @@ void gameserver_client::SendJoin()
     payload.push_back(Channel); // Channel
     payload.push_back("phx_join"); // Event Type
     payload.push_back(std::map<std::string, std::string>{
+        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
     }); // param
 
     // Send
@@ -148,7 +159,8 @@ void gameserver_client::SendUpdate()
         {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
         {"max_players", std::to_string(GameServer_Status.max_players)},
         {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
-        {"status", GameServer_Status.status}
+        {"status", GameServer_Status.status},
+        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
     }); // param
 
     // Send
