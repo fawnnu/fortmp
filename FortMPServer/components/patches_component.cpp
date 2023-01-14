@@ -188,21 +188,24 @@ patches_component::patches_component()
             spdlog::error(L"Failed to patch UFortLocalPlayer::SpawnPlayActor, pattern not found");
         }
 
-        // patch reservations
-        
-        if (const uintptr_t target_address = memory_manager::find_pattern("0F 84 ? ? ? ? 48 85 DB 0F 84 ? ? ? ? 48 8B 8B ? ? ? ? 48 85"))
+        // patch reservations (Only on below 1.11)
+
+        if (GetEngineVersionEasy() < 419)
         {
-            DWORD old_protect, new_protect;
+            if (const uintptr_t target_address = memory_manager::find_pattern("0F 84 ? ? ? ? 48 85 DB 0F 84 ? ? ? ? 48 8B 8B ? ? ? ? 48 85"))
+            {
+                DWORD old_protect, new_protect;
             
-            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, PAGE_EXECUTE_READWRITE, &old_protect);
+                VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, PAGE_EXECUTE_READWRITE, &old_protect);
             
-            reinterpret_cast<char*>(target_address)[1] = 0x85;
+                reinterpret_cast<char*>(target_address)[1] = 0x85;
                         
-            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, old_protect, &new_protect);
-        }
-        else
-        {
-            spdlog::error(L"Failed to fix reservations, pattern not found");
+                VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, old_protect, &new_protect);
+            }
+            else
+            {
+                spdlog::error(L"Failed to fix reservations, pattern not found");
+            }
         }
     }
 

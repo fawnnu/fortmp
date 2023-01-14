@@ -110,7 +110,62 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             {
                 nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
-                //TODO: Parse and apply loadout
+                // Check if the player is an admin
+                if (JsonResult.contains("data"))
+                {
+                    nlohmann::json data = JsonResult["data"];
+                    if (data.contains("admin"))
+                    {
+                        if (static_cast<bool>(data["admin"]))
+                        {
+                            NewPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayer));
+
+                            if (data.contains("display_name"))
+                            {
+                                spdlog::info("Player '{}' joined as an admin [AUTHORIZED BY ERA SERVICES].", std::string(data["display_name"]));
+                            }
+                        }
+                    }
+                    if (data.contains("profile"))
+                    {
+                        nlohmann::json profile = data["profile"];
+
+                        for (auto& elem : profile.items())
+                        {
+                            // If it's a valid string
+                            if (elem.value().is_string() && std::string(elem.value()).find(":") != std::string::npos)
+                            {
+                                std::string value = std::string(elem.value()).substr(std::string(elem.value()).find(":")+1);
+
+                                UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
+
+                                if (Object)
+                                {
+                                    if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
+                                    }
+                                    else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
+                                    }
+                                    else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
+                                    }
+                                    else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
+                                    }
+                                    else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
@@ -235,7 +290,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         player_quickbars->SetOwner(NewPlayer);
 
         // Grant harvesting tool
-        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
+        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
             
         for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
         {
@@ -289,11 +344,6 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     {
         // Failed to find hero definition
         spdlog::error(L"Failed to override hero definition for hero '{}', as specified hero definition does not exist",
-            Hero->GetName().c_str());
-    }
-    else
-    {
-        spdlog::info(L"Successfully overridden hero definition for hero '{}'",
             Hero->GetName().c_str());
     }
 

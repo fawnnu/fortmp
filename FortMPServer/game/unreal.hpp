@@ -138,6 +138,11 @@ public:
 
     bool IsA(UObject* in_class)
     {
+        if (!in_class)
+        {
+            return false;
+        }
+        
         for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
         {
             if (CurrentClass == in_class)

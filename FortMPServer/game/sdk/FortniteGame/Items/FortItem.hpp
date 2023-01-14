@@ -128,12 +128,20 @@ class UAthenaCosmeticItemDefinition : public UFortItemDefinition
 class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaCharacterItemDefinition");
     DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
+};
+
+class UAthenaBackpackItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBackpackItemDefinition");
 };
 
 class UAthenaPickaxeItemDefinition : public UAthenaCosmeticItemDefinition
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaPickaxeItemDefinition");
     // Pickaxe Weapon Item Data
     DEFINE_PROPERTY(UFortWeaponItemDefinition*, WeaponDefinition);
 };
@@ -144,6 +152,18 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BGAConsumableWrapperItemDefinition")
     
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, ConsumableClass);
+};
+
+class UAthenaGliderItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaGliderItemDefinition")
+};
+
+class UAthenaSkyDiveContrailItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaSkyDiveContrailItemDefinition")
 };
 
 struct FFortAthenaLoadout

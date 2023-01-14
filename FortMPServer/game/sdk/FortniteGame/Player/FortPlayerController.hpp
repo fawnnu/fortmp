@@ -231,6 +231,14 @@ class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerControllerAthena");
+
+    FFortAthenaLoadout& CustomizationLoadout()
+    {
+        static void* native_property = FindPropertyByName(this->Class, TEXT("CustomizationLoadout")) ? FindPropertyByName(this->Class, TEXT("CustomizationLoadout")) : FindPropertyByName(this->Class, TEXT("CosmeticLoadoutPC"));                                          
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);   
+        
+        return *reinterpret_cast<FFortAthenaLoadout*>(__int64(this) + native_property_offset);                
+    }
     
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
 
