@@ -100,16 +100,19 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
         spdlog::info(L"Assigned and initialized a creative portal for '{}'", player_controller_athena->MyPlayerInfo()->PlayerName().c_str());
 
         // Get the Playset needed for a certain real estate
-        if (UFortCreativeRealEstatePlotItemDefinition* Plot = FindObject<UFortCreativeRealEstatePlotItemDefinition>(L"/Game/Playgrounds/Items/Plots/Tropical_Medium.Tropical_Medium", true))
+        if (UFortCreativeRealEstatePlotItemDefinition* Plot = FindObject<UFortCreativeRealEstatePlotItemDefinition>(L"/Game/Playgrounds/Items/Plots/Temperate_Medium.Temperate_Medium", true))
         {
             UFortItem* PlotInstance = Plot->CreateTemporaryItemInstanceBP(1, 1);
             
             UFortPlaysetItemDefinition* Playset = Plot->BasePlayset().Get();
         
             creative_portal->LinkedVolume()->SetCurrentPlayset(Playset);
-
+            creative_portal->LinkedVolume()->CurrentPlayset() = Playset;
+            creative_portal->LinkedVolume()->OverridePlayset() = Playset;
             creative_portal->LinkedVolume()->OnRep_CurrentPlayset();
-
+            creative_portal->LinkedVolume()->VolumeState() = 3;
+            creative_portal->LinkedVolume()->OnRep_VolumeState();
+            
             // Now get this volume's playset component and initialize the island
             for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
             {

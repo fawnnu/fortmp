@@ -5,6 +5,8 @@ class AFortVolume : public AActor
 public:
     DEFINE_PROPERTY(TArray<class AFortAthenaCreativePortal*>, LinkedPortals);
     DEFINE_PROPERTY(class UFortPlaysetItemDefinition*, CurrentPlayset);
+    DEFINE_PROPERTY(UFortPlaysetItemDefinition*, OverridePlayset);
+    DEFINE_PROPERTY(uint8, VolumeState);
 
     void SetCurrentPlayset(UFortPlaysetItemDefinition* NewPlayset)
     {
@@ -13,6 +15,13 @@ public:
         Call(Function_SetCurrentPlayset, NewPlayset);
     }
 
+    void OnRep_VolumeState()
+    {
+        STATIC_FINDFUNCTION(OnRep_VolumeState)
+        
+        Call(Function_OnRep_VolumeState);
+    }
+    
     void OnRep_CurrentPlayset()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlayset);
