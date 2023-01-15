@@ -82,6 +82,18 @@ public:
         
         Call(Function_NotifyTeleportedPlayerPawn, FortPlayerPawn);
     }
+    bool ClientSaveStateChanged(bool bSaving)
+    {
+        STATIC_FINDFUNCTION(ClientSaveStateChanged)
+        
+        return Call<bool>(Function_ClientSaveStateChanged, bSaving);
+    }
+    bool ClientSaveDisplayChanged(bool bSaving)
+    {
+        STATIC_FINDFUNCTION(ClientSaveDisplayChanged)
+        
+        return Call<bool>(Function_ClientSaveDisplayChanged, bSaving);
+    }
 };
 
 class AFortCreativePortalManager : public AActor

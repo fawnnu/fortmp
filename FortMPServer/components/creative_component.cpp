@@ -73,30 +73,37 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
         /* @ Setting the portal owner ship.
          * @ Allows the player to interact in the portal and teleport through it once the stripped functions are re-implemented.*/
         creative_portal->OwningPlayer() = NetConnection->PlayerID();
-        player_controller_athena->OwnedPortal() = creative_portal;
-        creative_portal->CachedOwningPlayerState() = NetConnection->PlayerController()->PlayerState();
-        
-        creative_portal->SetOwner(player_controller_athena);
-        creative_portal->OwningPlayerChanged();
-        creative_portal->OnRep_OwningPlayer();
-        
+
         // Mark player as ready to use the portal
         creative_portal->PlayersReady().Add(NetConnection->PlayerID());
-        creative_portal->OnRep_PlayersReady();
-        
+
         // Open the portal
         creative_portal->bPortalOpen() = true;
         creative_portal->bDisallowPortalInteract() = false;
+        
+        player_controller_athena->OwnedPortal() = creative_portal;
+        
+        creative_portal->CachedOwningPlayerState() = NetConnection->PlayerController()->PlayerState();
+        creative_portal->OwningPlayerChanged();
+        creative_portal->OnRep_OwningPlayer();
+        creative_portal->OnRep_PlayersReady();
         creative_portal->PortalOpenChanged();
-
+        
         // Mark portal as used so it doesn't get assigned to another player
         creative_portal_manager->MarkPortalUsed(creative_portal);
+        
+        creative_portal->SetOwner(player_controller_athena);
 
+        creative_portal->ClientSaveStateChanged(false);
+        creative_portal->ClientSaveDisplayChanged(false);
+        
         spdlog::info(L"Assigned and initialized a creative portal for '{}'", player_controller_athena->MyPlayerInfo()->PlayerName().c_str());
 
         // Get the Playset needed for a certain real estate
-        if (UFortCreativeRealEstatePlotItemDefinition* Plot = FindObject<UFortCreativeRealEstatePlotItemDefinition>(L"/Game/Playgrounds/Items/Plots/Temperate_Medium.Temperate_Medium", true))
+        if (UFortCreativeRealEstatePlotItemDefinition* Plot = FindObject<UFortCreativeRealEstatePlotItemDefinition>(L"/Game/Playgrounds/Items/Plots/Tropical_Medium.Tropical_Medium", true))
         {
+            UFortItem* PlotInstance = Plot->CreateTemporaryItemInstanceBP(1, 1);
+            
             UFortPlaysetItemDefinition* Playset = Plot->BasePlayset().Get();
         
             creative_portal->LinkedVolume()->SetCurrentPlayset(Playset);
@@ -118,6 +125,8 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
                         LoadPlayset(PlaysetComponent);
 
+                        (*GWorld)->GameState()->VolumeManager()->UpdateVolumeLevelStreams();
+                        
                         // Log
                         spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
 
@@ -128,14 +137,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                         UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
 
                         LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
-                    
-                        if (STATIC_HASPROPERTY(LevelSaveComponent, PlotPermissions))
-                        {
-                            /* @ Private = 0
-                             * @ Public = 1 */
-                            LevelSaveComponent->PlotPermissions().Permission() = 1;
-                            LevelSaveComponent->OnRep_PlotPermissionsChanged();
-                        }
                     }
                 }
             }
@@ -154,12 +155,13 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     
     PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
     
-    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(15000);
+    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
 
     static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
     static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
     
     Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
+    Portal->OnPlayerPawnTeleported(PlayerPawn);
 }
 
 void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)

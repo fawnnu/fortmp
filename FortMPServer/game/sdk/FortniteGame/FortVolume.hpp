@@ -25,6 +25,14 @@ class AFortVolumeManager : public AActor
 {
 public:
     DEFINE_PROPERTY(TArray<AFortVolume*>, VolumeObjects);
+
+    void UpdateVolumeLevelStreams()
+    {
+        STATIC_FINDFUNCTION(UpdateVolumeLevelStreams)
+        
+        Call(Function_UpdateVolumeLevelStreams);
+    }
+
 };
 
 class AFortPoiVolume : public UObject
