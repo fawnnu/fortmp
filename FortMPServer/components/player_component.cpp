@@ -119,6 +119,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     {
                         if (static_cast<bool>(data["admin"]))
                         {
+                            // Give admin permission
                             NewPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayer));
 
                             if (data.contains("display_name"))
