@@ -24,7 +24,10 @@ namespace creative_component_hooks
 
     // Called when granting an item via the creative inventory
     DEFINE_FUNCTION_HOOK(void, ServerGiveCreativeItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
-
+    
     // Called when trying to go back to hub
     DEFINE_FUNCTION_HOOK(void, ServerTeleportToPlaygroundLobbyIsland, (AFortPlayerControllerAthena* FortPlayerControllerAthena, FFrame& StackFrame));
 }
+
+// Used to load a creative playset
+inline UObject* (*LoadPlayset)(UPlaysetLevelStreamComponent* InPlaysetComponent);

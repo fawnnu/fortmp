@@ -13,6 +13,7 @@ creative_component::creative_component()
     
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerGiveCreativeItem, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem", creative_component_hooks::ServerGiveCreativeItem_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
+    INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
     
     DetourTransactionCommit();
 }
@@ -111,27 +112,11 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                     if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
                     {
                         UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
-
+                        
                         PlaysetComponent->SetPlayset(creative_portal->LinkedVolume()->CurrentPlayset());
+                        PlaysetComponent->CurrentPlayset() = creative_portal->LinkedVolume()->CurrentPlayset();
 
-                        // Create new streaming data
-                        FFortPlaysetStreamingData* NewPlaysetStreamingData = static_cast<FFortPlaysetStreamingData*>(malloc(FFortPlaysetStreamingData::GetStructSize()));
-
-                        ZeroMemory(NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
-
-                        // Create the island
-                        creative_portal->LinkedVolume()->CurrentPlayset()->SpawnPlayset(*GWorld, creative_portal->LinkedVolume()->CurrentPlayset(), creative_portal->LinkedVolume()->K2_GetActorLocation(), FRotator(), NewPlaysetStreamingData);
-
-                        // Initialize the component
-                        PlaysetComponent->ClientLoadedPackageName() = PlaysetComponent->ClientPlaysetData().PackageName();
-                
-                        memcpy(&PlaysetComponent->ClientPlaysetData(), NewPlaysetStreamingData, FFortPlaysetStreamingData::GetStructSize());
-
-                        // OnRep
-                        PlaysetComponent->OnRep_ClientPlaysetData();
-            
-                        // Finish loading
-                        static_cast<UPlaysetLevelStreamComponent*>(Component)->OnFinishedLoading();
+                        LoadPlayset(PlaysetComponent);
 
                         // Log
                         spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
@@ -171,18 +156,8 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     
     static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(15000);
 
-    reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
-    
-    reinterpret_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
-
-    // Add to the array
-    for (UActorComponent* Component : Portal->LinkedVolume()->BlueprintCreatedComponents())
-    {
-        if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
-        {
-            static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData().Add(PlayerPawn->Controller()->NetConnection()->PlayerID());
-        }
-    }
+    static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
+    static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
     
     Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
 }
@@ -217,29 +192,6 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
         FortPlayerControllerAthena->Pawn()->K2_TeleportTo(PlayerStart->K2_GetActorLocation(), PlayerStart->K2_GetActorRotation());
         
         FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
-
-        if(FortPlayerControllerAthena->CreativePlotLinkedVolume())
-        {
-            // Remove from players with valid playset data
-            for (UActorComponent* Component : FortPlayerControllerAthena->CreativePlotLinkedVolume()->BlueprintCreatedComponents())
-            {
-                if(Component != nullptr)
-                {
-                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
-                    {
-                        TArrayManager<FUniqueNetIdRepl> PlayersWithValidPlaysetData = TArrayManager<FUniqueNetIdRepl>(&static_cast<UPlaysetLevelStreamComponent*>(Component)->PlayersWithValidPlaysetData(), sizeof FUniqueNetIdRepl);
-
-                        for (int i = 0; i < PlayersWithValidPlaysetData.Num(); i++)
-                        {
-                            if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayersWithValidPlaysetData[i], FortPlayerControllerAthena->NetConnection()->PlayerID()))
-                            {
-                                PlayersWithValidPlaysetData.Remove(i, FindPropertyByName(Component->Class, L"PlayersWithValidPlaysetData"));
-                            }
-                        }
-                    }
-                }
-            }   
-        }
         
         // Unset linked volume
         FortPlayerControllerAthena->CreativePlotLinkedVolume() = nullptr;
