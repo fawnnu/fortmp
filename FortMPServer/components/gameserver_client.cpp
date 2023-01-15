@@ -160,7 +160,8 @@ void gameserver_client::SendUpdate()
         {"max_players", std::to_string(GameServer_Status.max_players)},
         {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
         {"status", GameServer_Status.status},
-        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
+        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
+        {"port", std::to_string(GameServer_Status.port)}
     }); // param
 
     // Send

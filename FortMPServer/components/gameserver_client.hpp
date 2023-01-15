@@ -8,11 +8,14 @@ struct gameserver_status
         max_players = 0;
         number_of_players = 0;
         status = "offline";
+        private_matchmaking_key = "";
+        port = 0;
     }
 
     bool accepting_players;
     int max_players;
     int number_of_players;
+    int port;
     std::string status;
     std::string private_matchmaking_key;
 };

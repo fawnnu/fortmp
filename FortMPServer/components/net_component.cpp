@@ -74,6 +74,15 @@ bool net_component::listen(FURL in_url)
                 net_driver->MaxClientRate() = net_driver->MaxInternetClientRate();
             }
 
+#ifdef _RELEASE
+            // Notify Era services of the port
+            if (gameserver_client::Client)
+            {
+                gameserver_client::Client->GameServer_Status.port = in_url.Port;
+                gameserver_client::Client->SendUpdate();
+            }
+#endif
+            
             return true;
         }
     }
