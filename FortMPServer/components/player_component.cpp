@@ -4,6 +4,7 @@
 #include "ability_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
+#include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "moderation_component.hpp"
 #include "net_component.hpp"
@@ -44,6 +45,26 @@ player_component::player_component()
 
     // Server choose part is false by default
     bEnableServerChoosePart = false;
+
+    REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
+}
+
+void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self == nullptr || Self->Controller() == nullptr)
+    {
+        return;
+    }
+
+    if (STATIC_HASPROPERTY(Self, bIsSkydivingFromBus))
+    {
+        if (Self->bIsSkydivingFromBus())
+        {
+            Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
+        }
+    }
 }
 
 bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Options)
@@ -323,6 +344,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
         }
 
+        // Equip pickaxe
+        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->ServerExecuteInventoryItem(inventory_component::get_pickaxe(static_cast<AFortPlayerController*>(NewPlayer))->ItemEntry().ItemGuid());
+
         // Creative support
         creative_component::handle_player_join(NewPlayer->NetConnection());
 
@@ -418,8 +442,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
         
-        // Equip the pickaxe
-        NewPlayer->ServerExecuteInventoryItem(inventory_component::get_pickaxe(NewPlayer)->ItemEntry().ItemGuid());
+        // Equip the pickaxe on landing
+        if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))
+        {
+            NewPlayer->Pawn()->OnPawnLanded().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnLandedImplementation")));
+        }
 
         // Implementable event
         (*GWorld)->AuthorityGameMode()->OnPawnFinishedSpawning(NewPlayer->Pawn());

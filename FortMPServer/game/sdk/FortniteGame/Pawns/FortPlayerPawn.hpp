@@ -76,11 +76,13 @@ public:
 class AFortPawn : public ACharacter
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPawn");
     DEFINE_PROPERTY(AFortPlayerController*, Controller);
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
     DEFINE_PROPERTY(class UAbilitySystemComponent*, AbilitySystemComponent);
     DEFINE_PROPERTY(UFortMovementSet*, MovementSet);
     DEFINE_PROPERTY(TArray<AFortWeapon*>, CurrentWeaponList);
+    DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnPawnLanded);
     
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
@@ -139,6 +141,7 @@ public:
     DEFINE_PROPERTY(UObject*, Owner);
     DEFINE_PROPERTY(FGameplayTag, EventReviveTag);
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
+    DEFINE_PROPERTY(bool, bIsSkydivingFromBus);
 
     bool IsInVehicle()
     {
