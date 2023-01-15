@@ -98,8 +98,11 @@ void moderation_component::grant_admin_permission_safe(AFortPlayerController* Jo
         else
         {
             // If the player is not found in the admin cache, but has admin perms, add it to the cache
-            config["server_admins"].push_back(JoiningPlayerIP);
-            config_manager::save_server_config(config);
+            if (JoiningPlayer->CheatManager())
+            {
+                config["server_admins"].push_back(JoiningPlayerIP);
+                config_manager::save_server_config(config);
+            }
         }
     }
 }
