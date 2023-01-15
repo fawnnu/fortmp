@@ -67,6 +67,7 @@ patches_component::patches_component()
     }
 
     {
+#ifdef _RELEASE
         // Allow matchmaking
         if (uintptr_t target_address = memory_manager::find_function_by_string(L"NotifyControlMessage: Client connecting with invalid version. LocalNetworkVersion: %i, RemoteNetworkVersion: %i", {0x7f}, 0 , false, false, true))
         {
@@ -77,7 +78,8 @@ patches_component::patches_component()
             *reinterpret_cast<unsigned char*>(target_address) = 0x7E;
 
             VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, old_protect, &new_protect);
-        }            
+        }
+#endif
     }
 
     {

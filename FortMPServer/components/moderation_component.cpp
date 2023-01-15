@@ -606,11 +606,13 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
     {
         AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
 
+#ifdef _RELEASE
         if (NewPlayerController)
         {
-            player_component::Setup(NewPlayerController, Options);
-            team_component::Login(NewPlayerController, Options);
+           player_component::Setup(NewPlayerController, Options);
+           team_component::Login(NewPlayerController, Options);
         }
+#endif
 
         return NewPlayerController;
     }

@@ -76,10 +76,11 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
     else
     {
         spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
-    }    
+    }
+    return false;
 #endif
-    
-    return false;   
+
+    return true;
 }
 
 void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options)
