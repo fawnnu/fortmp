@@ -77,22 +77,22 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 // Update instance count
                 item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
                     item_count + item_instance->ItemEntry().Count() : MaxStackSize;
+                
+                // Mark for replication
+                player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
 
                 if (item_count + last_count > MaxStackSize)
                 {
-                    if (is_inventory_full(player_controller) || !has_item_type(player_controller, item_definition))
+                    if (is_inventory_full(player_controller, 5) || !has_item_type(player_controller, item_definition))
                     {
                         // Spawn item as pickup
                         pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo());
-
-                        // Mark for replication
-                        player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
 
                         return nullptr;
                     }
 
                     // Spawn a new item
-                    world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(MaxStackSize - item_count, 1));
+                    world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(last_count + item_count - MaxStackSize, 1));
                 }
                 else
                 {
@@ -267,10 +267,10 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
     }
 }
 
-bool inventory_component::is_inventory_full(AFortPlayerController* player_controller)
+bool inventory_component::is_inventory_full(AFortPlayerController* player_controller, int override_max_inventory_size)
 {
     int item_count = 0;
-    constexpr int maximum_item_count = 6;
+    const int maximum_item_count = override_max_inventory_size == -1 ? 6 : override_max_inventory_size;
     
     // List of all replicated entries in inventory
     TArrayManager replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
