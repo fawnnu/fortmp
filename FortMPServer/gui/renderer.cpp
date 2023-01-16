@@ -141,6 +141,45 @@ void renderer::CreateNewWindow()
             {
                 if (ImGui::BeginTabBar("MainTabBar"))
                 {
+                    if (ImGui::BeginTabItem("Log"))
+                    {
+                        if (ImGui::BeginChild("ConsoleContainer", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 31)))
+                        {
+                            for (auto& message : log_component::messages)
+                            {
+                                if (message.processed == false)
+                                {
+                                    message.processed = true;
+                                
+                                    ImGui::SetScrollY(ImGui::GetScrollMaxY());   
+                                }
+                            
+                                ImGui::PushStyleColor(ImGuiCol_Text, message.color);
+                                ImGui::Text(message.message.c_str());
+                                ImGui::PopStyleColor();
+                            }
+
+                            ImGui::EndChild();
+                        }
+
+                        ImGui::Separator();
+                        
+                        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+                        
+                        if (ImGui::InputTextWithHint("", "Enter a console command...", strCommand, sizeof strCommand, ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            std::string str_command(strCommand);
+
+                            ZeroMemory(strCommand, sizeof strCommand);
+                            
+                            UKismetSystemLibrary::ExecuteConsoleCommand(std::wstring(str_command.begin(), str_command.end()).c_str());
+                        }
+
+                        ImGui::PopItemWidth();
+                        
+                        ImGui::EndTabItem();
+                    }
+                    
                     if (ImGui::BeginTabItem("World"))
                     {
                         if (ImGui::BeginChild("WorldDetails", ImVec2(IO.DisplaySize.x / 3.f, 0), true))
@@ -317,45 +356,6 @@ void renderer::CreateNewWindow()
                         
                         ImGui::EndChild();
 
-                        ImGui::EndTabItem();
-                    }
-
-                    if (ImGui::BeginTabItem("Log"))
-                    {
-                        if (ImGui::BeginChild("ConsoleContainer", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 31)))
-                        {
-                            for (auto& message : log_component::messages)
-                            {
-                                if (message.processed == false)
-                                {
-                                    message.processed = true;
-                                
-                                    ImGui::SetScrollY(ImGui::GetScrollMaxY());   
-                                }
-                            
-                                ImGui::PushStyleColor(ImGuiCol_Text, message.color);
-                                ImGui::Text(message.message.c_str());
-                                ImGui::PopStyleColor();
-                            }
-
-                            ImGui::EndChild();
-                        }
-
-                        ImGui::Separator();
-                        
-                        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-                        
-                        if (ImGui::InputTextWithHint("", "Enter a console command...", strCommand, sizeof strCommand, ImGuiInputTextFlags_EnterReturnsTrue))
-                        {
-                            std::string str_command(strCommand);
-
-                            ZeroMemory(strCommand, sizeof strCommand);
-                            
-                            UKismetSystemLibrary::ExecuteConsoleCommand(std::wstring(str_command.begin(), str_command.end()).c_str());
-                        }
-
-                        ImGui::PopItemWidth();
-                        
                         ImGui::EndTabItem();
                     }
                     
