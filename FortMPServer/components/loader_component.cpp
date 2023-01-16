@@ -106,7 +106,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         // Update max players
-        update_max_players(100);
+        auto config = config_manager::get_server_config();
+        update_max_players(config["player_cap_override"]);
         
         // Spawn all floor loot
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true), L"Loot_AthenaFloorLoot");
