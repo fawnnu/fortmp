@@ -96,6 +96,12 @@ public:
     }
 };
 
+class AFortPlayerStartCreative : public AActor
+{
+public:
+    DEFINE_PROPERTY(int, PortalIndex);
+};
+
 class AFortCreativePortalManager : public AActor
 {
 public:
@@ -111,13 +117,18 @@ public:
     }
 };
 
+class ULevelSaveRecord : public UObject
+{
+};
+
 class ULevelStreaming;
 
 class UFortPlaysetItemDefinition : public UFortItemDefinition
 {
 public:
     DEFINE_PROPERTY(TSoftObjectPtr<class UWorld>, PlaysetToSpawn);
-
+    DEFINE_PROPERTY(ULevelSaveRecord*, LevelSaveRecord);
+    
     ULevelStreaming* SpawnPlayset(UWorld* WorldContextObject, UFortItemDefinition* Playset, FVector Location, FRotator Rotation, FFortPlaysetStreamingData* OutLevelData)
     {
         struct SpawnPlayset_Params

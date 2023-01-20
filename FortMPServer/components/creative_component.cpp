@@ -105,13 +105,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
             UFortItem* PlotInstance = Plot->CreateTemporaryItemInstanceBP(1, 1);
             
             UFortPlaysetItemDefinition* Playset = Plot->BasePlayset().Get();
-        
-            creative_portal->LinkedVolume()->SetCurrentPlayset(Playset);
-            creative_portal->LinkedVolume()->CurrentPlayset() = Playset;
-            creative_portal->LinkedVolume()->OverridePlayset() = Playset;
-            creative_portal->LinkedVolume()->OnRep_CurrentPlayset();
-            creative_portal->LinkedVolume()->VolumeState() = 3;
-            creative_portal->LinkedVolume()->OnRep_VolumeState();
             
             // Now get this volume's playset component and initialize the island
             for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
@@ -123,11 +116,18 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                     {
                         UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
                         
-                        PlaysetComponent->SetPlayset(creative_portal->LinkedVolume()->CurrentPlayset());
-                        PlaysetComponent->CurrentPlayset() = creative_portal->LinkedVolume()->CurrentPlayset();
+                        PlaysetComponent->SetPlayset(Playset);
+                        PlaysetComponent->CurrentPlayset() = Playset;
 
                         LoadPlayset(PlaysetComponent);
 
+                        creative_portal->LinkedVolume()->SetCurrentPlayset(Playset);
+                        creative_portal->LinkedVolume()->CurrentPlayset() = Playset;
+                        creative_portal->LinkedVolume()->OverridePlayset() = Playset;
+                        creative_portal->LinkedVolume()->OnRep_CurrentPlayset();
+                        creative_portal->LinkedVolume()->VolumeState() = 3;
+                        creative_portal->LinkedVolume()->OnRep_VolumeState();
+                        
                         (*GWorld)->GameState()->VolumeManager()->UpdateVolumeLevelStreams();
                         
                         // Log

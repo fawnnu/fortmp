@@ -2,7 +2,8 @@
 
 class APlayerState : public AActor
 {
-
+public:
+    DEFINE_PROPERTY(FUniqueNetIdRepl, UniqueId);
 };
 
 class AFortPlayerState : public APlayerState
