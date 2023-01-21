@@ -79,7 +79,7 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     if (server_config.contains("server_key"))
     {
         std::string server_key = server_config["server_key"];
-        if (server_key.length() > 4)
+        if (server_key.length() >= 4)
         {
             GameServer_Status.private_matchmaking_key = server_key;
         }
