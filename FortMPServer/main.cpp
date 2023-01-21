@@ -48,10 +48,7 @@ void Setup()
 
     // Load Server Paks
     new pak_component();
-
-    // Initialize the QOS component
-    new qos_component();
-
+    
     // Setup renderer on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
@@ -59,15 +56,16 @@ void Setup()
             
         return 0;    
     }, nullptr, 0, nullptr);
-
-    // Initialize the gameserver client
+    
+    // Initialize the QOS component
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
+        new qos_component();
         new gameserver_client();
             
         return 0;    
     }, nullptr, 0, nullptr);
-    
+
     {
         while (true)
         {

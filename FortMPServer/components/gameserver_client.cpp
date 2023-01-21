@@ -74,7 +74,7 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     nlohmann::json Region = {
         {"region", ""}
     };
-    Region["region"] = qos_component::pick_best_region();
+    Region["region"] = qos_component::best_region;
     auto Result = client.Post("/api/internal/game/servers", headers, Region.dump(), "application/json");
     nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 

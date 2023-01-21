@@ -9,6 +9,8 @@ public:
     static FIcmpEchoResult* ping(FString TargetAddress, float Timeout);
     static std::wstring convert_region_name(std::wstring original_name);
     static std::string pick_best_region();
+
+    static inline std::string best_region;
 };
 
 inline FIcmpEchoResult* (*UDPEchoImpl)(FIcmpEchoResult* OutResult, void* ISocketSubsystem, const FString& TargetAddress, float Timeout);

@@ -63,7 +63,7 @@ uintptr_t memory_manager::find_pattern(const char* signature, bool bRelative, ui
 	return NULL;
 }
 
-uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards, bool bRelative, bool bTakeAddressOfOpcode)
+uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards, bool bRelative, bool bTakeAddressOfOpcode, bool bExactString)
 {
     __int64 BaseAddress = (__int64)GetModuleHandle(NULL);
 
@@ -91,7 +91,16 @@ uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::ve
 				continue;
 			}
 
-			if (wcsstr((const wchar_t*)(StringAddress), String))
+			if (bExactString)
+			{
+				if (std::wstring((const wchar_t*)(StringAddress)) == std::wstring(String))
+				{
+					Bytes = &Bytes[i];
+					bFound = true;
+					break;
+				}
+			}
+			else if (wcsstr((const wchar_t*)(StringAddress), String))
 			{
 				Bytes = &Bytes[i];
 				bFound = true;

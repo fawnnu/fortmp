@@ -22,7 +22,7 @@ public:
     };
     
     static uintptr_t find_pattern(const char* signature, bool bRelative = false, uint32_t offset = 0);
-    static uintptr_t find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes = {}, int Offset = 0, bool Backwards = true, bool bIsRelative = true, bool bTakeAddressOfOpcode = false);
+    static uintptr_t find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes = {}, int Offset = 0, bool Backwards = true, bool bIsRelative = true, bool bTakeAddressOfOpcode = false, bool bExactString = false);
     static uintptr_t get_function_start(uintptr_t address);
     static uintptr_t allocate_page_near_address(uintptr_t address, ENewPageLocation location = ENewPageLocation::LOW);
     static uintptr_t get_function_end(uintptr_t function_start);

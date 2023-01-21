@@ -3,8 +3,10 @@
 
 qos_component::qos_component()
 {
-    INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Payload size write failed with code %d", {0xe8}, 1));
-    INIT_POINTER(UDPEchoImpl, memory_manager::find_function_by_string(L"UDPPing"));
+    INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1));
+    INIT_POINTER(UDPEchoImpl, memory_manager::find_function_by_string(L"UDPPing", {}, 0, true, true, false, true));
+
+    best_region = pick_best_region();
 }
 
 bool qos_component::compare_ping_results(const std::pair<std::wstring, float>& a, const std::pair<std::wstring, float>& b)
