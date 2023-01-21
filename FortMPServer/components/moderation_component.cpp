@@ -27,8 +27,9 @@ moderation_component::moderation_component()
     {
         if (elem.value().is_string())
         {
-            spdlog::info("Registered admin password: {}", std::string(elem.value()).c_str());
-            passwords.push_back(std::wstring(std::string(elem.value()).begin(), std::string(elem.value()).end()).c_str());
+            auto password = std::string(elem.value());
+            spdlog::info("Registered admin password: {}", password.c_str());
+            passwords.push_back(std::wstring(password.begin(), password.end()).c_str());
         }
     }
 }
