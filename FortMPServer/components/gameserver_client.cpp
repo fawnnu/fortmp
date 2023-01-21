@@ -3,6 +3,7 @@
 
 #include "config_manager.hpp"
 #include "player_component.hpp"
+#include "qos_component.hpp"
 
 void HeartbeatThread()
 {
@@ -70,7 +71,11 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     httplib::Headers headers = {
         { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
     };
-    auto Result = client.Post("/api/internal/game/servers", headers, R"({"region": "EU"})"_json.dump(), "application/json");
+    nlohmann::json Region = {
+        {"region", ""}
+    };
+    Region["region"] = qos_component::pick_best_region();
+    auto Result = client.Post("/api/internal/game/servers", headers, Region.dump(), "application/json");
     nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
     Channel = "server:" + std::string(JsonResult["data"]["uuid"]);

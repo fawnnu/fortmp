@@ -27,6 +27,7 @@
 #include "components/moderation_component.hpp"
 #include "components/pak_component.hpp"
 #include "components/modules_component.hpp"
+#include "components/qos_component.hpp"
 
 #include "gui/renderer.hpp"
 #include "utils/webhook_manager.hpp"
@@ -47,6 +48,9 @@ void Setup()
 
     // Load Server Paks
     new pak_component();
+
+    // Initialize the QOS component
+    new qos_component();
 
     // Setup renderer on another thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD

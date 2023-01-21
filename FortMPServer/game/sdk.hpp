@@ -135,3 +135,5 @@
 
 #include "sdk/Engine/Components/ActorComponent.hpp"
 #include "sdk/FortniteGame/Athena/FortCreative.hpp"
+
+#include "sdk/Engine/Net/Qos.hpp"
