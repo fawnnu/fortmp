@@ -11,31 +11,52 @@ nlohmann::json config_manager::get_server_config()
     const std::string config_path = std::string(dll_utils::get_current_path()) + "/Config";
 
     std::filesystem::create_directories(config_path);
-
+    
+    nlohmann::json default_config = R"(
+            {
+                "server_admins": [],
+                "opped_players": [],
+                "server_key": "",
+                "override_playlist": "",
+                "player_cap_override": 100,
+                "banned_players": [],
+                "admin_passwords": []
+            }
+        )"_json;
+    
     if (!std::filesystem::exists(config_path + "/server.json"))
     {
         std::ofstream new_file;
 
         new_file.open(config_path + "/server.json");
 
-        const nlohmann::json new_file_body = R"(
-            {
-                "server_admins": [],
-                "opped_players": [],
-                "server_key": "",
-                "override_playlist": "",
-                "player_cap_override": 100
-            }
-        )"_json;
-
-        new_file << std::setw(4) << new_file_body << std::endl;
+        new_file << std::setw(4) << default_config << std::endl;
 
         new_file.close();
-    }
 
-    std::ifstream table(config_path+"/server.json");
+        return default_config;
+    }
+    else
+    {
+        // Get the current config
+        std::ifstream table(config_path+"/server.json");
         
-    return nlohmann::json::parse(table);
+        auto config = nlohmann::json::parse(table);
+
+        // make sure the existing config is up-to-date, if not, update it
+        for (auto& elem : default_config.items())
+        {
+            if (!config.contains(elem.key()))
+            {
+                config[elem.key()] = elem.value();
+            }
+        }
+
+        // Save the config
+        save_server_config(config);
+
+        return config;
+    }
 }
 
 void config_manager::save_server_config(nlohmann::json in_config)

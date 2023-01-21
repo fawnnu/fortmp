@@ -21,14 +21,16 @@ moderation_component::moderation_component()
     
     DetourTransactionCommit();
 
-    // initialize password
-    passwords = {
-        TEXT("k9aJt6a6g2w3gz1l"),
-        TEXT("y8seRL4Ji63fh7H6"),
-        TEXT("84H9LZI8vAU4OwLl"),
-        TEXT("eVd2Nv66ZIiljlfY"),
-        TEXT("oEiU2JYp8zNL46Xg")
-    };
+    // initialize passwords
+    auto config = config_manager::get_server_config();
+    for (auto& elem : config["admin_passwords"].items())
+    {
+        if (elem.value().is_string())
+        {
+            spdlog::info("Registered admin password: {}", std::string(elem.value()).c_str());
+            passwords.push_back(std::wstring(std::string(elem.value()).begin(), std::string(elem.value()).end()).c_str());
+        }
+    }
 }
 
 AFortPlayerController* moderation_component::get_player_by_name(FString InPlayerName)
@@ -105,6 +107,91 @@ void moderation_component::grant_admin_permission_safe(AFortPlayerController* Jo
             }
         }
     }
+}
+
+bool moderation_component::is_registered_admin(AFortPlayerController* Target)
+{
+    if (Target == nullptr)
+    {
+        return false;
+    }
+    if (Target->PlayerState() == nullptr)
+    {
+        return false;
+    }
+    
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        
+    auto config = config_manager::get_server_config();
+    for (auto& elem : config["server_admins"].items())
+    {
+        if (std::string(elem.value()) == converter.to_bytes(Target->PlayerState()->SavedNetworkAddress().c_str()))
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void moderation_component::ban_player(AFortPlayerController* TargetPlayer, FString BanReason)
+{
+    if (TargetPlayer && BanReason.IsValid())
+    {
+        // Get the player's name and IP
+        FString PlayerName = TargetPlayer->MyPlayerInfo()->PlayerName();
+        FString PlayerIP = TargetPlayer->PlayerState()->SavedNetworkAddress();
+
+        // Convert to std::string
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        std::string sPlayerName = converter.to_bytes(PlayerName.c_str());
+        std::string sPlayerIP = converter.to_bytes(PlayerIP.c_str());
+
+        // Create the Json object
+        nlohmann::json BanInstance = {
+            {sPlayerName, sPlayerIP}
+        };
+        
+        // Save the ban
+        auto config = config_manager::get_server_config();
+        config["banned_players"].push_back(BanInstance);
+        config_manager::save_server_config(config);
+
+        // Kick the player
+        TargetPlayer->ClientReturnToMainMenu(BanReason);
+        NetConnection__Close(TargetPlayer->NetConnection());
+    }
+}
+
+bool moderation_component::is_player_banned(AFortPlayerController* Target)
+{
+    if (Target == nullptr)
+    {
+        return false;
+    }
+    if (Target->PlayerState() == nullptr)
+    {
+        return false;
+    }
+    
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+    auto config = config_manager::get_server_config();
+    for (auto& elem : config["banned_players"].items())
+    {
+        if (elem.value().is_object())
+        {
+            for (auto& elem_ : elem.value().items())
+            {
+                if (std::string(elem_.value()) == converter.to_bytes(Target->PlayerState()->SavedNetworkAddress().c_str()))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -200,7 +287,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -609,6 +696,34 @@ void moderation_component::HandleToggleSCPCommand(const TCHAR*& InStream, AFortP
     ExecutingPlayerController->ClientMessage(TEXT("Successfully toggled Server Choose Part."));
 }
 
+void moderation_component::HandleBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InPlayerName;
+
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        return;
+    }
+
+    if (InPlayerName.IsValid())
+    {
+        if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
+        {
+            if (is_registered_admin(ExecutingPlayerController))
+            {
+                // Ban
+                ban_player(TargetPlayer, L"Banned by an Admin.");
+
+                // Log
+                wchar_t Log[1024];
+                wprintf_s(Log, L"Successfully banned '%s'", TargetPlayer->MyPlayerInfo()->PlayerName().c_str());
+                ExecutingPlayerController->ClientMessage(Log);
+            }
+        }
+    }
+}
+
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
     if (player_component::Login(UniqueID, Options))
@@ -705,6 +820,10 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("TOGGLESERVERCHOOSEPART")))
             {
                 moderation_component::HandleToggleSCPCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("BAN")))
+            {
+                moderation_component::HandleBanCommand(Stream, Self);
             }
             else
             {

@@ -11,6 +11,13 @@ public:
     // Check if the player's IP is marked as Administrator, if so, grant admin permission
     static void grant_admin_permission_safe(AFortPlayerController* JoiningPlayer);
 
+    // Finds whether or not the given player is a registered server admin
+    static bool is_registered_admin(AFortPlayerController* Target);
+
+    // Perform a ban
+    static void ban_player(AFortPlayerController* Target, FString BanReason);
+    static bool is_player_banned(AFortPlayerController* Target);
+
     // Commands
     static void HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
@@ -27,6 +34,7 @@ public:
     static void HandleGiveItemCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleSCPCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
     inline static std::vector<FString> passwords;

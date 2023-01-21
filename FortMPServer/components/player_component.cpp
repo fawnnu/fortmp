@@ -267,6 +267,13 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Call native function
     PostLogin(FortGameModeAthena, NewPlayer);
 
+    // Kick the player if a ban record exists
+    if (moderation_component::is_player_banned(static_cast<AFortPlayerController*>(NewPlayer)))
+    {
+        spdlog::info(L"Player '{}' attempted to join but is banned. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
+        static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"You have been banned from this server!");
+    }
+
     // Grant admin permission if the player is an admin
     moderation_component::grant_admin_permission_safe(static_cast<AFortPlayerController*>(NewPlayer));
 
