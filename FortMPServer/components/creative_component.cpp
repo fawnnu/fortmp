@@ -149,22 +149,28 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
-    if (Portal->LinkedVolume() == nullptr || PlayerPawn == nullptr)
+    if (Portal)
     {
-        spdlog::error(L"creative_component_hooks::TeleportPlayerToLinkedVolume_Hook: Invalid LinkedVolume or PlayerPawn");
+        if (STATIC_HASPROPERTY(Portal, LinkedVolume))
+        {
+            if (Portal->LinkedVolume() == nullptr || PlayerPawn == nullptr)
+            {
+                spdlog::error(L"creative_component_hooks::TeleportPlayerToLinkedVolume_Hook: Invalid LinkedVolume or PlayerPawn");
         
-        return;
-    }
+                return;
+            }
     
-    PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
+            PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
     
-    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
+            static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
 
-    static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
-    static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
+            static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
+            static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
     
-    Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
-    Portal->OnPlayerPawnTeleported(PlayerPawn);
+            Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
+            Portal->OnPlayerPawnTeleported(PlayerPawn);
+        }
+    }
 }
 
 void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
