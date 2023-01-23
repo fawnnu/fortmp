@@ -19,6 +19,11 @@ struct FVector
         return X*V.X + Y*V.Y + Z*V.Z;
     }
 
+    FORCEINLINE bool operator==(const FVector& V) const
+    {
+        return X==V.X && Y==V.Y && Z==V.Z;
+    }
+
     FORCEINLINE float SizeSquared() const
     {
         return X*X + Y*Y + Z*Z;

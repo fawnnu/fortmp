@@ -14,6 +14,7 @@ public:
     static void initialize_vending_machines();
     static void initialize_llamas();
     static void initialize_bga();
+    static void handle_duplicated_foundations();
 
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
 

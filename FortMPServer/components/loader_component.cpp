@@ -123,6 +123,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // initialize BGAs
         initialize_bga();
 
+        // Disable duplicate building foundations
+        handle_duplicated_foundations();
+
         // Update gamemode for clients
         (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");
 
@@ -349,6 +352,33 @@ void loader_component::initialize_bga()
             QueryInstance->OnQueryFinishedEvent().Bind(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
         }
     }
+}
+
+void loader_component::handle_duplicated_foundations()
+{
+    std::vector<FVector> FoundationLocationsList;
+
+    for (ABuildingFoundation* BuildingFoundation : UGameplayStatics::GetAllActorsOfClass<ABuildingFoundation>(*GWorld, ABuildingFoundation::StaticClass()))
+    {
+        // Get location
+        FVector Location = BuildingFoundation->K2_GetActorLocation();
+
+        // If this location has already been added to the Foundations List 
+        if (std::find(FoundationLocationsList.begin(), FoundationLocationsList.end(), Location) != FoundationLocationsList.end())
+        {
+            if (FindPropertyByName(ABuildingFoundation::StaticClass(), TEXT("bServerStreamedInLevel")))
+            {
+                UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bServerStreamedInLevel"), false);
+
+                // Log
+                spdlog::info(L"Unloaded '{}': location is overridden.", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
+            }
+        }
+        else
+        {
+            FoundationLocationsList.push_back(Location);
+        }
+    }   
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
