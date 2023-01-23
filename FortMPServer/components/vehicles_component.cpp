@@ -14,6 +14,7 @@ vehicles_component::vehicles_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerAttemptExitVehicle, L"/Script/FortniteGame.FortPlayerControllerZone.ServerAttemptExitVehicle", vehicles_component_hooks::ServerAttemptExitVehicle_Hook);
+    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerRequestSeatChange, L"/Script/FortniteGame.FortPlayerControllerZone.ServerRequestSeatChange", vehicles_component_hooks::ServerRequestSeatChange_Hook);
 
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortAthenaVehicle.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
@@ -30,33 +31,36 @@ void vehicles_component::equip_vehicle_weapon(AFortPlayerController* target_play
         // make sure the weapon definition is valid
         if (weapon_item_definition)
         {
-            // add it to the inventory
-            auto new_item = inventory_component::add_item(target_player_controller, weapon_item_definition, 1, INT_MAX);
-
-            // equip the ability weapon
-            auto CurrentWeapon = target_player_controller->Pawn()->EquipWeaponDefinition(weapon_item_definition, new_item->ItemEntry().ItemGuid());
-
-            // Set more in currentweapon
-            if (CurrentWeapon->IsA(AFortWeaponRangedForVehicle::StaticClass()))
+            if (inventory_component::get_inventory_item_by_definition(target_player_controller, weapon_item_definition) == nullptr)
             {
-                if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
-                {
-                    static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
-                    static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
+                // add it to the inventory
+                auto new_item = inventory_component::add_item(target_player_controller, weapon_item_definition, 1, INT_MAX);
 
-                    static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
-                    static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();
+                // equip the ability weapon
+                auto CurrentWeapon = target_player_controller->Pawn()->EquipWeaponDefinition(weapon_item_definition, new_item->ItemEntry().ItemGuid());
+
+                // Set more in currentweapon
+                if (CurrentWeapon->IsA(AFortWeaponRangedForVehicle::StaticClass()))
+                {
+                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
+                    {
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
+
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();
+                    }
                 }
-            }
-            else if (CurrentWeapon->IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
-            {
-                if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
+                else if (CurrentWeapon->IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
                 {
-                    static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
-                    static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
+                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
+                    {
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
 
-                    static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
-                    static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();   
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();   
+                    }
                 }
             }
         }
@@ -92,11 +96,54 @@ void vehicles_component_hooks::ServerAttemptExitVehicle_Hook(AFortPlayerControll
     // Unequip the equipped vehicle weapon
     vehicles_component::unequip_vehicle_weapon(FortPlayerController);
     
-    //First entry is always pickaxe
+    // First entry is always pickaxe
     auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
     FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
         
     return ServerAttemptExitVehicle(FortPlayerController, StackFrame);
+}
+
+void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(int, TargetSeatIndex);
+
+    // Switching to driver seat, equip vehicle weapon on newer versions
+    if (TargetSeatIndex == 0)
+    {
+        if (UFortVehicleSeatWeaponComponent::StaticClass())
+        {
+            if (FortPlayerController->Pawn()->IsInVehicle())
+            {
+                unsigned char SeatIndex = FortPlayerController->Pawn()->GetVehicleSeatIndex();
+
+                if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = FortPlayerController->Pawn()->GetVehicle()->GetSeatWeaponComponent(SeatIndex))
+                {
+                    UFortWeaponItemDefinition* VehicleWeapon = nullptr;
+                    TArrayManager WeaponSeatDefinitions = TArrayManager<FWeaponSeatDefinition>(&SeatWeaponComponent->WeaponSeatDefinitions(), FWeaponSeatDefinition::GetStructSize());
+                
+                    for (FWeaponSeatDefinition& SeatDefinition : WeaponSeatDefinitions)
+                    {
+                        if (SeatDefinition.SeatIndex() == SeatIndex)
+                        {
+                            VehicleWeapon = SeatDefinition.VehicleWeapon();
+                        }
+                    }
+                
+                    vehicles_component::equip_vehicle_weapon(FortPlayerController, VehicleWeapon);
+                }
+            }
+        }
+    }
+    else // Remove vehicle weapon on other seats
+    {
+        vehicles_component::unequip_vehicle_weapon(FortPlayerController);
+    
+        // Equip pickaxe
+        auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+        FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
+    }
+    
+    return ServerRequestSeatChange(FortPlayerController, StackFrame);   
 }
 
 // re-add vehicle sync

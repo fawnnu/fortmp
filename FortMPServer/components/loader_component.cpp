@@ -32,6 +32,7 @@ loader_component::loader_component()
 
         // Hook begin play for the classes we need
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
     }
     else
     {
@@ -475,6 +476,26 @@ void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContaine
         
         // Actor might be dormant
         Target->ForceNetUpdate();
+    }
+}
+
+void loader_component_hooks::ABuildingFoundation_BeginPlay_Hook(ABuildingFoundation* Target)
+{
+    ABuildingFoundation_BeginPlay(Target);
+
+    if (Target)
+    {
+        // Set the foundation type
+        if (STATIC_HASPROPERTY(Target, DynamicFoundationType))
+        {
+            Target->DynamicFoundationType() = 0;
+        }
+
+        // Mark the level as streamed in
+        if (STATIC_HASPROPERTY(Target, bServerStreamedInLevel))
+        {
+            UKismetSystemLibrary::SetBoolPropertyByName(Target, TEXT("bServerStreamedInLevel"), true);
+        }
     }
 }
 

@@ -203,6 +203,14 @@ public:
     }
 };
 
+class ABuildingFoundation : public ABuildingSMActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingFoundation");
+
+    DEFINE_PROPERTY(uint8_t, DynamicFoundationType);
+};
+
 struct FRebootCardReplicatedState
 {
     DEFINE_STRUCT_PROPERTY(float, ChipExpirationServerStartTime);
