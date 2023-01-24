@@ -66,69 +66,61 @@ void Setup()
         return 0;    
     }, nullptr, 0, nullptr);
 
+    // Set the default map
+    CreateDefaultObject<UGameMapsSettings>()->GameDefaultMap().AssetPathName = TEXT("/Game/Maps/FortniteEmptyDedicated.FortniteEmptyDedicated");
+
     {
         while (true)
         {
             if (*GWorld)
             {
-                if (APlayerController* player_controller = UGameplayStatics::GetPlayerController(*GWorld, 0))
+                // Wait 3.5 Seconds to set GIsServer
+                *GIsServer = true;
+                
+                // Initialize FMP blueprint support
+                new blueprint_component();
+
+                // Initialize gamemode custom functions
+                new gamemodes_component();
+                    
+                // load into level
+                UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
+
+                while ((*GWorld)->GetName().find(L"FortniteEmptyDedicated") != std::string::npos)
                 {
-                    // Initialize FMP blueprint support
-                    new blueprint_component();
-
-                    // Initialize gamemode custom functions
-                    new gamemodes_component();
-                    
-                    FString server_level;
-
-                    if (GetEngineVersionEasy() > 423)
-                    {
-                        server_level = L"Apollo_Terrain?game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C";
-                    }
-                    else
-                    {
-                        server_level = L"Athena_Terrain?game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C";
-                    }
-                    
-                    // load into level
-                    player_controller->SwitchLevel(server_level);
-
-                    while ((*GWorld)->GetName().find(L"Frontend") != std::string::npos)
-                    {
-                        // block DLL thread until level starts to load
-                    }
-
-                    // Get the LocalPlayers array
-                    TArrayManager<ULocalPlayer*> LocalPlayers = TArrayManager<ULocalPlayer*>(&(*GWorld)->OwningGameInstance()->LocalPlayers(), 8);
-
-                    // Remove the server's player
-                    LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
-
-                    new hook_manager();
-                    new net_component();
-                    new loader_component();
-                    new patches_component();
-                    new player_component();
-                    new aircraft_component();
-                    new ability_component();
-                    new inventory_component();
-                    new pickup_component();
-                    new looting_component();
-                    new building_component();
-                    new elimination_component();
-                    new trap_component();
-                    new reboot_component();
-                    new interact_component();
-                    new team_component();
-                    new harvesting_component();
-                    new vehicles_component();
-                    new storm_component();
-                    new replication_component();
-                    new creative_component();
-                    new moderation_component();
-                    
-                    break;
+                    // block DLL thread until level starts to load
                 }
+
+                // Get the LocalPlayers array
+                TArrayManager<ULocalPlayer*> LocalPlayers = TArrayManager<ULocalPlayer*>(&(*GWorld)->OwningGameInstance()->LocalPlayers(), 8);
+
+                // Remove the server's player
+                LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
+                    
+                new hook_manager();
+                new net_component();
+                new loader_component();
+                new patches_component();
+                new player_component();
+                new aircraft_component();
+                new ability_component();
+                new inventory_component();
+                new pickup_component();
+                new looting_component();
+                new building_component();
+                new elimination_component();
+                new trap_component();
+                new reboot_component();
+                new interact_component();
+                new team_component();
+                new harvesting_component();
+                new vehicles_component();
+                new storm_component();
+                new replication_component();
+                new creative_component();
+                new moderation_component();
+                    
+                break;
             }
             
             Sleep(500);

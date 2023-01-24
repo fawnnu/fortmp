@@ -12,6 +12,15 @@ public:
         return Default__GameplayStatics->Call<APlayerController*>(FunctionObject, WorldContextObject, PlayerIndex);
     }
 
+    static void OpenLevel(UWorld* WorldContextObject, FName LevelName, bool bAbsolute, FString Options)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.OpenLevel")
+        
+        Default__GameplayStatics->Call(FunctionObject, WorldContextObject, LevelName, bAbsolute, Options);
+    }
+
     static UObject* SpawnObject(UObject* Class, UObject* Outer)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");

@@ -52,6 +52,12 @@ inline void (*SetFWeakObjectPtr)(struct FWeakObjectPtr*, UObject*);
 // Array of native functions
 inline void** GNatives;
 
+// GIsClient
+inline bool* GIsClient;
+
+// GIsServer
+inline bool* GIsServer;
+
 // SRand
 inline float (*SRand)();
 

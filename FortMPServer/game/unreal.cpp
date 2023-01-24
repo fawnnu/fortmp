@@ -61,6 +61,12 @@ unreal_manager::unreal_manager()
 
     INIT_POINTER(Parse__CommandInternal, memory_manager::find_function_by_string(TEXT("DEMOSPEED"), {0xe8}, 1, false));
     INIT_POINTER(Parse__TokenInternal, memory_manager::find_function_by_string(TEXT("You must specify a speed in the form of a float"), {0xe8}, 1));
+
+    INIT_POINTER(GIsClient, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28", true, 21));
+    INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
+
+    // Instantly set GIsClient to false
+    *GIsClient = false;
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
