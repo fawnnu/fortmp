@@ -207,9 +207,9 @@ void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFort
 
     if (UserPassword.IsValid())
     {
-        for (FString& password_to_check : passwords)
+        for (std::wstring password_to_check : passwords)
         {
-            if (password_to_check == UserPassword)
+            if (password_to_check == std::wstring(UserPassword.c_str()))
             {
                 // user is now logged in as administrator, give them cheatmanager
                 ExecutingPlayerController->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), ExecutingPlayerController));

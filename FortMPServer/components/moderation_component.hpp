@@ -37,7 +37,7 @@ public:
     static void HandleBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
-    inline static std::vector<FString> passwords;
+    inline static std::vector<std::wstring> passwords;
 };
 
 namespace moderation_component_hooks
