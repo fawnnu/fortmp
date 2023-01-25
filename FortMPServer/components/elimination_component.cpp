@@ -186,6 +186,17 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
     }
 
+    // Send kill grant event
+    FGameplayEventData* GameplayEventData = FGameplayEventData::Create();
+    GameplayEventData->Instigator() = DeathReport.KillerPawn()->Controller();
+    GameplayEventData->Target() = DeathReport.KillerPawn();
+    GameplayEventData->OptionalObject() = DeathReport.KillerPawn();
+    GameplayEventData->OptionalObject2() = DeathReport.KillerPawn();
+    GameplayEventData->EventTag().TagName = FName(L"Event.EarnedElimination");
+    GameplayEventData->EventMagnitude() = 1.f;
+
+    UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(DeathReport.KillerPawn(), FGameplayTag(FName(L"Event.EarnedElimination")), GameplayEventData);
+
     // Current weapon list crash fix
     if (VictimPlayerController->Pawn())
     {

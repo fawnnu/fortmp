@@ -15,7 +15,7 @@ struct FGameplayEventData
 {
     static FGameplayEventData* Create()
     {
-        FGameplayEventData* ReturnValue = static_cast<FGameplayEventData*>(alloca(GetStructSize()));
+        FGameplayEventData* ReturnValue = static_cast<FGameplayEventData*>(malloc(GetStructSize()));
 
         ZeroMemory(ReturnValue, GetStructSize());
 
@@ -25,6 +25,9 @@ struct FGameplayEventData
     DEFINE_STRUCT_PROPERTY(FGameplayTag, EventTag);
     DEFINE_STRUCT_PROPERTY(AActor*, Instigator);
     DEFINE_STRUCT_PROPERTY(AActor*, Target);
+    DEFINE_STRUCT_PROPERTY(AActor*, OptionalObject);
+    DEFINE_STRUCT_PROPERTY(AActor*, OptionalObject2);
+    DEFINE_STRUCT_PROPERTY(float, EventMagnitude);
     
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEventData");
 };

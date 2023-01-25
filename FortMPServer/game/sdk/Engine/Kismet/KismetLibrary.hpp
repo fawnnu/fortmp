@@ -245,5 +245,7 @@ public:
         params->Actor = Actor;
         params->EventTag = EventTag;
         memcpy(&params->Payload, Payload, FGameplayEventData::GetStructSize());
+
+        ProcessEvent(Default__AbilitySystemBlueprintLibrary, FunctionObject, params);
     }
 };
