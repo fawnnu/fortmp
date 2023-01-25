@@ -42,6 +42,12 @@ public:
         Call(Function_UpdateVolumeLevelStreams);
     }
 
+    AFortVolume* SpawnVolume(UObject* VolumeClass, UFortPlaysetItemDefinition* Playset, FVector Location, FRotator Rotation)
+    {
+        STATIC_FINDFUNCTION(SpawnVolume);
+
+        return Call<AFortVolume*>(Function_SpawnVolume, VolumeClass, Playset, Location, Rotation);
+    }
 };
 
 class AFortPoiVolume : public UObject

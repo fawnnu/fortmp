@@ -129,6 +129,10 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                         creative_portal->LinkedVolume()->OnRep_VolumeState();
                         
                         (*GWorld)->GameState()->VolumeManager()->UpdateVolumeLevelStreams();
+
+                        // TODO: Proper
+                        auto NewVolume = (*GWorld)->GameState()->VolumeManager()->SpawnVolume(FindObject(L"/Game/Athena/BuildingActors/FortVolumeActor_PrefabGrenades.FortVolumeActor_PrefabGrenades_C", true), Playset, creative_portal->LinkedVolume()->K2_GetActorLocation(), creative_portal->LinkedVolume()->K2_GetActorRotation());
+                        NewVolume->K2_DestroyActor();
                         
                         // Log
                         spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());

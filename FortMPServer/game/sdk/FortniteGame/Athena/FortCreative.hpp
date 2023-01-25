@@ -167,12 +167,32 @@ public:
     
     DEFINE_PROPERTY(FUniqueNetIdRepl, AccountIdOfOwner);
     DEFINE_PROPERTY(FFortCreativePlotPermissionData, PlotPermissions);
+    DEFINE_PROPERTY(bool, bIsLoaded);
+    DEFINE_PROPERTY(UObject*, LoadedPlot);
 
     void OnRep_PlotPermissionsChanged()
     {
         STATIC_FINDFUNCTION(OnRep_PlotPermissionsChanged)
         
         Call(Function_OnRep_PlotPermissionsChanged);
+    }
+    void OnRep_LoadedPlotInstanceId()
+    {
+        STATIC_FINDFUNCTION(OnRep_LoadedPlotInstanceId)
+        
+        Call(Function_OnRep_LoadedPlotInstanceId);
+    }
+    void OnRep_Loaded()
+    {
+        STATIC_FINDFUNCTION(OnRep_Loaded)
+        
+        Call(Function_OnRep_Loaded);
+    }
+    void ApplySaveToWorld(bool bComplexShouldSpawn)
+    {
+        STATIC_FINDFUNCTION(ApplySaveToWorld)
+        
+        Call(Function_ApplySaveToWorld, bComplexShouldSpawn);
     }
 };
 
