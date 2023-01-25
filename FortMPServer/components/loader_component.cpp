@@ -395,6 +395,23 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         gameserver_client::Client->SendUpdate();
     }
 #endif
+
+    // Mark bMatchHasStarted as false for every gamephase update, if we're playing creative
+    UFortPlaylistAthena* ServerPlaylist = GetPlaylistEasy();
+
+    if (ServerPlaylist)
+    {
+        // Can't use STATIC_HASPROPERTY as the playlist can change
+        if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
+        {
+            // Check if creative mode is enabled
+            if (ServerPlaylist->bEnableCreativeMode())
+            {
+                // Allow join in progress
+                (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+            }
+        }
+    }
 }
 
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)

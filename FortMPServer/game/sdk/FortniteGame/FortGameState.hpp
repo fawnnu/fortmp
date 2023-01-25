@@ -181,7 +181,7 @@ public:
     DEFINE_PROPERTY(class AFortAthenaMapInfo*, MapInfo);
 
     DEFINE_PROPERTY(class AFortVolumeManager*, VolumeManager);
-    
+
     void OnRep_CurrentPlaylistInfo()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)

@@ -89,6 +89,14 @@ public:
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
 
+    bool& bMatchHasStarted()
+    {
+        static void* native_property = FindPropertyByName(this->Class, L"WarmupRequiredPlayerCount");                                          
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);   
+        
+        return *reinterpret_cast<bool*>(__int64(this) + native_property_offset - 4);                                        
+    }
+    
     // Custom event
     void OnServerReady()
     {
