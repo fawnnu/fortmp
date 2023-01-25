@@ -66,7 +66,10 @@ unreal_manager::unreal_manager()
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
 
     // Instantly set GIsClient to false
-    *GIsClient = false;
+    if (GetEngineVersionEasy() > 421)
+    {
+        *GIsClient = false;
+    }
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||

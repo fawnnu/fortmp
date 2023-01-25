@@ -202,9 +202,8 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                         TryAddToQuickBar(PlayerController, spawned_item);
                     }
 
-                    //TODO: Fix this crashing the gameserver on 3.5
                     // Equip item on client
-                    //PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                    PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
                 }
             }
             else

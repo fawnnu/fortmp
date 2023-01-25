@@ -173,8 +173,20 @@ public:
     void ClientEquipItem(FGuid ItemGuid, bool bForceExecution)
     {
         STATIC_FINDFUNCTION(ClientEquipItem)
-        
-        Call(Function_ClientEquipItem, ItemGuid, bForceExecution);
+
+        if (Function_ClientEquipItem)
+        {
+            static bool bForceExecution_Exists = FindPropertyByName(Function_ClientEquipItem, TEXT("bForceExecution")) != nullptr;
+
+            if (bForceExecution_Exists)
+            {
+                Call(Function_ClientEquipItem, ItemGuid, bForceExecution);
+            }
+            else
+            {
+                Call(Function_ClientEquipItem, ItemGuid);
+            }
+        }
     }
 
     void ClientReturnToMainMenu(FString in_reason)

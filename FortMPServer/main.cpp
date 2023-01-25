@@ -75,7 +75,10 @@ void Setup()
             if (*GWorld)
             {
                 // Wait 3.5 Seconds to set GIsServer
-                *GIsServer = true;
+                if (GetEngineVersionEasy() > 421)
+                {
+                    *GIsServer = true;
+                }
                 
                 // Initialize FMP blueprint support
                 new blueprint_component();
