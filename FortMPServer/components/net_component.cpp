@@ -116,6 +116,11 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
         game_thread_queue.front()();
         game_thread_queue.pop_front();
     }
+
+    // Acknowledge pending heartbeats
+#ifdef _RELEASE
+    gameserver_client::Client->LocalNonAckHeartbeats = 0;
+#endif
     
     if (NetDriver->ClientConnections().Num() > 0 && !NetDriver->ClientConnections()[0]->InternalAck())
     {

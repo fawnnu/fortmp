@@ -18,6 +18,22 @@ void HeartbeatThread()
         }
         
         Sleep(10000);
+
+        if (gameserver_client::Client->LocalNonAckHeartbeats > 20)
+        {
+            // Log
+            spdlog::error(L"Server has not responded to more than 20 heartbeats, closing...");
+            
+            // Unregister the server
+            gameserver_client::Client->SendLeave();
+            
+            // Request exit if the server has not been responsive for more than 3 minutes
+            RequestExitWithStatus(true, 0);
+        }
+        else
+        {
+            gameserver_client::Client->LocalNonAckHeartbeats++;
+        }
     }
 }
 

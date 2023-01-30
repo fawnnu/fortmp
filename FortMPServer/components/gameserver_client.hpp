@@ -52,4 +52,7 @@ public:
 
     // Static pointer to self
     inline static gameserver_client* Client;
+
+    // Number of non-acknowledged local heartbeats
+    int LocalNonAckHeartbeats;
 };

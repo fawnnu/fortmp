@@ -75,7 +75,7 @@ void Setup()
             if (*GWorld)
             {
                 // Wait 3.5 Seconds to set GIsServer
-                if (GetEngineVersionEasy() > 421)
+                if (GetEngineVersionEasy() > 420)
                 {
                     *GIsServer = true;
                 }
