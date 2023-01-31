@@ -215,6 +215,26 @@ bool player_component::is_live_spectator(APlayerController* player_controller)
     return false;
 }
 
+void player_component::ApplyBackpack(AFortPlayerControllerAthena* NewPlayer)
+{
+    if (NewPlayer->Pawn())
+    {
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), TEXT("Backpack")))
+        {
+            if (NewPlayer->CustomizationLoadout().Backpack())
+            {
+                if (STATIC_HASPROPERTY(NewPlayer->CustomizationLoadout().Backpack(), CharacterParts))
+                {
+                    if (NewPlayer->CustomizationLoadout().Backpack()->CharacterParts().Num())
+                    {
+                        NewPlayer->Pawn()->ServerChoosePart(NewPlayer->CustomizationLoadout().Backpack()->CharacterParts()[0]->CharacterPartType(), NewPlayer->CustomizationLoadout().Backpack()->CharacterParts()[0]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_controller, FTransform spawn_transform)
 {
     AFortPlayerPawn* player_pawn = (*GWorld)->AuthorityGameMode()->SpawnDefaultPawnAtTransform(player_controller, spawn_transform);
@@ -448,6 +468,9 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
 
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
+        
+        // Apply backpack, if specified
+        player_component::ApplyBackpack(NewPlayer);
         
         // Equip the pickaxe on landing
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))

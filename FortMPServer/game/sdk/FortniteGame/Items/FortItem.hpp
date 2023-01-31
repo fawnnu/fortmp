@@ -132,7 +132,13 @@ public:
     DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
 };
 
-class UAthenaBackpackItemDefinition : public UAthenaCosmeticItemDefinition
+class UAthenaCharacterPartItemDefinition : public UAthenaCosmeticItemDefinition
+{
+public:
+    DEFINE_PROPERTY(TArray<UCustomCharacterPart*>, CharacterParts);
+};
+
+class UAthenaBackpackItemDefinition : public UAthenaCharacterPartItemDefinition
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBackpackItemDefinition");
@@ -172,7 +178,7 @@ struct FFortAthenaLoadout
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, Glider);
     DEFINE_STRUCT_PROPERTY(UAthenaPickaxeItemDefinition*, Pickaxe);
     DEFINE_STRUCT_PROPERTY(UAthenaCharacterItemDefinition*, Character);
-    DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, Backpack);
+    DEFINE_STRUCT_PROPERTY(UAthenaCharacterPartItemDefinition*, Backpack);
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, ItemWrapOverride);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAthenaLoadout");

@@ -9,14 +9,6 @@ void HeartbeatThread()
 {
     while (true)
     {
-        auto ConnectionState = gameserver_client::Client->Client_WS.get_con_from_hdl(gameserver_client::Client->Connection_Handle)->get_state();
-
-        // If the connection is open, send heartbeat
-        if (ConnectionState == websocketpp::session::state::open)
-        {
-            gameserver_client::Client->SendHeartbeat();
-        }
-        
         Sleep(10000);
 
         if (gameserver_client::Client->LocalNonAckHeartbeats > 20)
@@ -33,6 +25,38 @@ void HeartbeatThread()
         else
         {
             gameserver_client::Client->LocalNonAckHeartbeats++;
+        }
+        
+        websocketpp::lib::error_code ec;
+        auto Connection = gameserver_client::Client->Client_WS.get_con_from_hdl(gameserver_client::Client->Connection_Handle, ec);
+
+        if (Connection)
+        {
+            if (Connection->get_state() == websocketpp::session::state::open)
+            {
+                gameserver_client::Client->SendHeartbeat();
+                continue;
+            }
+        }
+        
+        {
+            // Log
+            spdlog::warn(L"Lost connection to Era Services, attempting reconnection...");
+            
+            websocketpp::lib::error_code error_code;
+            Connection = gameserver_client::Client->Client_WS.get_connection("wss://ws.erafn.org/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
+    
+            if (error_code)
+            {
+                spdlog::error("Failed to re-initialize GameServer Client with error code: {}. Era Services will not see this server.", error_code.message().c_str());
+                return;
+            }
+
+            gameserver_client::Client->Connection_Handle = Connection->get_handle();
+
+            gameserver_client::Client->Client_WS.connect(Connection);
+            
+            gameserver_client::Client->Client_WS.stop();
         }
     }
 }
@@ -61,20 +85,24 @@ gameserver_client::gameserver_client()
     
     websocketpp::lib::error_code error_code;
     auto Connection = Client_WS.get_connection("wss://ws.erafn.org/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
-    Connection_Handle = Connection->get_handle();
     
     if (error_code)
     {
         spdlog::error("Failed to initialize GameServer Client with error code: {}. Era Services will not see this server.", error_code.message().c_str());
         return;
     }
+
+    Connection_Handle = Connection->get_handle();
     
     Client_WS.connect(Connection);
 
     // Start the heartbeat thread
     CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&HeartbeatThread), 0,0,0);
     
-    Client_WS.run();
+    while (true)
+    {
+        Client_WS.run();
+    }
 #endif
 }
 
@@ -152,74 +180,110 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 void gameserver_client::SendJoin()
 {
 #ifdef _RELEASE
-    nlohmann::json payload = R"([])"_json;
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
 
-    payload.push_back(0); // Channel Ref
-    payload.push_back(MessageRef++); // Message ref
-    payload.push_back(Channel); // Channel
-    payload.push_back("phx_join"); // Event Type
-    payload.push_back(std::map<std::string, std::string>{
-        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
-    }); // param
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
 
-    // Send
-    Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(Channel); // Channel
+            payload.push_back("phx_join"); // Event Type
+            payload.push_back(std::map<std::string, std::string>{
+                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
+            }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
 #endif
 }
 
 void gameserver_client::SendUpdate()
 {
 #ifdef _RELEASE
-    nlohmann::json payload = R"([])"_json;
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
 
-    payload.push_back(0); // Channel Ref
-    payload.push_back(MessageRef++); // Message ref
-    payload.push_back(Channel); // Channel
-    payload.push_back("update"); // Event Type
-    payload.push_back(std::map<std::string, std::string>{
-        {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
-        {"max_players", std::to_string(GameServer_Status.max_players)},
-        {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
-        {"status", GameServer_Status.status},
-        {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
-        {"port", std::to_string(GameServer_Status.port)}
-    }); // param
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
 
-    // Send
-    Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(Channel); // Channel
+            payload.push_back("update"); // Event Type
+            payload.push_back(std::map<std::string, std::string>{
+                {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
+                {"max_players", std::to_string(GameServer_Status.max_players)},
+                {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
+                {"status", GameServer_Status.status},
+                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
+                {"port", std::to_string(GameServer_Status.port)}
+            }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
 #endif
 }
 
 void gameserver_client::SendLeave()
 {
 #ifdef _RELEASE
-    nlohmann::json payload = R"([])"_json;
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
 
-    payload.push_back(0); // Channel Ref
-    payload.push_back(MessageRef++); // Message ref
-    payload.push_back(Channel); // Channel
-    payload.push_back("leave"); // Event Type
-    payload.push_back(std::map<std::string, std::string>{
-    }); // param
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
 
-    // Send
-    Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(Channel); // Channel
+            payload.push_back("leave"); // Event Type
+            payload.push_back(std::map<std::string, std::string>{
+            }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
 #endif
 }
 
 void gameserver_client::SendHeartbeat()
 {
 #ifdef _RELEASE
-    nlohmann::json payload = R"([])"_json;
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
 
-    payload.push_back(nullptr); // Channel Ref
-    payload.push_back(MessageRef++); // Message ref
-    payload.push_back("phoenix"); // Channel
-    payload.push_back("heartbeat"); // Event Type
-    payload.push_back(std::map<std::string, std::string>{
-    }); // param
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
 
-    // Send
-    Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            payload.push_back(nullptr); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back("phoenix"); // Channel
+            payload.push_back("heartbeat"); // Event Type
+            payload.push_back(std::map<std::string, std::string>{
+            }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
 #endif
 }
