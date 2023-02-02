@@ -208,6 +208,11 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
             continue;
         }
 
+        if (loot_tier_packages_map[loot_package_name].Value->Count() < 1)
+        {
+            continue;
+        }
+        
         bool b_found_blacklisted_item = false;
 
         for (UFortItemDefinition* blacklisted_item : blacklisted_item_definitions)

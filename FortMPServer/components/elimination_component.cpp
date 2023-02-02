@@ -174,6 +174,11 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     {
         VictimPlayerController->PlayerState()->DeathInfo().DeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
     }
+
+    if(STATIC_HASPROPERTY(VictimPlayerController->PlayerState(), PawnDeathLocation))
+    {
+        VictimPlayerController->PlayerState()->PawnDeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
+    }
     
     // Spawn dead player loot
     auto replicated_entries = TArrayManager<FFortItemEntry>(&VictimPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
@@ -185,8 +190,16 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         for (int i = replicated_entries.Num() - 1; i >= 0; i--)
         {
             FFortItemEntry& item_entry = replicated_entries[i];
-            
-            if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible"))
+
+            // Don't spawn pickups out of items that arent supposed to be dropped
+            if (UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(item_entry.ItemDefinition()))
+            {
+                if (world_item_definition->bCanBeDropped() == false)
+                {
+                    continue;
+                }
+            }
+            if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
             {
                 continue;
             }

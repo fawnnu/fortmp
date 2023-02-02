@@ -99,6 +99,7 @@ class UFortWorldItemDefinition : public UFortItemDefinition
 public:
 
     DEFINE_BIT_PROPERTY(bool, bForceFocusWhenAdded);
+    DEFINE_BIT_PROPERTY(bool, bCanBeDropped);
     DEFINE_BIT_PROPERTY(bool, bPersistInInventoryWhenFinalStackEmpty);
     
     UFortWorldItemDefinition* GetAmmoWorldItemDefinition_BP()

@@ -11,6 +11,8 @@ class AFortPlayerState : public APlayerState
 public:
     DEFINE_PROPERTY(class UFortHeroType*, HeroType);
 
+    DEFINE_PROPERTY(FVector, PawnDeathLocation);
+    
     // Used on older builds
     DEFINE_PROPERTY(UCustomCharacterPart*, CharacterParts);
 
