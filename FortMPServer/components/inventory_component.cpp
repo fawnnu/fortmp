@@ -34,7 +34,7 @@ inventory_component::inventory_component()
     REGISTER_CUSTOM_UFUNCTION(UpdateWeaponLoadedAmmo, AFortWeapon::StaticClass());
 }
 
-UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
+UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo, bool show_item_toast)
 {
     if (player_controller->WorldInventory() == nullptr)
     {
@@ -132,21 +132,25 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
-    // Add to state values
-    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
+    // Setup pickup notification if specified
+    if (show_item_toast)
+    {
+        // Add to state values
+        TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
 
-    // Make a new state value
-    FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
+        // Make a new state value
+        FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
 
-    // Initialize the newly allocated memory
-    ZeroMemory(NewStateValue, FFortItemEntryStateValue::GetStructSize());
+        // Initialize the newly allocated memory
+        ZeroMemory(NewStateValue, FFortItemEntryStateValue::GetStructSize());
 
-    // Initialize the properties
-    NewStateValue->IntValue() = 1;
-    NewStateValue->StateType() = 2;
+        // Initialize the properties
+        NewStateValue->IntValue() = 1;
+        NewStateValue->StateType() = 2;
 
-    // Add it to the StateValues
-    StateValues.Add(NewStateValue);
+        // Add it to the StateValues
+        StateValues.Add(NewStateValue);
+    }
 
     // Support force quickbar focus when item gets added to inventory
     if (STATIC_HASPROPERTY(item_definition, bForceFocusWhenAdded))
