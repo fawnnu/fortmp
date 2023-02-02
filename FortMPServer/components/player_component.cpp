@@ -62,7 +62,10 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
     {
         if (Self->bIsSkydivingFromBus())
         {
-            Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
+            if (Self->CurrentWeapon() == nullptr)
+            {
+                Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
+            }
         }
     }
 }

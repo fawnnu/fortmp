@@ -3,6 +3,15 @@
 
 patches_component::patches_component()
 {
+    // Null count of an array to prevent a crash
+    if (auto GameData = FindObject(XOR(L"/Game/Balance/DefaultGameData.DefaultGameData")))
+    {
+        if (GameData->HasProperty(XOR(L"RandomItemPickers")))
+        {
+            static_cast<UFortGameData*>(GameData)->RandomItemPickers().Count = 0;
+        }
+    }
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 

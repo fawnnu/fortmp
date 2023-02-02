@@ -5,7 +5,7 @@ class inventory_component
 public:
     inventory_component();
 
-    static UFortWorldItem* add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo = 0, bool show_item_toast = true);
+    static UFortWorldItem* add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo = 0);
 
     static void remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item = true, bool b_is_swapping = false);
     

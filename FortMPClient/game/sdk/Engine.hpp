@@ -16,3 +16,9 @@ class UEngine : public UObject
 public:
     DEFINE_PROPERTY(UGameViewportClient*, GameViewport);
 };
+
+class UFortGameData : public UObject
+{
+public:
+    DEFINE_PROPERTY(TArray<UObject*>, RandomItemPickers);
+};

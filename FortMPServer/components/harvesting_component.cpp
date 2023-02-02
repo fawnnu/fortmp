@@ -80,7 +80,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 if (ResourceItemDefinition)
                 {
                     // Give the resource to the player
-                    inventory_component::add_item(instigated_by, ResourceItemDefinition, Count, 0, GetEngineVersionEasy() > 419 ? false : true);
+                    inventory_component::add_item(instigated_by, ResourceItemDefinition, Count, 0);
                 }
             }
         }
