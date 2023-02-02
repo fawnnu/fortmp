@@ -27,8 +27,8 @@ patches_component::patches_component()
     DetourUpdateThread(GetCurrentThread());
 
     // Re-implement GC checks
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 421 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::ConditionalCollectGarbage, GetEngineVersionEasy() > 420 ? memory_manager::find_function_by_string(L"STAT_GCSweepTime") : 0, patches_component_hook::ConditionalCollectGarbage_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 420 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::ConditionalCollectGarbage, GetEngineVersionEasy() > 419 ? memory_manager::find_function_by_string(L"STAT_GCSweepTime") : 0, patches_component_hook::ConditionalCollectGarbage_Hook);
 
     // Stop random crashing
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FortPVPGameOverlayerCrash, memory_manager::find_function_by_string(L"Fortnite.Font.S.Normal"), patches_component_hook::FortPVPGameOverlayerCrash_Hook);
