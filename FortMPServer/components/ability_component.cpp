@@ -28,8 +28,6 @@ ability_component::ability_component()
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Failed to remove item %s during reload, item duplic"), ability_component_hooks::AbilityCost_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Weapon [%s] - Failed to find an Inventory Owner"), ability_component_hooks::AbilityCost_Hook);
 
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::DoesAbilitySatisfyTagRequirements, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 74 43 8B 55 5F", true, 1), ability_component_hooks::DoesAbilitySatisfyTagRequirements_Hook);
-    
     DetourTransactionCommit();
 }
 
@@ -148,19 +146,4 @@ void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amou
     }
 
     return AbilityCost(FortWeapon, Amount);
-}
-
-bool ability_component_hooks::DoesAbilitySatisfyTagRequirements_Hook(UGameplayAbility* Ability, UAbilitySystemComponent* UAbilitySystemComponent, void* SourceTags, void* TargetTags, void* OutTags)
-{
-    if (Ability == nullptr)
-    {
-        return false;
-    }
-    
-    if (SourceTags || TargetTags)
-    {
-        return DoesAbilitySatisfyTagRequirements(Ability, UAbilitySystemComponent, SourceTags, TargetTags, OutTags);
-    }
-
-    return true;
 }
