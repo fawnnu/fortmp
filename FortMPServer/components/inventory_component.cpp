@@ -283,10 +283,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
             }
             
-            // has to be done on older builds
-            STATIC_HASPROPERTY(player_controller, QuickBars);
-            
-            if (bExists_QuickBars && player_controller->QuickBars() && GetEngineVersionEasy() < 420)
+            if (STATIC_HASPROPERTY(player_controller, QuickBars))
             {
                 player_controller->QuickBars()->ServerRemoveItemInternal(item_guid, b_is_swapping);
             }
