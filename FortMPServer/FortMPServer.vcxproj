@@ -225,6 +225,7 @@
     <ClInclude Include="game\sdk\FortniteGame\Building\BuildingActor.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortGameState.hpp" />
+    <ClInclude Include="game\sdk\FortniteGame\FortMutator.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortVolume.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Items\FortItem.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Items\FortLoot.hpp" />

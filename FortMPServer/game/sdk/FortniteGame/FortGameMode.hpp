@@ -84,7 +84,6 @@ public:
     DEFINE_PROPERTY(int, SafeZonePhase);
     
     DEFINE_PROPERTY(bool, bMapInfoInitialized);
-    
     DEFINE_PROPERTY(AFortSafeZoneIndicator*, SafeZoneIndicator);
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
@@ -96,7 +95,13 @@ public:
         
         return *reinterpret_cast<bool*>(__int64(this) + native_property_offset - 4);                                        
     }
-    
+
+    AFortGameplayMutator* GetMutatorByClass(AActor* ContextActor, UObject* MutatorClass)
+    {
+        STATIC_FINDFUNCTION(GetMutatorByClass)
+
+        return Call<AFortGameplayMutator*>(Function_GetMutatorByClass, ContextActor, MutatorClass);
+    }
     // Custom event
     void OnServerReady()
     {

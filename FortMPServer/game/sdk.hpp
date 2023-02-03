@@ -102,6 +102,7 @@
 #include "sdk/Engine/Net/NetConnection.hpp"
 #include "sdk/Engine/EngineSettings.hpp"
 
+#include "sdk/FortniteGame/FortMutator.hpp"
 #include "sdk/FortniteGame/Player/FortPlayerState.hpp"
 #include "sdk/FortniteGame/Pawns/FortPlayerPawn.hpp"
 #include "sdk/FortniteGame/Player/FortPlayerController.hpp"

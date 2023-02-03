@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "elimination_component.hpp"
 
+#include "creative_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "pickup_component.hpp"
@@ -181,31 +182,29 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     }
     
     // Spawn dead player loot
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&VictimPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-
-    static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
-
     if (VictimPlayerController->WorldInventory())
     {
-        for (int i = replicated_entries.Num() - 1; i >= 0; i--)
+        if(creative_component::is_creative_enabled())
         {
-            FFortItemEntry& item_entry = replicated_entries[i];
-
-            // Don't spawn pickups out of items that arent supposed to be dropped
-            if (UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(item_entry.ItemDefinition()))
+            if (STATIC_HASPROPERTY(VictimPlayerController, OwnedPortal))
             {
-                if (world_item_definition->bCanBeDropped() == false)
+                if (static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal() != nullptr)
                 {
-                    continue;
+                    if (auto Mutator = (*GWorld)->AuthorityGameMode()->GetMutatorByClass(static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal(), AFortAthenaMutator_InventoryOverride::StaticClass()))
+                    {
+                        AFortAthenaMutator_InventoryOverride* mutator_inventory_override = static_cast<AFortAthenaMutator_InventoryOverride*>(Mutator);
+                        if (mutator_inventory_override->DropAllItemsOverride() != 2)
+                        {
+                            inventory_component::clear_primary_inventory(VictimPlayerController, true);
+                        }
+                    }   
                 }
-            }
-            if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
-            {
-                continue;
-            }
-
-            // Remove item from dead player
-            inventory_component::remove_item(VictimPlayerController, item_entry.ItemGuid(), -1);
+            }   
+        }
+        else
+        {
+            // Clear primary inventory as always if creative is enabled and there's no special mutators
+            inventory_component::clear_primary_inventory(VictimPlayerController, true);   
         }
     }
 

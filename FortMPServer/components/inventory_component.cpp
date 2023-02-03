@@ -34,6 +34,35 @@ inventory_component::inventory_component()
     REGISTER_CUSTOM_UFUNCTION(UpdateWeaponLoadedAmmo, AFortWeapon::StaticClass());
 }
 
+void inventory_component::clear_primary_inventory(AFortPlayerController* fort_player_controller, bool should_drop_item)
+{
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&fort_player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+
+    static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
+    
+    for (int i = replicated_entries.Num() - 1; i >= 0; i--)
+    {
+        FFortItemEntry& item_entry = replicated_entries[i];
+
+        // Don't spawn pickups out of items that arent supposed to be dropped
+        UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(item_entry.ItemDefinition());
+        
+        STATIC_HASPROPERTY(world_item_definition, bDropOnDeath);
+        
+        if (world_item_definition->bCanBeDropped() == false)
+        {
+            continue;
+        }
+        if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
+        {
+            continue;
+        }
+
+        // Remove item from player
+        remove_item(fort_player_controller, item_entry.ItemGuid(), -1, should_drop_item);
+    }   
+}
+
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
 {
     if (player_controller->WorldInventory() == nullptr)

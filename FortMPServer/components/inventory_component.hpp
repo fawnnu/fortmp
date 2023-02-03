@@ -9,6 +9,8 @@ public:
 
     static void remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item = true, bool b_is_swapping = false);
     
+    static void clear_primary_inventory(AFortPlayerController* fort_player_controller, bool should_drop_item = true);
+    
     static bool is_inventory_full(AFortPlayerController* player_controller, int override_max_inventory_size = -1);
     static bool has_item_type(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
 
