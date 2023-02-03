@@ -68,6 +68,7 @@ public:
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AbilitySet)
     DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, AttributeSet)
     DEFINE_PROPERTY(TArray<struct FGameplayAttribute>, TrackedAttributes);
+    DEFINE_PROPERTY(bool, bDropAllOnEquip);
     
     UFortItemDefinition* GetDecoItemDefinition()
     {

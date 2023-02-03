@@ -54,27 +54,8 @@ void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft*
 
     if (FortPlayerControllerAthena && FortPlayerControllerAthena->WorldInventory())
     {
-        // Get inventory
-        auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerControllerAthena->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-    
-        // Item definitions to filter by
-        static UObject* building_item_definition = FindObject(L"/Script/FortniteGame.FortBuildingItemDefinition");
-        static UObject* melee_item_definition = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-        static UObject* edit_tool_definition = FindObject(L"/Script/FortniteGame.FortEditToolItemDefinition");
-    
-        // Backwards loop to remove items from inventory
-        for (int i = replicated_entries.Num() - 1; i >= 0; i--)
-        {
-            FFortItemEntry& item_entry = replicated_entries[i];
-        
-            if (!item_entry.ItemDefinition()->IsA(building_item_definition) &&
-                !item_entry.ItemDefinition()->IsA(melee_item_definition) &&
-                !item_entry.ItemDefinition()->IsA(edit_tool_definition))
-            {
-                // Remove any items from the inventory that do not match
-                inventory_component::remove_item(FortPlayerControllerAthena, item_entry.ItemGuid(), -1, false);
-            }
-        }
+        // Clear inventory
+        inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
 
         (*GWorld)->AuthorityGameMode()->OnEnterAircraft(FortPlayerControllerAthena);
     }

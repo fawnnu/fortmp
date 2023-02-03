@@ -44,15 +44,6 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
     {
         FFortItemEntry& item_entry = replicated_entries[i];
 
-        // Don't spawn pickups out of items that arent supposed to be dropped
-        UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(item_entry.ItemDefinition());
-        
-        STATIC_HASPROPERTY(world_item_definition, bDropOnDeath);
-        
-        if (world_item_definition->bCanBeDropped() == false)
-        {
-            continue;
-        }
         if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
         {
             continue;
@@ -68,6 +59,15 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     if (player_controller->WorldInventory() == nullptr)
     {
         return nullptr;
+    }
+
+    if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
+    {
+        if (static_cast<UFortGadgetItemDefinition*>(item_definition)->bDropAllOnEquip())
+        {
+            // Drop all the items
+            clear_primary_inventory(player_controller, true);
+        }
     }
     
     auto replicated_entries = TArrayManager<FFortItemEntry>(&player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
@@ -223,13 +223,13 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 return;
             }
             
-            if (should_drop_item)
+            UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
+            
+            if (should_drop_item && world_item_definition->bCanBeDropped())
             {
                 // Spawn dropped item as pickup
                 pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo());
             }
-
-            UFortWorldItemDefinition* world_item_definition = reinterpret_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
 
             if (STATIC_HASPROPERTY(world_item_definition, bPersistInInventoryWhenFinalStackEmpty))
             {
