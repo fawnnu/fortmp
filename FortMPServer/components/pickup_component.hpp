@@ -31,3 +31,4 @@ namespace pickup_component_hooks
 }
 
 inline void (*Toss)(AFortPickup*);
+inline void (*InternalHandlePickup)(AFortPickup*, AFortPlayerPawn*, float, FVector);

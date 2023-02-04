@@ -83,6 +83,7 @@ public:
     DEFINE_PROPERTY(UFortMovementSet*, MovementSet);
     DEFINE_PROPERTY(TArray<AFortWeapon*>, CurrentWeaponList);
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnPawnLanded);
+    DEFINE_PROPERTY(TArray<AFortPickup*>, IncomingPickups);
     
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {

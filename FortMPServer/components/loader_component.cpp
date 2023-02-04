@@ -551,12 +551,15 @@ bool loader_component_hooks::SetGameMode_Hook()
     if (*GWorld)
     {
 #ifdef _RELEASE
-        // Notify era services
-        gameserver_client::Client->GameServer_Status.status = "offline";
-        gameserver_client::Client->GameServer_Status.accepting_players = false;
-        gameserver_client::Client->GameServer_Status.number_of_players = 0;
-        gameserver_client::Client->GameServer_Status.max_players = 0;
-        gameserver_client::Client->SendUpdate();
+        if (gameserver_client::Client)
+        {
+            // Notify era services
+            gameserver_client::Client->GameServer_Status.status = "offline";
+            gameserver_client::Client->GameServer_Status.accepting_players = false;
+            gameserver_client::Client->GameServer_Status.number_of_players = 0;
+            gameserver_client::Client->GameServer_Status.max_players = 0;
+            gameserver_client::Client->SendUpdate();
+        }
 #endif
 
         if (loader_component::bPendingShutdown)

@@ -6,6 +6,12 @@
 
 pickup_component::pickup_component()
 {
+    INIT_POINTER(InternalHandlePickup, memory_manager::find_function_by_string(L"Attempted to spawn non-world item %s!"));
+    if (const uintptr_t TargetAddress = memory_manager::find_pattern("FF 93 ? ? ? ? 49 63 8F ? ? ? ? 85 C9 0F 84 ? ? ? ? 49 8B 87 ? ? ? ? 48 89 AC 24 ? ? ? ? 48 89 B4 24 ? ? ? ? 48 8B F1"))
+    {
+        INIT_POINTER(InternalHandlePickup, FindObject(L"/Script/FortniteGame.Default__FortPickupAthena")->VTable[*reinterpret_cast<int*>(TargetAddress + 2) / 8] );
+    }
+    
     INIT_POINTER(Toss, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B CB 48 8B 5C 24 ? 48 83 C4 20 5F")));
 
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_SpawnPickupInWorld", pickup_component_hooks::K2_SpawnPickupInWorld_Hook);
@@ -139,17 +145,12 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     {
         return;
     }
-    
-    // Set the pickup target and fly time
-    Pickup->PickupLocationData().PickupTarget() = PlayerPawn;
-    Pickup->PickupLocationData().FlyTime() /= static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->PickupSpeedMultiplier();
-    Pickup->PickupLocationData().ItemOwner() = PlayerPawn;
+
+    // Pick it up
+    InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->PickupSpeedMultiplier(), FVector(1,1,1));
     
     // Net update
     Pickup->ForceNetUpdate();
-    
-    // Trigger the pickup anim
-    Pickup->OnRep_PickupLocationData();
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
@@ -179,18 +180,28 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             
             return false;
         }
+
+        // Check if the current pickup is found in the incoming pickups stream
+        if (!PickupTarget->IncomingPickups().Find(Pickup))
+        {
+            return false; 
+        }
+        
+        // If it is found, remove from the stream
+        for (int i = 0; i < PickupTarget->IncomingPickups().Num(); i++)
+        {
+            if (PickupTarget->IncomingPickups()[i] == Pickup)
+            {
+                TArrayManager<AFortPickup*>(&PickupTarget->IncomingPickups(), 8).Remove(i, FindPropertyByName(PickupTarget->Class, TEXT("IncomingPickups")));
+                break;
+            }
+        }
         
         UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
 
         if (inventory_component::is_inventory_full(PlayerController))
         {
-            static UObject* melee_item_definition = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-            static UObject* building_item_definition = FindObject(L"/Script/FortniteGame.FortBuildingItemDefinition");
-            static UObject* edit_tool_definition = FindObject(L"/Script/FortniteGame.FortEditToolItemDefinition");
-
-            if (!PickupTarget->CurrentWeapon()->WeaponData()->IsA(melee_item_definition) &&
-                !PickupTarget->CurrentWeapon()->WeaponData()->IsA(building_item_definition) &&
-                !PickupTarget->CurrentWeapon()->WeaponData()->IsA(edit_tool_definition))
+            if (static_cast<UFortWorldItemDefinition*>(PickupTarget->CurrentWeapon()->WeaponData())->bCanBeDropped())
             {
                 // Swap item
                 inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
@@ -215,11 +226,8 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 }
             }
         }
-
-        // Invalidate PickupTarget to avoid duplicates
-        Pickup->PickupLocationData().PickupTarget() = nullptr;
     }
-
+    
     return OnAboutToEnterBackpack(Pickup);
 }
 
