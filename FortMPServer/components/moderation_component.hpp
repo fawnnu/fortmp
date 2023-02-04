@@ -35,6 +35,7 @@ public:
     static void HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleSCPCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSetServerNameCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;

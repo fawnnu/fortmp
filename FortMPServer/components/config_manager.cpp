@@ -20,7 +20,8 @@ nlohmann::json config_manager::get_server_config()
                 "override_playlist": "",
                 "player_cap_override": 100,
                 "banned_players": [],
-                "admin_passwords": []
+                "admin_passwords": [],
+                "name": ""
             }
         )"_json;
     

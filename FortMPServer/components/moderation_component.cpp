@@ -288,7 +288,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -717,10 +717,49 @@ void moderation_component::HandleBanCommand(const TCHAR*& InStream, AFortPlayerC
                 ban_player(TargetPlayer, L"Banned by an Admin.");
 
                 // Log
-                wchar_t Log[1024];
-                wprintf_s(Log, L"Successfully banned '%s'", TargetPlayer->MyPlayerInfo()->PlayerName().c_str());
-                ExecutingPlayerController->ClientMessage(Log);
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully banned player."));
             }
+        }
+    }
+}
+
+void moderation_component::HandleSetServerNameCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InServerName;
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+    if (!FParse::Token(InStream, InServerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Server Name parameter."));
+        return;
+    }
+
+    if (InServerName.IsValid())
+    {
+        std::string sInServerName = converter.to_bytes(InServerName.c_str());
+
+        // length checks
+        if (sInServerName.length() >= 2 && sInServerName.length() <= 8)
+        {
+            // Save the name in config
+            auto config = config_manager::get_server_config();
+            config["name"] = sInServerName;
+            config_manager::save_server_config(config);
+
+#ifdef _RELEASE
+            if (gameserver_client* Client = gameserver_client::Client)
+            {
+                // Send the update to Era Services
+                Client->GameServer_Status.name = sInServerName;
+                Client->SendUpdate();
+            }
+#endif
+            
+            ExecutingPlayerController->ClientMessage(TEXT("The server name was successfully updated!"));
+        }
+        else
+        {
+            ExecutingPlayerController->ClientMessage(L"The server name has to be longer than 2 characters and shorted than 8.");
         }
     }
 }
@@ -825,6 +864,10 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("BAN")))
             {
                 moderation_component::HandleBanCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SETSERVERNAME")))
+            {
+                moderation_component::HandleSetServerNameCommand(Stream, Self);
             }
             else
             {

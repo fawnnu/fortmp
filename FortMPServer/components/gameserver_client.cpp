@@ -133,6 +133,14 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
             GameServer_Status.private_matchmaking_key = server_key;
         }
     }
+    if (server_config.contains("name"))
+    {
+        std::string server_name = server_config["name"];
+        if (server_name.length() >= 2 && server_name.length() <= 8)
+        {
+            GameServer_Status.name = server_name;
+        }
+    }
     
     SendJoin();
     SendUpdate();
@@ -194,7 +202,8 @@ void gameserver_client::SendJoin()
             payload.push_back(Channel); // Channel
             payload.push_back("phx_join"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
-                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}}
+                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
+                {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 8 ? GameServer_Status.name : qos_component::best_region}}
             }); // param
 
             // Send
@@ -226,7 +235,8 @@ void gameserver_client::SendUpdate()
                 {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
                 {"status", GameServer_Status.status},
                 {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
-                {"port", std::to_string(GameServer_Status.port)}
+                {"port", std::to_string(GameServer_Status.port)},
+                {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 8 ? GameServer_Status.name : qos_component::best_region}}
             }); // param
 
             // Send
