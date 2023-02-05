@@ -134,6 +134,19 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                 {
                     inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
                 }
+
+                // Destroy vending if needed
+                STATIC_HASPROPERTY(vending_machine, NumInteractionsAllowed);
+                STATIC_HASPROPERTY(vending_machine, NumInteractions);
+
+                if (bExists_NumInteractions && bExists_NumInteractionsAllowed)
+                {
+                    if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
+                    {
+                        static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
+                        vending_machine->K2_DestroyActor();
+                    }
+                }
             }
             
             break;

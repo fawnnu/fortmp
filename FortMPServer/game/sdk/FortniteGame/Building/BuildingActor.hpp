@@ -128,6 +128,9 @@ public:
     DEFINE_PROPERTY(float, LootTossConeHalfAngle);
     DEFINE_PROPERTY(float, LootTossSpeed);
 
+    DEFINE_PROPERTY(int, NumInteractionsAllowed);
+    DEFINE_PROPERTY(int, NumInteractions);
+
     int GetDepositAmount(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
     {
         STATIC_FINDFUNCTION(GetDepositAmount)
@@ -153,6 +156,13 @@ public:
         STATIC_FINDFUNCTION(SetRarityColors)
         
         Call(Function_SetRarityColors, Color);
+    }
+
+    void DoVendDeath()
+    {
+        STATIC_FINDFUNCTION(DoVendDeath)
+
+        Call(Function_DoVendDeath);
     }
 };
 
