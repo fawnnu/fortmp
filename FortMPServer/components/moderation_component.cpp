@@ -164,6 +164,41 @@ void moderation_component::ban_player(AFortPlayerController* TargetPlayer, FStri
     }
 }
 
+void moderation_component::unban_player(std::string InPlayerName)
+{
+    std::vector<std::string> BanList;
+
+    auto config = config_manager::get_server_config();
+    int idx = -1;
+    bool bFound = false;
+    for (auto& elem : config["banned_players"].items())
+    {
+        idx++;
+        if (elem.value().is_object())
+        {
+            for (auto& elem_ : elem.value().items())
+            {
+                if (std::string(elem_.key()) == InPlayerName)
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+
+            if (bFound)
+            {
+                break;
+            }
+        }
+    }
+
+    if (bFound)
+    {
+        config["banned_players"].erase(idx);
+        config_manager::save_server_config(config);
+    }
+}
+
 bool moderation_component::is_player_banned(AFortPlayerController* Target)
 {
     if (Target == nullptr)
@@ -288,7 +323,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -764,6 +799,109 @@ void moderation_component::HandleSetServerNameCommand(const TCHAR*& InStream, AF
     }
 }
 
+void moderation_component::HandleUnBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InPlayerName;
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        return;
+    }
+
+    if (InPlayerName.IsValid())
+    {
+        if (is_registered_admin(ExecutingPlayerController))
+        {
+            std::string sInPlayerName = converter.to_bytes(InPlayerName.c_str());
+            
+            bool bBanRecordExists = false;
+            auto config = config_manager::get_server_config();
+            for (auto& elem : config["banned_players"].items())
+            {
+                if (elem.value().is_object())
+                {
+                    for (auto& elem_ : elem.value().items())
+                    {
+                        if (std::string(elem_.key()) == sInPlayerName)
+                        {
+                            bBanRecordExists = true;
+                            break;
+                        }
+                    }
+
+                    if (bBanRecordExists)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (bBanRecordExists)
+            {
+                // Perform unban
+                unban_player(sInPlayerName);
+                
+                // Log
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully unbanned player."));
+            }
+            else
+            {
+                // Log
+                ExecutingPlayerController->ClientMessage(TEXT("Couldn't find ban record for the specified player."));
+            }
+        }
+    }
+}
+
+void moderation_component::HandleListPlayersCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    ExecutingPlayerController->ClientMessage(L"LIST OF PLAYERS:");
+    
+    if (*GWorld)
+    {
+        if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
+        {
+            for (int i = 0; i < NetDriver->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = NetDriver->ClientConnections()[i];
+
+                if (ClientConnection)
+                {
+                    if (AFortPlayerController* PlayerController = ClientConnection->PlayerController())
+                    {
+                        if (UFortRegisteredPlayerInfo* MyPlayerInfo = PlayerController->MyPlayerInfo())
+                        {
+                            ExecutingPlayerController->ClientMessage(MyPlayerInfo->PlayerName().c_str());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void moderation_component::HandleBanListCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+    ExecutingPlayerController->ClientMessage(TEXT("LIST OF BANNED PLAYERS:"));
+    
+    auto config = config_manager::get_server_config();
+    for (auto& elem : config["banned_players"].items())
+    {
+        if (elem.value().is_object())
+        {
+            for (auto& elem_ : elem.value().items())
+            {
+                auto wBannedPlayer = converter.from_bytes(std::string(elem_.key()).c_str());
+                ExecutingPlayerController->ClientMessage(wBannedPlayer.c_str());
+            }
+        }
+    }
+}
+
 AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthena* Self, UPlayer* NewPlayer, int InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueID, FString& ErrorMessage)
 {
     if (player_component::Login(UniqueID, Options))
@@ -868,6 +1006,18 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("SETSERVERNAME")))
             {
                 moderation_component::HandleSetServerNameCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("UNBAN")))
+            {
+                moderation_component::HandleUnBanCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("LISTPLAYERS")))
+            {
+                moderation_component::HandleListPlayersCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("BANLIST")))
+            {
+                moderation_component::HandleBanListCommand(Stream, Self);
             }
             else
             {

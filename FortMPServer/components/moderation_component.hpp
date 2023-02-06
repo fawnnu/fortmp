@@ -16,6 +16,7 @@ public:
 
     // Perform a ban
     static void ban_player(AFortPlayerController* Target, FString BanReason);
+    static void unban_player(std::string InPlayerName);
     static bool is_player_banned(AFortPlayerController* Target);
 
     // Commands
@@ -36,6 +37,9 @@ public:
     static void HandleToggleSCPCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSetServerNameCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleUnBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleListPlayersCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleBanListCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;
