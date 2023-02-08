@@ -774,7 +774,7 @@ void moderation_component::HandleSetServerNameCommand(const TCHAR*& InStream, AF
         std::string sInServerName = converter.to_bytes(InServerName.c_str());
 
         // length checks
-        if (sInServerName.length() >= 2 && sInServerName.length() <= 8)
+        if (sInServerName.length() >= 2 && sInServerName.length() <= 16)
         {
             // Save the name in config
             auto config = config_manager::get_server_config();
@@ -794,7 +794,7 @@ void moderation_component::HandleSetServerNameCommand(const TCHAR*& InStream, AF
         }
         else
         {
-            ExecutingPlayerController->ClientMessage(L"The server name has to be longer than 2 characters and shorted than 8.");
+            ExecutingPlayerController->ClientMessage(L"The server name has to be longer than 2 characters and shorted than 16.");
         }
     }
 }
