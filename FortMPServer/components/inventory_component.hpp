@@ -16,6 +16,7 @@ public:
 
     static UFortItem* get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid);
     static UFortItem* get_inventory_item_by_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
+    static UFortItem* get_inventory_item_by_deco_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
 
     static UFortWorldItem* get_pickaxe(AFortPlayerController* player_controller);
     

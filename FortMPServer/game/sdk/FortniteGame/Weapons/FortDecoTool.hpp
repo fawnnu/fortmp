@@ -3,6 +3,7 @@
 class UFortDecoItemDefinition : public UFortWorldItemDefinition
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortDecoItemDefinition");
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, BlueprintClass);
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, PlacementPreviewClass);
 };

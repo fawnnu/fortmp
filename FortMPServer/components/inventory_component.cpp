@@ -360,6 +360,22 @@ UFortItem* inventory_component::get_inventory_item_by_definition(AFortPlayerCont
     return nullptr;    
 }
 
+UFortItem* inventory_component::get_inventory_item_by_deco_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
+{
+    for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
+    {
+        if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()))
+        {
+            if (static_cast<UFortGadgetItemDefinition*>(static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition())->GetDecoItemDefinition() == item_definition)
+            {
+                return ItemInstance;
+            }
+        }
+    }
+    
+    return nullptr;   
+}
+
 void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(FGuid, ItemGuid);
@@ -367,6 +383,24 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     if (!PlayerController->Pawn())
     {
         return;
+    }
+
+    if (PlayerController->Pawn()->CurrentWeapon())
+    {
+        if (PlayerController->Pawn()->CurrentWeapon()->WeaponData()->IsA(UFortDecoItemDefinition::StaticClass()))
+        {
+            if (UFortItem* Gadget = inventory_component::get_inventory_item_by_deco_definition(PlayerController, PlayerController->Pawn()->CurrentWeapon()->WeaponData()))
+            {
+                if (STATIC_HASPROPERTY(static_cast<UFortWorldItem*>(Gadget)->ItemEntry().ItemDefinition(), bAllowedToBeLockedInInventory))
+                {
+                    if (static_cast<UFortWorldItemDefinition*>(static_cast<UFortWorldItem*>(Gadget)->ItemEntry().ItemDefinition())->bAllowedToBeLockedInInventory())
+                    {
+                        // Don't execute the inventory item
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     // Get inventory item by GUID
