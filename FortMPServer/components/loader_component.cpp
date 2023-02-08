@@ -347,7 +347,7 @@ void loader_component::initialize_bga()
 
     for (ABGAConsumableSpawner* BGAConsumableSpawner : BGAConsumableSpawners)
     {
-        if (UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(*GWorld, BGAConsumableSpawner->QueryTemplate(), BGAConsumableSpawner, 3, nullptr))
+        if (UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(*GWorld, FindObject<UEnvQuery>(L"/Game/Athena/BuildingActors/ConsumableBGAs/EQS/EQS_ConsumableBGAPlacement_Circle_M.EQS_ConsumableBGAPlacement_Circle_M", true) ? FindObject<UEnvQuery>(L"/Game/Athena/BuildingActors/ConsumableBGAs/EQS/EQS_ConsumableBGAPlacement_Circle_M.EQS_ConsumableBGAPlacement_Circle_M", true) : BGAConsumableSpawner->QueryTemplate(), BGAConsumableSpawner, 3, nullptr))
         {
             QueryInstance->OnQueryFinishedEvent().Bind(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
         }
