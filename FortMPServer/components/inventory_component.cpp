@@ -213,7 +213,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
         // Get both replicated entry and item instance at the index
         FFortItemEntry& replicated_entry = replicated_entries[i];
         UFortWorldItem*& item_instance = item_instances[i];
-
+        
         if (replicated_entry.ItemGuid() == item_guid)
         {
             if (item_count > replicated_entry.Count())
@@ -262,7 +262,8 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             }
 
             // If it's an AGID, remove it accordingly
-            if (item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()))
+            bool b_is_fort_gadget = item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass());
+            if (b_is_fort_gadget)
             {
                 RemoveGadgetData(static_cast<UFortGadgetItemDefinition*>(item_instance->ItemEntry().ItemDefinition()), player_controller->GetInterfaceAddress(IFortInventoryOwnerInterface::StaticClass()), item_instance);
             }
@@ -277,7 +278,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
-            if (item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()) && player_controller->Pawn() != nullptr)
+            if (b_is_fort_gadget)
             {
                 // If it's an AGID, remove the character parts (Has to be done after removing from inventory)
                 player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
