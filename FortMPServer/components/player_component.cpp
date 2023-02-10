@@ -31,6 +31,7 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     
     if (GetEngineVersionEasy() < 419)
     {
@@ -377,9 +378,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Equip pickaxe
         static_cast<AFortPlayerControllerAthena*>(NewPlayer)->ServerExecuteInventoryItem(inventory_component::get_pickaxe(static_cast<AFortPlayerController*>(NewPlayer))->ItemEntry().ItemGuid());
 
-        // Creative support
-        creative_component::handle_player_join(NewPlayer->NetConnection());
-
         // Drop loading screen
         static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
 
@@ -455,6 +453,13 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
     {
         UpdateZiplineState(FortPlayerPawn);
     }
+}
+
+void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController* FortPlayerController)
+{
+    creative_component::handle_player_join(FortPlayerController->NetConnection());
+
+    return ServerReadyToStartMatch(FortPlayerController);
 }
 
 void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* Function, void* Params)

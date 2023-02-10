@@ -56,7 +56,8 @@ void Setup()
             
         return 0;    
     }, nullptr, 0, nullptr);
-    
+
+#ifdef _RELEASE
     // Initialize the QOS component
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
@@ -65,6 +66,7 @@ void Setup()
             
         return 0;    
     }, nullptr, 0, nullptr);
+#endif
 
     // Set the default map
     CreateDefaultObject<UGameMapsSettings>()->GameDefaultMap().AssetPathName = TEXT("/Game/Maps/FortniteEmptyDedicated.FortniteEmptyDedicated");
