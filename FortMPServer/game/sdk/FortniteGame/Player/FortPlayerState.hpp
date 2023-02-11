@@ -19,6 +19,8 @@ public:
     // Used on newer builds
     DEFINE_PROPERTY(UCustomCharacterPart*, LocalCharacterParts);
 
+    DEFINE_BIT_PROPERTY(bool, bHasStartedPlaying);
+    
     //IP
     DEFINE_PROPERTY(FString, SavedNetworkAddress);
 

@@ -342,16 +342,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             
         // Set ownership
         player_quickbars->SetOwner(NewPlayer);
-
-        // Grant harvesting tool
-        inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
-            
-        for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
-        {
-            // Grant default item
-            inventory_component::add_item(static_cast<AFortPlayerController*>(NewPlayer), starting_item.Item, starting_item.Count);
-        }
-
+        
         // Assign team
         if (team_component::find_team(static_cast<AFortPlayerController*>(NewPlayer)) == nullptr)
         {
@@ -375,12 +366,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
         }
 
-        // Equip pickaxe
-        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->ServerExecuteInventoryItem(inventory_component::get_pickaxe(static_cast<AFortPlayerController*>(NewPlayer))->ItemEntry().ItemGuid());
-
         // Drop loading screen
         static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
-
+        
         // Notify gamemode
         (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
 
@@ -457,9 +445,29 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
 
 void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController* FortPlayerController)
 {
-    creative_component::handle_player_join(FortPlayerController->NetConnection());
+    ServerReadyToStartMatch(FortPlayerController);
+    
+    if (STATIC_HASPROPERTY(FortPlayerController->PlayerState(), bHasStartedPlaying))
+    {
+        if (FortPlayerController->PlayerState()->bHasStartedPlaying() == false)
+        {
+            // Grant harvesting tool
+            inventory_component::add_item(FortPlayerController, static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
+        
+            for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
+            {
+                // Grant default item
+                inventory_component::add_item(FortPlayerController, starting_item.Item, starting_item.Count);
+            }
+        
+            // Equip pickaxe
+            FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
+    
+            creative_component::handle_player_join(FortPlayerController->NetConnection());
 
-    return ServerReadyToStartMatch(FortPlayerController);
+            UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->PlayerState(), L"bHasStartedPlaying", true);
+        }   
+    }
 }
 
 void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* Function, void* Params)
@@ -479,7 +487,7 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
         
         // Apply backpack, if specified
         player_component::ApplyBackpack(NewPlayer);
-        
+
         // Equip the pickaxe on landing
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))
         {
