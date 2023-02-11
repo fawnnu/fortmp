@@ -278,7 +278,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
-            if (b_is_fort_gadget)
+            if (b_is_fort_gadget && player_controller->Pawn())
             {
                 // If it's an AGID, remove the character parts (Has to be done after removing from inventory)
                 player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
