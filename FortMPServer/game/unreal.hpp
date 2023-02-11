@@ -558,18 +558,33 @@ T* SpawnDefaultActor(UWorld* World, UObject* Class)
     return reinterpret_cast<T*>(SpawnActor(World, Class, &spawn_location, &spawn_rotation, spawn_parameters));
 }
 
-inline float GetEngineVersionEasy()
-{
-    const std::wstring engine_version = GetEngineVersion().c_str();
-    
-    return std::stod(engine_version.substr(0, 4)) * 100;
-}
-
 inline float GetFortniteVersionEasy()
 {
     const std::wstring engine_version = GetEngineVersion().c_str();
-        
-    return std::stod(engine_version.substr(34, 4));
+
+    try
+    {
+        return std::stod(engine_version.substr(34, 4));
+    }
+    catch (std::invalid_argument& e)
+    {
+        return 0.f;
+    }
+}
+
+inline float GetEngineVersionEasy()
+{
+    const std::wstring engine_version = GetEngineVersion().c_str();
+
+    // Special case for 2.5
+    static float FNVersion = GetFortniteVersionEasy();
+
+    if (FNVersion == 2.5)
+    {
+        return 419;
+    }
+    
+    return std::stod(engine_version.substr(0, 4)) * 100;
 }
 
 class UFortPlaylistAthena* GetPlaylistEasy();
