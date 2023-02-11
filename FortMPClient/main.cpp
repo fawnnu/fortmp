@@ -51,7 +51,7 @@ void Setup()
             }
         }
             
-        Sleep(500);
+        Sleep(5000);
     }
 }
 
