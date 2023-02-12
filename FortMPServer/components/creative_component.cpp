@@ -157,7 +157,7 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
     {
         if (STATIC_HASPROPERTY(Portal, LinkedVolume))
         {
-            if (Portal->LinkedVolume() == nullptr || PlayerPawn == nullptr)
+            if (Portal == nullptr || memory_manager::is_bad_read_pointer(Portal) || Portal->LinkedVolume() == nullptr || memory_manager::is_bad_read_pointer(Portal->LinkedVolume()) || PlayerPawn == nullptr)
             {
                 spdlog::error(L"creative_component_hooks::TeleportPlayerToLinkedVolume_Hook: Invalid LinkedVolume or PlayerPawn");
         
