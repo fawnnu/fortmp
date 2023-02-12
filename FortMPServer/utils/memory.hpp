@@ -20,7 +20,7 @@ public:
         HIGH = 1,
         BOTH = 2
     };
-    
+
     static uintptr_t find_pattern(const char* signature, bool bRelative = false, uint32_t offset = 0);
     static uintptr_t find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes = {}, int Offset = 0, bool Backwards = true, bool bIsRelative = true, bool bTakeAddressOfOpcode = false, bool bExactString = false);
     static uintptr_t get_function_start(uintptr_t address);
@@ -31,6 +31,58 @@ public:
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
+
+    template <typename T>
+    static void disable_write_to(uintptr_t in_target_address)
+    {
+        static uintptr_t target_address = in_target_address;
+        static bool bCaughtWrite;
+        static DWORD OldProtection;
+        static T OriginalValue;
+	
+        static auto Handle = AddVectoredExceptionHandler(true, [](_EXCEPTION_POINTERS* Exception) -> LONG
+        {
+            if (Exception->ExceptionRecord->ExceptionCode == STATUS_ACCESS_VIOLATION)
+            {
+                if (Exception->ExceptionRecord->ExceptionInformation[1] == target_address)
+                {
+                    bCaughtWrite = true;
+
+                    // Save the original value before writing takes place
+                    OriginalValue = *reinterpret_cast<T*>(target_address);
+                }
+			
+                // Restore original protection to prevent a crash
+                DWORD OldProtection_;
+                VirtualProtect(reinterpret_cast<PVOID>(Exception->ExceptionRecord->ExceptionInformation[1]), 1, OldProtection, &OldProtection_);
+			
+                Exception->ContextRecord->EFlags |= 0x100ui32;
+			
+                return EXCEPTION_CONTINUE_EXECUTION;
+            }
+            if (Exception->ExceptionRecord->ExceptionCode == STATUS_SINGLE_STEP)
+            {
+                if (bCaughtWrite)
+                {
+                    // Invalidate...
+                    bCaughtWrite = false;
+
+                    // Re-set old value
+                    *reinterpret_cast<T*>(target_address) = OriginalValue;
+                }
+
+                DWORD OldProtection;
+                VirtualProtect(reinterpret_cast<PVOID>(target_address), 1, PAGE_READONLY, &OldProtection);
+                
+                return EXCEPTION_CONTINUE_EXECUTION;
+            }
+		
+            return EXCEPTION_CONTINUE_SEARCH;
+        });
+
+        // Make the page in which our address is in read-only
+        VirtualProtect(reinterpret_cast<PVOID>(target_address), 1, PAGE_READONLY, &OldProtection);
+    }
     
     static bool is_bad_read_pointer(void* pointer_to_read);
 };
