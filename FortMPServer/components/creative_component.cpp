@@ -2,6 +2,7 @@
 #include "creative_component.hpp"
 
 #include "inventory_component.hpp"
+#include "looting_component.hpp"
 
 creative_component::creative_component()
 {
@@ -181,9 +182,9 @@ void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController
 {
     GET_PARAMETER(FFortItemEntry, CreativeItem);
 
-    if (CreativeItem.Count() > 0)
+    if (CreativeItem.Count() && CreativeItem.ItemDefinition())
     {
-        inventory_component::add_item(FortPlayerController, CreativeItem.ItemDefinition(), CreativeItem.Count(), CreativeItem.LoadedAmmo());   
+        inventory_component::add_item(FortPlayerController, CreativeItem.ItemDefinition(), CreativeItem.Count(), looting_component::get_default_loaded_ammo(CreativeItem.ItemDefinition()));   
     }
     
     return ServerGiveCreativeItem(FortPlayerController, StackFrame);
