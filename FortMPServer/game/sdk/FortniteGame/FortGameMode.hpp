@@ -38,6 +38,13 @@ public:
         
         return Call<AActor*>(Function_ChoosePlayerStart, NewPlayer);
     }
+
+    void RestartPlayer(AController* NewPlayer)
+    {
+        STATIC_FINDFUNCTION(RestartPlayer)
+        
+        Call(Function_RestartPlayer, NewPlayer);
+    }
 };
 
 class AGameMode : public AGameModeBase

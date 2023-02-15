@@ -16,30 +16,20 @@ aircraft_component::aircraft_component()
     DetourTransactionCommit();
 }
 
-void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerController, AFortAircraft* Aircraft, FRotator ClientRotation)
+void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerController, FRotator ClientRotation)
 {
-    if (Aircraft)
-    {
-        AFortPlayerPawn* player_pawn = player_component::create_player(FortPlayerController, Aircraft->GetTransform());
+    (*GWorld)->AuthorityGameMode()->RestartPlayer(FortPlayerController);
         
-        // Update rotation
-        FortPlayerController->SetControlRotation(ClientRotation);
-        
-        if (player_pawn == nullptr)
-        {
-            spdlog::error(L"Failed to spawn a pawn for player '{}' when exiting from aircraft '{}'",
-                FortPlayerController->GetName().c_str(),
-                Aircraft->GetName().c_str());
-        }
-    }
+    // Update rotation
+    FortPlayerController->SetControlRotation(ClientRotation);
 }
 
 void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook(UFortControllerComponent_Aircraft* AircraftComponent, FFrame& StackFrame)
 {
     GET_PARAMETER(FRotator, ClientRotation);
-
+    
     // Exit aircraft for player
-    aircraft_component::exit_aircraft(static_cast<AFortPlayerController*>(AircraftComponent->GetOwner()), AircraftComponent->CurrentAircraft(), ClientRotation);
+    aircraft_component::exit_aircraft(static_cast<AFortPlayerController*>(AircraftComponent->GetOwner()), ClientRotation);
     
     return UFortControllerComponent_Aircraft_ServerAttemptAircraftJump(AircraftComponent, StackFrame);
 }

@@ -5,7 +5,7 @@ class aircraft_component
 public:
     aircraft_component();
 
-    static void exit_aircraft(AFortPlayerController* FortPlayerController, AFortAircraft* Aircraft, FRotator ClientRotation);
+    static void exit_aircraft(AFortPlayerController* FortPlayerController, FRotator ClientRotation);
 };
 
 namespace aircraft_component_hooks
