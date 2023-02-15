@@ -94,7 +94,7 @@ void Setup()
                 // load into level
                 UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
 
-                while ((*GWorld)->GetName().find(GetFortniteVersionEasy() > 10 ? L"Frontend" : L"FortniteEmptyDedicated") != std::string::npos)
+                while ((*GWorld)->GetName().find(GetFortniteVersionEasy() >= 10 ? L"Frontend" : L"FortniteEmptyDedicated") != std::string::npos)
                 {
                     // block DLL thread until level starts to load
                 }
