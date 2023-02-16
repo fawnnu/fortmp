@@ -1,11 +1,5 @@
 ﻿#pragma once
 
-struct FCurveTableRowHandle
-{                                 
-    class UCurveTable* CurveTable;
-    FName RowName;
-};
-
 class UCurveTable : public UObject
 {
 public:
@@ -39,4 +33,19 @@ struct FRichCurve : Struct
     DEFINE_STRUCT_PROPERTY(TArray<FRichCurveKey>, Keys);
     
     DEFINE_STRUCT_CLASS(L"/Script/Engine.RichCurve");
+};
+
+struct FCurveTableRowHandle
+{                                 
+    UCurveTable* CurveTable;
+    FName RowName;
+
+    float Eval(int Index)
+    {
+        auto CurveTableMap = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(CurveTable) + 0x30);
+
+        return FSimpleCurve::GetClass() ?
+            static_cast<FSimpleCurve*>(CurveTableMap[RowName].Value)->Keys()[Index].Value() :
+            static_cast<FRichCurve*>(CurveTableMap[RowName].Value)->Keys()[Index].Value();
+    }
 };

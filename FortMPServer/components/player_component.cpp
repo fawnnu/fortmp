@@ -441,6 +441,39 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
     {
         UpdateZiplineState(FortPlayerPawn);
     }
+
+    if (InZiplineState.bJumped())
+    {
+        // CREDIT: WIKTORWIKTOR12
+        float ZiplineJumpDampening = FortPlayerPawn->ZiplineJumpDampening().Eval(0);
+        float ZiplineJumpStrength = FortPlayerPawn->ZiplineJumpStrength().Eval(0);
+
+        FVector Velocity = FortPlayerPawn->GetVelocity();
+
+        FVector LaunchVector;
+
+        if (ZiplineJumpDampening * Velocity.X >= -750.0)
+        {
+            LaunchVector.X = fminf(ZiplineJumpDampening * Velocity.X, 750.0);
+        }
+        else
+        {
+            LaunchVector.X = -750.0;
+        }
+        
+        if (ZiplineJumpDampening * Velocity.Y >= -750.0)
+        {
+            LaunchVector.Y = fminf(ZiplineJumpDampening * Velocity.Y, 750.0);
+        }
+        else
+        {
+            LaunchVector.Y = -750.0;
+        }
+        
+        LaunchVector.Z = ZiplineJumpStrength;
+
+        FortPlayerPawn->LaunchCharacterJump(LaunchVector, false, false, false, true);
+    }
 }
 
 void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController* FortPlayerController)

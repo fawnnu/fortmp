@@ -92,6 +92,13 @@ public:
         return Call<AFortWeapon*>(Function_EquipWeaponDefinition, WeaponData, ItemEntryGuid);
     }
 
+    void LaunchCharacterJump(FVector LaunchVelocity, bool bXYOverride, bool bZOverride, bool bIgnoreFallDamage, bool bPlayFeedbackEvent)
+    {
+        STATIC_FINDFUNCTION(LaunchCharacterJump)
+
+        Call(Function_LaunchCharacterJump, LaunchVelocity, bXYOverride, bZOverride, bIgnoreFallDamage, bPlayFeedbackEvent);
+    }
+
     bool IsDBNO()
     {
         STATIC_FINDFUNCTION(IsDBNO)
@@ -143,6 +150,8 @@ public:
     DEFINE_PROPERTY(FGameplayTag, EventReviveTag);
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
     DEFINE_PROPERTY(bool, bIsSkydivingFromBus);
+    DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
+    DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
 
     bool IsInVehicle()
     {

@@ -180,6 +180,13 @@ public:
 
         return Actor->NetPriority() * Time;
     }
+
+    FVector GetVelocity()
+    {
+        STATIC_FINDFUNCTION(GetVelocity)
+
+        return Call<FVector>(Function_GetVelocity);
+    }
 };
 
 struct UChannelBitField
