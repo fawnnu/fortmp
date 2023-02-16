@@ -82,6 +82,10 @@ std::string qos_component::pick_best_region()
     auto ConvertedRegionID = convert_region_name(RegionID);
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
     
-    return converter.to_bytes(ConvertedRegionID);
+    std::string sRegionID = converter.to_bytes(ConvertedRegionID);
+
+    spdlog::warn("qos_component::pick_best_region() finished. Picked region \"{}\"", sRegionID.c_str());
+
+    return sRegionID;
 }
 

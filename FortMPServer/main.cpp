@@ -61,8 +61,9 @@ void Setup()
     // Initialize the QOS component
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
+        gameserver_client* gs_client = new gameserver_client();
         new qos_component();
-        new gameserver_client();
+        gs_client->Initialize();
             
         return 0;    
     }, nullptr, 0, nullptr);

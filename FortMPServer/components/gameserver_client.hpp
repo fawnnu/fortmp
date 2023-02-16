@@ -27,6 +27,8 @@ class gameserver_client
 public:
     gameserver_client();
 
+    void Initialize();
+
     // Event called when a connection is established
     void OnConnected(websocketpp::connection_hdl handle);
     void OnMessageReceived(websocketpp::connection_hdl handle, websocketpp::config::asio_client::message_type::ptr message);

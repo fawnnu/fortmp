@@ -69,7 +69,12 @@ gameserver_client::gameserver_client()
     
     // Initialize status
     GameServer_Status = gameserver_status();
-    
+#endif
+}
+
+void gameserver_client::Initialize()
+{
+#ifdef _RELEASE
     // initialize the client
     Client_WS.init_asio();
 
