@@ -25,7 +25,7 @@ namespace patches_component_hook
     
     DEFINE_FUNCTION_HOOK(int, GetNetMode, (UNetDriver* NetDriver));
     DEFINE_FUNCTION_HOOK(int, WorldGetNetMode, (UWorld* World));
-
+    DEFINE_FUNCTION_HOOK(FFortAthenaLoadout*, PRIVATE_GetAthenaLoadoutWithOverrides, (AFortPlayerControllerAthena* PlayerController, FFortAthenaLoadout* OutLoadout));
     DEFINE_FUNCTION_HOOK(float, GetMaxTickRate, (UObject* Engine, float DeltaTime, bool bAllowSmoothing));
     DEFINE_FUNCTION_HOOK(bool, TryCollectGarbage, (int KeepFlags, bool bPerformFullPurge));
     DEFINE_FUNCTION_HOOK(void, ConditionalCollectGarbage, (UObject* Self));
