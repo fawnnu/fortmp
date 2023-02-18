@@ -9,6 +9,10 @@
         spdlog::error("Failed to setup pointer '{}', invalid pointer address provided",     \
             #PointerName);
 
+#ifndef WILDCARD
+#define WILDCARD 0x100
+#endif
+
 static std::map<void*, bool> pointer_cache;
 
 class memory_manager
@@ -31,6 +35,7 @@ public:
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
+    static uintptr_t scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address = 0, bool Backwards = false);
 
     template <typename T>
     static void disable_write_to(uintptr_t in_target_address)

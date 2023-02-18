@@ -346,6 +346,33 @@ void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hoo
 	VirtualProtect(reinterpret_cast<LPVOID>(call_instruction_address), 5, old_protect, &new_protect);
 }
 
+uintptr_t memory_manager::scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address, bool Backwards)
+{
+	uintptr_t end_address = optional_end_address ? optional_end_address : Backwards ? start_address - 2048 : start_address + 2048;
+
+	for (uintptr_t current_address = start_address; Backwards ? current_address > end_address : current_address < end_address; Backwards ? current_address-- : current_address++)
+	{
+		uint8_t* Byte = reinterpret_cast<uint8_t*>(current_address);
+
+		for (auto i = 0; i < Opcodes.size(); i++)
+		{
+			if (Byte[i] == Opcodes[i] || Opcodes[i] == 0x100)
+			{
+				if (i+1 == Opcodes.size())
+				{
+					return current_address;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	
+	return 0;
+}
+
 bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
 {
     if (pointer_cache.find(pointer_to_read) != pointer_cache.end())
