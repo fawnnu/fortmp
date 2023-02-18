@@ -21,12 +21,12 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
-bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner)
+bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment, bool is_building_free)
 {
     if (is_building_class_valid(building_class))
     {
         // Check if the player has enough materials (Only if not in creative)
-        if (!creative_component::is_creative_enabled())
+        if (!creative_component::is_creative_enabled() && !is_building_free)
         {
             if (ABuildingSMActor* BuildingActorToTest = CreateDefaultObject<ABuildingSMActor>(building_class))
             {
@@ -42,6 +42,26 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                     }
                 }
             }
+        }
+
+        switch (MarkerOptionalAdjustment)
+        {
+        case 1:
+            {
+                FVector NewBuildLocation = building_location;
+                NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
+                break;
+            }
+        case 2:
+            {
+                FVector NewBuildLocation = building_location;
+                NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
+                break;
+            }
+        default:
+            break;
         }
             
         // Spawn a building actor in the world
@@ -180,11 +200,11 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
 
     // Setup parameters for double building check
     TArray<AActor*> HoveredActors;
-    __int64 second_parameter;
+    uint8_t MarkerOptionalAdjustment;
     
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, reinterpret_cast<__int64>(&second_parameter))) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
-    {
-        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController))
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &MarkerOptionalAdjustment)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
+    {   
+        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, MarkerOptionalAdjustment))
         {
             // If the build was placed, destroy all Hovered Actors
             for (AActor* HoveredActor : HoveredActors)
