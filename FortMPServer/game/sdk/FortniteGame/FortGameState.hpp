@@ -22,6 +22,13 @@ struct FGameMemberInfo : FFastArraySerializerItem
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfo");
 };
 
+struct FActiveGameplayModifierHandle
+{
+public:
+    int32                                        Handle;
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.ActiveGameplayModifierHandle");
+};
+
 struct FPlaylistPropertyArray
 {
     DEFINE_STRUCT_PROPERTY(int, PlaylistReplicationKey);
@@ -187,6 +194,13 @@ public:
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)
         
         Call(Function_OnRep_CurrentPlaylistInfo);
+    }
+
+    FActiveGameplayModifierHandle RegisterGameplayModifier(UObject* InModifierToRegister, int32 Expiration)
+    {
+        STATIC_FINDFUNCTION(RegisterGameplayModifier)
+        
+        return Call<FActiveGameplayModifierHandle>(Function_RegisterGameplayModifier, InModifierToRegister, Expiration);
     }
 
     void OnRep_CurrentPlaylistData()

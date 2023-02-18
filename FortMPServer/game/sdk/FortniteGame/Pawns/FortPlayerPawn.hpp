@@ -56,6 +56,13 @@ class APawn : public AActor
 {
 public:
     DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
+
+    class AController* GetController()
+    {
+        STATIC_FINDFUNCTION(GetController)
+
+        return Call<AController*>(Function_GetController);
+    }
 };
 
 class ACharacter : public APawn

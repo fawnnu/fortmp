@@ -3,6 +3,9 @@
 class AFortVolume : public AActor
 {
 public:
+
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortVolume");
+    
     DEFINE_PROPERTY(TArray<class AFortAthenaCreativePortal*>, LinkedPortals);
     DEFINE_PROPERTY(class UFortPlaysetItemDefinition*, CurrentPlayset);
     DEFINE_PROPERTY(UFortPlaysetItemDefinition*, OverridePlayset);

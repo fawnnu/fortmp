@@ -30,6 +30,13 @@ public:
         
         return Call<int>(Function_GetRemainingAmmo);
     }
+
+    bool IsProjectileWeapon()
+    {
+        STATIC_FINDFUNCTION(IsProjectileWeapon)
+        
+        return Call<bool>(Function_IsProjectileWeapon);
+    }
 };
 
 struct FAthenaBatchedDamageGameplayCues_Shared

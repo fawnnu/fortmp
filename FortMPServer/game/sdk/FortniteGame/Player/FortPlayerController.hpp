@@ -156,6 +156,13 @@ public:
         return Call<bool>(Function_IsInAircraft);
     }
 
+    void ClientConfirmTargetData(uint16 UniqueId, bool bSuccess, TArray<uint8> HitReplaces)
+    {
+        STATIC_FINDFUNCTION(ClientConfirmTargetData)
+
+        Call(Function_ClientConfirmTargetData, UniqueId, bSuccess, HitReplaces);
+    }
+    
     void ServerExecuteInventoryItem(FGuid ItemGuid)
     {
         STATIC_FINDFUNCTION(ServerExecuteInventoryItem)
