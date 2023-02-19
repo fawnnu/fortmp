@@ -10,8 +10,14 @@ trap_component::trap_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(trap_component_hooks::ServerSpawnDeco, L"/Script/FortniteGame.FortDecoTool.ServerSpawnDeco", trap_component_hooks::ServerSpawnDeco_Hook);
+    REGISTER_UFUNCTION_DETOUR(trap_component_hooks::ServerCreateBuildingAndSpawnDeco, L"/Script/FortniteGame.FortDecoTool.ServerCreateBuildingAndSpawnDeco", trap_component_hooks::ServerCreateBuildingAndSpawnDeco_Hook);
     
     DetourTransactionCommit();
+}
+
+void trap_component_hooks::ServerCreateBuildingAndSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFrame& StackFrame)
+{
+    // Do nothing, for now   
 }
 
 void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFrame& StackFrame)
