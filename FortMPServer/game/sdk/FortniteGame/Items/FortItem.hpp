@@ -128,6 +128,25 @@ class UAthenaCosmeticItemDefinition : public UFortItemDefinition
 {
 };
 
+class UFortMontageItemDefinitionBase : public UAthenaCosmeticItemDefinition
+{
+    
+};
+
+class UAthenaDanceItemDefinition : public UFortMontageItemDefinitionBase
+{
+public:
+    DEFINE_PROPERTY(bool, bMovingEmote);
+    DEFINE_PROPERTY(bool, bMoveForwardOnly);
+    DEFINE_PROPERTY(float, WalkForwardSpeed);
+};
+
+class UAthenaSprayItemDefinition : public UFortMontageItemDefinitionBase
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaSprayItemDefinition");
+};
+
 class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
 {
 public:
