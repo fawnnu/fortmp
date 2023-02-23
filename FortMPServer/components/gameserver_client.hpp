@@ -11,6 +11,7 @@ struct gameserver_status
         private_matchmaking_key = "";
         port = 0;
         name = "";
+        mode = "";
     }
 
     bool accepting_players;
@@ -20,6 +21,7 @@ struct gameserver_status
     std::string status;
     std::string private_matchmaking_key;
     std::string name;
+    std::string mode;
 };
 
 class gameserver_client

@@ -241,7 +241,8 @@ void gameserver_client::SendUpdate()
                 {"status", GameServer_Status.status},
                 {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
                 {"port", std::to_string(GameServer_Status.port)},
-                {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}}
+                {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}},
+                {"mode", {GameServer_Status.mode}}
             }); // param
 
             // Send

@@ -5,6 +5,8 @@
 
 team_component::team_component()
 {
+    max_team_size_override = 1;
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
@@ -79,8 +81,6 @@ AFortTeamInfo* team_component::find_team(AFortPlayerController* player_controlle
 
 int team_component::get_team_size()
 {
-    constexpr int max_team_size_override = 1;
-    
     // Get current playlist
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 

@@ -95,6 +95,8 @@ public:
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
 
+    DEFINE_PROPERTY(bool, bSquadPlay);
+
     bool& bMatchHasStarted()
     {
         static void* native_property = FindPropertyByName(this->Class, L"WarmupRequiredPlayerCount");                                          

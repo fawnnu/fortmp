@@ -47,6 +47,7 @@ void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena,
     gameserver_client::Client->GameServer_Status.accepting_players = true;
     gameserver_client::Client->GameServer_Status.max_players = loader_component::get_max_players();
     gameserver_client::Client->GameServer_Status.status = "online";
+    gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
     gameserver_client::Client->SendUpdate();
 
     webhook_manager::send_all();

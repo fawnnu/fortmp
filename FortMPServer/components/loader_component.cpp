@@ -8,6 +8,7 @@
 #include "team_component.hpp"
 #include "config_manager.hpp"
 #include "player_component.hpp"
+#include "playlist_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -79,7 +80,20 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                     in_playlist = override_playlist;
                 }
             }
+            else if (era_playlist* playlist = playlist_component::find_playlist(sOverridePlaylist))
+            {
+                if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), CurrentPlaylistId))
+                {
+                    (*GWorld)->GameState()->CurrentPlaylistId() = playlist->PlaylistId;
+                }
+                if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bSquadPlay))
+                {
+                    (*GWorld)->AuthorityGameMode()->bSquadPlay() = playlist->bSquadPlay;
+                }
 
+                team_component::max_team_size_override = playlist->team_size;
+            }
+            
             if (in_playlist == nullptr)
             {
                 // Use default playlist if none specified
@@ -558,6 +572,7 @@ bool loader_component_hooks::SetGameMode_Hook()
             gameserver_client::Client->GameServer_Status.accepting_players = false;
             gameserver_client::Client->GameServer_Status.number_of_players = 0;
             gameserver_client::Client->GameServer_Status.max_players = 0;
+            gameserver_client::Client->GameServer_Status.mode = "";
             gameserver_client::Client->SendUpdate();
         }
 #endif

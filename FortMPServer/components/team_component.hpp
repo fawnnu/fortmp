@@ -16,6 +16,7 @@ public:
 
     static inline std::map<std::wstring, std::vector<AFortPlayerController*>> team_codes_map;
     static inline std::map<std::wstring, uint8_t> reserved_teams;
+    static inline int max_team_size_override;
 };
 
 namespace team_component_hooks

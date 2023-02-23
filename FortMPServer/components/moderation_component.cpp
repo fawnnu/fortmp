@@ -8,6 +8,7 @@
 #include "net_component.hpp"
 #include "pickup_component.hpp"
 #include "player_component.hpp"
+#include "playlist_component.hpp"
 #include "team_component.hpp"
 #include "../utils/webhook_manager.hpp"
 
@@ -704,12 +705,13 @@ void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFor
 
     if (InPlaylistName.IsValid())
     {
-        if (FindObject(InPlaylistName.c_str(), false, true))
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
+        std::string sInPlaylistName = converter.to_bytes(InPlaylistName.c_str());
+        
+        if (FindObject(InPlaylistName.c_str(), false, true) ||
+            playlist_component::find_playlist(sInPlaylistName))
         {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-
-            std::string sInPlaylistName = converter.to_bytes(InPlaylistName.c_str());
-
             // Set in config
             auto config = config_manager::get_server_config();
             config["override_playlist"] = sInPlaylistName;
