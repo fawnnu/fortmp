@@ -92,6 +92,10 @@ public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnPawnLanded);
     DEFINE_PROPERTY(TArray<AFortPickup*>, IncomingPickups);
     
+    DEFINE_PROPERTY(float, EmoteWalkSpeed);
+    DEFINE_PROPERTY(UFortItemDefinition*, LastEmoteItemDef);
+    DEFINE_PROPERTY(UFortItemDefinition*, LastReplicatedEmoteExecuted);
+    
     AFortWeapon* EquipWeaponDefinition(UObject* WeaponData, FGuid ItemEntryGuid)
     {
         STATIC_FINDFUNCTION(EquipWeaponDefinition)

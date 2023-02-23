@@ -29,6 +29,8 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::PostLogin, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLogin"), player_component_hooks::PostLogin_Hook);
     
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::MovingEmoteStopped, L"/Script/FortniteGame.FortPawn.MovingEmoteStopped", player_component_hooks::MovingEmoteStopped_Hook);
+    
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
@@ -48,6 +50,20 @@ player_component::player_component()
     bEnableServerChoosePart = false;
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
+}
+
+void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn, FFrame& StackFrame)
+{
+    MovingEmoteStopped(FortPawn, StackFrame);
+    
+    if (!FortPawn) return;
+
+    AFortPlayerController* Controller = static_cast<AFortPlayerController*>(FortPawn->GetController());
+    if (!Controller) return;
+
+    UKismetSystemLibrary::SetBoolPropertyByName(FortPawn, L"bMovingEmote", false);
+    UKismetSystemLibrary::SetBoolPropertyByName(FortPawn, L"bMovingEmoteForwardOnly", false);
+    FortPawn->EmoteWalkSpeed() = 0.0f;
 }
 
 void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame)
@@ -394,13 +410,13 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
 
 void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
-    GET_PARAMETER(UObject*, EmoteAsset);
+    GET_PARAMETER(UAthenaDanceItemDefinition*, EmoteAsset);
 
     if (FortPlayerController->Pawn() && FortPlayerController->Pawn()->AbilitySystemComponent())
     {
         auto new_ability_spec = FGameplayAbilitySpec();
         
-        static auto AthenaSprayItemDefinition = FindObject(L"/Script/FortniteGame.AthenaSprayItemDefinition");
+        static auto AthenaSprayItemDefinition = UAthenaSprayItemDefinition::StaticClass();
 
         // set the ability in the newly created struct    TODO: ADD TOYS
         if (EmoteAsset->IsA(AthenaSprayItemDefinition))
@@ -426,6 +442,17 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
         // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
         // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
         GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
+
+        // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
+        if (STATIC_HASPROPERTY(EmoteAsset, bMovingEmote))
+        {
+            UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmote", EmoteAsset->bMovingEmote());
+            UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmoteForwardOnly", EmoteAsset->bMoveForwardOnly());
+            FortPlayerController->Pawn()->EmoteWalkSpeed() = EmoteAsset->WalkForwardSpeed();
+
+            FortPlayerController->Pawn()->LastEmoteItemDef() = EmoteAsset;
+            FortPlayerController->Pawn()->LastReplicatedEmoteExecuted() = EmoteAsset;
+        }
     }
 }
 
