@@ -34,4 +34,5 @@ private:
 public:
 
     static inline bool bLoadedAssets;
+    static inline HWND WindowHandle;
 };

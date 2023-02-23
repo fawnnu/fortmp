@@ -10,6 +10,7 @@
 #include "player_component.hpp"
 #include "playlist_component.hpp"
 #include "team_component.hpp"
+#include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
 
 moderation_component::moderation_component()
@@ -789,6 +790,8 @@ void moderation_component::HandleSetServerNameCommand(const TCHAR*& InStream, AF
                 // Send the update to Era Services
                 Client->GameServer_Status.name = sInServerName;
                 Client->SendUpdate();
+
+                SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
             }
 #endif
             

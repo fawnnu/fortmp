@@ -4,6 +4,7 @@
 #include "config_manager.hpp"
 #include "player_component.hpp"
 #include "qos_component.hpp"
+#include "../gui/renderer.hpp"
 
 void HeartbeatThread()
 {
@@ -144,6 +145,7 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
         if (server_name.length() >= 2 && server_name.length() <= 16)
         {
             GameServer_Status.name = server_name;
+            SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
         }
     }
     

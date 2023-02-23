@@ -43,7 +43,7 @@ void renderer::CreateNewWindow()
 
     RegisterClassEx(&WindowClass);
 
-    HWND WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_CAPTION | WS_SYSMENU, 0, 0, 825, 595, nullptr, nullptr, WindowClass.hInstance, nullptr);
+    WindowHandle = CreateWindow(WindowClass.lpszClassName, TEXT("FortMP"), WS_CAPTION | WS_SYSMENU, 0, 0, 825, 595, nullptr, nullptr, WindowClass.hInstance, nullptr);
 
     if (CreateDeviceD3D(WindowHandle) == false)
     {
