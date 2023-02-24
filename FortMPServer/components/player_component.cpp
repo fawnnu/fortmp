@@ -56,14 +56,24 @@ void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn, FFrame
 {
     MovingEmoteStopped(FortPawn, StackFrame);
     
-    if (!FortPawn) return;
-
-    AFortPlayerController* Controller = static_cast<AFortPlayerController*>(FortPawn->GetController());
-    if (!Controller) return;
-
+    if (!FortPawn)
+    {
+        return;
+    }
+    
+    AFortPlayerController* Controller = FortPawn->Controller();
+    if (!Controller)
+    {
+        return;
+    }
+    
     UKismetSystemLibrary::SetBoolPropertyByName(FortPawn, L"bMovingEmote", false);
     UKismetSystemLibrary::SetBoolPropertyByName(FortPawn, L"bMovingEmoteForwardOnly", false);
-    FortPawn->EmoteWalkSpeed() = 0.0f;
+
+    if (STATIC_HASPROPERTY(FortPawn, EmoteWalkSpeed))
+    {
+        FortPawn->EmoteWalkSpeed() = 0.0f;
+    }
 }
 
 void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame)
@@ -415,11 +425,9 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
     if (FortPlayerController->Pawn() && FortPlayerController->Pawn()->AbilitySystemComponent())
     {
         auto new_ability_spec = FGameplayAbilitySpec();
-        
-        static auto AthenaSprayItemDefinition = UAthenaSprayItemDefinition::StaticClass();
 
         // set the ability in the newly created struct    TODO: ADD TOYS
-        if (EmoteAsset->IsA(AthenaSprayItemDefinition))
+        if (EmoteAsset->IsA(UAthenaSprayItemDefinition::StaticClass()))
         {
             new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
         }
@@ -444,7 +452,18 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
         GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
 
         // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
-        if (STATIC_HASPROPERTY(EmoteAsset, bMovingEmote))
+        STATIC_HASPROPERTY(EmoteAsset, bMovingEmote);
+        STATIC_HASPROPERTY(EmoteAsset, bMoveForwardOnly);
+        STATIC_HASPROPERTY(EmoteAsset, WalkForwardSpeed);
+        STATIC_HASPROPERTY(FortPlayerController->Pawn(), EmoteWalkSpeed);
+        STATIC_HASPROPERTY(FortPlayerController->Pawn(), LastEmoteItemDef);
+        STATIC_HASPROPERTY(FortPlayerController->Pawn(), LastReplicatedEmoteExecuted);
+        if (bExists_bMovingEmote &&
+            bExists_bMoveForwardOnly &&
+            bExists_WalkForwardSpeed &&
+            bExists_EmoteWalkSpeed &&
+            bExists_LastEmoteItemDef &&
+            bExists_LastReplicatedEmoteExecuted)
         {
             UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmote", EmoteAsset->bMovingEmote());
             UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmoteForwardOnly", EmoteAsset->bMoveForwardOnly());
