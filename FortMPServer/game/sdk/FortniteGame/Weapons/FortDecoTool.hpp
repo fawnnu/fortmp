@@ -11,7 +11,14 @@ public:
 class AFortDecoTool : public AFortWeapon
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortDecoTool")
     DEFINE_PROPERTY(UFortDecoItemDefinition*, ItemDefinition);
+};
+
+class AFortTrapTool : public AFortDecoTool
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortTrapTool")
 };
 
 class ABuildingTrap : public ABuildingSMActor
@@ -31,6 +38,7 @@ public:
 class AFortDecoTool_ContextTrap : public AFortDecoTool
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortDecoTool_ContextTrap")
     DEFINE_PROPERTY(UFortItemDefinition*, ContextTrapItemDefinition);
 
     void SetContextTrapItemDefinition(UFortItemDefinition* InContextTrapItemDefinition)

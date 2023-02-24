@@ -21,7 +21,7 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
-bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment, bool is_building_free)
+bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
 {
     if (is_building_class_valid(building_class))
     {
@@ -66,7 +66,13 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
             
         // Spawn a building actor in the world
         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
-     
+
+        // Set out param, if any
+        if (OutBuildingActor)
+        {
+            *OutBuildingActor = building_actor;
+        }
+        
         if (building_actor)
         {
             // Set mirrored

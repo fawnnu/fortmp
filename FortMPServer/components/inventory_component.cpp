@@ -424,6 +424,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
 
     // Support trap logic
     static UObject* trap_definition_class = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    static UObject* context_trap_definition_class = FindObject(L"/Script/FortniteGame.FortContextTrapItemDefinition");
     static UObject* context_trap_class = FindObject(L"/Script/FortniteGame.FortDecoTool_ContextTrap");
     
     if (item_definition->IsA(trap_definition_class))
@@ -436,7 +437,8 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
             // Update entry GUID in current weapon
             PlayerController->Pawn()->CurrentWeapon()->ItemEntryGuid() = ItemGuid;
             
-            if (PlayerController->Pawn()->CurrentWeapon()->IsA(context_trap_class))
+            if (PlayerController->Pawn()->CurrentWeapon()->IsA(context_trap_class) &&
+                item_definition->IsA(context_trap_definition_class))
             {
                 // Update item definition if we have a context trap
                 reinterpret_cast<AFortDecoTool_ContextTrap*>(PlayerController->Pawn()->CurrentWeapon())->ContextTrapItemDefinition() = item_definition;

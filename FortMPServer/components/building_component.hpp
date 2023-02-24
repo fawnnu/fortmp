@@ -5,7 +5,7 @@ class building_component
 public:
     building_component();
     
-    static bool spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment = 0, bool is_building_free = false);
+    static bool spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment = 0, bool is_building_free = false, ABuildingActor** OutBuildingActor = nullptr);
     static bool edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations);
 
     static bool is_building_class_valid(UObject* building_class);
