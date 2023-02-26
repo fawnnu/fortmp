@@ -3,7 +3,16 @@
 
 qos_component::qos_component()
 {
-    INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1));
+    if (memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1) < memory_manager::get_function_end(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")) &&
+        memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1) > memory_manager::find_function_by_string(L"Failed to send broadcast packet %d"))
+    {
+        INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1));   
+    }
+    else
+    {
+        INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x2}, 1));  
+    }
+    
     INIT_POINTER(UDPEchoImpl, memory_manager::find_function_by_string(L"UDPPing", {}, 0, true, true, false, true));
 
     best_region = pick_best_region();
@@ -43,34 +52,58 @@ std::string qos_component::pick_best_region()
     // Map of each region with relative average ping
     std::vector<std::pair<std::wstring, float>> DatacentersList;
 
+    // List of "threads" pinging
+    std::vector<async_wrapper*> datacenter_async_wrappers;
+    
     // Go through each datacenter
     for (auto& Datacenter : TArrayManager<FQosDatacenterInfo>(&QosRegionManager->DatacenterDefinitions(), FQosDatacenterInfo::GetStructSize()))
     {
-        if (Datacenter.bEnabled())
+        datacenter_async_wrappers.push_back(new async_wrapper([&]
         {
-            float TotalPing = 0.f;
-            const int NumServers = Datacenter.Servers().Num();
-
-            // Pick a random server for each datacenter
-            FQosPingServerInfo& Server = TArrayManager<FQosPingServerInfo>(&Datacenter.Servers(), FQosPingServerInfo::GetStructSize())[UKismetMathLibrary::RandomIntegerInRange(0, NumServers - 1)];
-        
-            // Ping the server the amount of times required
-            for (int i = 0; i < QosRegionManager->NumTestsPerRegion(); i++)
+            if (Datacenter.bEnabled())
             {
-                // Build the address
-                FString TargetAddress = FString(std::wstring(Server.Address().c_str()).append(L":").append(std::to_wstring(Server.Port())).c_str());
+                // Do not deal with undefined datacenters
+                if (std::wstring(Datacenter.RegionId().c_str()).find(L"UND") != std::wstring::npos)
+                {
+                    return;
+                }
+            
+                float TotalPing = 0.f;
+                const int NumServers = Datacenter.Servers().Num();
 
-                // Ping!
-                auto Result = ping(TargetAddress, QosRegionManager->PingTimeout());
+                // Pick a random server for each datacenter
+                FQosPingServerInfo& Server = TArrayManager<FQosPingServerInfo>(&Datacenter.Servers(), FQosPingServerInfo::GetStructSize())[UKismetMathLibrary::RandomIntegerInRange(0, NumServers - 1)];
 
-                // Add the result to the total ping for this datacenter
-                TotalPing += Result->Time;
+                // List of "threads" pinging
+                std::vector<async_wrapper*> ping_async_wrappers;
+                
+                // Ping the server the amount of times required
+                for (int i = 0; i < QosRegionManager->NumTestsPerRegion(); i++)
+                {
+                    ping_async_wrappers.push_back(new async_wrapper([&]
+                    {
+                        // Build the address
+                        FString TargetAddress = FString(std::wstring(Server.Address().c_str()).append(L":").append(std::to_wstring(Server.Port())).c_str());
+
+                        // Ping!
+                        auto Result = ping(TargetAddress, QosRegionManager->PingTimeout());
+
+                        // Add the result to the total ping for this datacenter
+                        TotalPing += Result->Time;
+                    }));
+                }
+
+                // Wait for tasks to be done
+                async_wrapper::wait_for_wrappers(ping_async_wrappers);
+
+                // Add the result to DatacentersMap
+                DatacentersList.push_back({Datacenter.RegionId().c_str(), TotalPing / NumServers});
             }
-
-            // Add the result to DatacentersMap
-            DatacentersList.push_back({Datacenter.RegionId().c_str(), TotalPing / NumServers});
-        }
+        }));
     }
+
+    // Wait for tasks to be done
+    async_wrapper::wait_for_wrappers(datacenter_async_wrappers);
 
     // Sort the results
     std::sort(DatacentersList.begin(), DatacentersList.end(), compare_ping_results);
