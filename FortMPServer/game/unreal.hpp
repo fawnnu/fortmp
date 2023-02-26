@@ -564,7 +564,13 @@ inline float GetFortniteVersionEasy()
 
     try
     {
-        return std::stod(engine_version.substr(34, 4));
+        float version = std::stof(engine_version.substr(34, 4));
+        if (static_cast<int>(version) < 0)
+        {
+            version = std::stof(engine_version.substr(35, 4));
+        }
+
+        return version;
     }
     catch (std::invalid_argument& e)
     {
