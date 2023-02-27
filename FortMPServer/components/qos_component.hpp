@@ -33,12 +33,15 @@ public:
     {
         while (true)
         {
+            Sleep(1000 / 60);
+            
             bool running = false;
             for (auto async_wrapper : wrappers)
             {
                 if (async_wrapper->is_running())
                 {
                     running = true;
+                    break;
                 }
             }
 

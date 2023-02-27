@@ -3,8 +3,8 @@
 
 qos_component::qos_component()
 {
-    if (memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1) < memory_manager::get_function_end(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")) &&
-        memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1) > memory_manager::find_function_by_string(L"Failed to send broadcast packet %d"))
+    if (memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) < memory_manager::get_function_end(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")) &&
+        memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) > memory_manager::find_function_by_string(L"Failed to send broadcast packet %d"))
     {
         INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1));   
     }
@@ -35,8 +35,9 @@ FIcmpEchoResult* qos_component::ping(FString TargetAddress, float Timeout)
 
 std::wstring qos_component::convert_region_name(std::wstring original_name)
 {
-    // Always return NA unless the best region was EU
-    if (original_name.find(TEXT("EU")) != std::wstring::npos)
+    // Always return NA unless the best region was EU, GB
+    if (original_name.find(TEXT("EU")) != std::wstring::npos ||
+        original_name.find(TEXT("GB")) != std::wstring::npos)
     {
         return TEXT("EU");
     }
@@ -62,8 +63,9 @@ std::string qos_component::pick_best_region()
         {
             if (Datacenter.bEnabled())
             {
-                // Do not deal with undefined datacenters
-                if (std::wstring(Datacenter.RegionId().c_str()).find(L"UND") != std::wstring::npos)
+                // Do not deal with undefined or test datacenters
+                if (std::wstring(Datacenter.RegionId().c_str()).find(L"UND") != std::wstring::npos ||
+                    std::wstring(Datacenter.RegionId().c_str()).find(L"Test") != std::wstring::npos)
                 {
                     return;
                 }
