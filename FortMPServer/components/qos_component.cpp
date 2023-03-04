@@ -3,6 +3,10 @@
 
 qos_component::qos_component()
 {
+    // Register regions
+    era_regions[TEXT("EU")] = TEXT("142.132.145.234:22222");
+    era_regions[TEXT("NA")] = TEXT("69.10.34.38:22222");
+    
     if (memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) < memory_manager::get_function_end(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")) &&
         memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) > memory_manager::find_function_by_string(L"Failed to send broadcast packet %d"))
     {
@@ -57,50 +61,27 @@ std::string qos_component::pick_best_region()
     std::vector<async_wrapper*> datacenter_async_wrappers;
     
     // Go through each datacenter
-    for (auto& Datacenter : TArrayManager<FQosDatacenterInfo>(&QosRegionManager->DatacenterDefinitions(), FQosDatacenterInfo::GetStructSize()))
+    for (const auto& [region, ip] : era_regions)
     {
         datacenter_async_wrappers.push_back(new async_wrapper([&]
         {
-            if (Datacenter.bEnabled())
+            std::vector<async_wrapper*> ping_async_wrappers;
+            float TotalPing = 0.f;
+
+            // Ping 3 times
+            for (int i = 0; i < 3; i++)
             {
-                // Do not deal with undefined or test datacenters
-                if (std::wstring(Datacenter.RegionId().c_str()).find(L"UND") != std::wstring::npos ||
-                    std::wstring(Datacenter.RegionId().c_str()).find(L"Test") != std::wstring::npos)
+                ping_async_wrappers.push_back(new async_wrapper([&]
                 {
-                    return;
-                }
-            
-                float TotalPing = 0.f;
-                const int NumServers = Datacenter.Servers().Num();
+                    auto Result = ping(ip.c_str(), 3.f);
 
-                // Pick a random server for each datacenter
-                FQosPingServerInfo& Server = TArrayManager<FQosPingServerInfo>(&Datacenter.Servers(), FQosPingServerInfo::GetStructSize())[UKismetMathLibrary::RandomIntegerInRange(0, NumServers - 1)];
-
-                // List of "threads" pinging
-                std::vector<async_wrapper*> ping_async_wrappers;
-                
-                // Ping the server the amount of times required
-                for (int i = 0; i < QosRegionManager->NumTestsPerRegion(); i++)
-                {
-                    ping_async_wrappers.push_back(new async_wrapper([&]
-                    {
-                        // Build the address
-                        FString TargetAddress = FString(std::wstring(Server.Address().c_str()).append(L":").append(std::to_wstring(Server.Port())).c_str());
-
-                        // Ping!
-                        auto Result = ping(TargetAddress, QosRegionManager->PingTimeout());
-
-                        // Add the result to the total ping for this datacenter
-                        TotalPing += Result->Time;
-                    }));
-                }
-
-                // Wait for tasks to be done
-                async_wrapper::wait_for_wrappers(ping_async_wrappers);
-
-                // Add the result to DatacentersMap
-                DatacentersList.push_back({Datacenter.RegionId().c_str(), TotalPing / NumServers});
+                    TotalPing += Result->Time;
+                }));
             }
+
+            async_wrapper::wait_for_wrappers(ping_async_wrappers);
+
+            DatacentersList.push_back({region, TotalPing / 3});
         }));
     }
 

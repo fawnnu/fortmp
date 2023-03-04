@@ -11,6 +11,8 @@ public:
     static std::string pick_best_region();
 
     static inline std::string best_region;
+    
+    static inline std::map<std::wstring, std::wstring> era_regions;
 };
 
 inline FIcmpEchoResult* (*UDPEchoImpl)(FIcmpEchoResult* OutResult, void* ISocketSubsystem, const FString& TargetAddress, float Timeout);
