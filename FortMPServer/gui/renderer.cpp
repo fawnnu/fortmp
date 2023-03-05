@@ -375,7 +375,17 @@ void renderer::CreateNewWindow()
         
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         
-        pSwapChain->Present(1, 0);
+        static unsigned int PresentFlags = 0;
+        
+        if (pSwapChain->Present(1, PresentFlags) == DXGI_STATUS_OCCLUDED)
+        {
+            PresentFlags = DXGI_PRESENT_TEST;
+            Sleep(1000 / 30);
+        }
+        else
+        {
+            PresentFlags = 0;
+        }
     }
 
     ImGui_ImplDX11_Shutdown();
