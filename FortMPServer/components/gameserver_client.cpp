@@ -108,6 +108,8 @@ void gameserver_client::Initialize()
     while (true)
     {
         Client_WS.run();
+
+        Sleep(1000);
     }
 #endif
 }
