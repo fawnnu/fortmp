@@ -73,12 +73,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             std::string sOverridePlaylist = config["override_playlist"];
             std::wstring wOverridePlaylist = std::wstring(sOverridePlaylist.begin(), sOverridePlaylist.end());
 
-            if (UFortPlaylistAthena* override_playlist = FindObject<UFortPlaylistAthena>(wOverridePlaylist.c_str(), false, true))
+            if (UFortPlaylistAthena* override_playlist = FindObject<UFortPlaylistAthena>(wOverridePlaylist.c_str(), false, true); override_playlist && override_playlist->IsA(UFortPlaylistAthena::StaticClass()))
             {
-                if (override_playlist->IsA(UFortPlaylistAthena::StaticClass()))
-                {
-                    in_playlist = override_playlist;
-                }
+                in_playlist = override_playlist;
             }
             else if (era_playlist* playlist = playlist_component::find_playlist(sOverridePlaylist))
             {

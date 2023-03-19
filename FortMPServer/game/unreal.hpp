@@ -593,6 +593,30 @@ inline float GetEngineVersionEasy()
     return std::stod(engine_version.substr(0, 4)) * 100;
 }
 
+inline int GetCL()
+{
+    std::wstring engine_version = GetEngineVersion().c_str();
+
+    const size_t Position_Underscore = engine_version.find(L"-");
+    const size_t Position_Plus = engine_version.find(L"+");
+    
+    if (Position_Underscore != std::wstring::npos && Position_Plus != std::wstring::npos)
+    {
+        engine_version = engine_version.substr(Position_Underscore + 1, Position_Plus - (Position_Underscore + 1));
+
+        try
+        {
+            return std::stoi(engine_version);
+        }
+        catch (std::invalid_argument& e)
+        {
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
 class UFortPlaylistAthena* GetPlaylistEasy();
 
 template <typename T>

@@ -124,7 +124,8 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
         { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
     };
     nlohmann::json Region = {
-        {"region", ""}
+        {"region", ""},
+        {"build", std::to_string(GetCL())}
     };
     Region["region"] = qos_component::best_region;
     auto Result = client.Post("/api/internal/game/servers", headers, Region.dump(), "application/json");
@@ -246,7 +247,7 @@ void gameserver_client::SendUpdate()
                 {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
                 {"port", std::to_string(GameServer_Status.port)},
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}},
-                {"mode", {GameServer_Status.mode}}
+                {"playlist", {GameServer_Status.mode}}
             }); // param
 
             // Send
