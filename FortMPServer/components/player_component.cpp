@@ -150,7 +150,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
             nlohmann::json server_config = config_manager::get_server_config();
 
-            httplib::Client client("https://api.v1.internal.erafn.org");
+            httplib::Client client(API_URL);
             httplib::Headers headers = {
                 { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
             };

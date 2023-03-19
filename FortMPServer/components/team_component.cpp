@@ -16,18 +16,46 @@ team_component::team_component()
     DetourTransactionCommit();
 }
 
+void team_component::InitializeTeams()
+{
+    // Loop through every available team
+    for (uint8_t TeamIdx = get_default_first_team(); TeamIdx <= get_default_last_team(); TeamIdx++)
+    {
+        for (AFortTeamInfo* TeamInfo : (*GWorld)->GameState()->Teams())
+        {
+            if (TeamInfo->Team() == TeamIdx)
+            {
+                new era_team(TeamInfo);
+                
+                break;
+            }
+        }
+    }
+}
+
 void team_component::Login(AFortPlayerController* player_controller, const FString& Options)
 {
-    if (UGameplayStatics::HasOption(Options, TEXT("TeamCode")))
+    if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
     {
-        // Get the team code value
-        FString TeamCode = UGameplayStatics::ParseOption(Options, TEXT("TeamCode"));
+        FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
 
-        // If the team code is valid
-        if (TeamCode.IsValid())
+        if (EncryptionToken.IsValid())
         {
-            // Add every player controller to the given team code key
-            team_codes_map[TeamCode.c_str()].push_back(player_controller);
+            std::wstring wEncryptionToken = EncryptionToken.c_str();
+
+            for (auto& [team_id, team_info] : TeamsMap)
+            {
+                for (std::wstring& TeamMemberEncryptionToken : team_info.TeamMembers)
+                {
+                    if (TeamMemberEncryptionToken == wEncryptionToken)
+                    {
+                        // Add the player controller to this team
+                        team_info.TeamMembersControllers.push_back(player_controller);
+
+                        return;
+                    }
+                }
+            }
         }
     }
 }   
@@ -137,112 +165,95 @@ int team_component::get_default_last_team()
     return DefaultLastTeam;
 }
 
-uint8_t team_component::find_free_team(bool bMustBeEmpty, bool bMustBeReserved, std::wstring in_team_code)
+era_team* team_component::find_free_team(AFortPlayerController* player_controller)
 {
-    // List of all teams
-    TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
+    bool found_team = false;
     
-    const uint8_t DefaultFirstTeam = get_default_first_team();
-    const uint8_t DefaultLastTeam = get_default_last_team();
+    int number_of_teammates = 0;
+    era_team_info* team_info = nullptr;
 
-    for (uint8_t TeamIdx = DefaultFirstTeam; TeamIdx <= DefaultLastTeam; TeamIdx++)
+    // Gather information about the current player's team
+    for (auto& [current_team_id, team_information] : TeamsMap)
     {
-        for (AFortTeamInfo* TeamInfo : all_teams)
+        if (found_team)
         {
-            if (TeamInfo->Team() == TeamIdx)
+            break;
+        }
+        
+        for (AFortPlayerController* TeamMember : team_information.TeamMembersControllers)
+        {
+            // If the current team has our player as member, get all the needed information
+            if (TeamMember == player_controller)
             {
-                bool bIsValidReservedTeam = false;
-                bool bIsReservedTeam = false;
-                
-                for (const auto& [team_code, reserved_team_idx] : reserved_teams)
-                {
-                    if (reserved_team_idx == TeamIdx && team_code == in_team_code)
-                    {
-                        bIsValidReservedTeam = true;
-                        break;
-                    }
-                    if (reserved_team_idx == TeamIdx)
-                    {
-                        bIsReservedTeam = true;
-                        break;
-                    }
-                }
-
-                if (bIsValidReservedTeam == true && bMustBeReserved == true)
-                {
-                    if (TeamInfo->TeamMembers().Num() < get_team_size())
-                    {
-                        return TeamIdx;
-                    }
-                    
-                    return 0;
-                }
-                
-                if (bIsValidReservedTeam == false && bMustBeReserved == true)
-                {
-                    break;
-                }
-
-                if (bIsReservedTeam == true)
-                {
-                    break;
-                }
-
-                if (bMustBeEmpty == true)
-                {
-                    if (TeamInfo->TeamMembers().Num() == 0)
-                    {
-                        return TeamIdx;
-                    }
-                }
-                else
-                {
-                    if (TeamInfo->TeamMembers().Num() < get_team_size())
-                    {
-                        return TeamIdx;
-                    }
-                }
-
+                number_of_teammates = team_information.TeamMembers.size();
+                team_info = &team_information;
+                found_team = true;
                 break;
             }
         }
     }
 
-    return 0;
-}
-
-uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
-{
-    // See if this PlayerController has a team code
-    for (const auto& [team_code, players] : team_component::team_codes_map)
+    if (found_team)
     {
-        for (const AFortPlayerController* player : players)
+        // Check if there's an appropriate team available for filling
+        if (team_info->fill)
         {
-            // Found a team code with this playercontroller
-            if (player == PlayerController)
+            // Make sure preferred team is invalid
+            if (team_info->preferred_team < get_default_first_team() || team_info->preferred_team > get_default_last_team())
             {
-                if (const uint8_t found_team = team_component::find_free_team(false, true, team_code); found_team > 0)
+                for (era_team* team_instance : TeamsList)
                 {
-                    return found_team;
-                }
-                
-                if (const uint8_t found_team = team_component::find_free_team(true, false); found_team > 0)
-                {
-                    if (team_component::reserved_teams.contains(team_code) == false)
+                    if (team_instance->status == era_team_status::available_for_fill)
                     {
-                        team_component::reserved_teams[team_code] = found_team;
-                    
-                        return found_team;
+                        if (team_instance->get_team_members() + number_of_teammates <= get_team_size())
+                        {
+                            team_info->preferred_team = team_instance->get_team_index();
+                            team_instance->get_team_members() += number_of_teammates;
+                        }
                     }
                 }
             }
         }
-    }
+    
+        if (team_info->preferred_team >= get_default_first_team() && team_info->preferred_team <= get_default_last_team())
+        {
+            for (era_team* team_instance : TeamsList)
+            {
+                if (team_instance->status == era_team_status::available_for_fill || team_instance->status == era_team_status::available_for_teammates)
+                {
+                    if (team_instance->get_team_index() == team_info->preferred_team && team_instance->get_team_members() <= get_team_size())
+                    {
+                        return team_instance;
+                    }
+                }
+            }
+        }
 
-    // else find a free team and make sure it's valid
-    if (const uint8_t found_team = team_component::find_free_team(); found_team > 0)
+        // Find an empty team if no suitable option had been found
+        for (era_team* team_instance : TeamsList)
+        {
+            if (team_instance->status == era_team_status::empty)
+            {
+                // Claim the team for teammates
+                team_instance->status = team_info->fill ? era_team_status::available_for_fill : era_team_status::available_for_teammates;
+
+                // Make all teammates join this team
+                team_info->preferred_team = team_instance->get_team_index();
+
+                team_instance->get_team_members() += number_of_teammates;
+                return team_instance;
+            }
+        }
+    }
+    
+    return nullptr;   
+}
+
+uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
+{
+    if (era_team* picked_team = team_component::find_free_team(PlayerController))
     {
-        return found_team;
+        return picked_team->get_team_index();
     }
 
     spdlog::error(L"team_component_hooks::PickTeam_Hook implementation couldn't find a valid team, calling PickTeam...");

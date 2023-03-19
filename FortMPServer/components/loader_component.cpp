@@ -137,6 +137,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Disable duplicate building foundations
         handle_duplicated_foundations();
 
+        // Initialize era_teams
+        team_component::InitializeTeams();
+
         // Update gamemode for clients
         (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");
 
@@ -584,8 +587,8 @@ bool loader_component_hooks::SetGameMode_Hook()
         }
 
         // Clear temporary arrays
-        team_component::reserved_teams.clear();
-        team_component::team_codes_map.clear();
+        team_component::TeamsMap.clear();
+        team_component::TeamsList.clear();
         player_component::EncryptionTokenList.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));

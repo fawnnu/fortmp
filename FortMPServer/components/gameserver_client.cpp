@@ -4,6 +4,7 @@
 #include "config_manager.hpp"
 #include "player_component.hpp"
 #include "qos_component.hpp"
+#include "team_component.hpp"
 #include "../gui/renderer.hpp"
 
 void HeartbeatThread()
@@ -45,7 +46,7 @@ void HeartbeatThread()
             spdlog::warn(L"Lost connection to Era Services, attempting reconnection...");
             
             websocketpp::lib::error_code error_code;
-            Connection = gameserver_client::Client->Client_WS.get_connection("wss://ws.erafn.org/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
+            Connection = gameserver_client::Client->Client_WS.get_connection(WS_URL + "/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
     
             if (error_code)
             {
@@ -90,7 +91,7 @@ void gameserver_client::Initialize()
     });
     
     websocketpp::lib::error_code error_code;
-    auto Connection = Client_WS.get_connection("wss://ws.erafn.org/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
+    auto Connection = Client_WS.get_connection(WS_URL + "/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
     
     if (error_code)
     {
@@ -119,7 +120,7 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 #ifdef _RELEASE
     nlohmann::json server_config = config_manager::get_server_config();
 
-    httplib::Client client("https://api.v1.internal.erafn.org");
+    httplib::Client client(API_URL);
     httplib::Headers headers = {
         { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
     };
@@ -190,6 +191,31 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
            
             // Add to the valid EncryptionToken list
             player_component::EncryptionTokenList.push_back(wEncryptionToken);
+
+            // Properly handle incoming fill and ticket
+            if (JsonPayloadData.contains("fill") && JsonPayloadData.contains("ticket"))
+            {
+                bool fill = false;
+                std::string ticket = "";
+                
+                if (JsonPayloadData["ticket"].is_number_integer())
+                {
+                    ticket = std::to_string(static_cast<int>(JsonPayloadData["ticket"]));
+                }
+                if (JsonPayloadData["fill"].is_boolean())
+                {
+                    fill = JsonPayloadData["fill"];
+                }
+
+                if (ticket.length() > 0)
+                {
+                    const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
+                    
+                    auto& new_team_instance = team_component::TeamsMap[wTicket];
+                    new_team_instance.TeamMembers.push_back(wEncryptionToken);
+                    new_team_instance.fill = fill;
+                }
+            }
         }
     }
 #endif

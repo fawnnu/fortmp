@@ -21,6 +21,14 @@
 #undef min
 #endif
 
+#ifdef _STAGING
+#define WS_URL std::string("wss://staging.ws.erafn.org") 
+#define API_URL std::string("https://staging.api.v1.internal.erafn.org")
+#elif
+#define WS_URL std::string("wss://ws.erafn.org") 
+#define API_URL std::string("https://api.v1.internal.erafn.org") 
+#endif
+
 #pragma warning(pop)
 #pragma warning(disable: 4100)
 

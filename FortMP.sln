@@ -11,16 +11,21 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
 		Testing|x64 = Testing|x64
+		Staging|x64 = Staging|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x64.ActiveCfg = Release|x64
-		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x64.Build.0 = Release|x64
 		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Testing|x64.ActiveCfg = Testing|x64
 		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Testing|x64.Build.0 = Testing|x64
+		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x64.ActiveCfg = Release|x64
+		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Release|x64.Build.0 = Release|x64
+		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Staging|x64.ActiveCfg = Staging|x64
+		{4567A7A0-01A1-4599-8B47-474EDA48B384}.Staging|x64.Build.0 = Staging|x64
 		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x64.ActiveCfg = Release|x64
 		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Release|x64.Build.0 = Release|x64
 		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Testing|x64.ActiveCfg = Testing|x64
 		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Testing|x64.Build.0 = Testing|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Staging|x64.ActiveCfg = Release|x64
+		{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}.Staging|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,22 +1,77 @@
 ﻿#pragma once
 
+struct era_team_info
+{
+    era_team_info() = default;
+    
+    std::vector<std::wstring> TeamMembers;
+    std::vector<AFortPlayerController*> TeamMembersControllers;
+    bool fill;
+    uint8_t preferred_team;
+};
+
 class team_component
 {
 public:
     team_component();
 
+    static void InitializeTeams();
     static void Login(AFortPlayerController* player_controller, const FString& Options);
 
+    static struct era_team* find_free_team(AFortPlayerController* player_controller);
     static void set_team(AFortPlayerController* player_controller, uint8_t team_index);
     static AFortTeamInfo* find_team(AFortPlayerController* player_controller);
     static int get_team_size();
     static int get_default_first_team();
     static int get_default_last_team();
-    static uint8_t find_free_team(bool bMustBeEmpty = false, bool bMustBeReserved = false, std::wstring team_code = L"");
 
-    static inline std::map<std::wstring, std::vector<AFortPlayerController*>> team_codes_map;
-    static inline std::map<std::wstring, uint8_t> reserved_teams;
     static inline int max_team_size_override;
+    static inline std::map<std::wstring, era_team_info> TeamsMap;
+    static inline std::vector<era_team*> TeamsList;
+};
+
+enum class era_team_status
+{
+    empty,
+    available_for_fill,
+    available_for_teammates,
+    not_available
+};
+
+struct era_team
+{
+    era_team()
+    {
+        status = era_team_status::empty;
+        bound_team_info = nullptr;
+        bound_era_team_id = L"";
+        players_count = 0;
+        team_component::TeamsList.push_back(this);
+    }
+
+    era_team(AFortTeamInfo* in_team_info)
+    {
+        status = era_team_status::empty;
+        bound_team_info = in_team_info;
+        bound_era_team_id = L"";
+        players_count = 0;
+        team_component::TeamsList.push_back(this);
+    }
+
+    int& get_team_members()
+    {
+        return players_count;
+    }
+
+    uint8_t& get_team_index()
+    {
+        return bound_team_info->Team();
+    }
+
+    int players_count;
+    era_team_status status;
+    AFortTeamInfo* bound_team_info;
+    std::wstring bound_era_team_id;
 };
 
 namespace team_component_hooks
