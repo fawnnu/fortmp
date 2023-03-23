@@ -198,9 +198,9 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                 bool fill = false;
                 std::string ticket = "";
                 
-                if (JsonPayloadData["ticket"].is_number_integer())
+                if (JsonPayloadData["ticket"].is_string())
                 {
-                    ticket = std::to_string(static_cast<int>(JsonPayloadData["ticket"]));
+                    ticket = JsonPayloadData["ticket"];
                 }
                 if (JsonPayloadData["fill"].is_boolean())
                 {
@@ -214,6 +214,14 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                     auto& new_team_instance = team_component::TeamsMap[wTicket];
                     new_team_instance.TeamMembers.push_back(wEncryptionToken);
                     new_team_instance.fill = fill;
+                }
+            }
+
+            if (JsonPayloadData.contains("profile"))
+            {
+                if (JsonPayloadData["profile"].is_object())
+                {
+                    player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
                 }
             }
         }

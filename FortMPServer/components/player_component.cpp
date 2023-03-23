@@ -142,30 +142,13 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
         if (Token.IsValid())
         {
+            // Encryption token
             std::wstring wToken = Token.c_str();
-            
-            // Get EncryptionToken as string
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            std::string sToken = converter.to_bytes(wToken);
 
-            nlohmann::json server_config = config_manager::get_server_config();
-
-            httplib::Client client(API_URL);
-            httplib::Headers headers = {
-                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-            };
-            std::string URL = "/api/internal/users/" + sToken.substr(0, sToken.find(":")) + "/profile";
-            auto Result = client.Get(URL, headers);
-
-            // OK
-            if (Result->status == 200)
+            for (auto& [token, data] : Profiles)
             {
-                nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
-
-                // Check if the player is an admin
-                if (JsonResult.contains("data"))
+                if (token == wToken)
                 {
-                    nlohmann::json data = JsonResult["data"];
                     if (data.contains("admin"))
                     {
                         if (static_cast<bool>(data["admin"]))
@@ -179,11 +162,12 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             }
                         }
                     }
-                    if (data.contains("profile"))
+            
+                    if (data.contains("locker"))
                     {
-                        nlohmann::json profile = data["profile"];
+                        nlohmann::json locker = data["locker"];
 
-                        for (auto& elem : profile.items())
+                        for (auto& elem : locker.items())
                         {
                             // If it's a valid string
                             if (elem.value().is_string() && std::string(elem.value()).find(":") != std::string::npos)
@@ -218,11 +202,9 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             }
                         }
                     }
+
+                    break;
                 }
-            }
-            else
-            {
-                spdlog::error("Returned status {} on '{}'", Result->status, URL.c_str());
             }
         }
     }
