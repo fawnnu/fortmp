@@ -571,9 +571,14 @@ bool loader_component_hooks::SetGameMode_Hook()
             gameserver_client::Client->GameServer_Status.status = "offline";
             gameserver_client::Client->GameServer_Status.accepting_players = false;
             gameserver_client::Client->GameServer_Status.number_of_players = 0;
-            gameserver_client::Client->GameServer_Status.max_players = 0;
             gameserver_client::Client->GameServer_Status.mode = "";
             gameserver_client::Client->SendUpdate();
+
+            // Leave channel
+            gameserver_client::Client->SendLeave();
+
+            // Re-register
+            gameserver_client::Client->Register();
         }
 #endif
 

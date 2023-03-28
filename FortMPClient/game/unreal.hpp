@@ -230,3 +230,23 @@ inline float GetEngineVersionEasy()
 
     return std::stod(engine_version.substr(0, 4)) * 100;
 }
+
+inline float GetFortniteVersionEasy()
+{
+    const std::wstring engine_version = GetEngineVersion().c_str();
+
+    try
+    {
+        float version = std::stof(engine_version.substr(34, 4));
+        if (static_cast<int>(version) < 0)
+        {
+            version = std::stof(engine_version.substr(35, 4));
+        }
+
+        return version;
+    }
+    catch (std::invalid_argument& e)
+    {
+        return 0.f;
+    }
+}

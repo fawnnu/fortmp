@@ -115,21 +115,21 @@ void gameserver_client::Initialize()
 #endif
 }
 
-void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
+void gameserver_client::Register()
 {
-#ifdef _RELEASE
     nlohmann::json server_config = config_manager::get_server_config();
 
     httplib::Client client(API_URL);
     httplib::Headers headers = {
         { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
     };
-    nlohmann::json Region = {
+    nlohmann::json PostPayload = {
         {"region", ""},
-        {"build", std::to_string(GetCL())}
+        {"build", std::to_string(GetCL())},
+        {"max_players", static_cast<int>(server_config["player_cap_override"])}
     };
-    Region["region"] = qos_component::best_region;
-    auto Result = client.Post("/api/internal/game/servers", headers, Region.dump(), "application/json");
+    PostPayload["region"] = qos_component::best_region;
+    auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
     nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
 
     Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
@@ -154,7 +154,13 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
     }
     
     SendJoin();
-    SendUpdate();
+    SendUpdate();   
+}
+
+void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
+{
+#ifdef _RELEASE
+    Register();
 #endif
 }
 
@@ -275,7 +281,6 @@ void gameserver_client::SendUpdate()
             payload.push_back("update"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
                 {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
-                {"max_players", std::to_string(GameServer_Status.max_players)},
                 {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
                 {"status", GameServer_Status.status},
                 {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
@@ -306,7 +311,7 @@ void gameserver_client::SendLeave()
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
             payload.push_back(Channel); // Channel
-            payload.push_back("leave"); // Event Type
+            payload.push_back("phx_leave"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
             }); // param
 

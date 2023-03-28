@@ -66,7 +66,7 @@ unreal_manager::unreal_manager()
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
 
     // Instantly set GIsClient to false
-    if (GetEngineVersionEasy() > 420 && GetFortniteVersionEasy() < 10)
+    if (GetEngineVersionEasy() > 421 && GetFortniteVersionEasy() < 10)
     {
         *GIsClient = false;
     }

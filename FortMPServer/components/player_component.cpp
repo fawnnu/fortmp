@@ -120,9 +120,25 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
                     return true;
                 }
             }
+
+            spdlog::error(L"Client sent '{}' as EncryptionToken, but the server could not validate it. Valid encryption tokens: {}", EncryptionToken.c_str(), EncryptionTokenList.size());
+        }
+        else
+        {
+            spdlog::error(L"Invalid EncryptionToken received, kicking...");
         }
 
-        spdlog::error(L"Invalid EncryptionToken received, kicking...");
+        InvalidTokensReceived++;
+
+        // Limit for invalid tokens
+        if (InvalidTokensReceived >= 150)
+        {
+            // Leave Era Services
+            gameserver_client::Client->SendLeave();
+
+            // Close
+            RequestExitWithStatus(true, 0);
+        }
     }
     else
     {

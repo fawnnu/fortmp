@@ -7,8 +7,15 @@
 
 void Setup()
 {;
+    // Fake pak to bypass check
     unreal_manager::setup_unreal_engine();
 
+    if (GetFortniteVersionEasy() == 3.5)
+    {
+        std::ofstream pak("../../Content/Paks/pakchunk1_do_not_delete.pak");
+        pak.close();
+    }
+    
     ssl_bypass_component::redirect_url = XOR("https://api.v1.external.erafn.org/api/external/fortnite");
 
     //Instantly start the SSL bypass

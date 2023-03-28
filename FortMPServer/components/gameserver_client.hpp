@@ -5,7 +5,6 @@ struct gameserver_status
     gameserver_status()
     {
         accepting_players = false;
-        max_players = 0;
         number_of_players = 0;
         status = "offline";
         private_matchmaking_key = "";
@@ -15,7 +14,6 @@ struct gameserver_status
     }
 
     bool accepting_players;
-    int max_players;
     int number_of_players;
     int port;
     std::string status;
@@ -30,6 +28,7 @@ public:
     gameserver_client();
 
     void Initialize();
+    void Register();
 
     // Event called when a connection is established
     void OnConnected(websocketpp::connection_hdl handle);
