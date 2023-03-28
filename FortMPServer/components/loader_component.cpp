@@ -576,6 +576,7 @@ bool loader_component_hooks::SetGameMode_Hook()
 
             // Leave channel
             gameserver_client::Client->SendLeave();
+            Sleep(5000);
 
             // Re-register
             gameserver_client::Client->Register();
