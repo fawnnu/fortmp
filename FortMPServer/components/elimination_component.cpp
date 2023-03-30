@@ -154,7 +154,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                               (FireStartLoc.Z - ImpactLoc.Z) * (FireStartLoc.Z - ImpactLoc.Z));
 
                         // Log distance as meters
-                        spdlog::info(L"Player '{}' eliminated opponent using {}. [Distance: {}, Owner: {}]", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), DeathReport.DamageCauser()->GetName().c_str(), Distance * 100, DeathReport.DamageCauser()->GetOwner() ? DeathReport.DamageCauser()->GetOwner()->Class->GetName().c_str() : TEXT("NONE"));
+                        spdlog::info(L"Player '{}' eliminated opponent using {}. [Distance: {}, Owner: {}]", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), DeathReport.DamageCauser()->GetName().c_str(), Distance / 100, DeathReport.DamageCauser()->GetOwner() ? DeathReport.DamageCauser()->GetOwner()->Class->GetName().c_str() : TEXT("NONE"));
 
                         if (auto Owner = DeathReport.DamageCauser()->GetOwner())
                         {
