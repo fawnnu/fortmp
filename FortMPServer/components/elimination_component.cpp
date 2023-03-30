@@ -184,16 +184,6 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                         DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
                     }
 
-                    if (auto ItemDefinition = static_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData())
-                    {
-                        if (DeathReport.LethalDamage() > looting_component::get_best_damage(ItemDefinition))
-                        {
-                            spdlog::warn(L"Player '{}' eliminated an enemy with a hotfixed item... [LethalDamage: {}, Best Possible Damage: {}, ItemDefinition: {}]", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), DeathReport.LethalDamage(), looting_component::get_best_damage(ItemDefinition), ItemDefinition->GetName().c_str());
-
-                            DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
-                        }
-                    }
-
                     if (Range <= 0)
                     {
                         if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > 1000)
