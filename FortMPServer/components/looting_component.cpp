@@ -727,6 +727,36 @@ int looting_component::get_default_loaded_ammo(UFortItemDefinition* in_item_defi
     return 0;
 }
 
+float looting_component::get_best_damage(UFortItemDefinition* in_item_definition)
+{
+    static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+    static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    
+    if (in_item_definition->IsA(FortWeaponItemDefinition) &&
+        !in_item_definition->IsA(FortTrapItemDefinition))
+    {
+        auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().Table) + 0x30);
+
+        if (auto TargetStruct = Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->GetClass();
+            FindPropertyByName(TargetStruct, TEXT("DmgPG")) &&
+            FindPropertyByName(TargetStruct, TEXT("DamageZone_Light")) &&
+            FindPropertyByName(TargetStruct, TEXT("DamageZone_Normal")) &&
+            FindPropertyByName(TargetStruct, TEXT("DamageZone_Critical")) &&
+            FindPropertyByName(TargetStruct, TEXT("DamageZone_Vulnerability")))
+        {
+            auto DmgPB = Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->DmgPB();
+            auto Dmg_Light = DmgPB * Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->DamageZone_Light();
+            auto Dmg_Normal = DmgPB * Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->DamageZone_Normal();
+            auto Dmg_Critical = DmgPB * Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->DamageZone_Critical();
+            auto Dmg_Vulnerability = DmgPB * Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->DamageZone_Vulnerability();
+        
+            return std::max({Dmg_Light, Dmg_Normal, Dmg_Critical, Dmg_Vulnerability});
+        }
+    }
+    
+    return 0;
+}
+
 void looting_component_hooks::PickLootDrops_Hook(TArray<FFortItemEntry>* OutLootToDrop, FName TierGroupName)
 {
     if (OutLootToDrop == nullptr)

@@ -281,12 +281,6 @@ T* FindObject(const wchar_t* ObjectName, bool bLoadObject = false, bool bUseAnyP
         Object = StaticLoadObject(nullptr, nullptr, ObjectName, nullptr, 0, nullptr, true);
     }
 
-    if (Object == nullptr)
-    {
-        spdlog::warn(L"Object '{}' not found",
-            ObjectName);
-    }
-
     return reinterpret_cast<T*>(Object);
 }
 

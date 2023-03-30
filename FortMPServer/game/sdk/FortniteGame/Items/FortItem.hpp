@@ -252,6 +252,11 @@ struct FFortItemEntry : public FFastArraySerializerItem
 struct FFortBaseWeaponStats
 {
     DEFINE_STRUCT_PROPERTY(int, ClipSize);
+    DEFINE_STRUCT_PROPERTY(float, DamageZone_Light);
+    DEFINE_STRUCT_PROPERTY(float, DamageZone_Normal);
+    DEFINE_STRUCT_PROPERTY(float, DamageZone_Critical);
+    DEFINE_STRUCT_PROPERTY(float, DamageZone_Vulnerability);
+    DEFINE_STRUCT_PROPERTY(float, DmgPB);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortBaseWeaponStats");
 };

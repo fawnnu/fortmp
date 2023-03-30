@@ -301,6 +301,7 @@ struct FFortPlayerDeathReport
     DEFINE_STRUCT_PROPERTY(AFortPawn*, KillerPawn);
     DEFINE_STRUCT_PROPERTY(AActor*, DamageCauser);
     DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, Tags);
+    DEFINE_STRUCT_PROPERTY(float, LethalDamage);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPlayerDeathReport");
 };

@@ -32,6 +32,9 @@ public:
     // Get an ItemDefinition's default loaded ammo
     static int get_default_loaded_ammo(UFortItemDefinition* in_item_definition);
 
+    // Get the highest possible damage for a weapon
+    static float get_best_damage(UFortItemDefinition* in_item_definition);
+
 private:
 
     // blacklisted item defintions when picking loot

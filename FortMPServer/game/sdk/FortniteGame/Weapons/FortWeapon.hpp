@@ -119,3 +119,11 @@ public:
         Call(Function_OnRep_MountedWeaponInfoRepped);
     }
 };
+
+class AFortProjectileAthena : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortProjectileAthena");
+
+    DEFINE_PROPERTY(FVector, FireStartLoc);
+};
