@@ -730,7 +730,10 @@ void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFor
 
 void moderation_component::HandleToggleSCPCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    player_component::bEnableServerChoosePart = !player_component::bEnableServerChoosePart;
+    auto config = config_manager::get_server_config();
+    bool scp_enabled = config["scp_enabled"];
+    config["scp_enabled"] = !scp_enabled;
+    config_manager::save_server_config(config);
 
     ExecutingPlayerController->ClientMessage(TEXT("Successfully toggled Server Choose Part."));
 }

@@ -13,7 +13,6 @@ public:
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
-    static inline bool bEnableServerChoosePart;
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline int InvalidTokensReceived;

@@ -46,9 +46,6 @@ player_component::player_component()
     // Finish spawning a player
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
 
-    // Server choose part is false by default
-    bEnableServerChoosePart = false;
-
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
 }
 
@@ -304,7 +301,8 @@ void player_component_hooks::ServerReturnToMainMenu_Hook(AFortPlayerController* 
 
 void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
 {
-    if (player_component::bEnableServerChoosePart == true)
+    auto config = config_manager::get_server_config();
+    if (config["scp_enabled"] == true)
     {
         ServerChoosePart(FortPlayerPawn, StackFrame);
     }

@@ -21,6 +21,7 @@ nlohmann::json config_manager::get_server_config()
                 "player_cap_override": 100,
                 "banned_players": [],
                 "admin_passwords": [],
+                "scp_enabled": false,
                 "name": ""
             }
         )"_json;

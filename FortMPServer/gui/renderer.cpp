@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "../components/config_manager.hpp"
 #include "../components/loader_component.hpp"
 #include "../components/log_component.hpp"
 #include "../components/net_component.hpp"
@@ -241,7 +242,13 @@ void renderer::CreateNewWindow()
 
                             ImGui::Separator();
 
-                            ImGui::Checkbox("Enable Server Choose Part", &player_component::bEnableServerChoosePart);
+                            if (ImGui::Button("Toggle SCP", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                auto config = config_manager::get_server_config();
+                                bool scp_enabled = config["scp_enabled"];
+                                config["scp_enabled"] = !scp_enabled;
+                                config_manager::save_server_config(config);
+                            }
                         
                             ImGui::EndChild();
                         }
