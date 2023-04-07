@@ -71,6 +71,7 @@ public:
     DEFINE_BIT_PROPERTY(bool, bIsInvulnerable);
     
     DEFINE_PROPERTY(UCharacterMovementComponent*, CharacterMovement);
+    DEFINE_PROPERTY(UPrimitiveComponent*, CapsuleComponent);
 };
 
 class UFortMovementSet : public UObject
