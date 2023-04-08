@@ -60,4 +60,6 @@ public:
 
     // Number of non-acknowledged local heartbeats
     int LocalNonAckHeartbeats;
+
+    int LocalNonAckHeartbeatsForPlayers;
 };

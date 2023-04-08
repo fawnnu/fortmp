@@ -120,6 +120,14 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
     // Acknowledge pending heartbeats
 #ifdef _RELEASE
     gameserver_client::Client->LocalNonAckHeartbeats = 0;
+
+    if ((*GWorld)->AuthorityGameMode())
+    {
+        if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Num() > 0)
+        {
+            gameserver_client::Client->LocalNonAckHeartbeatsForPlayers = 0;
+        }
+    }
 #endif
     
     if (NetDriver->ClientConnections().Num() > 0 && !NetDriver->ClientConnections()[0]->InternalAck())

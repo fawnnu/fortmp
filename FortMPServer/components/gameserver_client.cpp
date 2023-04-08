@@ -24,9 +24,25 @@ void HeartbeatThread()
             // Request exit if the server has not been responsive for more than 3 minutes
             RequestExitWithStatus(true, 0);
         }
+        else if (gameserver_client::Client->LocalNonAckHeartbeatsForPlayers > 30)
+        {
+            // Log
+            spdlog::error(L"Server has had no players for more than 30 heartbeats, closing...");
+            
+            // Unregister the server
+            gameserver_client::Client->SendLeave();
+            
+            // Request exit if the server has not been responsive for more than 5 minutes
+            RequestExitWithStatus(true, 0);
+        }
         else
         {
             gameserver_client::Client->LocalNonAckHeartbeats++;
+
+            if (*GWorld && (*GWorld)->NetDriver())
+            {
+                gameserver_client::Client->LocalNonAckHeartbeatsForPlayers++;
+            }
         }
         
         websocketpp::lib::error_code ec;
