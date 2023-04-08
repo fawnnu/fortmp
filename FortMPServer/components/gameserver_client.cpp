@@ -134,6 +134,7 @@ void gameserver_client::Initialize()
 void gameserver_client::Register()
 {
     nlohmann::json server_config = config_manager::get_server_config();
+    GameServer_Status.max_players = static_cast<int>(server_config["player_cap_override"]);
 
     httplib::Client client(API_URL);
     httplib::Headers headers = {
@@ -142,7 +143,7 @@ void gameserver_client::Register()
     nlohmann::json PostPayload = {
         {"region", ""},
         {"build", std::to_string(GetCL())},
-        {"max_players", static_cast<int>(server_config["player_cap_override"])}
+        {"max_players", std::to_string(GameServer_Status.max_players)}
     };
     PostPayload["region"] = qos_component::best_region;
     auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
@@ -299,6 +300,7 @@ void gameserver_client::SendUpdate()
                 {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
                 {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
                 {"status", GameServer_Status.status},
+                {"max_players", std::to_string(GameServer_Status.max_players)},
                 {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
                 {"port", std::to_string(GameServer_Status.port)},
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}},

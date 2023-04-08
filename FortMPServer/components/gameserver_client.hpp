@@ -9,6 +9,7 @@ struct gameserver_status
         status = "offline";
         private_matchmaking_key = "";
         port = 0;
+        max_players = 0;
         name = "";
         mode = "";
     }
@@ -16,6 +17,7 @@ struct gameserver_status
     bool accepting_players;
     int number_of_players;
     int port;
+    int max_players;
     std::string status;
     std::string private_matchmaking_key;
     std::string name;
