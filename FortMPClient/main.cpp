@@ -6,7 +6,7 @@
 #include "components/matchmaking_component.hpp"
 
 void Setup()
-{;
+{
     // Fake pak to bypass check
     unreal_manager::setup_unreal_engine();
 
