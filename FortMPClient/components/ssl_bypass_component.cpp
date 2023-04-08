@@ -3,28 +3,34 @@
 
 #include <regex>
 
+#include "hwid_component.hpp"
+
 void oauth_token_callback(request* req)
 {
+    if (req->POSTFIELDS.find(XOR("grant_type=client_credentials")) != std::string::npos)
+    {
+        // not the request we're looking for
+        return;
+    }
+
+    auto Json = nlohmann::json::parse(req->Response);
+    if (Json.contains(XOR("access_token")))
+    {
+        hwid_component::access_token = Json[XOR("access_token")];
+
+        if (hwid_component::bServiceRunning == false)
+        {
+            hwid_component::bServiceRunning = true;
+            hwid_component::StartMessageService();
+        }
+    }
 }
 
 size_t oauth_token_writefunction(void* content, size_t size, size_t nmemb, void* userp)
 {
-    request* Result = nullptr;
-    for (request* request_to_capture : ssl_bypass_component::requests_to_capture)
+    if (auto Result = ssl_bypass_component::find_request(XOR("/account/api/oauth/token")))
     {
-        if (request_to_capture->URL.find("/account/api/oauth/token") != std::string::npos)
-        {
-            Result = request_to_capture;
-            break;
-        }
-    }
-    
-    if (Result)
-    {
-        Result->Response.append(static_cast<char*>(content), size * nmemb);
-        reinterpret_cast<void (*)(request*)>(Result->final_callback)(Result);
-        
-        return reinterpret_cast<size_t (*)(void*, size_t, size_t, void*)>(Result->writefunction_original)(content, size, nmemb, userp);
+        return ssl_bypass_component::process_write(Result, content, size, nmemb, userp);
     }
     
     return 0;
@@ -38,7 +44,7 @@ ssl_bypass_component::ssl_bypass_component()
     VectoredExceptionHook::StartHook( reinterpret_cast<uintptr_t>(ssl_bypass_component_hook::CurlEasy), reinterpret_cast<uintptr_t>(ssl_bypass_component_hook::CurlEasy_Hook));
 
     // Capture requests
-    requests_to_capture.push_back(new request("/account/api/oauth/token", oauth_token_writefunction, oauth_token_callback));
+    requests_to_capture.push_back(new request(XOR("/account/api/oauth/token"), oauth_token_writefunction, oauth_token_callback));
 }
 
 int ssl_bypass_component_hook::CurlSet_Hook(LPVOID A, int B, ...)
@@ -77,7 +83,7 @@ int ssl_bypass_component_hook::CurlEasy_Hook(LPVOID A, int B, ...)
         {
             Url = regex_replace(Url, EpicURL, ssl_bypass_component::redirect_url);
 
-            if (Url.find("/account/api/oauth/token") != -1)
+            if (Url.find(XOR("/account/api/oauth/token")) != -1)
             {
                 if (GetEngineVersionEasy() < 423) {
                     VectoredExceptionHook::DisableHook();
