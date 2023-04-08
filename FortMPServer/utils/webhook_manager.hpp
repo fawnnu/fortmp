@@ -7,5 +7,6 @@ public:
 
     static void send_all();
     static nlohmann::json get_webhook_by_name(std::string in_name);
+    static std::vector<nlohmann::json> get_webhooks_by_name(std::string in_name);
     static void send_webhook(nlohmann::json payload);
 };
