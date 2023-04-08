@@ -158,6 +158,10 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Encryption token
             std::wstring wToken = Token.c_str();
 
+            // Register this player in the local Players map
+            std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
+            Players[wAccountID] = NewPlayer;
+
             for (auto& [token, data] : Profiles)
             {
                 if (token == wToken)

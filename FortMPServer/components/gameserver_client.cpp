@@ -2,6 +2,7 @@
 #include "gameserver_client.hpp"
 
 #include "config_manager.hpp"
+#include "net_component.hpp"
 #include "player_component.hpp"
 #include "qos_component.hpp"
 #include "team_component.hpp"
@@ -206,6 +207,31 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
     // Make sure it's a phoenix message
     if (VectorPayloadString.size() == 2)
     {
+        // If we receive a kick message, kick the target player
+        if (VectorPayloadString[1] == "kick")
+        {
+            std::string sAccountID = JsonPayloadData["account_id"];
+            std::wstring wAccountID = std::wstring(sAccountID.begin(), sAccountID.end());
+
+            for (auto [account_id, player] : player_component::Players)
+            {
+                if (account_id == wAccountID)
+                {
+                    if (!memory_manager::is_bad_read_pointer(player) && player)
+                    {
+                        player->ClientReturnToMainMenu(TEXT(""));
+
+                        if (player->NetConnection())
+                        {
+                            NetConnection__Close(player->NetConnection());
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+        
         // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
         if (VectorPayloadString[1] == "player")
         {

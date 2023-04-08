@@ -15,6 +15,7 @@ public:
 
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
+    static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline int InvalidTokensReceived;
 };
 
