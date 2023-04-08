@@ -40,6 +40,7 @@ public:
     static void HandleUnBanCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleListPlayersCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleBanListCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSetWarmupDurationCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
 
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;

@@ -22,6 +22,7 @@ nlohmann::json config_manager::get_server_config()
                 "banned_players": [],
                 "admin_passwords": [],
                 "scp_enabled": false,
+                "warmup_duration": 90,
                 "name": ""
             }
         )"_json;

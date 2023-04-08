@@ -17,7 +17,7 @@ void Setup()
         pak.close();
     }
     
-    ssl_bypass_component::redirect_url = XOR("http://api.v1.external.erafn.local:4000/api/external/fortnite");
+    ssl_bypass_component::redirect_url = XOR("https://api.v1.external.erafn.org/api/external/fortnite");
 
     //Instantly start the SSL bypass
     new ssl_bypass_component();
