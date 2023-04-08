@@ -32,3 +32,5 @@
 #include "utils/sha1.h"
 #include "utils/sha256.h"
 #include "utils/md5.h"
+#include "utils/base64.hpp"
+#include "utils/hmac.hpp"

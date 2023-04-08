@@ -3,6 +3,7 @@
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
 #include "components/api_component.hpp"
+#include "components/hwid_component.hpp"
 #include "components/matchmaking_component.hpp"
 
 void Setup()
@@ -12,14 +13,15 @@ void Setup()
 
     if (GetFortniteVersionEasy() == 3.5)
     {
-        std::ofstream pak("../../Content/Paks/pakchunk1_do_not_delete.pak");
+        std::ofstream pak(XOR("../../Content/Paks/pakchunk1_do_not_delete.pak"));
         pak.close();
     }
     
-    ssl_bypass_component::redirect_url = XOR("https://api.v1.external.erafn.org/api/external/fortnite");
+    ssl_bypass_component::redirect_url = XOR("http://api.v1.external.erafn.local:4000/api/external/fortnite");
 
     //Instantly start the SSL bypass
     new ssl_bypass_component();
+    new hwid_component();
 
     {
         while (true)

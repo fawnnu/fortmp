@@ -163,6 +163,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="components\api_component.cpp" />
+    <ClCompile Include="components\hwid_component.cpp" />
     <ClCompile Include="components\matchmaking_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="API\profile.hpp" />
     <ClInclude Include="API\storefront.hpp" />
     <ClInclude Include="components\api_component.hpp" />
+    <ClInclude Include="components\hwid_component.hpp" />
     <ClInclude Include="components\matchmaking_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
@@ -207,7 +209,9 @@
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="utils\api_utils.hpp" />
+    <ClInclude Include="utils\base64.hpp" />
     <ClInclude Include="utils\dll_utils.hpp" />
+    <ClInclude Include="utils\hmac.hpp" />
     <ClInclude Include="utils\hook.hpp" />
     <ClInclude Include="utils\md5.h" />
     <ClInclude Include="utils\memory.hpp" />
