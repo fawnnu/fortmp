@@ -166,6 +166,7 @@
     <ClCompile Include="components\hwid_component.cpp" />
     <ClCompile Include="components\matchmaking_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
+    <ClCompile Include="components\pe_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />
     <ClCompile Include="include.cpp">
@@ -194,6 +195,7 @@
     <ClInclude Include="components\hwid_component.hpp" />
     <ClInclude Include="components\matchmaking_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
+    <ClInclude Include="components\pe_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\Actor.hpp" />

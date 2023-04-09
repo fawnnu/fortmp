@@ -46,6 +46,7 @@ namespace CoreOffsets
     inline DWORD ElementSize;
     inline DWORD PropertyFlags;
     inline DWORD StructSize;
+    inline DWORD SuperStruct;
 }
 
 class UObject
@@ -86,8 +87,20 @@ public:
 
     bool IsA(UObject* in_class)
     {
-        // TODO: Implement inheritance
-        return in_class == Class;
+        if (!in_class)
+        {
+            return false;
+        }
+        
+        for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+        {
+            if (CurrentClass == in_class)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     
     template<typename T = char, typename ...Params>

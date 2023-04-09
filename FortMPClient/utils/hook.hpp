@@ -6,12 +6,7 @@
     if (FunctionName)                                                                  \
     {                                                                                  \
         DetourAttach(&reinterpret_cast<PVOID&>(FunctionName), FunctionDetour);         \
-    }                                                                                  \
-    else                                                                               \
-    {                                                                                  \
-        spdlog::error(XOR("Failed to setup hook '{}', invalid function pointer provided"),  \
-            XOR(#FunctionName));                                                            \
-    }
+    }                                                                                  
 
 #define DEFINE_FUNCTION_HOOK(ReturnType, FunctionName, FunctionDefinition)  \
 inline ReturnType (* FunctionName##) FunctionDefinition;                \

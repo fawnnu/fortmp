@@ -4,6 +4,7 @@
 #include <regex>
 
 #include "hwid_component.hpp"
+#include "pe_component.hpp"
 
 void oauth_token_callback(request* req)
 {
@@ -21,7 +22,9 @@ void oauth_token_callback(request* req)
         if (hwid_component::bServiceRunning == false)
         {
             hwid_component::bServiceRunning = true;
-            hwid_component::StartMessageService();
+            //hwid_component::StartMessageService();
+            
+            new pe_component();
         }
     }
 }
