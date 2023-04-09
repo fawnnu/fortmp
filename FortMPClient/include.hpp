@@ -6,6 +6,7 @@
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 
 #define XOR(STR) xorstr(STR).crypt_get()
 
@@ -34,3 +35,4 @@
 #include "utils/md5.h"
 #include "utils/base64.hpp"
 #include "utils/hmac.hpp"
+#include "utils/smbios.hpp"

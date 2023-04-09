@@ -181,6 +181,7 @@
     <ClCompile Include="utils\memory.cpp" />
     <ClCompile Include="utils\sha1.cpp" />
     <ClCompile Include="utils\sha256.cpp" />
+    <ClCompile Include="utils\smbios.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\auth.hpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="utils\memory.hpp" />
     <ClInclude Include="utils\sha1.h" />
     <ClInclude Include="utils\sha256.h" />
+    <ClInclude Include="utils\smbios.hpp" />
     <ClInclude Include="utils\xorstr.hpp" />
   </ItemGroup>
   <ItemGroup>
