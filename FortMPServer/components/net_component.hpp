@@ -32,8 +32,5 @@ inline bool (*InitListen)(UObject* NetDriver, void* InNotify, FURL& LocalURL, bo
 // Set world for net driver
 inline void (*SetWorld)(UObject* NetDriver, UObject* World);
 
-// Close a NetConnection
-inline void (*NetConnection__Close)(UNetConnection* Self);
-
 // Flush actor dormancy
 inline void (*FlushDormancy)(UNetConnection* Self, AActor* Actor);

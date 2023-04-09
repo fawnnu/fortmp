@@ -19,10 +19,22 @@ public:
     DEFINE_PROPERTY(AFortAircraft*, CurrentAircraft);
 };
 
+struct FHitResult
+{
+    DEFINE_STRUCT_PROPERTY(FVector, Location);
+    DEFINE_STRUCT_PROPERTY(FVector, TraceEnd);
+    DEFINE_STRUCT_PROPERTY(FVector, ImpactPoint);
+    DEFINE_STRUCT_PROPERTY(FVector, TraceStart);
+    DEFINE_STRUCT_PROPERTY(FVector, Normal);
+    DEFINE_STRUCT_PROPERTY(FVector, ImpactNormal);
+    
+    DEFINE_STRUCT_CLASS(TEXT("/Script/Engine.HitResult"))
+};
+
 class USceneComponent : public UActorComponent
 {
 public:
-    void K2_SetWorldLocation(FVector Translation, bool bSweep, bool bTeleport, struct FHitResult* OutHitResult)
+    void K2_SetWorldLocation(FVector Translation, bool bSweep, bool bTeleport, FHitResult* OutHitResult)
     {
         STATIC_FINDFUNCTION(K2_SetWorldLocation)
         

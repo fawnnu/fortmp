@@ -53,6 +53,11 @@ public:
 
         return *reinterpret_cast<EConnectionState*>(reinterpret_cast<uintptr_t>(this) + native_property_offset - 0x2C);
     }
+
+    void Close()
+    {
+        NetConnection__Close(this);
+    }
 };
 
 class UChildConnection : public UNetConnection

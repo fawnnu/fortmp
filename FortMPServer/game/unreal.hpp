@@ -70,6 +70,9 @@ inline void (*RequestExitWithStatus)(bool bForce, uint8_t ReturnCode);
 // CreateDefaultObject
 inline UObject* (*CreateDefaultObject_Internal)(UObject* SelfClass);
 
+// Close a NetConnection
+inline void (*NetConnection__Close)(class UNetConnection* Self);
+
 namespace CoreOffsets
 {
     inline DWORD Children;

@@ -221,11 +221,6 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                     {
                         player->ClientReturnToMainMenu(TEXT(""));
 
-                        if (player->NetConnection())
-                        {
-                            NetConnection__Close(player->NetConnection());
-                        }
-
                         break;
                     }
                 }
@@ -357,6 +352,33 @@ void gameserver_client::SendLeave()
             payload.push_back(Channel); // Channel
             payload.push_back("phx_leave"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
+            }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
+#endif
+}
+
+void gameserver_client::SendBan(std::string uuid)
+{
+#ifdef _RELEASE
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
+
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(Channel); // Channel
+            payload.push_back("ban:hwid"); // Event Type
+            payload.push_back(std::map<std::string, std::string>{
+                {"account_id", uuid}
             }); // param
 
             // Send

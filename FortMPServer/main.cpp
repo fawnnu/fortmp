@@ -29,6 +29,7 @@
 #include "components/modules_component.hpp"
 #include "components/qos_component.hpp"
 #include "components/playlist_component.hpp"
+#include "components/anticheat_component.hpp"
 
 #include "gui/renderer.hpp"
 #include "utils/webhook_manager.hpp"
@@ -130,6 +131,7 @@ void Setup()
                 new creative_component();
                 new moderation_component();
                 new playlist_component();
+                new anticheat_component();
                     
                 break;
             }

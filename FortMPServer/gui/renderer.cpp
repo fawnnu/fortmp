@@ -224,10 +224,6 @@ void renderer::CreateNewWindow()
                                     {
                                         CurrentConnection->PlayerController()->ClientReturnToMainMenu(L"Restarting Server.");
                                     }
-                                    else if (CurrentConnection)
-                                    {
-                                        NetConnection__Close(CurrentConnection);
-                                    }
                                 }
 
                                 spdlog::info(L"Performing server restart.");
@@ -356,7 +352,6 @@ void renderer::CreateNewWindow()
                                 if (ImGui::Button("Kick"))
                                 {
                                     SelectedConnection->PlayerController()->ClientReturnToMainMenu(L"Kicked by a server operator.");
-                                    NetConnection__Close(SelectedConnection);
                                 }
                             }
                         }
@@ -418,10 +413,6 @@ void renderer::CreateNewWindow()
             if (CurrentConnection && CurrentConnection->PlayerController())
             {
                 CurrentConnection->PlayerController()->ClientReturnToMainMenu(L"Server Closed.");
-            }
-            else if (CurrentConnection)
-            {
-                NetConnection__Close(CurrentConnection);
             }
         }
     }

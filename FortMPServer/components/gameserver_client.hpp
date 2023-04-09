@@ -40,6 +40,7 @@ public:
     void SendJoin();
     void SendUpdate();
     void SendLeave();
+    void SendBan(std::string uuid);
     void SendHeartbeat();
 
     // Client WS object

@@ -163,7 +163,6 @@ void moderation_component::ban_player(AFortPlayerController* TargetPlayer, FStri
 
         // Kick the player
         TargetPlayer->ClientReturnToMainMenu(BanReason);
-        NetConnection__Close(TargetPlayer->NetConnection());
     }
 }
 
@@ -393,9 +392,6 @@ void moderation_component::HandleRestartServerCommand(const TCHAR*& InStream, AF
                     {
                         PlayerController->ClientReturnToMainMenu(TEXT("Restarting Server."));
                     }
-
-                    // Close connection anyways to prevent bypasses
-                    NetConnection__Close(ClientConnection);
                 }
             }
         }
@@ -420,9 +416,6 @@ void moderation_component::HandleResetServerCommand(const TCHAR*& InStream, AFor
                     {
                         PlayerController->ClientReturnToMainMenu(TEXT("Restarting Server."));
                     }
-
-                    // Close connection anyways to prevent bypasses
-                    NetConnection__Close(ClientConnection);
                 }
             }
         }
