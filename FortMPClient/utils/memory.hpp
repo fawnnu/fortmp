@@ -5,10 +5,7 @@
 
 #define INIT_POINTER(PointerName, PointerAddress)                                           \
     if (PointerAddress)                                                                     \
-        PointerName = reinterpret_cast<decltype(PointerName)>(PointerAddress);              \
-    else                                                                                    \
-        spdlog::error(XOR("Failed to setup pointer '{}', invalid pointer address provided"),     \
-            XOR(#PointerName));
+        PointerName = reinterpret_cast<decltype(PointerName)>(PointerAddress);              
 
 static std::map<void*, bool> pointer_cache;
 

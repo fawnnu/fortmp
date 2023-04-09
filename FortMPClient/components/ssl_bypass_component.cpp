@@ -8,7 +8,7 @@
 
 void oauth_token_callback(request* req)
 {
-    if (req->POSTFIELDS.find(XOR("grant_type=client_credentials")) != std::string::npos)
+    if (req->i < 2)
     {
         // not the request we're looking for
         return;
@@ -23,7 +23,7 @@ void oauth_token_callback(request* req)
         {
             hwid_component::bServiceRunning = true;
             //hwid_component::StartMessageService();
-            
+
             new pe_component();
         }
     }
@@ -105,6 +105,7 @@ int ssl_bypass_component_hook::CurlEasy_Hook(LPVOID A, int B, ...)
                 if (Url.find(request_to_capture->URL) != std::string::npos)
                 {
                     request_to_capture->CurlHANDLE = A;
+                    request_to_capture->i++;
                     
                     break;
                 }
@@ -134,14 +135,7 @@ int ssl_bypass_component_hook::CurlEasy_Hook(LPVOID A, int B, ...)
 
                 return_value = CurlSet_Hook(A, B, request_to_capture->writefunction_override);
             }
-
-            // CURLOPT_POSTFIELDS 
-            if (B == 10015)
-            {
-                PCHAR PostFields = va_arg(CopiedArgument, PCHAR);
-                request_to_capture->POSTFIELDS = PostFields;
-            }
-
+            
             break;
         }
     }
