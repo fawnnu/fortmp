@@ -50,24 +50,6 @@ void hwid_component::StartMessageService()
             {
                 HWID += volume_id;
             }
-            if (std::string gpu_id = GetGPUGUID(); gpu_id.size())
-            {
-                if (HWID.size())
-                {
-                    HWID += XOR(".");
-                }
-
-                HWID += gpu_id;
-            }
-            if (std::string mobo_id = GetMOBOGUID(); mobo_id.size())
-            {
-                if (HWID.size())
-                {
-                    HWID += XOR(".");
-                }
-
-                HWID += mobo_id;
-            }
 
             if (HWID.size() == 0)
             {
