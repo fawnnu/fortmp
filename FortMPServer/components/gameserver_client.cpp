@@ -210,31 +210,35 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // If we receive a kick message, kick the target player
         if (VectorPayloadString[1] == "kick")
         {
-            std::string sAccountID = JsonPayloadData["account_id"];
-            std::wstring wAccountID = std::wstring(sAccountID.begin(), sAccountID.end());
-            bool bKicked = false;
-            
-            for (auto [account_id, player] : player_component::Players)
+            if (JsonPayloadData.contains("account_id"))
             {
-                if (account_id == wAccountID)
-                {
-                    if (!memory_manager::is_bad_read_pointer(player) && player)
-                    {
-                        // Log
-                        spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
-                        
-                        player->ClientReturnToMainMenu(TEXT(""));
+                std::string sAccountID = JsonPayloadData["account_id"];
 
-                        bKicked = true;
-                        
-                        break;
+                if (sAccountID.size())
+                {
+                    std::wstring wAccountID = std::wstring(sAccountID.begin(), sAccountID.end());
+
+                    if (wAccountID.size())
+                    {
+                        for (auto [account_id, player] : player_component::Players)
+                        {
+                            if (account_id == wAccountID)
+                            {
+                                if (!memory_manager::is_bad_read_pointer(player) && player)
+                                {
+                                    if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
+                                    {
+                                        spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
+                                    }
+                                    
+                                    player->ClientReturnToMainMenu(TEXT(""));
+
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
-            }
-
-            if (!bKicked)
-            {
-                spdlog::warn(L"Received kick message for account_id: {} but could not find the player in this server.", wAccountID.c_str());
             }
         }
         
