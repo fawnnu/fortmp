@@ -27,8 +27,8 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
         float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
         float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
 
-        if (Difference_X > 2000 ||
-            Difference_Y > 2000)
+        if (Difference_X > 2500 ||
+            Difference_Y > 2500)
         {
             // Log
             spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
