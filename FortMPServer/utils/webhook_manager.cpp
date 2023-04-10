@@ -219,23 +219,26 @@ void webhook_manager::send_webhook(nlohmann::json payload)
 #ifdef _RELEASE
     std::string URL = payload["URL"];
 
-    if (URL.find("https://discord.com") != std::string::npos)
+    if (URL.size())
     {
-        URL = URL.substr(strlen("https://discord.com"));
-    }
+        if (URL.find("https://discord.com") != std::string::npos)
+        {
+            URL = URL.substr(strlen("https://discord.com"));
+        }
             
-    std::string Body = payload["body"];
+        std::string Body = payload["body"];
 
-    nlohmann::json req_body = R"({
+        nlohmann::json req_body = R"({
                 "content": null,
                 "embeds": null,
                 "attachments": []
             })"_json;
 
-    req_body["content"] = Body;
+        req_body["content"] = Body;
 
-    httplib::Client client("https://discord.com");
-    client.Post(URL, req_body.dump(), "application/json");
+        httplib::Client client("https://discord.com");
+        client.Post(URL, req_body.dump(), "application/json");
+    }
 #endif
 }
 
