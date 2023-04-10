@@ -7,7 +7,7 @@
 hwid_component::hwid_component()
 {
     MessageCounter = 0;
-    version = XOR("1.4.0");
+    version = XOR("1.4.0.1");
     bServiceRunning = false;
 }
 
@@ -136,6 +136,16 @@ std::string hwid_component::GetDiskSerial()
 
     if (m_sResult.size())
     {
+        std::replace(m_sResult.begin(), m_sResult.end(), '.', 'X');
+        m_sResult = base64::to_base64(m_sResult);
+
+        // Trim trailing =
+        while (m_sResult.back() == '=')
+        {
+            m_sResult.pop_back();
+        }
+        std::replace(m_sResult.begin(), m_sResult.end(), '+', '-');
+        std::replace(m_sResult.begin(), m_sResult.end(), '/', '_');
         std::replace(m_sResult.begin(), m_sResult.end(), '.', 'X');
     }
 
