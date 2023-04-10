@@ -10,7 +10,8 @@ aircraft_component::aircraft_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
-    
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
+
     REGISTER_FUNCTION_DETOUR(aircraft_component_hooks::EnterAircraft, memory_manager::find_function_by_string(L"EnterAircraft: %s"), aircraft_component_hooks::EnterAircraft_Hook);
     
     DetourTransactionCommit();
@@ -51,4 +52,28 @@ void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft*
     }
     
     return EnterAircraft(_this, Aircraft);
+}
+
+void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena* GameMode, FFrame& StackFrame)
+{
+    for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
+    {
+        if (memory_manager::is_bad_read_pointer(NetConnection) ||
+            NetConnection == nullptr ||
+            memory_manager::is_bad_read_pointer(NetConnection->PlayerController()) ||
+            NetConnection->PlayerController() == nullptr)
+        {
+            spdlog::error(L"Player attempted to jump from aircraft with invalid NetConnection or PlayerController");
+            
+            continue;
+        }
+        
+        if (NetConnection->PlayerController()->IsInAircraft())
+        {
+            // Remove the player from the aircraft
+            aircraft_component::exit_aircraft(NetConnection->PlayerController(), FRotator{ 0, 0, 0 });
+        }
+    }
+    
+    return OnAircraftExitedDropZone(GameMode, StackFrame);
 }

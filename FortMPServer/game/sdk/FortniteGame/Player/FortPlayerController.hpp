@@ -201,11 +201,6 @@ public:
         STATIC_FINDFUNCTION(ClientReturnToMainMenu)
         
         Call(Function_ClientReturnToMainMenu, in_reason);
-
-        if (NetConnection())
-        {
-            NetConnection()->Close();
-        }
     }
 
     UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)
