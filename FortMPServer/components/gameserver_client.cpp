@@ -136,23 +136,7 @@ void gameserver_client::Register()
 {
     nlohmann::json server_config = config_manager::get_server_config();
     GameServer_Status.max_players = static_cast<int>(server_config["player_cap_override"]);
-
-    httplib::Client client(API_URL);
-    httplib::Headers headers = {
-        { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-    };
-    nlohmann::json PostPayload = {
-        {"region", ""},
-        {"build", std::to_string(GetCL())},
-        {"max_players", std::to_string(GameServer_Status.max_players)}
-    };
-    PostPayload["region"] = qos_component::best_region;
-    auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
-    nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
-
-    Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
-
-    // Parse private_matchmaking_key
+    
     if (server_config.contains("server_key"))
     {
         std::string server_key = server_config["server_key"];
@@ -161,18 +145,46 @@ void gameserver_client::Register()
             GameServer_Status.private_matchmaking_key = server_key;
         }
     }
-    if (server_config.contains("name"))
+
+    httplib::Client client(API_URL);
+    httplib::Headers headers = {
+        { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+    };
+    nlohmann::json PostPayload = {
+        {"region", ""},
+        {"build", std::to_string(GetCL())},
+        {"max_players", std::to_string(GameServer_Status.max_players)},
+        {"key", GameServer_Status.private_matchmaking_key}
+    };
+    PostPayload["region"] = qos_component::best_region;
+    auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
+
+    try
     {
-        std::string server_name = server_config["name"];
-        if (server_name.length() >= 2 && server_name.length() <= 16)
+        nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
+
+        if (JsonResult.contains("data"))
         {
-            GameServer_Status.name = server_name;
-            SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+            Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
+
+            if (server_config.contains("name"))
+            {
+                std::string server_name = server_config["name"];
+                if (server_name.length() >= 2 && server_name.length() <= 16)
+                {
+                    GameServer_Status.name = server_name;
+                    SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                }
+            }
+    
+            SendJoin();
+            SendUpdate();
         }
     }
-    
-    SendJoin();
-    SendUpdate();   
+    catch (nlohmann::json::parse_error& ex)
+    {
+        
+    }
 }
 
 void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
@@ -305,7 +317,6 @@ void gameserver_client::SendJoin()
             payload.push_back(Channel); // Channel
             payload.push_back("phx_join"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
-                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}}
             }); // param
 
@@ -337,7 +348,6 @@ void gameserver_client::SendUpdate()
                 {"number_of_players", std::to_string(GameServer_Status.number_of_players)},
                 {"status", GameServer_Status.status},
                 {"max_players", std::to_string(GameServer_Status.max_players)},
-                {"private_matchmaking_key", {GameServer_Status.private_matchmaking_key.length() >= 4 ? GameServer_Status.private_matchmaking_key : ""}},
                 {"port", std::to_string(GameServer_Status.port)},
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}},
                 {"playlist", {GameServer_Status.mode}}

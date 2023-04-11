@@ -356,7 +356,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server password)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -476,16 +476,8 @@ void moderation_component::HandleSetServerPasswordCommand(const TCHAR*& InStream
                 auto config = config_manager::get_server_config();
                 config["server_key"] = sInServerPassword;
                 config_manager::save_server_config(config);
-
-#ifdef _RELEASE
-                if (gameserver_client* Client = gameserver_client::Client)
-                {
-                    Client->GameServer_Status.private_matchmaking_key = sInServerPassword;
-                    Client->SendUpdate();
-                }
-#endif
-
-                ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set!"));
+                
+                ExecutingPlayerController->ClientMessage(TEXT("ServerPassword successfully set! Restart the server to apply"));
             }
             else
             {
