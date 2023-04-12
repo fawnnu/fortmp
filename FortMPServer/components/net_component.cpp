@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "net_component.hpp"
 
+#include "player_component.hpp"
 #include "replication_component.hpp"
 
 net_component::net_component()
@@ -115,6 +116,48 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
         // Execute code on game thread
         game_thread_queue.front()();
         game_thread_queue.pop_front();
+    }
+
+    while (!kick_events_queue.empty())
+    {
+        auto kick_event = kick_events_queue.front();
+        
+        if (kick_event.contains("account_id"))
+        {
+            std::string sAccountID = kick_event["account_id"];
+
+            if (sAccountID.size())
+            {
+                std::wstring wAccountID = std::wstring(sAccountID.begin(), sAccountID.end());
+
+                if (wAccountID.size())
+                {
+                    for (auto [account_id, player] : player_component::Players)
+                    {
+                        if (account_id == wAccountID)
+                        {
+                            if (!memory_manager::is_bad_read_pointer(player) && player)
+                            {
+                                if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
+                                {
+                                    spdlog::info(L"Kicked '{}' [account_id: {}, bIsDisconnecting: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), player->bIsDisconnecting(), wAccountID.c_str());
+                                }
+
+                                // If the player is not already disconnecting, proceed with kick
+                                if (!player->bIsDisconnecting())
+                                {
+                                    player->ClientReturnToMainMenu(TEXT(""));
+                                }
+                                        
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } 
+        
+        kick_events_queue.pop_front();
     }
 
     // Acknowledge pending heartbeats

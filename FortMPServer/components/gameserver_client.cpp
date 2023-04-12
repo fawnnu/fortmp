@@ -226,36 +226,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // If we receive a kick message, kick the target player
         if (VectorPayloadString[1] == "kick")
         {
-            if (JsonPayloadData.contains("account_id"))
-            {
-                std::string sAccountID = JsonPayloadData["account_id"];
-
-                if (sAccountID.size())
-                {
-                    std::wstring wAccountID = std::wstring(sAccountID.begin(), sAccountID.end());
-
-                    if (wAccountID.size())
-                    {
-                        for (auto [account_id, player] : player_component::Players)
-                        {
-                            if (account_id == wAccountID)
-                            {
-                                if (!memory_manager::is_bad_read_pointer(player) && player)
-                                {
-                                    if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
-                                    {
-                                        spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
-                                    }
-                                    
-                                    player->ClientReturnToMainMenu(TEXT(""));
-
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            kick_events_queue.push_back(JsonPayloadData);
         }
         
         // If it's a "player" message, add the encryptiontoken to the encryptiontoken list

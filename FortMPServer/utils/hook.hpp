@@ -84,6 +84,7 @@ public:
 
 // Queue of code to execute on game thread
 inline std::deque<std::function<void()>> game_thread_queue;
+inline std::deque<nlohmann::json> kick_events_queue;
 
 namespace hook_manager_hooks
 {
