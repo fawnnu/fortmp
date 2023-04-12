@@ -22,41 +22,44 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
 
     if (Controller)
     {
-        // Check if TraceEnd and the bullet's location on the server are different
-        FVector CurrentLoc = Self->K2_GetActorLocation();
-        float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
-        float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
-
-        if (Difference_X >= 7500 ||
-            Difference_Y >= 7500)
+        if (Hit.Actor().Get() && Hit.Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
         {
-            // Log
-            spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
+            // Check if TraceEnd and the bullet's location on the server are different
+            FVector CurrentLoc = Self->K2_GetActorLocation();
+            float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
+            float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
 
-            // Register invalid hit
-            anticheat_component::IllegalActionsCount[Controller]++;
-            
-            // Check amount of illegal actions
-            if (anticheat_component::IllegalActionsCount[Controller] >= 3)
+            if (Difference_X >= 5000 ||
+                Difference_Y >= 5000)
             {
-                // Perform a ban
-                for (auto [account_id, player_controller] : player_component::Players)
+                // Log
+                spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
+
+                // Register invalid hit
+                anticheat_component::IllegalActionsCount[Controller]++;
+            
+                // Check amount of illegal actions
+                if (anticheat_component::IllegalActionsCount[Controller] >= 3)
                 {
-                    if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
+                    // Perform a ban
+                    for (auto [account_id, player_controller] : player_component::Players)
                     {
-                        if (player_controller == Controller)
+                        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
                         {
-                            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                            if (player_controller == Controller)
+                            {
+                                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                             
-                            gameserver_client::Client->SendBan(converter.to_bytes(account_id));
+                                gameserver_client::Client->SendBan(converter.to_bytes(account_id));
                             
-                            break;
+                                break;
+                            }
                         }
                     }
                 }
-            }
             
-            return;
+                return;
+            }
         }
         
         return ServerNotifyPawnHit(Self, StackFrame);
