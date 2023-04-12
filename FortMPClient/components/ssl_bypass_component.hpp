@@ -8,7 +8,6 @@ struct request
     {
         URL = inURL;
         CurlHANDLE = nullptr;
-        i = 0;
         Response = "";
         writefunction_original = nullptr;
         writefunction_override = inwritefunction_override;
@@ -19,7 +18,6 @@ struct request
     {
         URL = inURL;
         CurlHANDLE = nullptr;
-        i = 0;
         Response = "";
         writefunction_original = nullptr;
         writefunction_override = nullptr;
@@ -34,7 +32,6 @@ struct request
     LPVOID CurlHANDLE;
     std::string URL;
     std::string Response;
-    int i;
 
     void* writefunction_override;
     void* writefunction_original;

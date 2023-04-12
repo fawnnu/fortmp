@@ -8,24 +8,32 @@
 
 void oauth_token_callback(request* req)
 {
-    if (req->i < 2)
+    try
     {
-        // not the request we're looking for
-        return;
-    }
+        auto Json = nlohmann::json::parse(req->Response);
 
-    auto Json = nlohmann::json::parse(req->Response);
-    if (Json.contains(XOR("access_token")))
-    {
-        hwid_component::access_token = Json[XOR("access_token")];
-
-        if (hwid_component::bServiceRunning == false)
+        if (Json.contains(XOR("account_id")))
         {
-            hwid_component::bServiceRunning = true;
-            hwid_component::StartMessageService();
+            if (Json[XOR("account_id")] != XOR("a8ade897-b930-47e2-909d-b114f94d04bd"))
+            {
+                if (Json.contains(XOR("access_token")))
+                {
+                    hwid_component::access_token = Json[XOR("access_token")];
 
-            new pe_component();
+                    if (hwid_component::bServiceRunning == false)
+                    {
+                        hwid_component::bServiceRunning = true;
+                        hwid_component::StartMessageService();
+
+                        new pe_component();
+                    }
+                }
+            }
         }
+    }
+    catch (nlohmann::json::parse_error& e)
+    {
+        
     }
 }
 
@@ -105,7 +113,6 @@ int ssl_bypass_component_hook::CurlEasy_Hook(LPVOID A, int B, ...)
                 if (Url.find(request_to_capture->URL) != std::string::npos)
                 {
                     request_to_capture->CurlHANDLE = A;
-                    request_to_capture->i++;
                     
                     break;
                 }
