@@ -180,6 +180,10 @@ void gameserver_client::Register()
             SendJoin();
             SendUpdate();
         }
+        else
+        {
+            spdlog::error("POST /api/internal/game/servers returned {}. Body: {}", Result->status, Result->body.c_str());
+        }
     }
     catch (nlohmann::json::parse_error& ex)
     {
