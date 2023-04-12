@@ -140,14 +140,10 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                             {
                                 if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
                                 {
-                                    spdlog::info(L"Kicked '{}' [account_id: {}, bIsDisconnecting: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str(), player->bIsDisconnecting());
+                                    spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
                                 }
-
-                                // If the player is not already disconnecting, proceed with kick
-                                if (!player->bIsDisconnecting())
-                                {
-                                    player->ClientReturnToMainMenu(TEXT(""));
-                                }
+                                
+                                player->ClientReturnToMainMenu(TEXT(""));
                                         
                                 break;
                             }
