@@ -9,7 +9,7 @@ public:
 
     static std::string GetDiskSerial();
     static std::string GetGPUGUID();
-    static std::string GetMOBOGUID();
+    static std::string GetSysUUID();
     
     inline static std::string access_token;
     inline static int MessageCounter;

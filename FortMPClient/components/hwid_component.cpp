@@ -3,11 +3,13 @@
 
 #include <winioctl.h>
 #include <codecvt>
+#include <d3d9.h>
+#pragma comment(lib, "d3d9.lib")
 
 hwid_component::hwid_component()
 {
     MessageCounter = 0;
-    version = XOR("1.4.0.2");
+    version = XOR("1.4.0.3");
     bServiceRunning = false;
 }
 
@@ -48,6 +50,8 @@ void hwid_component::StartMessageService()
             std::string HWID;
             if (std::string volume_id = GetDiskSerial(); volume_id.size())
             {
+                volume_id = hmac<SHA256>(volume_id, GetSysUUID());
+                
                 HWID += volume_id;
             }
 
@@ -191,69 +195,13 @@ std::string hwid_component::GetGPUGUID()
     return "";
 }
 
-std::string hwid_component::GetMOBOGUID()
+std::string hwid_component::GetSysUUID()
 {
-    // https://github.com/medievalghoul/hwid-checker-mg/blob/master/hwid_checker/hwid_checker.cpp
-    DWORD flag										 {1};
-    DWORD smbios_data_size				 {};
-    BYTE  *b_					             {nullptr};
-    smbios::dmi_header* header             {nullptr};
-    smbios::RawSMBIOSData* smbios_data     {nullptr};
-    BYTE* smbios_data_buffer; //[0x10000] = { 0 }; //0.065536 megabytes
-    smbios_data_buffer = new BYTE[0x10000]; //0.065536 megabytes fails
-
-    smbios_data_size = GetSystemFirmwareTable('RSMB', 0, 0, 0);
-
-    if (!smbios_data_size)
-    {
-        return "";
-    }
-
-    if (smbios_data_size == 0)
-    {
-        return "";
-    }
-    int smbios_buffersize = smbios_data_size;
-
-    smbios_data_size = GetSystemFirmwareTable('RSMB', 0, smbios_data_buffer, smbios_buffersize);
-	
-    if (!smbios_data_size)
-    {
-        return "";
-    }
-
-    smbios_data =
-        reinterpret_cast<smbios::RawSMBIOSData*> (
-            smbios_data_buffer
-            );
-
-
-    if (smbios_data->Length != smbios_buffersize - 8)
-    {
-        return "";
-    }
-
-    b_ = smbios_data->SMBIOSTableData;
-    for (DWORD index{}; index < smbios_data->Length; index++) {
-        smbios::dmi_header *header =
-            reinterpret_cast<smbios::dmi_header*> (b_);
-
-        if (header->type == smbios::dmi_entry_type::DMI_ENTRY_BASEBOARD) {
-            auto mobo_guid = std::string(dmi_string(header, b_[0x7]));
-            
-            if (mobo_guid.size())
-            {
-                std::replace(mobo_guid.begin(), mobo_guid.end(), '.', 'X');
-            }
-
-            return mobo_guid;
-        }
-        
-        b_ += header->length;
-        while ((*(WORD*)b_) != 0) { b_++; }
-        b_ += 2;
-    }
-
-    return "";
+    WCHAR* sys_uuid_wstring;
+    StringFromCLSID(SMBIOS::getInstance().SysUUID(), &sys_uuid_wstring);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string sys_uuid_string = converter.to_bytes(sys_uuid_wstring);
+    
+    return sys_uuid_string;
 }
 
