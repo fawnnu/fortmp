@@ -17,6 +17,7 @@ public:
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline int InvalidTokensReceived;
+    static inline int global_player_id = 0;
 };
 
 namespace player_component_hooks

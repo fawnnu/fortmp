@@ -598,6 +598,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::EncryptionTokenList.clear();
         player_component::Profiles.clear();
         player_component::Players.clear();
+        player_component::global_player_id = 0;
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

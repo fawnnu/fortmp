@@ -392,6 +392,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
         }
 
+        // Set Player ID (Sets teams on traps automatically)
+        NewPlayer->PlayerState()->WorldPlayerId() = player_component::global_player_id++;
+        
         // Drop loading screen
         static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
         
