@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+struct FGameplayAbilityTargetDataHandle
+{
+    char UnknownData_00[0x20];
+};
+
 struct FFortAbilityCost
 {
     DEFINE_STRUCT_PROPERTY(uint8_t, CostSource);
@@ -36,4 +41,10 @@ public:
         
         return Call<AFortWeapon*>(Function_GetCurrentSourceWeapon);
     }
+};
+
+class UFortGameplayAbility_RangedWeapon : public UFortGameplayAbility
+{
+public:
+    DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
 };

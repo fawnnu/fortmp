@@ -13,6 +13,8 @@ public:
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
+    static std::string get_account_id(AFortPlayerController* target_player_controller);
+    
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;

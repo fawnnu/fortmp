@@ -9,6 +9,7 @@ anticheat_component::anticheat_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(anticheat_component_hooks::ServerNotifyPawnHit, TEXT("/Script/FortniteGame.FortProjectileAthena.ServerNotifyPawnHit"), anticheat_component_hooks::ServerNotifyPawnHit_Hook)
+    REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
     
     DetourTransactionCommit();
 }
@@ -36,26 +37,13 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
                 spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
 
                 // Register invalid hit
-                anticheat_component::IllegalActionsCount[Controller]++;
+                anticheat_component::IllegalSniperActionsCount[Controller]++;
             
                 // Check amount of illegal actions
-                if (anticheat_component::IllegalActionsCount[Controller] >= 3)
+                if (anticheat_component::IllegalSniperActionsCount[Controller] >= 3)
                 {
                     // Perform a ban
-                    for (auto [account_id, player_controller] : player_component::Players)
-                    {
-                        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
-                        {
-                            if (player_controller == Controller)
-                            {
-                                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                            
-                                gameserver_client::Client->SendBan(converter.to_bytes(account_id));
-                            
-                                break;
-                            }
-                        }
-                    }
+                    gameserver_client::Client->SendBan(player_component::get_account_id(Controller));
                 }
             
                 return;
@@ -64,4 +52,41 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
         
         return ServerNotifyPawnHit(Self, StackFrame);
     }
+}
+
+__int64 anticheat_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FGameplayTag ApplicationTag)
+{
+    AFortWeapon* CurrentWeapon = RangedWeaponAbility->CurrentWeapon();
+
+    // Get firing player
+    AFortPlayerController* Controller = RangedWeaponAbility->GetActivatingPawn()->Controller();
+    
+    if (anticheat_component::LastFireTime[CurrentWeapon] == 0.0f)
+    {
+        // Update for initial weapon fire
+        anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
+    }
+    else
+    {
+        const float TimeSinceLastFired = (*GWorld)->TimeSeconds() - anticheat_component::LastFireTime[CurrentWeapon];
+        
+        if ((TimeSinceLastFired + 0.035f) < (1.0f / CurrentWeapon->GetFiringRate()))
+        {
+            // Log
+            spdlog::warn(L"Player '{}' has exceeded fire rate (TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeSinceLastFired, (1.0f / CurrentWeapon->GetFiringRate()));
+            
+            // Register invalid shot
+            anticheat_component::IllegalWeaponActionsCount[CurrentWeapon]++;
+
+            if (anticheat_component::IllegalWeaponActionsCount[CurrentWeapon] >= 5)
+            {
+                // Perform a ban
+                gameserver_client::Client->SendBan(player_component::get_account_id(Controller));
+            }
+        }
+
+        anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
+    }
+    
+    return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
 }

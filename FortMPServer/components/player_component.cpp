@@ -287,6 +287,24 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
     return nullptr;
 }
 
+std::string player_component::get_account_id(AFortPlayerController* target_player_controller)
+{
+    for (auto [account_id, player_controller] : Players)
+    {
+        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
+        {
+            if (player_controller == target_player_controller)
+            {
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                
+                return converter.to_bytes(account_id);
+            }
+        }
+    }
+
+    return "";
+}
+
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UObject*, P);
