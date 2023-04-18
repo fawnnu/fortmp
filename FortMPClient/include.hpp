@@ -10,6 +10,14 @@
 
 #define XOR(STR) xorstr(STR).crypt_get()
 
+#if !defined(NT_SUCCESS)
+#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#endif
+
+#if !defined(STATUS_SUCCESS)
+#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+#endif
+
 #include <Windows.h>
 #include <Psapi.h>
 

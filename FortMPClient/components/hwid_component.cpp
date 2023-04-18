@@ -9,7 +9,7 @@
 hwid_component::hwid_component()
 {
     MessageCounter = 0;
-    version = XOR("1.4.0.3");
+    version = XOR("1.4.0.4");
     bServiceRunning = false;
 }
 
@@ -48,16 +48,35 @@ void hwid_component::StartMessageService()
         while (true)
         {
             std::string HWID;
-            if (std::string volume_id = GetDiskSerial(); volume_id.size())
+            if (std::string DiskSerial = GetDiskSerial(); DiskSerial.size())
             {
-                volume_id = hmac<SHA256>(volume_id, GetSysUUID());
-                
-                HWID += volume_id;
+                HWID += DiskSerial;
+            }
+            if (std::string SysUUID = GetSysUUID(); SysUUID.size())
+            {
+                HWID += SysUUID;
+            }
+            if (std::string BootUUID = GetBootUUID(); BootUUID.size())
+            {
+                HWID += BootUUID;
+            }
+            if (std::string BoardSerial = GetBoardSerial(); BoardSerial.size())
+            {
+                HWID += BoardSerial;
             }
 
             if (HWID.size() == 0)
             {
+                MessageBoxA(0, XOR("An error occurred while attempting to log in. Please report this error."), 0, 0);
+                
                 return 1;
+            }
+            else
+            {
+                // Hash HWID
+                spdlog::info(HWID.c_str());
+                HWID = hmac<SHA256>(HWID, XOR("1681819033_DANII"));
+                spdlog::info(HWID.c_str());
             }
             
             std::string signature_not_encrypted = HWID + ":" + version + ":" + std::to_string(MessageCounter++);
@@ -203,5 +222,48 @@ std::string hwid_component::GetSysUUID()
     std::string sys_uuid_string = converter.to_bytes(sys_uuid_wstring);
     
     return sys_uuid_string;
+}
+
+std::string hwid_component::GetBoardSerial()
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string string_board_serial = converter.to_bytes(SMBIOS::getInstance().BoardSerialNumber());
+    
+    return string_board_serial;
+}
+
+std::string hwid_component::GetBootUUID()
+{
+    std::string boot_uuid;
+    NTSTATUS (*ZwQuerySystemInformation)(int SystemInformationClass,PVOID SystemInformation,ULONG SystemInformationLength, PULONG ReturnLength);
+    
+    if (HINSTANCE NtDllInstance = LoadLibraryA(XOR("ntdll.dll")))
+    {
+        if (auto ZwQuerySystemInformation_Address = GetProcAddress(NtDllInstance, XOR("ZwQuerySystemInformation")))
+        {
+            ZwQuerySystemInformation = reinterpret_cast<decltype(ZwQuerySystemInformation)>(ZwQuerySystemInformation_Address);
+
+            ULONG NeededSize = 0;
+            ZwQuerySystemInformation(0x5A, &NeededSize, 0, &NeededSize);
+
+            // Alloc
+            auto ModuleList = static_cast<PSYSTEM_BOOT_ENVIRONMENT_INFORMATION>(malloc(NeededSize));
+
+            if (ModuleList)
+            {
+                if (NT_SUCCESS(ZwQuerySystemInformation(0x5A, ModuleList, NeededSize, 0)))
+                {
+                    WCHAR* boot_uuid_wstring;
+                    StringFromCLSID(ModuleList->BootIdentifier, &boot_uuid_wstring);
+                    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                    std::string boot_uuid_string = converter.to_bytes(boot_uuid_wstring);
+                    
+                    return boot_uuid_string;
+                }
+            }
+        }
+    }
+
+    return boot_uuid;
 }
 
