@@ -71,6 +71,9 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FVe
     // Take the most recent attached actor (new trap)
     ABuildingSMActor* trap_actor = AttachedActor->AttachedBuildingActors()[AttachedActor->AttachedBuildingActors().Num() - 1];
 
+    /* DEPRECATED
+     * This is no more used, we have moved to WorldPlayerId, this sets the team automatically. However there were reports from Jake that it MIGHT cause some issues, so i will keep this chunk of code just in case.
+
     // Get the new team for this trap
     uint8_t new_team = player_controller->PlayerState()->TeamIndex();
     
@@ -78,7 +81,7 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FVe
     trap_actor->Team() = new_team;
 
     // Set trap team on newer builds
-    trap_actor->SetTeam(new_team);
+    trap_actor->SetTeam(new_team); */
 
     // Pay trap cost
     if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_guid(player_controller, FortDecoTool->ItemEntryGuid()))

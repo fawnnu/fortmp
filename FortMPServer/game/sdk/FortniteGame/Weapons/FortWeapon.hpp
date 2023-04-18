@@ -37,6 +37,13 @@ public:
         
         return Call<bool>(Function_IsProjectileWeapon);
     }
+
+    float GetFiringRate()
+    {
+        STATIC_FINDFUNCTION(GetFiringRate)
+
+        return Call<float>(Function_GetFiringRate);
+    }
 };
 
 struct FAthenaBatchedDamageGameplayCues_Shared

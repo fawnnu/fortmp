@@ -91,9 +91,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 team_component::max_team_size_override = playlist->team_size;
             }
             
-            if (in_playlist == nullptr)
+            if (in_playlist == nullptr || GetFortniteVersionEasy() >= 8 && in_playlist->bEnableCreativeMode() == true)
             {
-                // Use default playlist if none specified
+                // Use default playlist if none specified or if it's creative (Disabled starting from v8.00 due to a lot of functionality being stripped)
                 in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");
             }
         }
@@ -598,6 +598,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::EncryptionTokenList.clear();
         player_component::Profiles.clear();
         player_component::Players.clear();
+        player_component::global_player_id = 0;
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
