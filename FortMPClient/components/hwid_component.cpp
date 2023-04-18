@@ -74,9 +74,7 @@ void hwid_component::StartMessageService()
             else
             {
                 // Hash HWID
-                spdlog::info(HWID.c_str());
                 HWID = hmac<SHA256>(HWID, XOR("1681819033_DANII"));
-                spdlog::info(HWID.c_str());
             }
             
             std::string signature_not_encrypted = HWID + ":" + version + ":" + std::to_string(MessageCounter++);

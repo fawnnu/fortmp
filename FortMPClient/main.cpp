@@ -8,7 +8,6 @@
 
 void Setup()
 {
-    AllocConsole();
     // Fake pak to bypass check
     unreal_manager::setup_unreal_engine();
 
