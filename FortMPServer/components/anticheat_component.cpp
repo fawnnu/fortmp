@@ -9,7 +9,7 @@ anticheat_component::anticheat_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(anticheat_component_hooks::ServerNotifyPawnHit, TEXT("/Script/FortniteGame.FortProjectileAthena.ServerNotifyPawnHit"), anticheat_component_hooks::ServerNotifyPawnHit_Hook)
-    REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
+    //REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
     
     DetourTransactionCommit();
 }
@@ -43,7 +43,10 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
                 if (anticheat_component::IllegalSniperActionsCount[Controller] >= 3)
                 {
                     // Perform a ban
-                    gameserver_client::Client->SendBan(player_component::get_account_id(Controller));
+                    if (auto account_id = player_component::get_account_id(Controller); account_id.size())
+                    {
+                        gameserver_client::Client->SendBan(account_id);
+                    }
                 }
             
                 return;
