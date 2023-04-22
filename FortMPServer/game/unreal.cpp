@@ -111,6 +111,7 @@ unreal_manager::unreal_manager()
 
     spdlog::info(L"Server successfully initialized. Module FortniteClient-Win64-Shipping.exe base address is {}",
         reinterpret_cast<void*>(GetModuleHandle(nullptr)));
+    spdlog::info(L"Running version: {}", GetEngineVersion().c_str());
 }
 
 bool FString::operator==(FString in_str)

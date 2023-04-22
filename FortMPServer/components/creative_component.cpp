@@ -47,8 +47,6 @@ void creative_component::handle_player_join(UNetConnection* NetConnection)
 
     if (current_playlist == nullptr)
     {
-        spdlog::error(L"creative_component::handle_player_join: nullptr playlist");
-
         return;
     }
 

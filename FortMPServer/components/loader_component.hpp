@@ -15,6 +15,7 @@ public:
     static void initialize_llamas();
     static void initialize_bga();
     static void handle_duplicated_foundations();
+    static void handle_battle_bus_overrides();
 
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
 

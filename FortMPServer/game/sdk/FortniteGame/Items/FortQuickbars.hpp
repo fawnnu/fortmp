@@ -46,6 +46,7 @@ public:
     void ServerRemoveItemInternal(FGuid InGuid, bool bIsSwapping = false)
     {
         auto primary_quickbar_slots = TArrayManager<FQuickBarSlot>(&PrimaryQuickBar().Slots(), FQuickBarSlot::GetStructSize());
+        auto secondary_quickbar_slots = TArrayManager<FQuickBarSlot>(&SecondaryQuickBar().Slots(), FQuickBarSlot::GetStructSize());
 
         for (int i = 0; i < primary_quickbar_slots.Num(); i++)
         {
@@ -93,6 +94,20 @@ public:
                     ServerActivateSlotInternal(0, 0);
                 }
                        
+                break;
+            }
+        }
+
+        for (int i = 0; i < secondary_quickbar_slots.Num(); i++)
+        {
+            if (secondary_quickbar_slots[i].Items().Find(InGuid))
+            {
+                // remove and activate first slot
+                static void* items = FindPropertyByName(FQuickBarSlot::GetClass(), L"Items");
+                GenericArray_Remove(&secondary_quickbar_slots[i].Items(), items, 0);
+                
+                ServerActivateSlotInternal(0, 0);
+
                 break;
             }
         }

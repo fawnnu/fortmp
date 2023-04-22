@@ -7,14 +7,17 @@ qos_component::qos_component()
     era_regions[TEXT("EU")] = TEXT("142.132.145.234:22222");
     era_regions[TEXT("NA")] = TEXT("69.10.34.38:22222");
     
-    if (memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) < memory_manager::get_function_end(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")) &&
-        memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true) > memory_manager::find_function_by_string(L"Failed to send broadcast packet %d"))
+    if (memory_manager::does_address_belong_to_func(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true), memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")))
     {
         INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1));   
     }
-    else
+    else if (memory_manager::does_address_belong_to_func(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x2}, 1, true, false, true), memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")))
     {
         INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x2}, 1));  
+    }
+    else if (memory_manager::does_address_belong_to_func(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0xFE}, 1, true, false, true), memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")))
+    {
+        INIT_POINTER(ISocketSubsystem__Get, memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0xFE}, 1));  
     }
     
     INIT_POINTER(UDPEchoImpl, memory_manager::find_function_by_string(L"UDPPing", {}, 0, true, true, false, true));

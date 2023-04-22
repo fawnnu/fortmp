@@ -167,7 +167,7 @@ public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortGameStateAthena>, GamePhaseChanged);
     DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
     DEFINE_PROPERTY(AActor*, Aircraft);
-
+    DEFINE_PROPERTY(UFortItemDefinition*, DefaultBattleBus);
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
 
     DEFINE_PROPERTY(uint8_t, GamePhase);
@@ -179,8 +179,6 @@ public:
 
     DEFINE_PROPERTY(FGameMemberInfoArray, GameMemberInfoArray);
 
-    DEFINE_PROPERTY(UObject*, DefaultBattleBus);
-    
     DEFINE_PROPERTY(int, TotalPlayers);
     DEFINE_PROPERTY(int, PlayersLeft);
     DEFINE_PROPERTY(int, TeamsLeft);

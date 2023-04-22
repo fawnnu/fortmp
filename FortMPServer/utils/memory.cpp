@@ -373,6 +373,11 @@ uintptr_t memory_manager::scan_for(uintptr_t start_address, std::vector<DWORD> O
 	return 0;
 }
 
+bool memory_manager::does_address_belong_to_func(uintptr_t target_address, uintptr_t function_start)
+{
+	return target_address < get_function_end(function_start) && target_address > function_start;
+}
+
 bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
 {
     if (pointer_cache.find(pointer_to_read) != pointer_cache.end())

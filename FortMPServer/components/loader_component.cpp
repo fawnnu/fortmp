@@ -91,7 +91,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 team_component::max_team_size_override = playlist->team_size;
             }
 
-            STATIC_HASPROPERTY(in_playlist, bEnableCreativeMode);
+            bool bExists_bEnableCreativeMode = false;
+            if (in_playlist)
+            {
+                bExists_bEnableCreativeMode = in_playlist->HasProperty(TEXT("bEnableCreativeMode"));
+            }
             
             if (in_playlist == nullptr || GetFortniteVersionEasy() >= 8 && bExists_bEnableCreativeMode && in_playlist->bEnableCreativeMode() == true)
             {
@@ -138,6 +142,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Disable duplicate building foundations
         handle_duplicated_foundations();
+
+        // Handle eventual battle bus overrides (Specific per build)
+        handle_battle_bus_overrides();
 
         // Initialize era_teams
         team_component::InitializeTeams();
@@ -395,6 +402,23 @@ void loader_component::handle_duplicated_foundations()
             FoundationLocationsList.push_back(Location);
         }
     }   
+}
+
+void loader_component::handle_battle_bus_overrides()
+{
+    // 1.11, christmas bus
+    if (GetCL() == 3807424)
+    {
+        AFortGameStateAthena* GameState = (*GWorld)->GameState();
+        
+        if (STATIC_HASPROPERTY(GameState, DefaultBattleBus))
+        {
+            if (UFortItemDefinition* BattleBusOverride = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"))
+            {
+                GameState->DefaultBattleBus() = BattleBusOverride;
+            }
+        }
+    }
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
