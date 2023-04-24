@@ -9,7 +9,7 @@ anticheat_component::anticheat_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(anticheat_component_hooks::ServerNotifyPawnHit, TEXT("/Script/FortniteGame.FortProjectileAthena.ServerNotifyPawnHit"), anticheat_component_hooks::ServerNotifyPawnHit_Hook)
-    //REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
+    REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
     
     DetourTransactionCommit();
 }
@@ -57,38 +57,45 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
     }
 }
 
+//TODO: This code has one big flaw, if the ping itself is higher than the possible fire rate, anyone with that ping will simply bypass the checks
 __int64 anticheat_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FGameplayTag ApplicationTag)
 {
-    AFortWeapon* CurrentWeapon = RangedWeaponAbility->CurrentWeapon();
+    if (RangedWeaponAbility->IsA(UFortGameplayAbility_RangedWeapon::StaticClass()))
+    {
+        AFortWeapon* CurrentWeapon = RangedWeaponAbility->CurrentWeapon();
 
-    // Get firing player
-    AFortPlayerController* Controller = RangedWeaponAbility->GetActivatingPawn()->Controller();
+        // Get firing player
+        AFortPlayerController* Controller = RangedWeaponAbility->GetActivatingPawn()->Controller();
     
-    if (anticheat_component::LastFireTime[CurrentWeapon] == 0.0f)
-    {
-        // Update for initial weapon fire
-        anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
-    }
-    else
-    {
-        const float TimeSinceLastFired = (*GWorld)->TimeSeconds() - anticheat_component::LastFireTime[CurrentWeapon];
-        
-        if ((TimeSinceLastFired + 0.035f) < (1.0f / CurrentWeapon->GetFiringRate()))
+        if (anticheat_component::LastFireTime[CurrentWeapon] == 0.0f)
         {
-            // Log
-            spdlog::warn(L"Player '{}' has exceeded fire rate (TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeSinceLastFired, (1.0f / CurrentWeapon->GetFiringRate()));
-            
-            // Register invalid shot
-            anticheat_component::IllegalWeaponActionsCount[CurrentWeapon]++;
-
-            if (anticheat_component::IllegalWeaponActionsCount[CurrentWeapon] >= 5)
-            {
-                // Perform a ban
-                gameserver_client::Client->SendBan(player_component::get_account_id(Controller));
-            }
+            // Update for initial weapon fire
+            anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
         }
+        else
+        {
+            const float TimeSinceLastFired = (*GWorld)->TimeSeconds() - anticheat_component::LastFireTime[CurrentWeapon];
 
-        anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
+            // Get ping and include it in the calculation. NOTE: The value stored in "Ping" is divided by 4 for performance reasons
+            float RealPingInSeconds = (Controller->PlayerState()->Ping() * 4) / 1000.f;
+        
+            if ((TimeSinceLastFired + 0.035f + RealPingInSeconds) < (1.0f / CurrentWeapon->GetFiringRate()))
+            {
+                // Log
+                spdlog::warn(L"Player '{}' has exceeded fire rate (TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeSinceLastFired + 0.035f + RealPingInSeconds, (1.0f / CurrentWeapon->GetFiringRate()));
+            
+                // Register invalid shot
+                anticheat_component::IllegalWeaponActionsCount[CurrentWeapon]++;
+
+                if (anticheat_component::IllegalWeaponActionsCount[CurrentWeapon] >= 5)
+                {
+                    // Kick the player
+                    Controller->ClientReturnToMainMenu(TEXT(""));
+                }
+            }
+
+            anticheat_component::LastFireTime[CurrentWeapon] = (*GWorld)->TimeSeconds();
+        }
     }
     
     return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);

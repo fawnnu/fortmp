@@ -61,7 +61,8 @@ public:
     DEFINE_PROPERTY(uint8_t, SquadId);
     
     DEFINE_PROPERTY(int, KillScore);
-
+    DEFINE_PROPERTY(bool, bShouldUpdateReplicatedPing);
+    DEFINE_PROPERTY(uint8_t, Ping);
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
 
     DEFINE_PROPERTY(int, NumRejoins);

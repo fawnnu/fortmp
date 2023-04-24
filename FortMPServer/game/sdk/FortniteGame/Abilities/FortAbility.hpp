@@ -46,5 +46,7 @@ public:
 class UFortGameplayAbility_RangedWeapon : public UFortGameplayAbility
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameplayAbility_RangedWeapon");
+    
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
 };

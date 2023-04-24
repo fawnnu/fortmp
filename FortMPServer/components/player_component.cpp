@@ -415,6 +415,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         
         // Drop loading screen
         static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
+
+        // Update ping variable
+        UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->PlayerState(), TEXT("bShouldUpdateReplicatedPing"), true);
         
         // Notify gamemode
         (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);

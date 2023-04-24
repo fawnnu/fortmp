@@ -181,19 +181,23 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             return false;
         }
 
-        // Check if the current pickup is found in the incoming pickups stream
-        if (!PickupTarget->IncomingPickups().Find(Pickup))
+        // For some reason this code breaks on 3.5, so do not run it
+        if (GetCL() != 4008490)
         {
-            return false; 
-        }
-        
-        // If it is found, remove from the stream
-        for (int i = 0; i < PickupTarget->IncomingPickups().Num(); i++)
-        {
-            if (PickupTarget->IncomingPickups()[i] == Pickup)
+            // Check if the current pickup is found in the incoming pickups stream
+            if (!PickupTarget->IncomingPickups().Find(Pickup))
             {
-                TArrayManager<AFortPickup*>(&PickupTarget->IncomingPickups(), 8).Remove(i, FindPropertyByName(PickupTarget->Class, TEXT("IncomingPickups")));
-                break;
+                return false; 
+            }
+        
+            // If it is found, remove from the stream
+            for (int i = 0; i < PickupTarget->IncomingPickups().Num(); i++)
+            {
+                if (PickupTarget->IncomingPickups()[i] == Pickup)
+                {
+                    TArrayManager<AFortPickup*>(&PickupTarget->IncomingPickups(), 8).Remove(i, FindPropertyByName(PickupTarget->Class, TEXT("IncomingPickups")));
+                    break;
+                }
             }
         }
         
@@ -225,6 +229,12 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     inventory_component::remove_item(PlayerController, spawned_item->ItemEntry().ItemGuid(), -1);   
                 }
             }
+        }
+
+        // on 3.5, run the old code
+        if (GetCL() == 4008490)
+        {
+            Pickup->PickupLocationData().PickupTarget() = nullptr;
         }
     }
     
