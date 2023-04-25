@@ -727,6 +727,24 @@ int looting_component::get_default_loaded_ammo(UFortItemDefinition* in_item_defi
     return 0;
 }
 
+int looting_component::get_cartridge_per_fire(UFortItemDefinition* in_item_definition)
+{
+    if (in_item_definition)
+    {
+        static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+        static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    
+        if (in_item_definition->IsA(FortWeaponItemDefinition) &&
+            !in_item_definition->IsA(FortTrapItemDefinition))
+        {
+            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().Table) + 0x30);
+            return Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value->CartridgePerFire();
+        }
+    }
+    
+    return 0;
+}
+
 float looting_component::get_best_damage(UFortItemDefinition* in_item_definition)
 {
     static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");

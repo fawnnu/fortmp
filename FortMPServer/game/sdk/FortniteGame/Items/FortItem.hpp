@@ -257,6 +257,7 @@ struct FFortBaseWeaponStats
     DEFINE_STRUCT_PROPERTY(float, DamageZone_Critical);
     DEFINE_STRUCT_PROPERTY(float, DamageZone_Vulnerability);
     DEFINE_STRUCT_PROPERTY(float, DmgPB);
+    DEFINE_STRUCT_PROPERTY(int, CartridgePerFire);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortBaseWeaponStats");
 };

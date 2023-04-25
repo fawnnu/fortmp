@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "anticheat_component.hpp"
 
+#include "looting_component.hpp"
 #include "player_component.hpp"
 
 anticheat_component::anticheat_component()
@@ -76,10 +77,13 @@ __int64 anticheat_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayA
         {
             const float TimeSinceLastFired = (*GWorld)->TimeSeconds() - anticheat_component::LastFireTime[CurrentWeapon];
 
+            // Consider CartridgePerFire not to throw false positives at burst rifles
+            int CartridgePerFire = looting_component::get_cartridge_per_fire(CurrentWeapon->WeaponData());
+
             // Get ping and include it in the calculation. NOTE: The value stored in "Ping" is divided by 4 for performance reasons
             float RealPingInSeconds = (Controller->PlayerState()->Ping() * 4) / 1000.f;
         
-            if ((TimeSinceLastFired + 0.035f + RealPingInSeconds) < (1.0f / CurrentWeapon->GetFiringRate()))
+            if ((TimeSinceLastFired + 0.035f + RealPingInSeconds) < ((1.0f / CurrentWeapon->GetFiringRate()) / CartridgePerFire))
             {
                 // Log
                 spdlog::warn(L"Player '{}' has exceeded fire rate (TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeSinceLastFired + 0.035f + RealPingInSeconds, (1.0f / CurrentWeapon->GetFiringRate()));
