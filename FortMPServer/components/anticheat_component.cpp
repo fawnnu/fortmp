@@ -85,14 +85,14 @@ __int64 anticheat_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayA
         
             if ((TimeSinceLastFired + 0.035f + RealPingInSeconds) < ((1.0f / CurrentWeapon->GetFiringRate()) / CartridgePerFire))
             {
-                // Log
-                spdlog::warn(L"Player '{}' has exceeded fire rate (TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeSinceLastFired + 0.035f + RealPingInSeconds, (1.0f / CurrentWeapon->GetFiringRate()));
-            
                 // Register invalid shot
                 anticheat_component::IllegalWeaponActionsCount[CurrentWeapon]++;
 
                 if (anticheat_component::IllegalWeaponActionsCount[CurrentWeapon] >= 5)
                 {
+                    // Log
+                    spdlog::warn(L"Player '{}' has exceeded fire rate {} times (Last dump: TimeSinceLastFired: {}, FireRate: {})", Controller->MyPlayerInfo()->PlayerName().c_str(), anticheat_component::IllegalWeaponActionsCount[CurrentWeapon], TimeSinceLastFired + 0.035f + RealPingInSeconds, (1.0f / CurrentWeapon->GetFiringRate()));
+            
                     // Kick the player
                     Controller->ClientReturnToMainMenu(TEXT(""));
                 }
