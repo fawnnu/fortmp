@@ -4,6 +4,7 @@
 #include <regex>
 
 #include "hwid_component.hpp"
+#include "patches_component.hpp"
 #include "pe_component.hpp"
 
 void oauth_token_callback(request* req)
@@ -26,6 +27,8 @@ void oauth_token_callback(request* req)
                         hwid_component::StartMessageService();
 
                         new pe_component();
+
+                        patches_component::initialize_ProjectWorldToScreen_patch();
                     }
                 }
             }
