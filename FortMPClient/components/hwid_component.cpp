@@ -9,7 +9,7 @@
 hwid_component::hwid_component()
 {
     MessageCounter = 0;
-    version = XOR("1.4.0.5");
+    version = XOR("1.5.0");
     bServiceRunning = false;
 }
 
