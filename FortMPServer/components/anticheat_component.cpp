@@ -10,7 +10,9 @@ anticheat_component::anticheat_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(anticheat_component_hooks::ServerNotifyPawnHit, TEXT("/Script/FortniteGame.FortProjectileAthena.ServerNotifyPawnHit"), anticheat_component_hooks::ServerNotifyPawnHit_Hook)
-    REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
+
+    // Deprecated for the moment, it just doesn't work properly and throws A LOT of false positives.
+    //REGISTER_FUNCTION_DETOUR(anticheat_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), anticheat_component_hooks::OnTargetDataReadyCallback_Hook);
     
     DetourTransactionCommit();
 }
