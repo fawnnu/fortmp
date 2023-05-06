@@ -55,7 +55,11 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
         { L"Weapon.Ranged.Minigun", death_cause_enum->GetEnumIndex(L"Minigun") },
         { L"Gameplay.Damage.Environment.Falling", death_cause_enum->GetEnumIndex(L"FallDamage") },
         { L"Gameplay.Damage.OutsideSafeZone", death_cause_enum->GetEnumIndex(L"OutsideSafeZone") },
-        { L"Gameplay.Damage.DBNOBleedOut", death_cause_enum->GetEnumIndex(L"DBNOTimeout") }, 
+        { L"Gameplay.Damage.DBNOBleedOut", death_cause_enum->GetEnumIndex(L"DBNOTimeout") },
+        { L"Weapon.Melee.Massive.Charge", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
+        { L"weapon.melee.Massive", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
+        { L"Weapon.Melee.Massive.Divebomb", death_cause_enum->GetEnumIndex(L"MassiveDiveBomb") },
+        { L"Weapon.Ranged.Massive", death_cause_enum->GetEnumIndex(L"MassiveRanged") }
     };
 
     for (FGameplayTag gameplay_tag : tag_container.GameplayTags)
