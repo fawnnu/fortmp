@@ -22,7 +22,7 @@ looting_component::looting_component()
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnGameModePickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnGameModePickup_Hook);
     
     blacklisted_item_definitions = {};
-    blacklisted_classes = {FindObject(L"/Script/FortniteGame.FortGadgetItemDefinition", true)};
+    blacklisted_classes = {};
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_category)

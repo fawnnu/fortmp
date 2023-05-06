@@ -14,6 +14,9 @@ pickup_component::pickup_component()
     
     INIT_POINTER(Toss, memory_manager::get_function_start(memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 E8 ? ? ? ? 48 8B CB 48 8B 5C 24 ? 48 83 C4 20 5F")));
 
+    //TODO: Universal sig
+    INIT_POINTER(InitializePickup, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 20 80 B9 ? ? ? ? ? 45 0F B6 F1"));
+    
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_SpawnPickupInWorld", pickup_component_hooks::K2_SpawnPickupInWorld_Hook);
     
     DetourTransactionBegin();
@@ -53,6 +56,9 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     {
         return nullptr;
     }
+
+    // Finish basic initialization
+    initialize_pickup(fort_pickup, item_definition, count);
 
     // Update item entry for the pickup
     fort_pickup->PrimaryPickupItemEntry().ItemDefinition() = item_definition;
@@ -154,6 +160,26 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
+}
+
+void pickup_component::initialize_pickup(AFortPickup* pickup, UFortItemDefinition* item_definition, int count)
+{
+    if (InitializePickup)
+    {
+        __int64 OutParm[2];
+        OutParm[0] = 0;
+        OutParm[1] = 0;
+
+        if (UFortWorldItem* TemporaryWorldItem = static_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(count, 1)))
+        {
+            FFortItemEntry* TemporaryItemEntry = &TemporaryWorldItem->ItemEntry();
+
+            // Finish initialization
+            // This function takes care of setting up, among other things, SpecialActorID and properly adds support for Special Actors
+            // Special Actors are required for some items and LTMs to work, such as Infinity Gauntlet
+            InitializePickup(pickup, TemporaryItemEntry, OutParm, false);
+        }
+    }
 }
 
 bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)

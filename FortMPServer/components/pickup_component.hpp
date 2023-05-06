@@ -10,6 +10,8 @@ public:
     static void toss_pickup(AFortPickup* fort_pickup, ABuildingActor* from_container, FRotator toss_direction, float toss_angle, float toss_speed);
 
     static void handle_pickup(AFortPickup* pickup, AFortPlayerPawn* PlayerPawn);
+
+    static void initialize_pickup(AFortPickup* pickup, UFortItemDefinition* item_definition, int count);
 };
 
 namespace pickup_component_hooks
@@ -32,3 +34,4 @@ namespace pickup_component_hooks
 
 inline void (*Toss)(AFortPickup*);
 inline void (*InternalHandlePickup)(AFortPickup*, AFortPlayerPawn*, float, FVector);
+inline void (*InitializePickup)(AFortPickup*, FFortItemEntry*, __int64*, bool);
