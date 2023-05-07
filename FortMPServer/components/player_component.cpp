@@ -29,6 +29,7 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::PostLogin, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLogin"), player_component_hooks::PostLogin_Hook);
     
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
+        REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySprayItem, L"/Script/FortniteGame.FortPlayerController.ServerPlaySprayItem", player_component_hooks::ServerPlaySprayItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::MovingEmoteStopped, L"/Script/FortniteGame.FortPawn.MovingEmoteStopped", player_component_hooks::MovingEmoteStopped_Hook);
     
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
@@ -264,6 +265,61 @@ void player_component::ApplyBackpack(AFortPlayerControllerAthena* NewPlayer)
     }
 }
 
+void player_component::play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset)
+{
+    if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
+    {
+        auto new_ability_spec = FGameplayAbilitySpec();
+        
+        // set the ability in the newly created struct    TODO: ADD TOYS
+        if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
+        {
+            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C", true, false);
+        }
+        else
+        {
+            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
+        }
+        
+        new_ability_spec.SourceObject = dance_asset; // set the sourceobject, in this case the emote we want to execute
+        new_ability_spec.Level = 1; 
+        new_ability_spec.InputID = -1;
+        new_ability_spec.ReplicationID = -1;
+        new_ability_spec.ReplicationKey = -1;
+        new_ability_spec.MostRecentArrayReplicationKey = -1;
+        new_ability_spec.Handle = rand();
+
+        const auto unk = new DWORD();
+
+        // plays the emote by activating the ability.
+        // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
+        // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
+        GiveAbilityAndActivateOnce(player_controller->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
+
+        // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
+        STATIC_HASPROPERTY(dance_asset, bMovingEmote);
+        STATIC_HASPROPERTY(dance_asset, bMoveForwardOnly);
+        STATIC_HASPROPERTY(dance_asset, WalkForwardSpeed);
+        STATIC_HASPROPERTY(player_controller->Pawn(), EmoteWalkSpeed);
+        STATIC_HASPROPERTY(player_controller->Pawn(), LastEmoteItemDef);
+        STATIC_HASPROPERTY(player_controller->Pawn(), LastReplicatedEmoteExecuted);
+        if (bExists_bMovingEmote &&
+            bExists_bMoveForwardOnly &&
+            bExists_WalkForwardSpeed &&
+            bExists_EmoteWalkSpeed &&
+            bExists_LastEmoteItemDef &&
+            bExists_LastReplicatedEmoteExecuted)
+        {
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmote", dance_asset->bMovingEmote());
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmoteForwardOnly", dance_asset->bMoveForwardOnly());
+            player_controller->Pawn()->EmoteWalkSpeed() = dance_asset->WalkForwardSpeed();
+
+            player_controller->Pawn()->LastEmoteItemDef() = dance_asset;
+            player_controller->Pawn()->LastReplicatedEmoteExecuted() = dance_asset;
+        }
+    }
+}
+
 AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_controller, FTransform spawn_transform)
 {
     AFortPlayerPawn* player_pawn = (*GWorld)->AuthorityGameMode()->SpawnDefaultPawnAtTransform(player_controller, spawn_transform);
@@ -442,61 +498,18 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     return hero_definition;
 }
 
+void player_component_hooks::ServerPlaySprayItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(UAthenaSprayItemDefinition*, SprayAsset);
+    
+    player_component::play_emote_item(FortPlayerController, SprayAsset);
+}
+
 void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UAthenaDanceItemDefinition*, EmoteAsset);
 
-    if (FortPlayerController->Pawn() && FortPlayerController->Pawn()->AbilitySystemComponent())
-    {
-        auto new_ability_spec = FGameplayAbilitySpec();
-
-        // set the ability in the newly created struct    TODO: ADD TOYS
-        if (EmoteAsset->IsA(UAthenaSprayItemDefinition::StaticClass()))
-        {
-            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C");
-        }
-        else
-        {
-            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
-        }
-        
-        new_ability_spec.SourceObject = EmoteAsset; // set the sourceobject, in this case the emote we want to execute
-        new_ability_spec.Level = 1; 
-        new_ability_spec.InputID = -1;
-        new_ability_spec.ReplicationID = -1;
-        new_ability_spec.ReplicationKey = -1;
-        new_ability_spec.MostRecentArrayReplicationKey = -1;
-        new_ability_spec.Handle = rand();
-
-        const auto unk = new DWORD();
-
-        // plays the emote by activating the ability.
-        // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
-        // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
-        GiveAbilityAndActivateOnce(FortPlayerController->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
-
-        // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
-        STATIC_HASPROPERTY(EmoteAsset, bMovingEmote);
-        STATIC_HASPROPERTY(EmoteAsset, bMoveForwardOnly);
-        STATIC_HASPROPERTY(EmoteAsset, WalkForwardSpeed);
-        STATIC_HASPROPERTY(FortPlayerController->Pawn(), EmoteWalkSpeed);
-        STATIC_HASPROPERTY(FortPlayerController->Pawn(), LastEmoteItemDef);
-        STATIC_HASPROPERTY(FortPlayerController->Pawn(), LastReplicatedEmoteExecuted);
-        if (bExists_bMovingEmote &&
-            bExists_bMoveForwardOnly &&
-            bExists_WalkForwardSpeed &&
-            bExists_EmoteWalkSpeed &&
-            bExists_LastEmoteItemDef &&
-            bExists_LastReplicatedEmoteExecuted)
-        {
-            UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmote", EmoteAsset->bMovingEmote());
-            UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->Pawn(), L"bMovingEmoteForwardOnly", EmoteAsset->bMoveForwardOnly());
-            FortPlayerController->Pawn()->EmoteWalkSpeed() = EmoteAsset->WalkForwardSpeed();
-
-            FortPlayerController->Pawn()->LastEmoteItemDef() = EmoteAsset;
-            FortPlayerController->Pawn()->LastReplicatedEmoteExecuted() = EmoteAsset;
-        }
-    }
+    player_component::play_emote_item(FortPlayerController, EmoteAsset);
 }
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)

@@ -11,6 +11,7 @@ public:
     static void Setup(AFortPlayerController* NewPlayer, const FString& Options);
     static bool is_live_spectator(APlayerController* player_controller);
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
+    static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
     static std::string get_account_id(AFortPlayerController* target_player_controller);
@@ -36,6 +37,9 @@ namespace player_component_hooks
     // Called when a player attempts to emote
     DEFINE_FUNCTION_HOOK(void, ServerPlayEmoteItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
 
+    // Called when a player attempts to use a spray
+    DEFINE_FUNCTION_HOOK(void, ServerPlaySprayItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+    
     // Called when a player attempts to emote
     DEFINE_FUNCTION_HOOK(void, MovingEmoteStopped, (AFortPawn* FortPawn, FFrame& StackFrame));
     

@@ -141,7 +141,7 @@ public:
     DEFINE_PROPERTY(float, WalkForwardSpeed);
 };
 
-class UAthenaSprayItemDefinition : public UFortMontageItemDefinitionBase
+class UAthenaSprayItemDefinition : public UAthenaDanceItemDefinition
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaSprayItemDefinition");
