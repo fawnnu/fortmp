@@ -23,7 +23,8 @@ nlohmann::json config_manager::get_server_config()
                 "admin_passwords": [],
                 "scp_enabled": false,
                 "warmup_duration": 90,
-                "name": ""
+                "name": "",
+                "scheduler_port": -1
             }
         )"_json;
     

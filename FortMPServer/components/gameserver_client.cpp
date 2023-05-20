@@ -2,6 +2,7 @@
 #include "gameserver_client.hpp"
 
 #include "config_manager.hpp"
+#include "loader_component.hpp"
 #include "net_component.hpp"
 #include "player_component.hpp"
 #include "qos_component.hpp"
@@ -120,6 +121,9 @@ void gameserver_client::Initialize()
     
     Client_WS.connect(Connection);
 
+    // Start the scheduler thread
+    CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(scheduler_client::Initialize), nullptr, 0, nullptr);
+    
     // Start the heartbeat thread
     CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&HeartbeatThread), 0,0,0);
     
@@ -412,4 +416,85 @@ void gameserver_client::SendHeartbeat()
         }
     }
 #endif
+}
+
+void scheduler_client::Initialize()
+{
+    auto config = config_manager::get_server_config();
+
+    Port = config["scheduler_port"];
+    
+    if (Port == -1)
+    {
+        // Invalid port / not meant to use scheduler, abort setup
+        spdlog::warn(L"Failed to initialize scheduler client: provided port ({}) is invalid.", Port);
+
+        return;
+    }
+
+    spdlog::info(L"Initializing scheduler client. Server port: {}", Port);
+
+    // Start a client and register to scheduler server
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) 
+    {
+        spdlog::error(L"Failed to initialize scheduler client.");
+        
+        return; 
+    }
+    
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == SOCKET_ERROR)
+    {
+        spdlog::error(L"Failed to initialize scheduler client. Socket creation failed.");
+        
+        return;
+    }
+
+    // Server info
+    sockaddr_in server_address;
+    ZeroMemory(&server_address, sizeof server_address);
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(Port);
+    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    int server_address_len = sizeof server_address;
+
+    // Register
+    char send_buffer[1];
+    send_buffer[0] = 0x1;
+    char recv_buffer[1024];
+
+    if (sendto(sock, send_buffer, sizeof send_buffer, 0, reinterpret_cast<sockaddr*>(&server_address), sizeof server_address) == SOCKET_ERROR)
+    {
+        spdlog::error(L"Scheduler client: failed to send register packet.");
+        
+        return;
+    }
+
+    // Handle incoming messages
+    while (true)
+    {
+        ZeroMemory(recv_buffer, sizeof recv_buffer);
+        
+        int len = recvfrom(sock, recv_buffer, sizeof recv_buffer, 0, reinterpret_cast<sockaddr*>(&server_address), &server_address_len);
+
+        if (len == SOCKET_ERROR)
+        {
+            spdlog::error(L"Scheduler client: recvfrom failed. Last error: {}", WSAGetLastError());
+        }
+        
+        // Valid length
+        if (len > 0)
+        {
+            // Request exit
+            if (recv_buffer[0] == 0x2)
+            {
+                // Log
+                spdlog::warn(L"Server closing gracefully (requested by scheduler).");
+                
+                // Mark as pending shutdown
+                loader_component::bPendingShutdown = true;
+            }
+        }
+    }
 }

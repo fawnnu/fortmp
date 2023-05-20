@@ -1,5 +1,13 @@
 ﻿#pragma once
 
+class scheduler_client
+{
+public:
+    static void Initialize();
+
+    static inline int Port;
+};
+
 struct gameserver_status
 {
     gameserver_status()

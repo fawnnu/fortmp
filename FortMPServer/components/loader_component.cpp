@@ -614,6 +614,9 @@ bool loader_component_hooks::SetGameMode_Hook()
             // Log
             spdlog::info(L"Closing server: bPendingShutdown is true.");
             
+            // Unregister the server
+            gameserver_client::Client->SendLeave();
+            
             // Quit
             RequestExitWithStatus(true, 0);
         }

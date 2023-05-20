@@ -421,6 +421,9 @@ void moderation_component::HandleResetServerCommand(const TCHAR*& InStream, AFor
         }
     }
     
+    // Unregister the server
+    gameserver_client::Client->SendLeave();
+    
     // Quit
     RequestExitWithStatus(true, 0);
 }
