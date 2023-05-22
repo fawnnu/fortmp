@@ -6,6 +6,8 @@
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
+#include "player_component.hpp"
+#include "team_component.hpp"
 
 elimination_component::elimination_component()
 {
@@ -292,6 +294,12 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         // Notify Era Services
         gameserver_client::Client->GameServer_Status.number_of_players = (*GWorld)->AuthorityGameMode()->AlivePlayers().Num();
         gameserver_client::Client->SendUpdate();
+
+        // Send a summary event with placement
+        if (std::string account_id = player_component::get_account_id(VictimPlayerController); account_id.length() > 0)
+        {
+            gameserver_client::Client->SendSummary(account_id, (*GWorld)->AuthorityGameMode()->AlivePlayers().Num() + 1);
+        }
 #endif
         
         // only spectate where spectating is stripped
@@ -329,11 +337,39 @@ void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject*
         GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
         GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
 
-        FinisherPawn = reinterpret_cast<AFortPlayerControllerAthena*>(Object)->Pawn();
+        AFortPlayerControllerAthena* Controller = reinterpret_cast<AFortPlayerControllerAthena*>(Object);
 
-        if (FinisherPawn && FinisherPawn->CurrentWeapon())
+        if (Controller)
         {
-            FinishingWeapon = FinisherPawn->CurrentWeapon()->WeaponData();
+            FinisherPawn = Controller->Pawn();
+
+            if (FinisherPawn && FinisherPawn->CurrentWeapon())
+            {
+                FinishingWeapon = FinisherPawn->CurrentWeapon()->WeaponData();
+            }
+
+            // send a summary event for the winner and the teammates
+            std::vector<std::string> winners;
+
+            // Find the team for the winner
+            auto Team = team_component::find_team(Controller);
+
+            if (Team)
+            {
+                for (auto TeamMember : Team->TeamMembers())
+                {
+                    if (std::string account_id = player_component::get_account_id(static_cast<AFortPlayerController*>(TeamMember)); account_id.length() > 0)
+                    {
+                        winners.push_back(account_id);
+                    }
+                }
+            }
+
+            // Send summary events
+            for (auto account_id : winners)
+            {
+                gameserver_client::Client->SendSummary(account_id, 1);
+            }
         }
     }
 }

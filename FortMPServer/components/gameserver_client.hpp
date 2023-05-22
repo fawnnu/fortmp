@@ -49,6 +49,7 @@ public:
     void SendUpdate();
     void SendLeave();
     void SendBan(std::string uuid);
+    void SendSummary(std::string account_id, int Placement);
     void SendHeartbeat();
 
     // Client WS object

@@ -392,6 +392,33 @@ void gameserver_client::SendBan(std::string uuid)
 #endif
 }
 
+void gameserver_client::SendSummary(std::string account_id, int Placement)
+{
+#ifdef _RELEASE
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
+
+            payload.push_back(0);
+            payload.push_back(MessageRef++);
+            payload.push_back(Channel);
+            payload.push_back("summary:" + account_id);
+            payload.push_back(std::map<std::string, std::string>{
+                {"placement", std::to_string(Placement)}
+            });
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
+#endif
+}
+
 void gameserver_client::SendHeartbeat()
 {
 #ifdef _RELEASE
