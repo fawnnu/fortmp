@@ -331,45 +331,45 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    if (FindPropertyByName(Function, TEXT("FinisherPawn")) &&
-        FindPropertyByName(Function, TEXT("FinishingWeapon")))
+    AFortPlayerControllerAthena* Controller = reinterpret_cast<AFortPlayerControllerAthena*>(Object);
+
+    if (Controller)
     {
-        GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
-        GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
-
-        AFortPlayerControllerAthena* Controller = reinterpret_cast<AFortPlayerControllerAthena*>(Object);
-
-        if (Controller)
+        if (FindPropertyByName(Function, TEXT("FinisherPawn")) &&
+            FindPropertyByName(Function, TEXT("FinishingWeapon")))
         {
+            GET_PROCESS_EVENT_PARAMETER(AFortPawn*, FinisherPawn);
+            GET_PROCESS_EVENT_PARAMETER(UObject*, FinishingWeapon);
+        
             FinisherPawn = Controller->Pawn();
 
             if (FinisherPawn && FinisherPawn->CurrentWeapon())
             {
                 FinishingWeapon = FinisherPawn->CurrentWeapon()->WeaponData();
             }
+        }
 
-            // send a summary event for the winner and the teammates
-            std::vector<std::string> winners;
+        // send a summary event for the winner and the teammates
+        std::vector<std::string> winners;
 
-            // Find the team for the winner
-            auto Team = team_component::find_team(Controller);
+        // Find the team for the winner
+        auto Team = team_component::find_team(Controller);
 
-            if (Team)
+        if (Team)
+        {
+            for (auto TeamMember : Team->TeamMembers())
             {
-                for (auto TeamMember : Team->TeamMembers())
+                if (std::string account_id = player_component::get_account_id(static_cast<AFortPlayerController*>(TeamMember)); account_id.length() > 0)
                 {
-                    if (std::string account_id = player_component::get_account_id(static_cast<AFortPlayerController*>(TeamMember)); account_id.length() > 0)
-                    {
-                        winners.push_back(account_id);
-                    }
+                    winners.push_back(account_id);
                 }
             }
+        }
 
-            // Send summary events
-            for (auto account_id : winners)
-            {
-                gameserver_client::Client->SendSummary(account_id, 1);
-            }
+        // Send summary events
+        for (auto account_id : winners)
+        {
+            gameserver_client::Client->SendSummary(account_id, 1);
         }
     }
 }
