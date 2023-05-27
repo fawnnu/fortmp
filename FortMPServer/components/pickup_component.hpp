@@ -12,6 +12,20 @@ public:
     static void handle_pickup(AFortPickup* pickup, AFortPlayerPawn* PlayerPawn);
 
     static void initialize_pickup(AFortPickup* pickup, UFortItemDefinition* item_definition, int count);
+
+    struct ItemInfo
+    {
+        ItemInfo() = default;
+        ItemInfo(UFortItemDefinition* InItemDefinition, FGuid InItemGuid)
+        {
+            ItemDefinition = InItemDefinition;
+            ItemGuid = InItemGuid;
+        }
+        
+        UFortItemDefinition* ItemDefinition;
+        FGuid ItemGuid;
+    };
+    inline static std::map<AFortPickup*, ItemInfo> GlobalPickupStream;
 };
 
 namespace pickup_component_hooks

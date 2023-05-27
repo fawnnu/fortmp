@@ -247,6 +247,40 @@ struct FFortItemEntry : public FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntryStateValue>, StateValues);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
+
+    void AddStateValue(int IntValue, FName NameValue, uint8_t StateType)
+    {
+        TArrayManager<FFortItemEntryStateValue> StateValuesManager = TArrayManager<FFortItemEntryStateValue>(&StateValues(), FFortItemEntryStateValue::GetStructSize());
+
+        // Make a new state value
+        FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
+
+        // Initialize the newly allocated memory
+        ZeroMemory(NewStateValue, FFortItemEntryStateValue::GetStructSize());
+
+        // Initialize the properties
+        NewStateValue->IntValue() = IntValue;
+        NewStateValue->NameValue() = NameValue;
+        NewStateValue->StateType() = StateType;
+
+        // Add it to the StateValues
+        StateValuesManager.Add(NewStateValue);
+    }
+
+    FFortItemEntryStateValue* GetStateValueByName(FName InNameValue)
+    {
+        TArrayManager<FFortItemEntryStateValue> StateValuesManager = TArrayManager<FFortItemEntryStateValue>(&StateValues(), FFortItemEntryStateValue::GetStructSize());
+
+        for (FFortItemEntryStateValue& StateValue : StateValuesManager)
+        {
+            if (StateValue.NameValue() == InNameValue)
+            {
+                return &StateValue;
+            }
+        }
+        
+        return nullptr;
+    }
 };
 
 struct FFortBaseWeaponStats

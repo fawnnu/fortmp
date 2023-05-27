@@ -8,6 +8,8 @@ inline void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIn
 
 struct FGuid
 {
+	FGuid() = default;
+	
     int A;
     int B;
     int C;

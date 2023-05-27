@@ -154,6 +154,15 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
 
     // Pick it up
     InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->PickupSpeedMultiplier(), FVector(1,1,1));
+
+    // Era Pickup Stream
+    if (!GlobalPickupStream.contains(Pickup))
+    {
+        if (PlayerPawn->CurrentWeapon())
+        {
+            GlobalPickupStream[Pickup] = { PlayerPawn->CurrentWeapon()->WeaponData(), PlayerPawn->CurrentWeapon()->ItemEntryGuid() };
+        }
+    }
     
     // Net update
     Pickup->ForceNetUpdate();
@@ -231,10 +240,21 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
 
         if (inventory_component::is_inventory_full(PlayerController))
         {
-            if (static_cast<UFortWorldItemDefinition*>(PickupTarget->CurrentWeapon()->WeaponData())->bCanBeDropped())
+            UFortItemDefinition* SwapItemDefinition = PickupTarget->CurrentWeapon()->WeaponData();
+            FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
+            
+            if (pickup_component::GlobalPickupStream.contains(Pickup))
+            {
+                auto ItemInstance = pickup_component::GlobalPickupStream[Pickup];
+
+                SwapItemDefinition = ItemInstance.ItemDefinition;
+                SwapItemGuid = ItemInstance.ItemGuid;
+            }
+            
+            if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped())
             {
                 // Swap item
-                inventory_component::remove_item(PlayerController, PickupTarget->CurrentWeapon()->ItemEntryGuid(), -1, true, true);
+                inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);
 
                 if (spawned_item)
                 {
@@ -246,6 +266,19 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     // Equip item on client
                     PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
                 }
+
+                // Update GlobalPickupStream
+                for (auto [pickup_entry, item_info] : pickup_component::GlobalPickupStream)
+                {
+                    if (pickup_entry != Pickup)
+                    {
+                        if (item_info.ItemGuid == SwapItemGuid)
+                        {
+                            pickup_component::GlobalPickupStream[pickup_entry].ItemDefinition = spawned_item->ItemEntry().ItemDefinition();
+                            pickup_component::GlobalPickupStream[pickup_entry].ItemGuid = spawned_item->ItemEntry().ItemGuid();
+                        }
+                    }
+                }
             }
             else
             {
@@ -256,6 +289,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 }
             }
         }
+
+        // Remove from stream once it has been processed
+        pickup_component::GlobalPickupStream.erase(pickup_component::GlobalPickupStream.find(Pickup));
 
         // on 3.5, run the old code
         if (GetCL() == 4008490)
