@@ -451,6 +451,11 @@ struct TSharedPtr
     { 
         return Object;
     }
+
+    bool IsValid()
+    {
+        return Object != nullptr;
+    }
 };
 
 class FScriptInterface

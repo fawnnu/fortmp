@@ -118,3 +118,10 @@ public:
         Call(Function_ClientActivateAbilityFailed, AbilityToActivate, PredictionKey);
     }
 };
+
+struct FFortGameplayAbilityTargetData_SingleTargetHit
+{
+    DEFINE_STRUCT_PROPERTY(bool, bHitReplaced);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayAbilityTargetData_SingleTargetHit");
+};

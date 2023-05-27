@@ -44,6 +44,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAddMapMarker, L"/Script/FortniteGame.AthenaMarkerComponent.ServerAddMapMarker", player_component_hooks::ServerAddMapMarker_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
+
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     
     if (GetEngineVersionEasy() < 420)
     {
@@ -679,4 +681,38 @@ void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* Mar
             }
         }
     }
+}
+
+long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FGameplayTag ApplicationTag)
+{
+    if (RangedWeaponAbility)
+    {
+        AFortWeapon* SourceWeapon = RangedWeaponAbility->CurrentWeapon();
+
+        // Controller & pawn
+        AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(SourceWeapon->GetOwner());
+        AFortPlayerController* Controller = Pawn->Controller();
+
+        if (!SourceWeapon->IsProjectileWeapon())
+        {
+            if (Controller)
+            {
+                TArray<uint8> HitReplaces{};
+                for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
+                {
+                    if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
+                    {
+                        if (SingleTargetHit->bHitReplaced())
+                        {
+                            HitReplaces.Add(i);
+                        }
+                    }
+                }
+
+                Controller->ClientConfirmTargetData(InData.UniqueId, true, HitReplaces);
+            }
+        }
+    }
+    
+    return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
 }

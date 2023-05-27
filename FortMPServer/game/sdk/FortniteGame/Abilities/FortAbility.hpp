@@ -2,7 +2,24 @@
 
 struct FGameplayAbilityTargetDataHandle
 {
-    char UnknownData_00[0x20];
+    uint8 UniqueId;
+
+    char pad[0x19];
+
+    TArray<TSharedPtr<struct FFortGameplayAbilityTargetData_SingleTargetHit>>& GetData()
+    {
+        return *reinterpret_cast<TArray<TSharedPtr<FFortGameplayAbilityTargetData_SingleTargetHit>>*>(reinterpret_cast<uintptr_t>(this) + 0x18);
+    }
+    
+    bool IsValid(int32 Index)
+    {
+        return (GetData().Data && Index < GetData().Num() && GetData()[Index].IsValid());
+    }
+
+    FFortGameplayAbilityTargetData_SingleTargetHit* Get(int32 Index)
+    {
+        return IsValid(Index) ? GetData()[Index].Get() : nullptr;
+    }
 };
 
 struct FFortAbilityCost
