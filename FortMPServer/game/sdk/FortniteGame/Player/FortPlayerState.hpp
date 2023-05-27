@@ -4,6 +4,7 @@ class APlayerState : public AActor
 {
 public:
     DEFINE_PROPERTY(FUniqueNetIdRepl, UniqueId);
+    DEFINE_PROPERTY(int, PlayerID);
 };
 
 class AFortPlayerState : public APlayerState

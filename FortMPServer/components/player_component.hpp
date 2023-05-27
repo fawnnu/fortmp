@@ -57,6 +57,10 @@ namespace player_component_hooks
     
     // Called when a player has been spawned
     DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (UObject* Object, UObject* Function, void* Params));
+
+    // Called when a player attempts to create a map marker
+    DEFINE_FUNCTION_HOOK(void, ServerAddMapMarker, (class UAthenaMarkerComponent* MarkerComponent, FFrame& StackFrame))
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);
+inline FFortWorldMarkerData* (*WorldMarkerDataCtr)(FFortWorldMarkerData*);

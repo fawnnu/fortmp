@@ -95,3 +95,58 @@ public:
         return Call<uint8_t>(Function_GetCollisionObjectType);
     }
 };
+
+struct FMarkerID
+{
+    FMarkerID() = default;
+    FMarkerID(int InPlayerID, int InInstanceId)
+    {
+        PlayerID = InPlayerID;
+        InstanceId = InInstanceId;
+    }
+    
+    int PlayerID;
+    int InstanceId;
+};
+
+struct FFortClientMarkerRequest
+{
+    DEFINE_STRUCT_PROPERTY(int, InstanceId);
+    DEFINE_STRUCT_PROPERTY(uint8_t, MarkerType);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldPosition);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldPositionOffset);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldNormal);
+    DEFINE_STRUCT_PROPERTY(AActor*, MarkedActor);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortClientMarkerRequest")
+};
+
+struct FFortWorldMarkerData
+{
+    DEFINE_STRUCT_PROPERTY(FMarkerID, MarkerID);
+    DEFINE_STRUCT_PROPERTY(AFortPlayerState*, Owner);
+    DEFINE_STRUCT_PROPERTY(uint8_t, MarkerType);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldPosition);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldPositionOffset);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldNormal);
+    DEFINE_STRUCT_PROPERTY(UFortItemDefinition*, ItemDefinition);
+    DEFINE_STRUCT_PROPERTY(int, ItemCount);
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<AActor>, MarkedActor);
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<UObject>, MarkedActorClass);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortWorldMarkerData")
+};
+
+class UAthenaMarkerComponent : public UActorComponent
+{
+public:
+
+    void ClientAddMarker(FFortWorldMarkerData* MarkerData)
+    {
+        STATIC_FINDFUNCTION(ClientAddMarker)
+
+        ProcessEvent(this, Function_ClientAddMarker, MarkerData);
+    }
+    
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaMarkerComponent");
+};

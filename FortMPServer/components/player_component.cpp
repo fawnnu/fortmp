@@ -19,6 +19,14 @@ player_component::player_component()
     }
 
     INIT_POINTER(UpdateZiplineState, memory_manager::find_function_by_string(L"AFortPlayerPawn::OnRep_ZiplineState"));
+
+    if (UFunction* ClientAddMarker = FindObject<UFunction>(L"/Script/FortniteGame.AthenaMarkerComponent.ClientAddMarker"))
+    {
+        uintptr_t WorldMarkerDataCtr_Call = memory_manager::scan_for(reinterpret_cast<uintptr_t>(ClientAddMarker->get_native_function()), {0xE8, WILDCARD, WILDCARD, WILDCARD, 0xFF});
+        uintptr_t WorldMarkerData_Addr = WorldMarkerDataCtr_Call + 5 + *reinterpret_cast<int*>(WorldMarkerDataCtr_Call + 1);
+        
+        INIT_POINTER(WorldMarkerDataCtr, WorldMarkerData_Addr);
+    }
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -29,10 +37,11 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::PostLogin, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLogin"), player_component_hooks::PostLogin_Hook);
     
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
-        REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySprayItem, L"/Script/FortniteGame.FortPlayerController.ServerPlaySprayItem", player_component_hooks::ServerPlaySprayItem_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySprayItem, L"/Script/FortniteGame.FortPlayerController.ServerPlaySprayItem", player_component_hooks::ServerPlaySprayItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::MovingEmoteStopped, L"/Script/FortniteGame.FortPawn.MovingEmoteStopped", player_component_hooks::MovingEmoteStopped_Hook);
     
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAddMapMarker, L"/Script/FortniteGame.AthenaMarkerComponent.ServerAddMapMarker", player_component_hooks::ServerAddMapMarker_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     
@@ -612,5 +621,62 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
 
         // Implementable event
         (*GWorld)->AuthorityGameMode()->OnPawnFinishedSpawning(NewPlayer->Pawn());
+    }
+}
+
+void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* MarkerComponent, FFrame& StackFrame)
+{
+    GET_PARAMETER(FFortClientMarkerRequest, MarkerRequest);
+    
+    AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(MarkerComponent->GetOwner());
+
+    // Construct FFortWorldMarkerData
+    FFortWorldMarkerData* FortWorldMarkerData = static_cast<FFortWorldMarkerData*>(malloc(FFortWorldMarkerData::GetStructSize()));
+    FortWorldMarkerData = WorldMarkerDataCtr(FortWorldMarkerData);
+
+    FMarkerID MarkerID(PlayerController->PlayerState()->PlayerID(), MarkerRequest.InstanceId());
+    FortWorldMarkerData->MarkerID() = MarkerID;
+    FortWorldMarkerData->Owner() = PlayerController->PlayerState();
+    FortWorldMarkerData->MarkerType() = MarkerRequest.MarkerType();
+    FortWorldMarkerData->WorldPosition() = MarkerRequest.WorldPosition();
+    FortWorldMarkerData->WorldPositionOffset() = MarkerRequest.WorldPositionOffset();
+    FortWorldMarkerData->WorldNormal() = MarkerRequest.WorldNormal();
+
+    if (MarkerRequest.MarkedActor())
+    {
+        FortWorldMarkerData->MarkedActor().WeakPtr = MarkerRequest.MarkedActor();
+        FortWorldMarkerData->MarkedActorClass().WeakPtr = MarkerRequest.MarkedActor()->Class;
+
+        UEnum* WorldMarkerType = FindObject<UEnum>(L"/Script/FortniteGame.EFortWorldMarkerType");
+        if (FortWorldMarkerData->MarkerType() == WorldMarkerType->GetEnumIndex(L"Item"))
+        {
+            AFortPickup* MarkedActor = static_cast<AFortPickup*>(MarkerRequest.MarkedActor());
+
+            if (FindPropertyByName(FFortWorldMarkerData::GetClass(), L"ItemDefinition"))
+            {
+                FortWorldMarkerData->ItemDefinition() = MarkedActor->PrimaryPickupItemEntry().ItemDefinition();
+            }
+            if (FindPropertyByName(FFortWorldMarkerData::GetClass(), L"ItemCount"))
+            {
+                FortWorldMarkerData->ItemCount() = MarkedActor->PrimaryPickupItemEntry().Count();
+            }
+        }
+    }
+
+    // Call ClientAddMarker for the component owner and for all the teammates
+    MarkerComponent->ClientAddMarker(FortWorldMarkerData);
+
+    if (auto TeamInfo = team_component::find_team(PlayerController))
+    {
+        for (auto TeamMember : TeamInfo->TeamMembers())
+        {
+            AFortPlayerControllerAthena* TeamPlayerController = static_cast<AFortPlayerControllerAthena*>(TeamMember);
+            UAthenaMarkerComponent* TeamMarkerComponent = TeamPlayerController->MarkerComponent();
+
+            if (TeamMarkerComponent)
+            {
+                TeamMarkerComponent->ClientAddMarker(FortWorldMarkerData);
+            }
+        }
     }
 }

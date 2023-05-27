@@ -263,7 +263,7 @@ public:
 
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);
-    
+    DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
     void OnRep_CreativePlotLinkedVolume()
