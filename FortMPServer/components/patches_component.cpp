@@ -75,15 +75,35 @@ patches_component::patches_component()
     {
 #ifdef _RELEASE
         // Allow matchmaking
-        if (uintptr_t target_address = memory_manager::find_function_by_string(L"NotifyControlMessage: Client connecting with invalid version. LocalNetworkVersion: %i, RemoteNetworkVersion: %i", {0x7f}, 0 , false, false, true))
+        if (GetFortniteVersionEasy() < 9.00f)
         {
-            DWORD new_protect, old_protect;
+            if (uintptr_t target_address = memory_manager::find_function_by_string(L"NotifyControlMessage: Client connecting with invalid version. LocalNetworkVersion: %i, RemoteNetworkVersion: %i", {0x7f}, 0 , false, false, true))
+            {
+                DWORD new_protect, old_protect;
 
-            VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+                VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
 
-            *reinterpret_cast<unsigned char*>(target_address) = 0x7E;
+                *reinterpret_cast<unsigned char*>(target_address) = 0x7E;
 
-            VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, old_protect, &new_protect);
+                VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, old_protect, &new_protect);
+
+                spdlog::info(L"Patched matchmaking [PATCH TYPE: 1]");
+            }
+        }
+        else
+        {
+            if (uintptr_t target_address = memory_manager::find_function_by_string(L"NotifyControlMessage: Client connecting with invalid version. LocalNetworkVersion: %i, RemoteNetworkVersion: %i", {0x1, 0x7f}, 0 , false, false, true))
+            {
+                DWORD new_protect, old_protect;
+
+                VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+
+                *reinterpret_cast<unsigned char*>(target_address + 1) = 0x7E;
+
+                VirtualProtect(CreateDefaultObject<UFortGameInstance>()->VTable, 4096, old_protect, &new_protect);
+
+                spdlog::info(L"Patched matchmaking [PATCH TYPE: 2]");
+            }
         }
 #endif
     }
