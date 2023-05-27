@@ -61,12 +61,15 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
 
-    if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
+    if (GetEngineVersionEasy() < 421)
     {
-        if (static_cast<UFortGadgetItemDefinition*>(item_definition)->bDropAllOnEquip())
+        if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
         {
-            // Drop all the items
-            clear_primary_inventory(player_controller, true);
+            if (static_cast<UFortGadgetItemDefinition*>(item_definition)->bDropAllOnEquip())
+            {
+                // Drop all the items
+                clear_primary_inventory(player_controller, true);
+            }
         }
     }
     
