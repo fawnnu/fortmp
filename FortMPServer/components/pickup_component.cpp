@@ -275,7 +275,8 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 SwapItemGuid = ItemInstance.ItemGuid;
             }
             
-            if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped())
+            if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
+                inventory_component::has_item_type(PlayerController, SwapItemDefinition))
             {
                 // Swap item
                 inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);

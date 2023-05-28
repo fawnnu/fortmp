@@ -671,11 +671,16 @@ void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* Mar
         for (auto TeamMember : TeamInfo->TeamMembers())
         {
             AFortPlayerControllerAthena* TeamPlayerController = static_cast<AFortPlayerControllerAthena*>(TeamMember);
-            UAthenaMarkerComponent* TeamMarkerComponent = TeamPlayerController->MarkerComponent();
 
-            if (TeamMarkerComponent)
+            // Only do for teammates
+            if (TeamPlayerController != PlayerController)
             {
-                TeamMarkerComponent->ClientAddMarker(FortWorldMarkerData);
+                UAthenaMarkerComponent* TeamMarkerComponent = TeamPlayerController->MarkerComponent();
+
+                if (TeamMarkerComponent)
+                {
+                    TeamMarkerComponent->ClientAddMarker(FortWorldMarkerData);
+                }
             }
         }
     }
