@@ -219,6 +219,20 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         VictimPlayerController->PlayerState()->DeathInfo().bInitialized() = true;
     }
 
+    // Add death tags
+    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathTags"))
+    {
+        // copy from deathreport.tags()
+        for (FGameplayTag GameplayTag : DeathReport.Tags().GameplayTags)
+        {
+            VictimPlayerController->PlayerState()->DeathInfo().DeathTags().GameplayTags.Add(GameplayTag);
+        }
+        for (FGameplayTag ParentTag : DeathReport.Tags().ParentTags)
+        {
+            VictimPlayerController->PlayerState()->DeathInfo().DeathTags().ParentTags.Add(ParentTag);
+        }
+    }
+
     // Set the deathlocation
     if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathLocation"))
     {

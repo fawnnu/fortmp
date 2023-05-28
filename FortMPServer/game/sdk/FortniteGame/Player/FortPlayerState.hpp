@@ -51,6 +51,7 @@ struct FDeathInfo
     DEFINE_STRUCT_PROPERTY(float, Distance);
     DEFINE_STRUCT_PROPERTY(FVector, DeathLocation);
     DEFINE_STRUCT_PROPERTY(bool, bInitialized);
+    DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, DeathTags);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.DeathInfo");
 };
