@@ -665,9 +665,7 @@ void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* Mar
         }
     }
 
-    // Call ClientAddMarker for the component owner and for all the teammates
-    MarkerComponent->ClientAddMarker(FortWorldMarkerData);
-
+    // Call ClientAddMarker for all the teammates
     if (auto TeamInfo = team_component::find_team(PlayerController))
     {
         for (auto TeamMember : TeamInfo->TeamMembers())
