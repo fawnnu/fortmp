@@ -70,14 +70,27 @@ void vehicles_component::equip_vehicle_weapon(AFortPlayerController* target_play
 
 void vehicles_component::unequip_vehicle_weapon(AFortPlayerController* target_player_controller)
 {
-    if (target_player_controller->MyFortPawn())
+    if (target_player_controller->WorldInventory())
     {
-        if (AFortWeapon* CurrentWeapon = target_player_controller->MyFortPawn()->CurrentWeapon())
+        TArrayManager ReplicatedEntries = TArrayManager<FFortItemEntry>(&target_player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+
+        for (int i = ReplicatedEntries.Num() - 1; i >= 0; i--)
         {
-            if (CurrentWeapon->IsA(AFortWeaponRangedForVehicle::StaticClass()) || CurrentWeapon->IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
+            FFortItemEntry& ReplicatedEntry = ReplicatedEntries[i];
+            
+            if (UFortItemDefinition* ItemDefinition = ReplicatedEntry.ItemDefinition())
             {
-                // Remove vehicle weapon
-                inventory_component::remove_item(target_player_controller, CurrentWeapon->ItemEntryGuid(), -1, false, false);
+                if (ItemDefinition->IsA(UFortWeaponItemDefinition::StaticClass()))
+                {
+                    if (UObject* WeaponActorClass = static_cast<UFortWeaponItemDefinition*>(ItemDefinition)->WeaponActorClass().Get())
+                    {
+                        if (WeaponActorClass->This_IsA(AFortWeaponRangedForVehicle::StaticClass()) ||
+                            WeaponActorClass->This_IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
+                        {
+                            inventory_component::remove_item(target_player_controller, ReplicatedEntry.ItemGuid(), -1, false);
+                        }
+                    }
+                }
             }
         }
     }

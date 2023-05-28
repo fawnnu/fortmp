@@ -162,6 +162,25 @@ public:
 
         return false;
     }
+
+
+    bool This_IsA(UObject* in_class)
+    {
+        if (!in_class)
+        {
+            return false;
+        }
+        
+        for (UObject* CurrentClass = this; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+        {
+            if (CurrentClass == in_class)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     
     template<typename T = char, typename ...Params>
     T Call(UObject* function_object, Params... args)

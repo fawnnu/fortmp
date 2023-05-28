@@ -122,7 +122,10 @@ public:
 class UFortWeaponItemDefinition : public UFortWorldItemDefinition
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponItemDefinition")
+    
     DEFINE_PROPERTY(struct FTableRowHandle, WeaponStatHandle);
+    DEFINE_PROPERTY(TSoftObjectPtr<UObject>, WeaponActorClass);
 };
 
 class UFortWeaponMeleeItemDefinition : public UFortWeaponItemDefinition
