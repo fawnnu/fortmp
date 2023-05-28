@@ -61,6 +61,7 @@ struct FServerAbilityRPCBatch
 struct FGameplayAttribute
 {
     DEFINE_STRUCT_PROPERTY(FString, AttributeName);
+    DEFINE_STRUCT_PROPERTY(UProperty*, Attribute);
     DEFINE_STRUCT_PROPERTY(UObject*, AttributeOwner);
     
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAttribute");

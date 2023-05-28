@@ -54,7 +54,7 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
     }   
 }
 
-UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo)
+UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo, std::vector<float> GenericAttributeValues)
 {
     if (player_controller->WorldInventory() == nullptr)
     {
@@ -87,6 +87,20 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         
         if (item_definition == replicated_entry.ItemDefinition())
         {
+
+            // If the item definition we're dealing with has tracked attributes, allow only one at a time in the inventory
+            if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
+            {
+                if (item_definition->HasFunction(L"HasTrackedAttributes"))
+                {
+                    if (static_cast<UFortGadgetItemDefinition*>(item_definition)->HasTrackedAttributes())
+                    {
+                        remove_item(player_controller, replicated_entry.ItemGuid(), -1);
+                        break;
+                    }
+                }
+            }
+            
             const int last_count = replicated_entry.Count();
             int MaxStackSize;
 
@@ -156,6 +170,24 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     {
         // Update loaded ammo in item entry
         world_item->ItemEntry().LoadedAmmo() = loaded_ammo;
+    }
+
+    if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
+    {
+        if (GenericAttributeValues.size() > 0)
+        {
+            // Add each GenericAttributeValue to the item entry
+            for (float Value : GenericAttributeValues)
+            {
+                if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
+                {
+                    world_item->ItemEntry().GenericAttributeValues().Add(Value);
+
+                    // Add state value
+                    world_item->ItemEntry().AddStateValue(1, FName(), 12);
+                }
+            }
+        }
     }
     
     // Add to inventory
@@ -230,8 +262,36 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             
             if (should_drop_item && world_item_definition->bCanBeDropped())
             {
+                std::vector<float> GenericAttributeValues{};
+                
+                if (replicated_entry.ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()))
+                {
+                    if (STATIC_HASPROPERTY(replicated_entry.ItemDefinition(), TrackedAttributes))
+                    {
+                        TArrayManager<FGameplayAttribute> TrackedAttributes = TArrayManager<FGameplayAttribute>(&static_cast<UFortGadgetItemDefinition*>(replicated_entry.ItemDefinition())->TrackedAttributes(), FGameplayAttribute::GetStructSize());
+                    
+                        for (FGameplayAttribute& TrackedAttribute : TrackedAttributes)
+                        {   
+                            // Find the values for this attribute in the player's ASC
+                            if (UAbilitySystemComponent* ASC = player_controller->Pawn()->AbilitySystemComponent())
+                            {
+                                for (auto Attribute : ASC->SpawnedAttributes())
+                                {
+                                    if (Attribute->IsA(TrackedAttribute.AttributeOwner()))
+                                    {
+                                        if (int PropertyOffset = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(TrackedAttribute.Attribute()) + CoreOffsets::Offset_Internal))
+                                        {
+                                            GenericAttributeValues.push_back(reinterpret_cast<FGameplayAttributeData*>(reinterpret_cast<uintptr_t>(Attribute) + PropertyOffset)->CurrentValue());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 // Spawn dropped item as pickup
-                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo());
+                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo(), true, nullptr, GenericAttributeValues);
             }
 
             if (STATIC_HASPROPERTY(world_item_definition, bPersistInInventoryWhenFinalStackEmpty))

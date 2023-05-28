@@ -35,7 +35,7 @@ pickup_component::pickup_component()
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
-                                            int loaded_ammo, bool bToss, UObject* pickup_class)
+                                            int loaded_ammo, bool bToss, UObject* pickup_class, std::vector<float> GenericAttributeValues)
 {
     if (item_definition == nullptr)
     {
@@ -64,6 +64,15 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().ItemDefinition() = item_definition;
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
+
+    // copy list
+    for (float Value : GenericAttributeValues)
+    {
+        if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
+        {
+            fort_pickup->PrimaryPickupItemEntry().GenericAttributeValues().Add(Value);
+        }
+    }
 
     if (STATIC_HASPROPERTY(fort_pickup, bServerStoppedSimulation))
     {
@@ -235,8 +244,17 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                 }
             }
         }
+
+        std::vector<float> GenericAttributeValues;
+        if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
+        {
+            for (float Value : Pickup->PrimaryPickupItemEntry().GenericAttributeValues())
+            {
+                GenericAttributeValues.push_back(Value);
+            }
+        }
         
-        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo());
+        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo(), GenericAttributeValues);
 
         if (inventory_component::is_inventory_full(PlayerController))
         {

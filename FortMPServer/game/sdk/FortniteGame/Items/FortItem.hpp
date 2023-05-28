@@ -87,6 +87,13 @@ public:
             return Call<UFortItemDefinition*>(Function_GetWeaponItemDefinition);
         }
     }
+
+    bool HasTrackedAttributes()
+    {
+        STATIC_FINDFUNCTION(HasTrackedAttributes)
+
+        return Call<bool>(Function_HasTrackedAttributes);
+    }
 };
 
 class UFortCreativeRealEstatePlotItemDefinition : public UFortItemDefinition
@@ -245,6 +252,7 @@ struct FFortItemEntry : public FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(int, LoadedAmmo);
     DEFINE_STRUCT_PROPERTY(struct FGuid, ItemGuid);
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntryStateValue>, StateValues);
+    DEFINE_STRUCT_PROPERTY(TArray<float>, GenericAttributeValues);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
 
