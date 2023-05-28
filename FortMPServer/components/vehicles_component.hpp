@@ -13,7 +13,9 @@ namespace vehicles_component_hooks
 {
     DEFINE_FUNCTION_HOOK(void, EquipAbilityWeapon, (UFortGameplayAbility* FortGameplayAbility, UFortWeaponItemDefinition* WeaponDefinition));
     DEFINE_FUNCTION_HOOK(void, ServerAttemptExitVehicle, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, ServerOnExitVehicle, (AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerRequestSeatChange, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, ServerFireActorInCannon, (AFortWeaponRangedForVehicle* Weapon, FFrame& StackFrame));
 
     // sync vehicles
     DEFINE_FUNCTION_HOOK(void, ServerUpdatePhysicsParams, (AActor* Vehicle, FFrame& StackFrame));

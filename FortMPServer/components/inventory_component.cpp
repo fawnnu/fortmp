@@ -190,14 +190,14 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     }
     
     // Mark for replication
-    player_controller->WorldInventory()->Inventory().MarkItemDirty(world_item->ItemEntry());
+    player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entries[replicated_entries.Num() - 1]);
 
     if (TryAddToQuickBar)
     {
         TryAddToQuickBar(player_controller, world_item);
     }
     
-    return world_item;
+    return item_instances[item_instances.Num() - 1];
 }
 
 void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item, bool b_is_swapping)

@@ -13,9 +13,10 @@ vehicles_component::vehicles_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerAttemptExitVehicle, L"/Script/FortniteGame.FortPlayerControllerZone.ServerAttemptExitVehicle", vehicles_component_hooks::ServerAttemptExitVehicle_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerRequestSeatChange, L"/Script/FortniteGame.FortPlayerControllerZone.ServerRequestSeatChange", vehicles_component_hooks::ServerRequestSeatChange_Hook);
-
+    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerFireActorInCannon, L"/Script/FortniteGame.FortWeaponRangedMountedCannon.ServerFireActorInCannon", vehicles_component_hooks::ServerFireActorInCannon_Hook);
+    REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerOnExitVehicle, L"/Script/FortniteGame.FortPlayerPawn.ServerOnExitVehicle", vehicles_component_hooks::ServerOnExitVehicle_Hook);
+    
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortAthenaVehicle.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerMove", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
@@ -103,45 +104,54 @@ void vehicles_component_hooks::ServerAttemptExitVehicle_Hook(AFortPlayerControll
     return ServerAttemptExitVehicle(FortPlayerController, StackFrame);
 }
 
+void vehicles_component_hooks::ServerOnExitVehicle_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
+{
+    ServerOnExitVehicle(FortPlayerPawn, StackFrame);
+    
+    AFortPlayerController* FortPlayerController = FortPlayerPawn->Controller();
+    
+    // Unequip the equipped vehicle weapon
+    vehicles_component::unequip_vehicle_weapon(FortPlayerController);
+    
+    // First entry is always pickaxe
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
+}
+
 void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(int, TargetSeatIndex);
 
-    // Switching to driver seat, equip vehicle weapon on newer versions
-    if (TargetSeatIndex == 0)
-    {
-        if (UFortVehicleSeatWeaponComponent::StaticClass())
-        {
-            if (FortPlayerController->Pawn()->IsInVehicle())
-            {
-                unsigned char SeatIndex = FortPlayerController->Pawn()->GetVehicleSeatIndex();
+    // Unequip vehicle weapon
+    vehicles_component::unequip_vehicle_weapon(FortPlayerController);
 
-                if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = FortPlayerController->Pawn()->GetVehicle()->GetSeatWeaponComponent(SeatIndex))
+    if (UFortVehicleSeatWeaponComponent::StaticClass())
+    {
+        if (FortPlayerController->Pawn()->IsInVehicle())
+        {
+            if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = FortPlayerController->Pawn()->GetVehicle()->GetSeatWeaponComponent(TargetSeatIndex))
+            {
+                UFortWeaponItemDefinition* VehicleWeapon = nullptr;
+                TArrayManager WeaponSeatDefinitions = TArrayManager<FWeaponSeatDefinition>(&SeatWeaponComponent->WeaponSeatDefinitions(), FWeaponSeatDefinition::GetStructSize());
+                
+                for (FWeaponSeatDefinition& SeatDefinition : WeaponSeatDefinitions)
                 {
-                    UFortWeaponItemDefinition* VehicleWeapon = nullptr;
-                    TArrayManager WeaponSeatDefinitions = TArrayManager<FWeaponSeatDefinition>(&SeatWeaponComponent->WeaponSeatDefinitions(), FWeaponSeatDefinition::GetStructSize());
-                
-                    for (FWeaponSeatDefinition& SeatDefinition : WeaponSeatDefinitions)
+                    if (SeatDefinition.SeatIndex() == TargetSeatIndex)
                     {
-                        if (SeatDefinition.SeatIndex() == SeatIndex)
-                        {
-                            VehicleWeapon = SeatDefinition.VehicleWeapon();
-                        }
+                        VehicleWeapon = SeatDefinition.VehicleWeapon();
                     }
-                
-                    vehicles_component::equip_vehicle_weapon(FortPlayerController, VehicleWeapon);
                 }
+                
+                vehicles_component::equip_vehicle_weapon(FortPlayerController, VehicleWeapon);
+                
+                return ServerRequestSeatChange(FortPlayerController, StackFrame);
             }
         }
     }
-    else // Remove vehicle weapon on other seats
-    {
-        vehicles_component::unequip_vehicle_weapon(FortPlayerController);
     
-        // Equip pickaxe
-        auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-        FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
-    }
+    // First entry is always pickaxe
+    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
+    FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
     
     return ServerRequestSeatChange(FortPlayerController, StackFrame);   
 }
@@ -175,4 +185,40 @@ void vehicles_component_hooks::ServerUpdatePhysicsParams_Hook(AActor* Vehicle, F
     }
     
     return ServerUpdatePhysicsParams(Vehicle, StackFrame);   
+}
+
+void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedForVehicle* Weapon, FFrame& StackFrame)
+{
+    GET_PARAMETER(FVector, LaunchDir);
+
+    // Get instigator
+    AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Instigator());
+
+    if (Pawn)
+    {
+        if (Pawn->IsInVehicle())
+        {
+            // Get vehicle
+            if (AFortAthenaVehicle* Vehicle = Pawn->GetVehicle())
+            {
+                // Get pawn at seat 1 (inside the cannon) and shoot it
+                AFortPlayerPawn* PawnToShoot = Vehicle->GetPawnAtSeat(1);
+
+                if (PawnToShoot)
+                {
+                    if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
+                    {
+                        AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
+
+                        PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
+                        PawnToShoot->ServerOnExitVehicle();
+                        PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
+                        PushCannon->MultiCastPushCannonLaunchedPlayer();
+                    }
+                }
+            }
+        }
+    }
+
+    return ServerFireActorInCannon(Weapon, StackFrame);
 }

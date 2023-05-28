@@ -165,6 +165,27 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
 
+    class AFortAthenaVehicle* ServerOnExitVehicle()
+    {
+        STATIC_FINDFUNCTION(ServerOnExitVehicle)
+
+        if (Function_ServerOnExitVehicle)
+        {
+            static bool bExists_ExitForceBehavior = FindPropertyByName(Function_ServerOnExitVehicle, L"ExitForceBehavior") != nullptr;
+            UEnum* ETryExitVehicleBehavior = FindObject<UEnum>(L"/Script/FortniteGame.ETryExitVehicleBehavior");
+
+            if (bExists_ExitForceBehavior && ETryExitVehicleBehavior)
+            {
+                return Call<AFortAthenaVehicle*>(Function_ServerOnExitVehicle, ETryExitVehicleBehavior->GetEnumIndex(L"ForceAlways"));
+            }
+            else
+            {
+                return Call<AFortAthenaVehicle*>(Function_ServerOnExitVehicle);
+            }
+        }
+
+        return nullptr;
+    }
     bool IsInVehicle()
     {
         STATIC_FINDFUNCTION(IsInVehicle)
@@ -218,6 +239,13 @@ public:
 
         return Call<UFortVehicleSeatWeaponComponent*>(Function_GetSeatWeaponComponent, SeatIndex);
     }
+
+    AFortPlayerPawn* GetPawnAtSeat(int SeatIdx)
+    {
+        STATIC_FINDFUNCTION(GetPawnAtSeat)
+
+        return Call<AFortPlayerPawn*>(Function_GetPawnAtSeat, SeatIdx);
+    }
 };
 
 class AFortPlayerPawnAthena : public AFortPlayerPawn
@@ -255,4 +283,31 @@ class APlayerPawn_Athena_C : public AFortPlayerPawnAthena
 {
 public:
     DEFINE_STATIC_CLASS(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C")
+};
+
+class AFortAthenaSKPushCannon : public AFortAthenaVehicle
+{
+public:
+    void OnPreLaunchPawn(AFortPlayerPawn* Pawn, FVector LaunchDir)
+    {
+        STATIC_FINDFUNCTION(OnPreLaunchPawn)
+
+        Call(Function_OnPreLaunchPawn, Pawn, LaunchDir);
+    }
+    
+    void OnLaunchPawn(AFortPlayerPawn* Pawn, FVector LaunchDir)
+    {
+        STATIC_FINDFUNCTION(OnLaunchPawn)
+
+        Call(Function_OnLaunchPawn, Pawn, LaunchDir);
+    }
+    
+    void MultiCastPushCannonLaunchedPlayer()
+    {
+        STATIC_FINDFUNCTION(MultiCastPushCannonLaunchedPlayer)
+
+        Call(Function_MultiCastPushCannonLaunchedPlayer);
+    }
+
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaSKPushCannon");
 };

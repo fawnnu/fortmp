@@ -242,10 +242,16 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
         {
             UFortItemDefinition* SwapItemDefinition = PickupTarget->CurrentWeapon()->WeaponData();
             FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
+            bool bShouldFocusOnSwappedItem = true;
             
             if (pickup_component::GlobalPickupStream.contains(Pickup))
             {
                 auto ItemInstance = pickup_component::GlobalPickupStream[Pickup];
+
+                if (SwapItemGuid != ItemInstance.ItemGuid)
+                {
+                    bShouldFocusOnSwappedItem = false;
+                }
 
                 SwapItemDefinition = ItemInstance.ItemDefinition;
                 SwapItemGuid = ItemInstance.ItemGuid;
@@ -264,7 +270,10 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     }
 
                     // Equip item on client
-                    PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                    if (bShouldFocusOnSwappedItem)
+                    {
+                        PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                    }
                 }
 
                 // Update GlobalPickupStream
