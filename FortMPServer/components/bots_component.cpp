@@ -81,30 +81,7 @@ AFortPlayerPawnAthena* bots_component::spawn_agent(UFortAthenaAIBotCustomization
         for(auto soft_character_part : customization_data->CharacterCustomization()->CustomizationLoadout().Character()->HeroDefinition()->Specializations()[0]->CharacterParts())
         {
             auto character_part = soft_character_part.Get();
-            if(character_part->CharacterPartType() == 0)
-            {
-                ServerChoosePart_Implementation(bot, 0, character_part);
-            }
-            else if(character_part->CharacterPartType() == 1)
-            {
-                ServerChoosePart_Implementation(bot, 1, character_part);
-            }
-            else if(character_part->CharacterPartType() == 2)
-            {
-                ServerChoosePart_Implementation(bot, 2, character_part);
-            }
-            else if(character_part->CharacterPartType() == 3)
-            {
-                ServerChoosePart_Implementation(bot, 3, character_part);
-            }
-            else if(character_part->CharacterPartType() == 4)
-            {
-                ServerChoosePart_Implementation(bot, 4, character_part);
-            }
-            else if(character_part->CharacterPartType() == 5)
-            {
-                ServerChoosePart_Implementation(bot, 5, character_part);
-            }
+            ServerChoosePart_Implementation(bot, character_part->CharacterPartType(), character_part);
         }
         controller->PlayerBotPawn()->PlayerState()->OnRep_CharacterData();
         
