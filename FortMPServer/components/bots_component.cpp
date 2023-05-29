@@ -11,26 +11,36 @@ bots_component::bots_component()
 
 void bots_component::initialize_data()
 {
-    mutator_bots = SpawnDefaultActor<AFortAthenaMutator_Bots>(*GWorld, AFortAthenaMutator_Bots::StaticClass());
-
-    if (mutator_bots != nullptr)
+    if (AFortAthenaMutator_Bots::StaticClass())
     {
-        (*GWorld)->AuthorityGameMode()->ServerBotManager() = static_cast<UFortServerBotManagerAthena*>(UGameplayStatics::SpawnObject(UFortServerBotManagerAthena::StaticClass(), (*GWorld)));
-        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedBotMutator() = mutator_bots;
-        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameMode() = (*GWorld)->AuthorityGameMode();
-        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameState() = (*GWorld)->GameState();
+        mutator_bots = SpawnDefaultActor<AFortAthenaMutator_Bots>(*GWorld, AFortAthenaMutator_Bots::StaticClass());
 
-        // Basic agent spawning example
-        /*FVector spawn_loc = FVector(0, 0, 0);
-        FRotator spawn_rot = {};
-        
-        spawn_agent(static_cast<UFortAthenaAIBotCustomizationData*>(FindObject(L"/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_Agency.BotData_MANG_POI_Agency", true, false)), spawn_loc, spawn_rot);*/
+        if (mutator_bots)
+        {
+            if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), ServerBotManager))
+            {
+                (*GWorld)->AuthorityGameMode()->ServerBotManager() = static_cast<UFortServerBotManagerAthena*>(UGameplayStatics::SpawnObject(UFortServerBotManagerAthena::StaticClass(), (*GWorld)));
+
+                if ((*GWorld)->AuthorityGameMode()->ServerBotManager())
+                {
+                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedBotMutator() = mutator_bots;
+                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameMode() = (*GWorld)->AuthorityGameMode();
+                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameState() = (*GWorld)->GameState();
+                    
+                    // Basic agent spawning example
+                    /*FVector spawn_loc = FVector(0, 0, 0);
+                    FRotator spawn_rot = {};
+                    
+                    spawn_agent(static_cast<UFortAthenaAIBotCustomizationData*>(FindObject(L"/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_Agency.BotData_MANG_POI_Agency", true, false)), spawn_loc, spawn_rot);*/
+                }
+            }
+        }
     }
 }
 
 AFortPlayerPawnAthena* bots_component::spawn_agent(UFortAthenaAIBotCustomizationData* customization_data, FVector spawn_location, FRotator spawn_rotation)
 {
-    if (mutator_bots != nullptr && customization_data != nullptr)
+    if (mutator_bots && customization_data)
     {
         FActorSpawnParameters spawn_parameters = {};
         
@@ -96,20 +106,26 @@ AFortPlayerPawnAthena* bots_component::spawn_agent(UFortAthenaAIBotCustomization
 void bots_component_hooks::OnPossesedPawnDied_Hook(UObject* Object, UObject* Function, void* Params)
 {
     auto ai_bot_controller = static_cast<AFortAthenaAIBotController*>(Object);
-    
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&ai_bot_controller->Inventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
-    static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
-    
-    for (int i = replicated_entries.Num() - 1; i >= 0; i--)
+    if (ai_bot_controller->Inventory())
     {
-        FFortItemEntry& item_entry = replicated_entries[i];
+        auto replicated_entries = TArrayManager<FFortItemEntry>(&ai_bot_controller->Inventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
-        if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
+        static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
+    
+        for (int i = replicated_entries.Num() - 1; i >= 0; i--)
         {
-            continue;
-        }
+            FFortItemEntry& item_entry = replicated_entries[i];
+
+            if (UFortItemDefinition* ItemDefinition = item_entry.ItemDefinition())
+            {
+                if (ItemDefinition->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
+                {
+                    continue;
+                }
         
-        pickup_component::spawn_pickup(item_entry.ItemDefinition(), ai_bot_controller->PlayerBotPawn()->K2_GetActorLocation(), 1, looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()));
+                pickup_component::spawn_pickup(item_entry.ItemDefinition(), ai_bot_controller->PlayerBotPawn()->K2_GetActorLocation(), item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()));
+            }
+        }
     }
 }
