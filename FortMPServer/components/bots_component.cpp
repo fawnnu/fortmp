@@ -23,15 +23,24 @@ void bots_component::initialize_data()
 
                 if ((*GWorld)->AuthorityGameMode()->ServerBotManager())
                 {
-                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedBotMutator() = mutator_bots;
-                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameMode() = (*GWorld)->AuthorityGameMode();
-                    (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameState() = (*GWorld)->GameState();
+                    STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode()->ServerBotManager(), CachedBotMutator);
+                    STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode()->ServerBotManager(), CachedGameMode);
+                    STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode()->ServerBotManager(), CachedGameState);
+
+                    if (bExists_CachedBotMutator &&
+                        bExists_CachedGameMode &&
+                        bExists_CachedGameState)
+                    {
+                        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedBotMutator() = mutator_bots;
+                        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameMode() = (*GWorld)->AuthorityGameMode();
+                        (*GWorld)->AuthorityGameMode()->ServerBotManager()->CachedGameState() = (*GWorld)->GameState();
                     
-                    // Basic agent spawning example
-                    /*FVector spawn_loc = FVector(0, 0, 0);
-                    FRotator spawn_rot = {};
-                    
-                    spawn_agent(static_cast<UFortAthenaAIBotCustomizationData*>(FindObject(L"/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_Agency.BotData_MANG_POI_Agency", true, false)), spawn_loc, spawn_rot);*/
+                        // Basic agent spawning example
+                        /*FVector spawn_loc = FVector(0, 0, 0);
+                        FRotator spawn_rot = {};
+                        
+                        spawn_agent(static_cast<UFortAthenaAIBotCustomizationData*>(FindObject(L"/Game/Athena/AI/MANG/BotData/BotData_MANG_POI_Agency.BotData_MANG_POI_Agency", true, false)), spawn_loc, spawn_rot);*/
+                    }
                 }
             }
         }
