@@ -18,7 +18,7 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameSessionDedicatedAthena")
 };
 
-class AGameModeBase : public UObject
+class AGameModeBase : public AActor
 {
 public:
     DEFINE_PROPERTY(AGameSession*, GameSession);
@@ -92,6 +92,8 @@ public:
     
     DEFINE_PROPERTY(bool, bMapInfoInitialized);
     DEFINE_PROPERTY(AFortSafeZoneIndicator*, SafeZoneIndicator);
+
+    DEFINE_PROPERTY(class UFortServerBotManagerAthena*, ServerBotManager);
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
 

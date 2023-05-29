@@ -27,6 +27,13 @@ public:
     //IP
     DEFINE_PROPERTY(FString, SavedNetworkAddress);
 
+    void OnRep_CharacterData()
+    {
+        STATIC_FINDFUNCTION(OnRep_CharacterData)
+
+        Call(Function_OnRep_CharacterData);
+    }
+    
     void ApplyCharacterCustomization(class AFortPlayerPawn* FortPlayerPawn)
     {
         static uintptr_t ApplyCharacterCustomization_Address = memory_manager::find_function_by_string(L"AFortPlayerState::ApplyCharacterCustomization");

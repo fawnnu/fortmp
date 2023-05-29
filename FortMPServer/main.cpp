@@ -23,6 +23,7 @@
 #include "components/function_component.hpp"
 #include "components/gamemodes_component.hpp"
 #include "components/blueprint_component.hpp"
+#include "components/bots_component.hpp"
 #include "components/log_component.hpp"
 #include "components/moderation_component.hpp"
 #include "components/pak_component.hpp"
@@ -119,6 +120,7 @@ void Setup()
                 new pickup_component();
                 new looting_component();
                 new building_component();
+                new bots_component();
                 new elimination_component();
                 new trap_component();
                 new reboot_component();

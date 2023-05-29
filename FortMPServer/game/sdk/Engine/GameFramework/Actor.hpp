@@ -33,6 +33,9 @@ enum class ENetDormancy : uint8_t
 class AActor : public UObject
 {
 public:
+
+    DEFINE_STATIC_CLASS(L"/Script/Engine.Actor");
+    
     DEFINE_PROPERTY(class USceneComponent*, RootComponent);
 
     DEFINE_PROPERTY(TArray<class UActorComponent*>, BlueprintCreatedComponents);

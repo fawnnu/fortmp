@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "bots_component.hpp"
 #include "function_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
@@ -149,6 +150,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Initialize era_teams
         team_component::InitializeTeams();
 
+        // Initialize bot managers and mutator
+        bots_component::initialize_data();
+        
         // Update gamemode for clients
         (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");
 

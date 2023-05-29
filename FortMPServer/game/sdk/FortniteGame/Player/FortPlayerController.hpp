@@ -317,3 +317,16 @@ class AAthena_PlayerController_C : public AFortPlayerControllerAthena
 public:
     DEFINE_STATIC_CLASS(L"/Game/Athena/Athena_PlayerController.Athena_PlayerController_C");
 };
+
+class AFortAthenaAIBotController : public AController
+{
+public:
+    DEFINE_PROPERTY(FFortAthenaLoadout, CosmeticLoadoutBC);
+    DEFINE_PROPERTY(class UFortAthenaAIBotInventoryItems*, StartupInventory);
+    DEFINE_PROPERTY(class UFortAthenaAIBotCustomizationData*, BotData);
+    DEFINE_PROPERTY(AFortInventory*, Inventory);
+    DEFINE_PROPERTY(class AFortGameModeAthena*, CachedGameMode);
+    DEFINE_PROPERTY(class UFortServerBotManagerAthena*, CachedBotManager);
+    DEFINE_PROPERTY(class AFortPlayerPawnAthena*, PlayerBotPawn);
+    DEFINE_PROPERTY(class AFortAthenaMutator_Bots*, CachedBotMutator);
+};

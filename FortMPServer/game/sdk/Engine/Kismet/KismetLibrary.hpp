@@ -249,3 +249,19 @@ public:
         ProcessEvent(Default__AbilitySystemBlueprintLibrary, FunctionObject, params);
     }
 };
+
+class UAIBlueprintHelperLibrary : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortKismetLibrary")
+    
+    static AController* GetAIController(AActor* ControlledActor)
+    {
+        // Static function to use default object
+        static UObject* Default__AIBlueprintHelperLibrary = FindObject(L"/Script/AIModule.Default__AIBlueprintHelperLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/AIModule.AIBlueprintHelperLibrary.GetAIController")
+        
+        return Default__AIBlueprintHelperLibrary->Call<AController*>(FunctionObject, ControlledActor);
+    }
+};

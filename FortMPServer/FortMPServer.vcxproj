@@ -210,6 +210,7 @@
     <ClInclude Include="components\aircraft_component.hpp" />
     <ClInclude Include="components\anticheat_component.hpp" />
     <ClInclude Include="components\blueprint_component.hpp" />
+    <ClInclude Include="components\bots_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
     <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
@@ -266,6 +267,7 @@
     <ClInclude Include="game\sdk\FortniteGame\Athena\GameData.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\MapInfo.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Building\BuildingActor.hpp" />
+    <ClInclude Include="game\sdk\FortniteGame\FortAI.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortGameMode.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortGameState.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\FortMutator.hpp" />
@@ -333,6 +335,7 @@
     <ClCompile Include="components\aircraft_component.cpp" />
     <ClCompile Include="components\anticheat_component.cpp" />
     <ClCompile Include="components\blueprint_component.cpp" />
+    <ClCompile Include="components\bots_component.cpp" />
     <ClCompile Include="components\building_component.cpp" />
     <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />

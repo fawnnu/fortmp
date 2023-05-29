@@ -109,6 +109,7 @@
 #include "sdk/FortniteGame/Athena/FortSafezone.hpp"
 #include "sdk/FortniteGame/FortGameState.hpp"
 #include "sdk/FortniteGame/FortGameMode.hpp"
+#include "sdk/FortniteGame/FortAI.hpp"
 #include "sdk/FortniteGame/Athena/FortPlaylist.hpp"
 #include "sdk/FortniteGame/Abilities/FortAbility.hpp"
 #include "sdk/FortniteGame/Athena/FortZiplines.hpp"

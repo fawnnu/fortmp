@@ -26,3 +26,16 @@ public:
     DEFINE_PROPERTY(uint8, ConsumableDropOverride);
     DEFINE_PROPERTY(uint8, AmmoDropOverride);
 };
+
+class AFortAthenaMutator_Bots : public AFortAthenaMutator
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaMutator_Bots")
+
+    class AFortPlayerPawnAthena* SpawnBot(class AFortPlayerPawnAthena* BotPawnClass, class AActor* InSpawnLocator, struct FVector& InSpawnLocation, struct FRotator& InSpawnRotation, bool bSnapToGround)
+    {
+        STATIC_FINDFUNCTION(SpawnBot)
+
+        return Call<AFortPlayerPawnAthena*>(Function_SpawnBot, BotPawnClass, InSpawnLocator, InSpawnLocation, InSpawnRotation, bSnapToGround);
+    }
+};
