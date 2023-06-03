@@ -128,8 +128,11 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     {
         // Toss pickup, prevents pickups from all spawning in the same location
         fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
-        
-        handle_pickup_combination(fort_pickup);
+
+        if (GetEngineVersionEasy() > 419)
+        {
+            handle_pickup_combination(fort_pickup);
+        }
     }
     
     return fort_pickup;
