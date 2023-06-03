@@ -119,6 +119,21 @@ bool FString::operator==(FString in_str)
     return UKismetStringLibrary::Equals(*this, in_str);
 }
 
+int UFortItemDefinition::GetMaxStackSize()
+{
+    auto MaxStackSizeProperty = FindPropertyByName(this->Class, L"MaxStackSize");
+
+    // INT
+    if (*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(MaxStackSizeProperty) + CoreOffsets::ElementSize) == 4)
+    {
+        return MaxStackSize();
+    }
+    else // ScalableFloat
+    {
+        return reinterpret_cast<FScalableFloat*>(&MaxStackSize())->GetValueAtLevel(0, nullptr);
+    }   
+}
+
 UFortPlaylistAthena* GetPlaylistEasy()
 {
     STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);

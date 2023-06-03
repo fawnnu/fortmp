@@ -259,6 +259,8 @@ public:
         
         Call(Function_TeleportToSkyDive, HeighAboveGround);
     }
+
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerPawnAthena");
 };
 
 class AFortAIPawn : public UObject

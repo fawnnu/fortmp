@@ -67,6 +67,9 @@ class UProjectileMovementComponent : public UMovementComponent
 {
 public:
     DEFINE_PROPERTY(float, MaxSpeed);
+    DEFINE_PROPERTY(TScriptMulticastDelegate<UProjectileMovementComponent>, OnProjectileStop)
+
+    DEFINE_STATIC_CLASS(L"/Script/Engine.ProjectileMovementComponent")
 };
 
 class UPrimitiveComponent : public UActorComponent

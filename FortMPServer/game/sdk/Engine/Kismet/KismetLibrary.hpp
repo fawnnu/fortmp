@@ -8,6 +8,41 @@ struct FTimerHandle
 class UKismetSystemLibrary : public UObject
 {
 public:
+    static bool SphereOverlapActors(UObject* WorldContextObject, FVector SpherePos, float SphereRadius, TArray<uint8_t> ObjectTypes, UObject* ActorClassFilter, TArray<AActor*> ActorsToIgnore, TArray<AActor*>* OutActors)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        
+        struct
+        {
+            UObject* WorldContextObject;
+            FVector SpherePos;
+            float SphereRadius;
+            TArray<uint8_t> ObjectTypes;
+            UObject* ActorClassFilter;
+            TArray<AActor*> ActorsToIgnore;
+            TArray<AActor*> OutActors;
+            bool ReturnValue;
+        } parameters;
+
+        parameters.WorldContextObject = WorldContextObject;
+        parameters.SpherePos = SpherePos;
+        parameters.SphereRadius = SphereRadius;
+        parameters.ObjectTypes = ObjectTypes;
+        parameters.ActorClassFilter = ActorClassFilter;
+        parameters.ActorsToIgnore = ActorsToIgnore;
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.SphereOverlapActors")
+        
+        ProcessEvent(Default__KismetSystemLibrary, FunctionObject, &parameters);
+
+        if (OutActors)
+        {
+            *OutActors = parameters.OutActors;
+        }
+        
+        return parameters.ReturnValue;
+    }
+    
     static void SetBoolPropertyByName(UObject* Target, FName PropertyName, bool Value)
     {
         // Static function so use default object

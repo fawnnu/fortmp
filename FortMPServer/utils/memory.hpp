@@ -35,6 +35,7 @@ public:
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
+    static void lea_hook(uintptr_t lea_instruction_address, uintptr_t hook_address);
     static uintptr_t scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address = 0, bool Backwards = false);
     static bool does_address_belong_to_func(uintptr_t target_address, uintptr_t function_start);
 

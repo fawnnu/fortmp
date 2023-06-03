@@ -2,7 +2,9 @@
 
 struct FFortPickupLocationData
 {
+    DEFINE_STRUCT_PROPERTY(AFortPickup*, CombineTarget);
     DEFINE_STRUCT_PROPERTY(uint8_t, TossState);
+    DEFINE_STRUCT_PROPERTY(FVector, FinalTossRestLocation);
     DEFINE_STRUCT_PROPERTY(float, FlyTime);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, ItemOwner);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, PickupTarget);
@@ -26,6 +28,7 @@ public:
 
     DEFINE_PROPERTY(bool, bTossedFromContainer);
     DEFINE_PROPERTY(bool, bCombinePickupsWhenTossCompletes);
+    DEFINE_PROPERTY(AFortPawn*, PawnWhoDroppedPickup);
 
     void TossPickup(FVector FinalLocation, AFortPlayerPawn* ItemOwner, int OverrideMaxStackCount, bool bToss)
     {
@@ -44,9 +47,22 @@ public:
         
         Call(Function_OnRep_PickupLocationData);
     }
+
+    void OnRep_PrimaryPickupItemEntry()
+    {
+        STATIC_FINDFUNCTION(OnRep_PrimaryPickupItemEntry)
+        
+        Call(Function_OnRep_PrimaryPickupItemEntry);
+    }
 };
 
 class AFortGameModePickup : public AFortPickup
 {
     
+};
+
+class AFortPickupAthena : public AFortPickup
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPickupAthena")
 };

@@ -56,6 +56,8 @@ public:
         
         return Call<UFortItem*>(Function_CreateTemporaryItemInstanceBP, Count, Level);
     }
+
+    int GetMaxStackSize();
 };
 
 class UFortGadgetItemDefinition : public UFortItemDefinition
@@ -256,6 +258,7 @@ struct FFortItemEntry : public FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(struct FGuid, ItemGuid);
     DEFINE_STRUCT_PROPERTY(TArray<FFortItemEntryStateValue>, StateValues);
     DEFINE_STRUCT_PROPERTY(TArray<float>, GenericAttributeValues);
+    DEFINE_STRUCT_PROPERTY(bool, bIsDirty);
 
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntry");
 

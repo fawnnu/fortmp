@@ -1,8 +1,10 @@
 ﻿#include "include.hpp"
 #include "pickup_component.hpp"
 
+#include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
+#include "replication_component.hpp"
 
 pickup_component::pickup_component()
 {
@@ -16,6 +18,40 @@ pickup_component::pickup_component()
 
     //TODO: Universal sig
     INIT_POINTER(InitializePickup, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 41 56 48 83 EC 20 80 B9 ? ? ? ? ? 45 0F B6 F1"));
+
+    // Retrieve CombinePickup's address at first, and then call detour CombinePickupFinished
+    if (UFunction* OnRep_PickupLocationData = FindObject<UFunction>(L"/Script/FortniteGame.FortPickup.OnRep_PickupLocationData"))
+    {
+        if (void* NativeFunction = OnRep_PickupLocationData->get_native_function())
+        {
+            if (uintptr_t scan_result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(NativeFunction), {0x48, 0xff, 0xa0}))
+            {
+                const int function_index = *reinterpret_cast<int*>(scan_result + 3) / 8;
+
+                const uintptr_t OnRep_PickupLocationData_Address = reinterpret_cast<uintptr_t>(CreateDefaultObject<AFortPickupAthena>()->VTable[function_index]);
+
+                scan_result = memory_manager::scan_for(OnRep_PickupLocationData_Address, {0x74, WILDCARD, 0x48, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, 0xE9});
+
+                if (scan_result)
+                {
+                    scan_result += 10;
+                    const uintptr_t CombinePickupAddress = scan_result + 5 + *reinterpret_cast<int*>(scan_result + 1);
+                    
+                    INIT_POINTER(InternalCombinePickup, CombinePickupAddress);
+
+                    if (CombinePickupAddress)
+                    {
+                        scan_result = memory_manager::scan_for(CombinePickupAddress, {0x48, 0x8d, 0x5});
+
+                        if (scan_result)
+                        {
+                            memory_manager::lea_hook(scan_result, reinterpret_cast<uintptr_t>(pickup_component_hooks::CombinePickupFinished_Hook));
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_SpawnPickupInWorld", pickup_component_hooks::K2_SpawnPickupInWorld_Hook);
     
@@ -92,6 +128,8 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     {
         // Toss pickup, prevents pickups from all spawning in the same location
         fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
+        
+        handle_pickup_combination(fort_pickup);
     }
     
     return fort_pickup;
@@ -162,7 +200,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     }
 
     // Pick it up
-    InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->PickupSpeedMultiplier(), FVector(1,1,1));
+    InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / CreateDefaultObject<AFortPlayerPawnAthena>()->PickupSpeedMultiplier(), FVector(1,1,1));
 
     // Era Pickup Stream
     if (!GlobalPickupStream.contains(Pickup))
@@ -196,6 +234,121 @@ void pickup_component::initialize_pickup(AFortPickup* pickup, UFortItemDefinitio
             // This function takes care of setting up, among other things, SpecialActorID and properly adds support for Special Actors
             // Special Actors are required for some items and LTMs to work, such as Infinity Gauntlet
             InitializePickup(pickup, TemporaryItemEntry, OutParm, false);
+        }
+    }
+}
+
+void pickup_component::handle_pickup_combination(AFortPickup* Pickup)
+{
+    // Data
+    UFortItemDefinition* PickupItemDefinition = Pickup->PrimaryPickupItemEntry().ItemDefinition();
+    
+    // Construct parameters for SphereOverlapActors
+    TArray<AActor*> ActorsToIgnore{};
+    TArray<uint8_t> ObjectTypes;
+    UEnum* EObjectTypeQuery = FindObject<UEnum>(L"/Script/Engine.EObjectTypeQuery");
+    for (uint8_t i = 0; i < EObjectTypeQuery->GetEnumIndex(L"ObjectTypeQuery_MAX"); i++)
+    {
+        ObjectTypes.Add(i);
+    }
+    TArray<AActor*> Result;
+
+    // Check for Sphere overlap
+    UKismetSystemLibrary::SphereOverlapActors(*GWorld, Pickup->K2_GetActorLocation(), 128.f, ObjectTypes, AFortPickupAthena::StaticClass(), ActorsToIgnore, &Result);
+
+    if (Result.Num() > 0)
+    {
+        AFortPickup* CombineTarget = nullptr;
+
+        for (AActor* ResultInstance : Result)
+        {
+            AFortPickup* CurrentPickup = static_cast<AFortPickup*>(ResultInstance);
+            UFortItemDefinition* CurrentPickupItemDefinition = CurrentPickup->PrimaryPickupItemEntry().ItemDefinition();
+            
+            if (CurrentPickup == Pickup)
+            {
+                continue;
+            }
+
+            if (CurrentPickup->bPickedUp())
+            {
+                continue;
+            }
+
+            if (CurrentPickupItemDefinition == PickupItemDefinition)
+            {
+                if (CurrentPickup->PrimaryPickupItemEntry().Count() < CurrentPickupItemDefinition->GetMaxStackSize())
+                {
+                    AFortPickup* OverrideCombineTarget = nullptr;
+                    for (AFortPickup* CurrentPickupCombineTarget = CurrentPickup->PickupLocationData().CombineTarget(); CurrentPickupCombineTarget; CurrentPickupCombineTarget = CurrentPickupCombineTarget->PickupLocationData().CombineTarget())
+                    {
+                        OverrideCombineTarget = CurrentPickupCombineTarget;
+                    }
+
+                    if (OverrideCombineTarget)
+                    {
+                        if (OverrideCombineTarget->PrimaryPickupItemEntry().ItemDefinition() == PickupItemDefinition &&
+                            OverrideCombineTarget->PrimaryPickupItemEntry().Count() < PickupItemDefinition->GetMaxStackSize() &&
+                            OverrideCombineTarget->PickupLocationData().CombineTarget() == nullptr &&
+                            OverrideCombineTarget->bPickedUp() == false)
+                        {
+                            CombineTarget = OverrideCombineTarget;
+                            break;
+                        }
+                    }
+                        
+                    if (CombineTarget == nullptr)
+                    {
+                        if (CurrentPickup->PickupLocationData().CombineTarget() == nullptr)
+                        {
+                            CombineTarget = CurrentPickup;
+                            continue;
+                        }
+                    }
+
+                    if (CombineTarget)
+                    {
+                        float CombineTargetDistance = CombineTarget->GetDistanceTo(Pickup);
+                        float PotentialCombineTargetDistance = CurrentPickup->GetDistanceTo(Pickup);
+
+                        if (PotentialCombineTargetDistance < CombineTargetDistance)
+                        {
+                            if (CurrentPickup->PickupLocationData().CombineTarget() == nullptr)
+                            {
+                                CombineTarget = CurrentPickup;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (CombineTarget)
+        {
+            if (STATIC_HASPROPERTY(Pickup, bCombinePickupsWhenTossCompletes))
+            {
+                Pickup->bCombinePickupsWhenTossCompletes() = true;
+            }
+
+            Pickup->PickupLocationData().CombineTarget() = CombineTarget;
+
+            if (InternalCombinePickup)
+            {
+                Pickup->PrimaryPickupItemEntry().PreviousCount() = Pickup->PrimaryPickupItemEntry().Count();
+                CombineTarget->PrimaryPickupItemEntry().PreviousCount() = CombineTarget->PrimaryPickupItemEntry().Count();
+
+                CombineTarget->PrimaryPickupItemEntry().Count() = Pickup->PrimaryPickupItemEntry().Count() + CombineTarget->PrimaryPickupItemEntry().Count() <= PickupItemDefinition->GetMaxStackSize() ? Pickup->PrimaryPickupItemEntry().Count() + CombineTarget->PrimaryPickupItemEntry().Count() : PickupItemDefinition->GetMaxStackSize();
+
+                if (CombineTarget->PrimaryPickupItemEntry().Count() == PickupItemDefinition->GetMaxStackSize())
+                {
+                    spawn_pickup(PickupItemDefinition, Pickup->K2_GetActorLocation(), Pickup->PrimaryPickupItemEntry().PreviousCount() + CombineTarget->PrimaryPickupItemEntry().PreviousCount() - PickupItemDefinition->GetMaxStackSize());
+                }
+                
+                // Update fly time
+                Pickup->PickupLocationData().FlyTime() = Pickup->PickupLocationData().FlyTime() / CreateDefaultObject<AFortPlayerPawnAthena>()->PickupSpeedMultiplier();
+                
+                InternalCombinePickup(Pickup);
+            }
         }
     }
 }
@@ -375,8 +528,11 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         {
             if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
             {
-                // Pickup item automatically if it is not currently being tossed
-                pickup_component::handle_pickup(fort_pickup, PlayerPawn);
+                if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
+                {
+                    // Pickup item automatically if it is not currently being tossed
+                    pickup_component::handle_pickup(fort_pickup, PlayerPawn);
+                }
             }
         }
     }
@@ -399,4 +555,17 @@ AFortPickup* pickup_component_hooks::K2_SpawnPickupInWorld_Hook(UWorld* WorldCon
     }
     
     return nullptr;   
+}
+
+void pickup_component_hooks::CombinePickupFinished_Hook(AFortPickup* Self)
+{
+    // Handle the actual combination
+    if (AFortPickup* CombineTarget = Self->PickupLocationData().CombineTarget())
+    {
+        // Update widget
+        CombineTarget->ForceNetUpdate();
+        
+        // Destroy Self
+        Self->K2_DestroyActor();
+    }
 }

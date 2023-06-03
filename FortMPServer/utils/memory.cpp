@@ -346,6 +346,31 @@ void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hoo
 	VirtualProtect(reinterpret_cast<LPVOID>(call_instruction_address), 5, old_protect, &new_protect);
 }
 
+void memory_manager::lea_hook(uintptr_t lea_instruction_address, uintptr_t hook_address)
+{
+	uintptr_t new_page_address = allocate_page_near_address(lea_instruction_address, ENewPageLocation::HIGH);
+
+	// Add the below instructions to the new page
+	// mov r10, addr
+	// jmp r10
+
+	uint8_t instructions[] = {0x49, 0xBA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x41, 0xFF, 0xE2};
+	
+	*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(instructions) + 2) = hook_address;
+
+	memcpy(reinterpret_cast<LPVOID>(new_page_address), instructions, sizeof instructions);
+
+	// Now, edit the lea instruction to work with our newly allocated page
+	int displacement = new_page_address - (lea_instruction_address + 7);
+	
+	DWORD old_protect, new_protect;
+	VirtualProtect(reinterpret_cast<LPVOID>(lea_instruction_address), 7, PAGE_EXECUTE_READWRITE, &old_protect);
+
+	*reinterpret_cast<int*>(lea_instruction_address + 3) = displacement;
+	
+	VirtualProtect(reinterpret_cast<LPVOID>(lea_instruction_address), 7, old_protect, &new_protect);
+}
+
 uintptr_t memory_manager::scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address, bool Backwards)
 {
 	uintptr_t end_address = optional_end_address ? optional_end_address : Backwards ? start_address - 2048 : start_address + 2048;

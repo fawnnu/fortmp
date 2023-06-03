@@ -13,6 +13,8 @@ public:
 
     static void initialize_pickup(AFortPickup* pickup, UFortItemDefinition* item_definition, int count);
 
+    static void handle_pickup_combination(AFortPickup* pickup);
+
     struct ItemInfo
     {
         ItemInfo() = default;
@@ -44,8 +46,12 @@ namespace pickup_component_hooks
 
     // Called when a pickup should be spawned
     DEFINE_FUNCTION_HOOK(AFortPickup*, K2_SpawnPickupInWorld, (UWorld* WorldContextObject, UFortItemDefinition* ItemDefinition, int NumberToSpawn, FVector Position, FVector Direction, int OverrideMaxStackCount, bool bToss));
+
+    // Called when pickup combining is done
+    DEFINE_FUNCTION_HOOK(void, CombinePickupFinished, (AFortPickup* Self))
 }
 
 inline void (*Toss)(AFortPickup*);
 inline void (*InternalHandlePickup)(AFortPickup*, AFortPlayerPawn*, float, FVector);
 inline void (*InitializePickup)(AFortPickup*, FFortItemEntry*, __int64*, bool);
+inline void (*InternalCombinePickup)(AFortPickup*);
