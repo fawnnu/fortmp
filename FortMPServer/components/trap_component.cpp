@@ -28,14 +28,6 @@ trap_component::trap_component()
             }
         }
     }
-
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    REGISTER_UFUNCTION_DETOUR(trap_component_hooks::ServerSpawnDeco, L"/Script/FortniteGame.FortDecoTool.ServerSpawnDeco", trap_component_hooks::ServerSpawnDeco_Hook);
-    REGISTER_UFUNCTION_DETOUR(trap_component_hooks::ServerCreateBuildingAndSpawnDeco, L"/Script/FortniteGame.FortDecoTool.ServerCreateBuildingAndSpawnDeco", trap_component_hooks::ServerCreateBuildingAndSpawnDeco_Hook);
-    
-    DetourTransactionCommit();
 }
 
 ABuildingActor* trap_component::CreateBuilding(AFortPlayerController* BuildingOwner, UObject** Class, FVector* Location, FRotator* Rotation)
@@ -46,38 +38,4 @@ ABuildingActor* trap_component::CreateBuilding(AFortPlayerController* BuildingOw
     return NewBuildingActor;
 }
 
-void trap_component_hooks::ServerCreateBuildingAndSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFrame& StackFrame)
-{
-    ServerCreateBuildingAndSpawnDeco(FortDecoTool, StackFrame);
-
-    AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
-    
-    // Pay trap cost
-    if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_guid(player_controller, FortDecoTool->ItemEntryGuid()))
-    {
-        inventory_component::remove_item(player_controller, static_cast<UFortWorldItem*>(item_to_remove)->ItemEntry().ItemGuid(), 1, false);
-    }
-    else
-    {
-        spdlog::error(L"trap_component_hooks::ServerCreateBuildingAndSpawnDeco_Hook failed to pay trap cost, invalid item_to_remove");
-    }
-}
-
-void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FFrame& StackFrame)
-{
-    // Call native function to properly spawn the trap
-    ServerSpawnDeco(FortDecoTool, StackFrame);
-
-    AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
-    
-    // Pay trap cost
-    if (UFortItem* item_to_remove = inventory_component::get_inventory_item_by_guid(player_controller, FortDecoTool->ItemEntryGuid()))
-    {
-        inventory_component::remove_item(player_controller, static_cast<UFortWorldItem*>(item_to_remove)->ItemEntry().ItemGuid(), 1, false);
-    }
-    else
-    {
-        spdlog::error(L"trap_component_hooks::ServerSpawnDeco_Hook failed to pay trap cost, invalid item_to_remove");
-    }
-}
 

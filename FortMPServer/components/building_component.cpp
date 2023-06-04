@@ -9,6 +9,7 @@ building_component::building_component()
     INIT_POINTER(ReplaceBuildingActor, memory_manager::find_pattern("4C 89 44 24 ? 55 56 57 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ?")); 
     INIT_POINTER(ReplaceBuildingActor, memory_manager::find_function_by_string(L"STAT_Fort_BuildingSMActorReplaceBuildingActor"));
     INIT_POINTER(CanPlaceBuildingActor, memory_manager::find_pattern("E8 ? ? ? ? 85 C0 0F 85 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? C6", true, 1));
+    INIT_POINTER(ProcessRepairCost, memory_manager::find_function_by_string(L"Failed to remove item %s during repair, item duplicated!"));
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -286,16 +287,15 @@ void building_component_hooks::ServerRepairBuildingActor_Hook(AFortPlayerControl
 {
     GET_PARAMETER(ABuildingSMActor*, BuildingActorToRepair);
 
-    // TODO: Get proper repair cost, most likely to do with BuildingRepairCostMultiplierHandles
-    constexpr int repair_cost = 3;
-
-    if (BuildingActorToRepair)
+    if (ProcessRepairCost)
     {
-        // Repair building
-        BuildingActorToRepair->RepairBuilding(FortPlayerController, repair_cost);
+        if (int RepairCost = ProcessRepairCost(FortPlayerController, BuildingActorToRepair))
+        {
+            spdlog::info(L"building_component_hooks::ServerRepairBuildingActor_Hook: paid RepairCost of {}. Repairing building actor.", RepairCost);
 
-        // TODO: Repair cost
+            BuildingActorToRepair->RepairBuilding(FortPlayerController, RepairCost);
+        }
     }
-    
+        
     return ServerRepairBuildingActor(FortPlayerController, StackFrame);
 }

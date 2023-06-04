@@ -23,10 +23,6 @@ ability_component::ability_component()
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbility, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbility", ability_component_hooks::ServerTryActivateAbility_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbilityWithEventData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbilityWithEventData", ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
-    
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_pattern("89 54 24 10 55 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 80 B9 ? ? ? ? ? 4C 8B F1 0F 85 ? ? ? ? 48 8B 01 FF 90 ? ? ? ? 84 C0 0F 84 ? ? ? ? 48 89 9C 24 ? ? ? ? 49 8B CE 48 89 BC 24 ? ? ? ? E8 ? ? ? ? 48 89 45 7F"), ability_component_hooks::AbilityCost_Hook);
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Failed to remove item %s during reload, item duplic"), ability_component_hooks::AbilityCost_Hook);
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::AbilityCost, memory_manager::find_function_by_string(L"Weapon [%s] - Failed to find an Inventory Owner"), ability_component_hooks::AbilityCost_Hook);
 
     DetourTransactionCommit();
 }
@@ -125,25 +121,4 @@ void ability_component_hooks::ServerAbilityRPCBatch_Hook(UAbilitySystemComponent
     ability_component::activate_ability(AbilitySystemComponent, BatchInfo.AbilitySpecHandle(), BatchInfo.InputPressed(), BatchInfo.PredictionKey()); 
     
     return ServerAbilityRPCBatch(AbilitySystemComponent, StackFrame);   
-}
-
-void ability_component_hooks::AbilityCost_Hook(AFortWeapon* FortWeapon, int Amount)
-{
-    if (FortWeapon)
-    {
-        if (const auto weapon_item_definition = static_cast<UFortWorldItemDefinition*>(FortWeapon->WeaponData()))
-        {
-            if (const auto ammo_item_definition = weapon_item_definition->GetAmmoWorldItemDefinition_BP())
-            {   
-                const auto player_controller = static_cast<AFortPawn*>(FortWeapon->GetOwner())->Controller();
-
-                if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(player_controller, ammo_item_definition)))
-                {
-                    inventory_component::remove_item(player_controller, ItemToRemove->ItemEntry().ItemGuid(), Amount, false);
-                }
-            }
-        }
-    }
-
-    return AbilityCost(FortWeapon, Amount);
 }

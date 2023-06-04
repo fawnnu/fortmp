@@ -21,6 +21,12 @@ inventory_component::inventory_component()
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerExecuteInventoryWeapon, L"/Script/FortniteGame.FortPlayerController.ServerExecuteInventoryWeapon", inventory_component_hooks::ServerExecuteInventoryWeapon_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
     REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerAttemptInventoryDrop, L"/Script/FortniteGame.FortPlayerController.ServerSpawnInventoryDrop", inventory_component_hooks::ServerAttemptInventoryDrop_Hook);
+    REGISTER_UFUNCTION_DETOUR(inventory_component_hooks::ServerRemoveInventoryItem, L"/Script/FortniteGame.FortPlayerController.ServerRemoveInventoryItem", inventory_component_hooks::ServerRemoveInventoryItem_Hook);
+    if (const uintptr_t RemoveInventoryItem_Address = memory_manager::find_pattern("48 83 EC ? 80 B9 ? ? ? ? 03 74 ? 0F 10 02"))
+    {
+        REGISTER_FUNCTION_DETOUR(inventory_component_hooks::RemoveInventoryItem, RemoveInventoryItem_Address, inventory_component_hooks::RemoveInventoryItem_Hook);
+        inventory_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(memory_manager::scan_for(RemoveInventoryItem_Address, {0x48, 0x81, 0xc1}) + 3);
+    }
     
     DetourTransactionCommit();
 
@@ -684,4 +690,40 @@ void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<U
     {
         inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
     }
+}
+
+void inventory_component_hooks::ServerRemoveInventoryItem_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
+{
+    GET_PARAMETER(FGuid, ItemGuid);
+    GET_PARAMETER(int, Count);
+
+    if (UFortItem* Item = inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid))
+    {
+        spdlog::info(L"inventory_component_hooks::ServerRemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+
+        inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
+    }
+}
+
+bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid ItemGuid, int Count)
+{
+    if (InterfaceToOwnerOffset)
+    {
+        // Get playercontroller
+        AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(reinterpret_cast<uintptr_t>(Interface) + InterfaceToOwnerOffset);
+
+        if (PlayerController)
+        {
+            if (UFortItem* Item = inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid))
+            {
+                spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+
+                inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
+
+                return true;
+            }
+        }
+    }
+    
+    return false;   
 }
