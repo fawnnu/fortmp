@@ -30,22 +30,33 @@ pickup_component::pickup_component()
 
                 const uintptr_t OnRep_PickupLocationData_Address = reinterpret_cast<uintptr_t>(CreateDefaultObject<AFortPickupAthena>()->VTable[function_index]);
 
-                scan_result = memory_manager::scan_for(OnRep_PickupLocationData_Address, {0x74, WILDCARD, 0x48, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, 0xE9});
-
-                if (scan_result)
+                if (uintptr_t lea_hook_address = memory_manager::find_pattern("48 8D 05 ? ? ? ? 45 33 FF 48 89 44 24 ? 48 8B CB 44 89 BB ? ? ? ? 4C 89 7C 24 ?"))
                 {
-                    scan_result += 10;
-                    const uintptr_t CombinePickupAddress = scan_result + 5 + *reinterpret_cast<int*>(scan_result + 1);
-                    
-                    INIT_POINTER(InternalCombinePickup, CombinePickupAddress);
+                    // Get the starting address
+                    INIT_POINTER(InternalCombinePickup, memory_manager::get_function_start(lea_hook_address));
 
-                    if (CombinePickupAddress)
+                    // Lea hook
+                    memory_manager::lea_hook(lea_hook_address, reinterpret_cast<uintptr_t>(pickup_component_hooks::CombinePickupFinished_Hook));
+                }
+                else
+                {
+                    scan_result = memory_manager::scan_for(OnRep_PickupLocationData_Address, {0x74, WILDCARD, 0x48, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, WILDCARD, 0xE9});
+
+                    if (scan_result)
                     {
-                        scan_result = memory_manager::scan_for(CombinePickupAddress, {0x48, 0x8d, 0x5});
+                        scan_result += 10;
+                        const uintptr_t CombinePickupAddress = scan_result + 5 + *reinterpret_cast<int*>(scan_result + 1);
+                    
+                        INIT_POINTER(InternalCombinePickup, CombinePickupAddress);
 
-                        if (scan_result)
+                        if (CombinePickupAddress)
                         {
-                            memory_manager::lea_hook(scan_result, reinterpret_cast<uintptr_t>(pickup_component_hooks::CombinePickupFinished_Hook));
+                            scan_result = memory_manager::scan_for(CombinePickupAddress, {0x48, 0x8d, 0x5});
+
+                            if (scan_result)
+                            {
+                                memory_manager::lea_hook(scan_result, reinterpret_cast<uintptr_t>(pickup_component_hooks::CombinePickupFinished_Hook));
+                            }
                         }
                     }
                 }
@@ -129,10 +140,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         // Toss pickup, prevents pickups from all spawning in the same location
         fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
 
-        if (GetEngineVersionEasy() > 419)
-        {
-            handle_pickup_combination(fort_pickup);
-        }
+        handle_pickup_combination(fort_pickup);
     }
     
     return fort_pickup;

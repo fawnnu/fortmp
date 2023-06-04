@@ -25,8 +25,6 @@ bool creative_component::is_creative_enabled()
 
     if (current_playlist == nullptr)
     {
-        spdlog::error(L"creative_component::handle_player_join: nullptr playlist");
-
         return false;
     }
 
