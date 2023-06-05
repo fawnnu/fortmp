@@ -20,6 +20,7 @@
 
 #include <Windows.h>
 #include <Psapi.h>
+#include <codecvt>
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>

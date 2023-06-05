@@ -27,6 +27,16 @@ struct FString : private TArray<wchar_t>
         }
     }
 
+    FString(std::wstring InString)
+    {
+        if (InString.length())
+        {
+            Count = std::wcslen(InString.c_str()) + 1;
+            Max = std::wcslen(InString.c_str()) + 1;
+            Data = _wcsdup(InString.c_str());
+        }
+    }
+
     bool operator==(FString in_str);
     
     const wchar_t* c_str() const

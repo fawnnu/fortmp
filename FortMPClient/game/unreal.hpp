@@ -38,6 +38,9 @@ inline UObject* (*StaticFindObject)(UObject* Class, void* Outer, const wchar_t* 
 // Load an object by name
 inline UObject* (*StaticLoadObject)(UObject*, UObject*, const wchar_t*, const wchar_t*, int, void*, bool);
 
+// Initialize an FWeakObjectPtr with an Object
+inline void (*SetFWeakObjectPtr)(struct FWeakObjectPtr*, UObject*);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
@@ -213,9 +216,30 @@ public:
     }
 };
 
+
+struct FWeakObjectPtr
+{
+    FWeakObjectPtr() = default;
+
+    FWeakObjectPtr(UObject* in_object)
+    {
+        if (in_object)
+        {
+            SetFWeakObjectPtr(this, in_object);
+        }
+    }
+    
+    int	ObjectIndex;
+    int ObjectSerialNumber;
+};
+
 struct TSoftObjectPtr
 {
-    char pad[0x28];
+    mutable FWeakObjectPtr WeakPtr;
+    
+    mutable int TagAtLastTest;
+
+    FSoftObjectPath ObjectID;
 };
 
 struct FActorSpawnParameters
@@ -262,4 +286,28 @@ inline float GetFortniteVersionEasy()
     {
         return 0.f;
     }
+}
+
+inline int GetCL()
+{
+    std::wstring engine_version = GetEngineVersion().c_str();
+
+    const size_t Position_Underscore = engine_version.find(L"-");
+    const size_t Position_Plus = engine_version.find(L"+");
+    
+    if (Position_Underscore != std::wstring::npos && Position_Plus != std::wstring::npos)
+    {
+        engine_version = engine_version.substr(Position_Underscore + 1, Position_Plus - (Position_Underscore + 1));
+
+        try
+        {
+            return std::stoi(engine_version);
+        }
+        catch (std::invalid_argument& e)
+        {
+            return 0;
+        }
+    }
+
+    return 0;
 }

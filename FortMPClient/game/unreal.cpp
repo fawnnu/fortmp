@@ -23,6 +23,12 @@ void unreal_manager::setup_unreal_engine()
 
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern(XOR("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3")));
 
+    INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern(XOR("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20"), true, 1));
+    
+    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_function_by_string(XOR(L"Failed to find PlayerStart"), {0xe8}, 1));
+    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern(XOR("40 53 48 83 EC 20 48 8B D9 48 85 D2 74 1A 8B 52 0C 89 11")));
+    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern(XOR("48 89 74 24 ? 57 48 83 EC 30 48 8B F1 48 85 D2 0F 84 ? ? ? ?")));
+
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
         GetEngineVersionEasy() == 419 ||
