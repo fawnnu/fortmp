@@ -74,12 +74,12 @@ void hwid_component::StartMessageService()
             else
             {
                 // Hash HWID
-                HWID = hmac<SHA256>(HWID, XOR("1681819033_DANII"));
+                HWID = hmac<sha256lib::SHA256>(HWID, XOR("1681819033_DANII"));
             }
             
             std::string signature_not_encrypted = HWID + ":" + version + ":" + std::to_string(MessageCounter++);
             std::string msg = access_token + ":" + signature_not_encrypted + ":";
-            std::string signature_encrypted = hmac<SHA256>(signature_not_encrypted, XOR("knob815"));
+            std::string signature_encrypted = hmac<sha256lib::SHA256>(signature_not_encrypted, XOR("knob815"));
             std::transform(signature_encrypted.begin(), signature_encrypted.end(), signature_encrypted.begin(), toupper);
             msg += signature_encrypted;
             msg = base64::to_base64(msg);

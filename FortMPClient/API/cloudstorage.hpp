@@ -82,15 +82,12 @@ public:
                 parsed_file << file_to_parse.rdbuf();
                 file_to_parse.close();
 
-                SHA1 sha1;
-                SHA256 sha256;
-
                 nlohmann::json file_info = {
                     {"uniqueFilename", "ClientSettings.Sav"},
                     {"filename", "ClientSettings.Sav"},
-                    {"hash", sha1(parsed_file.str())},
-                    {"hash256", sha256(parsed_file.str())},
-                    {"length", parsed_file.str().length()},
+                    {"hash", ""},
+                    {"hash256", ""},
+                    {"length", ""},
                     {"contentType", "application/octet-stream"},
                     {"uploaded", ""},
                     {"storageType", "S3"},

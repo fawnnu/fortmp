@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 #define JM_XORSTR_DISABLE_AVX_INTRINSICS
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
@@ -17,6 +18,9 @@
 #if !defined(STATUS_SUCCESS)
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
 #endif
+
+#pragma comment(lib, "openssl/libcrypto.lib")
+#pragma comment(lib, "openssl/libssl.lib")
 
 #include <Windows.h>
 #include <Psapi.h>
