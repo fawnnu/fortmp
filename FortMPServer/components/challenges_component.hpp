@@ -7,4 +7,5 @@ public:
 
     static void SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
     static void SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
+    static void SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self);
 };

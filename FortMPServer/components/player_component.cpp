@@ -2,6 +2,7 @@
 #include "player_component.hpp"
 
 #include "ability_component.hpp"
+#include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "function_component.hpp"
@@ -102,6 +103,9 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
             {
                 Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
             }
+
+            // Progress land challenges
+            challenges_component::SendLandingEvent(Self->Controller(), Self);
         }
     }
 }

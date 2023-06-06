@@ -44,3 +44,21 @@ void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingContr
         }
     }
 }
+
+void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self)
+{
+    if (OwnerPC && Self)
+    {
+        std::string account_id = player_component::get_account_id(OwnerPC);
+
+        if (account_id.size() > 0)
+        {
+            std::map<std::string, std::string> parameters{
+                {"x", std::to_string(Self->K2_GetActorLocation().X)},
+                {"y", std::to_string(Self->K2_GetActorLocation().Y)}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:landing", parameters);
+        }
+    }
+}

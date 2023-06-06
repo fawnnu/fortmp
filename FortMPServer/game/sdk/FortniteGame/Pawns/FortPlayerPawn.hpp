@@ -161,7 +161,7 @@ public:
     DEFINE_PROPERTY(UObject*, Owner);
     DEFINE_PROPERTY(FGameplayTag, EventReviveTag);
     DEFINE_PROPERTY(struct FZiplinePawnState, ZiplineState);
-    DEFINE_PROPERTY(bool, bIsSkydivingFromBus);
+    DEFINE_BIT_PROPERTY(bool, bIsSkydivingFromBus);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
 
