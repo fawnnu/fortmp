@@ -70,14 +70,21 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         // Mark the container as open
         UKismetSystemLibrary::SetBoolPropertyByName(building_container, L"bAlreadySearched", true);
 		
-		// Container opening effects
+        // Container opening effects
         building_container->SearchBounceData().SearchAnimationCount()++;
 
         // Update on server
         building_container->OnRep_bAlreadySearched();
 
         // Send progression for this challenge
-        challenges_component::SendChestEvent(player_controller, building_container);
+        if (building_container->SearchLootTierGroup() == L"Loot_Treasure")
+        {
+            challenges_component::SendChestEvent(player_controller, building_container);
+        }
+        else if (building_container->SearchLootTierGroup() == L"Loot_Ammo")
+        {
+            challenges_component::SendAmmoEvent(player_controller, building_container);
+        }
     }
 }
 
