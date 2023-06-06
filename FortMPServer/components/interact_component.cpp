@@ -45,6 +45,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with vending machines
         handle_vehicle_interaction(player_controller, reinterpret_cast<AFortAthenaVehicle*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AAthenaSupplyDrop_Llama_C::StaticClass()))
+    {
+        // Handle any interactions with llamas, mainly for challenges
+        handle_llama_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -191,7 +196,12 @@ void interact_component::handle_vehicle_interaction(AFortPlayerController* playe
             }
         }
     }
-}   
+}
+
+void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
+{
+    challenges_component::SendLlamaEvent(player_controller, supply_drop);
+}
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
 {

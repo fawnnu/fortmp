@@ -62,3 +62,21 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
         }
     }
 }
+
+void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama)
+{
+    if (InteractingController && Llama)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            std::map<std::string, std::string> parameters{
+                {"x", std::to_string(Llama->K2_GetActorLocation().X)},
+                {"y", std::to_string(Llama->K2_GetActorLocation().Y)}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:llama", parameters);
+        }
+    }
+}

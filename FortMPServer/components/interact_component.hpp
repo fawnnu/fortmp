@@ -11,6 +11,7 @@ public:
     static void handle_player_pawn_interaction(AFortPlayerController* player_controller, AFortPlayerPawn* player_pawn);
     static void handle_vending_machine_interaction(AFortPlayerController* player_controller, ABuildingItemCollectorActor* vending_machine);
     static void handle_vehicle_interaction(AFortPlayerController* player_controller, AFortAthenaVehicle* vehicle);
+    static void handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop);
 };
 
 namespace interact_component_hooks
