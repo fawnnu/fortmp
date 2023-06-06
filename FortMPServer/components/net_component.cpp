@@ -20,7 +20,8 @@ net_component::net_component()
 
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    
+
+    REGISTER_FUNCTION_DETOUR(net_component_hooks::NetConnection__Close, memory_manager::find_function_by_string(L"UNetConnection::Close: %s, Channels: %i, Time: %s"), net_component_hooks::NetConnection__Close_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"STAT_NetTickFlush"), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"UDemoNetDriver::TickFlush: ReplayStreamer ERROR: %s", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::GetBool, memory_manager::find_function_by_string(L"UseAudioThread", {0xe8}, 1, false), net_component_hooks::GetBool_Hook);
@@ -192,4 +193,27 @@ void net_component_hooks::GetBool_Hook(void* Self, const wchar_t* Section, const
     }
     
     return GetBool(Self, Section, Key, Value, File);
+}
+
+void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
+{
+    if (Self)
+    {
+        if (!memory_manager::is_bad_read_pointer(Self->PlayerController()) && Self->PlayerController())
+        {
+            AFortPlayerController* FortPlayerController = Self->PlayerController();
+
+            // Get account ID
+            std::string account_id = player_component::get_account_id(FortPlayerController);
+
+            if (account_id.size() > 0)
+            {
+                std::map<std::string, std::string> parameters{
+                };
+                gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_leave", parameters);
+            }
+        }
+    }
+    
+    return NetConnection__Close(Self);
 }

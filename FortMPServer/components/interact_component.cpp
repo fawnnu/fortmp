@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "interact_component.hpp"
 
+#include "challenges_component.hpp"
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
@@ -74,6 +75,9 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
 
         // Update on server
         building_container->OnRep_bAlreadySearched();
+
+        // Send progression for this challenge
+        challenges_component::SendChestEvent(player_controller, building_container);
     }
 }
 

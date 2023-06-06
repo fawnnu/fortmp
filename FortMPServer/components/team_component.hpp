@@ -21,6 +21,7 @@ public:
     static struct era_team* find_free_team(AFortPlayerController* player_controller);
     static void set_team(AFortPlayerController* player_controller, uint8_t team_index);
     static AFortTeamInfo* find_team(AFortPlayerController* player_controller);
+    static era_team* find_era_team(AFortPlayerController* player_controller);
     static int get_team_size();
     static int get_default_first_team();
     static int get_default_last_team();

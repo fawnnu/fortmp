@@ -107,6 +107,26 @@ AFortTeamInfo* team_component::find_team(AFortPlayerController* player_controlle
     return nullptr;
 }
 
+era_team* team_component::find_era_team(AFortPlayerController* player_controller)
+{
+    for (era_team* team : TeamsList)
+    {
+        if (AFortTeamInfo* team_info = team->bound_team_info)
+        {
+            for (AController* team_member : team_info->TeamMembers())
+            {
+                if (team_member == player_controller)
+                {
+                    // Return found team
+                    return team;
+                }
+            }
+        }
+    }
+    
+    return nullptr;   
+}
+
 int team_component::get_team_size()
 {
     // Get current playlist

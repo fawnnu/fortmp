@@ -169,7 +169,7 @@ void gameserver_client::Register()
 
         if (JsonResult.contains("data"))
         {
-            Channel = "server:" + std::string(JsonResult["data"]["uuid"]);
+            UUID = std::string(JsonResult["data"]["uuid"]);
 
             if (server_config.contains("name"))
             {
@@ -293,7 +293,7 @@ void gameserver_client::SendJoin()
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
-            payload.push_back(Channel); // Channel
+            payload.push_back("server:" + UUID); // Channel
             payload.push_back("phx_join"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}}
@@ -320,7 +320,7 @@ void gameserver_client::SendUpdate()
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
-            payload.push_back(Channel); // Channel
+            payload.push_back("server:" + UUID); // Channel
             payload.push_back("update"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
                 {"accepting_players", GameServer_Status.accepting_players ? "true" : "false"},
@@ -353,7 +353,7 @@ void gameserver_client::SendLeave()
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
-            payload.push_back(Channel); // Channel
+            payload.push_back("server:" + UUID); // Channel
             payload.push_back("phx_leave"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
             }); // param
@@ -379,7 +379,7 @@ void gameserver_client::SendBan(std::string uuid)
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
-            payload.push_back(Channel); // Channel
+            payload.push_back("server:" + UUID); // Channel
             payload.push_back("ban:hwid"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
                 {"account_id", uuid}
@@ -406,7 +406,7 @@ void gameserver_client::SendSummary(std::string account_id, int Placement)
 
             payload.push_back(0);
             payload.push_back(MessageRef++);
-            payload.push_back(Channel);
+            payload.push_back("server:" + UUID);
             payload.push_back("summary:" + account_id);
             payload.push_back(std::map<std::string, std::string>{
                 {"placement", std::to_string(Placement)}
@@ -437,6 +437,31 @@ void gameserver_client::SendHeartbeat()
             payload.push_back("heartbeat"); // Event Type
             payload.push_back(std::map<std::string, std::string>{
             }); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
+#endif
+}
+
+void gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters)
+{
+#ifdef _RELEASE
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
+
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(channel); // Channel
+            payload.push_back(event_type); // Event Type
+            payload.push_back(parameters); // param
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);

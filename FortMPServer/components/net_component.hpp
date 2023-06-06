@@ -18,6 +18,8 @@ namespace net_component_hooks
     void TickFlush_Hook(UNetDriver* NetDriver, float DeltaSeconds);
 
     DEFINE_FUNCTION_HOOK(void, GetBool, (void* Self, const wchar_t* Section, const wchar_t* Key, bool* Value, void* File));
+
+    DEFINE_FUNCTION_HOOK(void, NetConnection__Close, (UNetConnection* Self));
 };
 
 // Create a net driver from name

@@ -212,6 +212,7 @@
     <ClInclude Include="components\blueprint_component.hpp" />
     <ClInclude Include="components\bots_component.hpp" />
     <ClInclude Include="components\building_component.hpp" />
+    <ClInclude Include="components\challenges_component.hpp" />
     <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
@@ -337,6 +338,7 @@
     <ClCompile Include="components\blueprint_component.cpp" />
     <ClCompile Include="components\bots_component.cpp" />
     <ClCompile Include="components\building_component.cpp" />
+    <ClCompile Include="components\challenges_component.cpp" />
     <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />

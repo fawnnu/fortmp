@@ -50,6 +50,7 @@ public:
     void SendLeave();
     void SendBan(std::string uuid);
     void SendSummary(std::string account_id, int Placement);
+    void SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters);
     void SendHeartbeat();
 
     // Client WS object
@@ -61,8 +62,8 @@ public:
     // GameServer status
     gameserver_status GameServer_Status;
 
-    // Channel
-    std::string Channel;
+    // UUID
+    std::string UUID;
     
     // Message ref
     int MessageRef;
