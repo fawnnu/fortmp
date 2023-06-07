@@ -39,7 +39,8 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
 
     // Enum containing all possible death reasons
     static UEnum* death_cause_enum = FindObject<UEnum>(L"/Script/FortniteGame.EDeathCause");
-    
+
+    //TODO: Add more death causes
     static std::map<FName, uint8_t> death_cause_map =
     {
         { L"Weapon.Ranged.Shotgun", death_cause_enum->GetEnumIndex(L"Shotgun") },
@@ -333,6 +334,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
 
 #ifdef _RELEASE
+        // Summary event
         if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
         {
             // Send placement for the whole team
@@ -345,6 +347,15 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     // Send summary
                     challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
                 }
+            }
+        }
+
+        // Send elimination event to the killer
+        if (DeathReport.KillerPawn())
+        {
+            if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
+            {
+                challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause());
             }
         }
         

@@ -257,7 +257,7 @@ public:
             }
         }
 
-        return 0;
+        return -1;
     }
 
     std::wstring GetEnumName(uint8_t EnumIndex)

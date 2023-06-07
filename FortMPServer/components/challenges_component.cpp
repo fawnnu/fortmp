@@ -113,3 +113,64 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
         }
     }
 }
+
+void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause)
+{
+    if (KillerPlayerController && VictimPlayerController)
+    {
+        std::string killer_account_id = player_component::get_account_id(KillerPlayerController);
+        std::string victim_account_id = player_component::get_account_id(KillerPlayerController);
+
+        if (killer_account_id.size() > 0 && victim_account_id.size() > 0)
+        {
+            std::string weapon;
+            static UEnum* death_cause_enum = FindObject<UEnum>(L"/Script/FortniteGame.EDeathCause");
+
+            if (DeathCause > 0)
+            {
+                if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
+                {
+                    weapon = "pistol";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Shotgun"))
+                {
+                    weapon = "shotgun";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Rifle"))
+                {
+                    weapon = "assault_rifle";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Sniper") ||
+                         DeathCause == death_cause_enum->GetEnumIndex(L"SniperNoScope") )
+                {
+                    weapon = "sniper";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Grenade"))
+                {
+                    weapon = "grenade";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"SMG"))
+                {
+                    weapon = "smg";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"GrenadeLauncher"))
+                {
+                    weapon = "grenade_launcher";
+                }
+                else if (DeathCause == death_cause_enum->GetEnumIndex(L"RocketLauncher"))
+                {
+                    weapon = "rpg";
+                }
+            }
+            
+            std::map<std::string, std::string> parameters{
+                    {"x", std::to_string(VictimPlayerController->K2_GetActorLocation().X)},
+                    {"y", std::to_string(VictimPlayerController->K2_GetActorLocation().Y)},
+                    {"weapon", weapon},
+                    {"victim", victim_account_id}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
+        }
+    }
+}

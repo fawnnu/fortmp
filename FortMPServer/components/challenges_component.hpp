@@ -10,4 +10,5 @@ public:
     static void SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self);
     static void SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama);
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
+    static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause);
 };
