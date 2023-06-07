@@ -185,6 +185,29 @@ int team_component::get_default_last_team()
     return DefaultLastTeam;
 }
 
+int team_component::get_alive_teams()
+{
+    // Alive teams list
+    std::vector<AFortTeamInfo*> alive_teams;
+
+    // List of all teams
+    TArray<AFortTeamInfo*> all_teams = (*GWorld)->GameState()->Teams();
+
+    for (AFortTeamInfo* team_info : all_teams)
+    {
+        for (AController* team_member : team_info->TeamMembers())
+        {
+            if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(static_cast<AFortPlayerController*>(team_member)))
+            {
+                alive_teams.push_back(team_info);
+                break;
+            }
+        }
+    }
+
+    return alive_teams.size();
+}
+
 era_team* team_component::find_free_team(AFortPlayerController* player_controller)
 {
     bool found_team = false;

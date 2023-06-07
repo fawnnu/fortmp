@@ -2,6 +2,7 @@
 #include "harvesting_component.hpp"
 
 #include "inventory_component.hpp"
+#include "player_component.hpp"
 
 harvesting_component::harvesting_component()
 {
@@ -127,6 +128,16 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
         
                 // Handle harvesting materials if we have a building actor and weapon
                 harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
+            }
+        }
+        else if (HitActor->IsA(APlayerPawn_Athena_C::StaticClass()))
+        {
+            if (player_controller->Pawn()->CurrentWeapon())
+            {
+                AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(HitActor);
+        
+                // Keep track of damage dealt to players for challenges
+                player_component::handle_player_damaged(PlayerPawn, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
             }
         }
     }

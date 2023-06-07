@@ -376,6 +376,14 @@ std::string player_component::get_account_id(AFortPlayerController* target_playe
     return "";
 }
 
+void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage)
+{
+    if (Instigator)
+    {
+        DamageDealtMap[Instigator] += Damage;
+    }
+}
+
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UObject*, P);

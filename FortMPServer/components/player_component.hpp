@@ -15,10 +15,13 @@ public:
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
     static std::string get_account_id(AFortPlayerController* target_player_controller);
+
+    static void handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
+    static inline std::map<AFortPlayerController*, float> DamageDealtMap;
     static inline int InvalidTokensReceived;
     static inline int global_player_id = 0;
 };

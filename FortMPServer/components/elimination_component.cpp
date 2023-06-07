@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "elimination_component.hpp"
 
+#include "challenges_component.hpp"
 #include "creative_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
@@ -74,6 +75,33 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
     }
 
     return death_cause_enum->GetEnumIndex(L"Unspecified");
+}
+
+int elimination_component::get_placement(AFortPlayerController* PlayerController)
+{
+    // HANDLE PLACEMENT FOR SUMMARY EVENT
+    if (AFortTeamInfo* TeamInfo = team_component::find_team(PlayerController))
+    {
+        bool bIsTeamAlive = false;
+
+        for (auto TeamMember : TeamInfo->TeamMembers())
+        {
+            if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(static_cast<AFortPlayerController*>(TeamMember)))
+            {
+                bIsTeamAlive = true;
+                break;
+            }
+        }
+
+        // If everyone on the team is dead, we are ready to calculate the placement
+        if (bIsTeamAlive == false)
+        {
+            // Get alive teams to calculate placement
+            return team_component::get_alive_teams() + 1;
+        }
+    }
+    
+    return 0;
 }
 
 void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
@@ -305,15 +333,24 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
 
 #ifdef _RELEASE
+        if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
+        {
+            // Send placement for the whole team
+            TArray<AFortTeamInfo*> Teams = (*GWorld)->GameState()->Teams();
+            
+            for (AFortTeamInfo* TeamInfo : Teams)
+            {
+                for (AController* TeamMember : TeamInfo->TeamMembers())
+                {
+                    // Send summary
+                    challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
+                }
+            }
+        }
+        
         // Notify Era Services
         gameserver_client::Client->GameServer_Status.number_of_players = (*GWorld)->AuthorityGameMode()->AlivePlayers().Num();
         gameserver_client::Client->SendUpdate();
-
-        // Send a summary event with placement
-        if (std::string account_id = player_component::get_account_id(VictimPlayerController); account_id.length() > 0)
-        {
-            gameserver_client::Client->SendSummary(account_id, (*GWorld)->AuthorityGameMode()->AlivePlayers().Num() + 1);
-        }
 #endif
         
         // only spectate where spectating is stripped
@@ -364,26 +401,17 @@ void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject*
         }
 
         // send a summary event for the winner and the teammates
-        std::vector<std::string> winners;
-
-        // Find the team for the winner
         auto Team = team_component::find_team(Controller);
 
         if (Team)
         {
             for (auto TeamMember : Team->TeamMembers())
             {
-                if (std::string account_id = player_component::get_account_id(static_cast<AFortPlayerController*>(TeamMember)); account_id.length() > 0)
+                if (TeamMember)
                 {
-                    winners.push_back(account_id);
+                    challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
                 }
             }
-        }
-
-        // Send summary events
-        for (auto account_id : winners)
-        {
-            gameserver_client::Client->SendSummary(account_id, 1);
         }
     }
 }

@@ -394,6 +394,9 @@ void gameserver_client::SendBan(std::string uuid)
 
 void gameserver_client::SendSummary(std::string account_id, int Placement)
 {
+    spdlog::warn(L"WARNING: gameserver_client::SendSummary is deprecated.");
+
+    return;
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
     auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);

@@ -80,3 +80,36 @@ void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingCont
         }
     }
 }
+
+void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
+{
+    if (PlayerController)
+    {
+        std::string account_id = player_component::get_account_id(PlayerController);
+        int DamageDealt = 0;
+
+        if (player_component::DamageDealtMap.contains(PlayerController))
+        {
+            DamageDealt = player_component::DamageDealtMap[PlayerController];
+        }
+
+        if (account_id.size() > 0)
+        {
+            std::map<std::string, std::string> parameters{
+                    {"placement", std::to_string(Placement)},
+                    {"damage", std::to_string(DamageDealt)}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters);
+
+            // Log
+            if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+            {
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                std::wstring wAccount_id = converter.from_bytes(account_id);
+                
+                spdlog::info(L"Sent summary event for {} [ACCOUNT_ID: {}, PLACEMENT: {}, DAMAGEDEALT: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wAccount_id.c_str(), Placement, DamageDealt);
+            }
+        }
+    }
+}

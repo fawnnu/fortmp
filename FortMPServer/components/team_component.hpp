@@ -25,6 +25,7 @@ public:
     static int get_team_size();
     static int get_default_first_team();
     static int get_default_last_team();
+    static int get_alive_teams();
 
     static inline int max_team_size_override;
     static inline std::map<std::wstring, era_team_info> TeamsMap;

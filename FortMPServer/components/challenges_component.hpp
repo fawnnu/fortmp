@@ -9,4 +9,5 @@ public:
     static void SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
     static void SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self);
     static void SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama);
+    static void SendSummary(AFortPlayerController* PlayerController, int Placement);
 };
