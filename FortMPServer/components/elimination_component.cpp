@@ -40,7 +40,6 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
     // Enum containing all possible death reasons
     static UEnum* death_cause_enum = FindObject<UEnum>(L"/Script/FortniteGame.EDeathCause");
 
-    //TODO: Add more death causes
     static std::map<FName, uint8_t> death_cause_map =
     {
         { L"Weapon.Ranged.Shotgun", death_cause_enum->GetEnumIndex(L"Shotgun") },
@@ -63,7 +62,10 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
         { L"Weapon.Melee.Massive.Charge", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
         { L"weapon.melee.Massive", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
         { L"Weapon.Melee.Massive.Divebomb", death_cause_enum->GetEnumIndex(L"MassiveDiveBomb") },
-        { L"Weapon.Ranged.Massive", death_cause_enum->GetEnumIndex(L"MassiveRanged") }
+        { L"Weapon.Ranged.Massive", death_cause_enum->GetEnumIndex(L"MassiveRanged") },
+        { L"weapon.ranged.heavy.rocket_launcher",  death_cause_enum->GetEnumIndex(L"RocketLauncher")},
+        { L"weapon.ranged.heavy.grenade_launcher",  death_cause_enum->GetEnumIndex(L"GrenadeLauncher")},
+        { L"Weapon.ranged.heavy.grenade",  death_cause_enum->GetEnumIndex(L"Grenade")}
     };
 
     for (FGameplayTag gameplay_tag : tag_container.GameplayTags)
