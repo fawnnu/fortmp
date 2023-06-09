@@ -119,7 +119,7 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
     if (KillerPlayerController && VictimPlayerController)
     {
         std::string killer_account_id = player_component::get_account_id(KillerPlayerController);
-        std::string victim_account_id = player_component::get_account_id(KillerPlayerController);
+        std::string victim_account_id = player_component::get_account_id(VictimPlayerController);
 
         if (killer_account_id.size() > 0 && victim_account_id.size() > 0)
         {

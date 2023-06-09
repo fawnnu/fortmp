@@ -340,9 +340,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
         {
             // Send placement for the whole team
-            TArray<AFortTeamInfo*> Teams = (*GWorld)->GameState()->Teams();
-            
-            for (AFortTeamInfo* TeamInfo : Teams)
+            if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
             {
                 for (AController* TeamMember : TeamInfo->TeamMembers())
                 {
@@ -422,7 +420,14 @@ void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject*
             {
                 if (TeamMember)
                 {
-                    challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
+                    CreateThread(nullptr, 0, [](LPVOID TeamMember) -> DWORD
+                    {
+                        Sleep(1000);
+                        
+                        challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
+                        
+                        return 0;
+                    }, TeamMember, 0, nullptr);
                 }
             }
         }

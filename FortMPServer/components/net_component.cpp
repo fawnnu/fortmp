@@ -211,6 +211,16 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                 std::map<std::string, std::string> parameters{
                 };
                 gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_leave", parameters);
+
+                // Log
+                if (!memory_manager::is_bad_read_pointer(FortPlayerController->MyPlayerInfo()) && FortPlayerController->MyPlayerInfo())
+                {
+                    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
+                    std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
+                    std::string player_name = name_converter.to_bytes(wPlayer_name);
+                    
+                    spdlog::info("Player '{}' left its channel [ACCOUNT_ID: {}]", player_name.c_str(), account_id.c_str());
+                }
             }
         }
     }

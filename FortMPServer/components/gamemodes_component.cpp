@@ -60,33 +60,7 @@ void gamemodes_component::OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena
 {
     INIT_CUSTOM_FUNCTION();
 
-    AFortPlayerController* PlayerController = StackFrame.Locals ? *reinterpret_cast<AFortPlayerController**>(StackFrame.Locals) : nullptr;
-
 #ifdef _RELEASE
-    if (PlayerController)
-    {
-        // PHX JOIN the player's channel
-        std::string account_id = player_component::get_account_id(PlayerController);
-
-        if (account_id.size() > 0)
-        {
-            era_team* team = team_component::find_era_team(PlayerController);
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            std::string team_id;
-            if (team)
-            {
-                team_id = converter.to_bytes(team->bound_era_team_id);
-            }
-            
-            std::map<std::string, std::string> parameters{
-                {"server", gameserver_client::Client->UUID},
-                {"team", team_id}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_join", parameters);
-        }
-    }
-    
     // Notify era services
     gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
     gameserver_client::Client->SendUpdate();

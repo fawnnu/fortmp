@@ -8,6 +8,7 @@ public:
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
+    static void PostLogin(AFortPlayerController* FortPlayerController);
     static void Setup(AFortPlayerController* NewPlayer, const FString& Options);
     static bool is_live_spectator(APlayerController* player_controller);
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);

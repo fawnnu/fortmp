@@ -163,6 +163,45 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
     return true;
 }
 
+void player_component::PostLogin(AFortPlayerController* FortPlayerController)
+{
+    if (FortPlayerController)
+    {
+        // PHX JOIN the player's channel
+        std::string account_id = get_account_id(FortPlayerController);
+
+        if (account_id.size() > 0)
+        {
+            era_team* team = team_component::find_era_team(FortPlayerController);
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            std::string team_id;
+            if (team)
+            {
+                team_id = converter.to_bytes(team->bound_era_team_id);
+            }
+
+            if (team_id.length() == 0)
+            {
+                team_id = account_id;
+            }
+            
+            std::map<std::string, std::string> parameters{
+                    {"server", gameserver_client::Client->UUID},
+                    {"team", team_id}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_join", parameters);
+
+            // Log
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
+            std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
+            std::string player_name = name_converter.to_bytes(wPlayer_name);
+            
+            spdlog::info("Player '{}' joined its channel. [SERVER: {}, TEAM: {}, ACCOUNT_ID: {}]", player_name.c_str(), gameserver_client::Client->UUID.c_str(), team_id.c_str(), account_id.c_str());
+        }
+    }
+}
+
 void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options)
 {
     if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
@@ -500,6 +539,9 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         
         // Notify gamemode
         (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
+
+        // Notify backend
+        player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));
 
         spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
     }
