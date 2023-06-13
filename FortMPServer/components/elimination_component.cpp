@@ -25,6 +25,7 @@ elimination_component::elimination_component()
     
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerControllerZone.ClientOnPawnDied", elimination_component_hooks::ClientOnPawnDied_Hook);
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerControllerAthena.ClientNotifyWon", elimination_component_hooks::ClientNotifyWon_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerControllerAthena.ClientNotifyTeamWon", elimination_component_hooks::ClientNotifyTeamWon_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(SpectateKillerPawnOnDeath, AFortPlayerControllerAthena::StaticClass());
 }
@@ -391,7 +392,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     }
 }
 
-void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
+void elimination_component::NotifyWon(UObject* Object, UObject* Function, void* Params)
 {
     AFortPlayerControllerAthena* Controller = reinterpret_cast<AFortPlayerControllerAthena*>(Object);
 
@@ -411,25 +412,24 @@ void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject*
             }
         }
 
-        // send a summary event for the winner and the teammates
-        auto Team = team_component::find_team(Controller);
-
-        if (Team)
+        // send a summary event for the winner
+        CreateThread(nullptr, 0, [](LPVOID TeamMember) -> DWORD
         {
-            for (auto TeamMember : Team->TeamMembers())
-            {
-                if (TeamMember)
-                {
-                    CreateThread(nullptr, 0, [](LPVOID TeamMember) -> DWORD
-                    {
-                        Sleep(1000);
+            Sleep(1000);
+                    
+            challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
                         
-                        challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
-                        
-                        return 0;
-                    }, TeamMember, 0, nullptr);
-                }
-            }
-        }
-    }
+            return 0;
+        }, Controller, 0, nullptr);
+    }   
+}
+
+void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    elimination_component::NotifyWon(Object, Function, Params);   
+}
+
+void elimination_component_hooks::ClientNotifyTeamWon_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    elimination_component::NotifyWon(Object, Function, Params);
 }

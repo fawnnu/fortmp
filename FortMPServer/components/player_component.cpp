@@ -172,14 +172,20 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
 
         if (account_id.size() > 0)
         {
-            era_team* team = team_component::find_era_team(FortPlayerController);
             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
             std::string team_id;
-            if (team)
-            {
-                team_id = converter.to_bytes(team->bound_era_team_id);
-            }
 
+            for (auto [wteam_id, team_info] : team_component::TeamsMap)
+            {
+                if (std::find(team_info.TeamMembersControllers.begin(), team_info.TeamMembersControllers.end(), FortPlayerController) != team_info.TeamMembersControllers.end())
+                {
+                    TO_STRING(wteam_id, steam_id);
+                    team_id = steam_id;
+                    
+                    break;
+                }
+            }
+            
             if (team_id.length() == 0)
             {
                 team_id = account_id;
@@ -413,6 +419,22 @@ std::string player_component::get_account_id(AFortPlayerController* target_playe
     }
 
     return "";
+}
+
+AFortPlayerController* player_component::get_player_by_account_id(std::wstring in_account_id)
+{
+    for (auto [account_id, player_controller] : Players)
+    {
+        if (account_id == in_account_id)
+        {
+            if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
+            {
+                return player_controller;
+            }
+        }
+    }
+    
+    return nullptr;   
 }
 
 void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage)

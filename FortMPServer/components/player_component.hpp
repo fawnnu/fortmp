@@ -16,6 +16,7 @@ public:
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
 
     static std::string get_account_id(AFortPlayerController* target_player_controller);
+    static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);
 
     static void handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage);
     

@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "gameserver_client.hpp"
 
+#include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "loader_component.hpp"
 #include "net_component.hpp"
@@ -227,6 +228,34 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
     // Make sure it's a phoenix message
     if (VectorPayloadString.size() == 2)
     {
+        // If it's a "progression" message, process it to send the client a live progression notification
+        if (VectorPayloadString[1] == "progression")
+        {
+            if (JsonPayloadData.contains("challenge") &&
+                JsonPayloadData.contains("objective") &&
+                JsonPayloadData.contains("value"))
+            {
+                std::string challenge = JsonPayloadData["challenge"];
+                std::string objective = JsonPayloadData["objective"];
+                int value = JsonPayloadData["value"];
+
+                std::string ChannelName = VectorPayloadString[0];
+
+                if (ChannelName.find("player:") != std::string::npos)
+                {
+                    std::string AccountID = ChannelName.substr(ChannelName.find(":") + 1);
+
+                    progression_entry* new_entry = new progression_entry;
+                    new_entry->challenge = challenge;
+                    new_entry->objective = objective;
+                    new_entry->value = value;
+                    new_entry->player = AccountID;
+
+                    challenges_progression_queue.push_back(new_entry);
+                }
+            }
+        }
+        
         // If we receive a kick message, kick the target player
         if (VectorPayloadString[1] == "kick")
         {

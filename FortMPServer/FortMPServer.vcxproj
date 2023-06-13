@@ -276,6 +276,7 @@
     <ClInclude Include="game\sdk\FortniteGame\Items\FortItem.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Items\FortLoot.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Items\FortPickup.hpp" />
+    <ClInclude Include="game\sdk\FortniteGame\Items\FortQuest.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Items\FortQuickbars.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Pawns\FortPlayerPawn.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Player\FortPlayerController.hpp" />

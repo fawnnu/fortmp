@@ -12,3 +12,11 @@ public:
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause);
 };
+
+struct progression_entry
+{
+    std::string challenge;
+    std::string objective;
+    int value;
+    std::string player;
+};

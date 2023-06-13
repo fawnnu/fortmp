@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "net_component.hpp"
 
+#include "challenges_component.hpp"
 #include "player_component.hpp"
 #include "replication_component.hpp"
 
@@ -117,6 +118,35 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
         // Execute code on game thread
         game_thread_queue.front()();
         game_thread_queue.pop_front();
+    }
+
+    while (!challenges_progression_queue.empty())
+    {
+        progression_entry* challenges_progression = challenges_progression_queue.front();
+
+        std::string challenge = challenges_progression->challenge;
+        std::string objective = challenges_progression->objective;
+        int value = challenges_progression->value;
+        std::string AccountID = challenges_progression->player;
+        
+        TO_WSTRING(AccountID, wAccountID);
+
+        if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wAccountID))
+        {
+            if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+            {
+                TO_WSTRING(objective, wObjective);
+                TO_WSTRING(challenge, wChallenge);
+                
+                spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
+            }
+
+            // TODO: Find out how to add live progression
+        }
+
+        challenges_progression_queue.pop_front();
+        
+        delete challenges_progression;
     }
 
     while (!kick_events_queue.empty())
