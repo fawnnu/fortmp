@@ -482,9 +482,6 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             }
         }
 
-        // Remove from stream once it has been processed
-        pickup_component::GlobalPickupStream.erase(pickup_component::GlobalPickupStream.find(Pickup));
-
         // on 3.5, run the old code
         if (GetCL() == 4008490)
         {

@@ -633,6 +633,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::Players.clear();
         player_component::DamageDealtMap.clear();
         player_component::global_player_id = 0;
+        pickup_component::GlobalPickupStream.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
