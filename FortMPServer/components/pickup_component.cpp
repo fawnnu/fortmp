@@ -213,15 +213,6 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     // Pick it up
     InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / CreateDefaultObject<AFortPlayerPawnAthena>()->PickupSpeedMultiplier(), FVector(1,1,1));
 
-    // Era Pickup Stream
-    if (!GlobalPickupStream.contains(Pickup))
-    {
-        if (PlayerPawn->CurrentWeapon())
-        {
-            GlobalPickupStream[Pickup] = { PlayerPawn->CurrentWeapon()->WeaponData(), PlayerPawn->CurrentWeapon()->ItemEntryGuid() };
-        }
-    }
-    
     // Net update
     Pickup->ForceNetUpdate();
     
@@ -426,19 +417,6 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
             bool bShouldFocusOnSwappedItem = true;
             
-            if (pickup_component::GlobalPickupStream.contains(Pickup))
-            {
-                auto ItemInstance = pickup_component::GlobalPickupStream[Pickup];
-
-                if (SwapItemGuid != ItemInstance.ItemGuid)
-                {
-                    bShouldFocusOnSwappedItem = false;
-                }
-
-                SwapItemDefinition = ItemInstance.ItemDefinition;
-                SwapItemGuid = ItemInstance.ItemGuid;
-            }
-            
             if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
                 inventory_component::has_item_type(PlayerController, SwapItemDefinition))
             {
@@ -456,19 +434,6 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     if (bShouldFocusOnSwappedItem)
                     {
                         PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
-                    }
-                }
-
-                // Update GlobalPickupStream
-                for (auto [pickup_entry, item_info] : pickup_component::GlobalPickupStream)
-                {
-                    if (pickup_entry != Pickup)
-                    {
-                        if (item_info.ItemGuid == SwapItemGuid)
-                        {
-                            pickup_component::GlobalPickupStream[pickup_entry].ItemDefinition = spawned_item->ItemEntry().ItemDefinition();
-                            pickup_component::GlobalPickupStream[pickup_entry].ItemGuid = spawned_item->ItemEntry().ItemGuid();
-                        }
                     }
                 }
             }
