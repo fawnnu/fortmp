@@ -208,102 +208,108 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 #ifdef _RELEASE
     auto payload = message->get_payload();
 
-    auto JsonPayload = nlohmann::json::parse(payload);
-
-    std::vector<std::string> VectorPayloadString;
-    nlohmann::json JsonPayloadData;
-    for (auto& elem : JsonPayload.items())
+    try
     {
-        if (elem.value().is_string())
+        auto JsonPayload = nlohmann::json::parse(payload);
+        
+        std::vector<std::string> VectorPayloadString;
+        nlohmann::json JsonPayloadData;
+        for (auto& elem : JsonPayload.items())
         {
-            VectorPayloadString.push_back(elem.value());
+            if (elem.value().is_string())
+            {
+                VectorPayloadString.push_back(elem.value());
+            }
+
+            if (elem.value().is_object())
+            {
+                JsonPayloadData = elem.value();
+            }
         }
 
-        if (elem.value().is_object())
+        // Make sure it's a phoenix message
+        if (VectorPayloadString.size() == 2)
         {
-            JsonPayloadData = elem.value();
+            // If it's a "progression" message, process it to send the client a live progression notification
+            if (VectorPayloadString[1] == "progression")
+            {
+                if (JsonPayloadData.contains("challenge") &&
+                    JsonPayloadData.contains("objective") &&
+                    JsonPayloadData.contains("value"))
+                {
+                    std::string challenge = JsonPayloadData["challenge"];
+                    std::string objective = JsonPayloadData["objective"];
+                    int value = JsonPayloadData["value"];
+
+                    std::string ChannelName = VectorPayloadString[0];
+
+                    if (ChannelName.find("player:") != std::string::npos)
+                    {
+                        std::string AccountID = ChannelName.substr(ChannelName.find(":") + 1);
+
+                        progression_entry* new_entry = new progression_entry;
+                        new_entry->challenge = challenge;
+                        new_entry->objective = objective;
+                        new_entry->value = value;
+                        new_entry->player = AccountID;
+
+                        challenges_progression_queue.push_back(new_entry);
+                    }
+                }
+            }
+        
+            // If we receive a kick message, kick the target player
+            if (VectorPayloadString[1] == "kick")
+            {
+                kick_events_queue.push_back(JsonPayloadData);
+            }
+        
+            // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
+            if (VectorPayloadString[1] == "player")
+            {
+                std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
+                std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
+           
+                // Add to the valid EncryptionToken list
+                player_component::EncryptionTokenList.push_back(wEncryptionToken);
+
+                // Properly handle incoming fill and ticket
+                if (JsonPayloadData.contains("fill") && JsonPayloadData.contains("ticket"))
+                {
+                    bool fill = false;
+                    std::string ticket = "";
+                
+                    if (JsonPayloadData["ticket"].is_string())
+                    {
+                        ticket = JsonPayloadData["ticket"];
+                    }
+                    if (JsonPayloadData["fill"].is_boolean())
+                    {
+                        fill = JsonPayloadData["fill"];
+                    }
+
+                    if (ticket.length() > 0)
+                    {
+                        const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
+                    
+                        auto& new_team_instance = team_component::TeamsMap[wTicket];
+                        new_team_instance.TeamMembers.push_back(wEncryptionToken);
+                        new_team_instance.fill = fill;
+                    }
+                }
+
+                if (JsonPayloadData.contains("profile"))
+                {
+                    if (JsonPayloadData["profile"].is_object())
+                    {
+                        player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
+                    }
+                }
+            }
         }
     }
-
-    // Make sure it's a phoenix message
-    if (VectorPayloadString.size() == 2)
+    catch (nlohmann::json::parse_error& ex)
     {
-        // If it's a "progression" message, process it to send the client a live progression notification
-        if (VectorPayloadString[1] == "progression")
-        {
-            if (JsonPayloadData.contains("challenge") &&
-                JsonPayloadData.contains("objective") &&
-                JsonPayloadData.contains("value"))
-            {
-                std::string challenge = JsonPayloadData["challenge"];
-                std::string objective = JsonPayloadData["objective"];
-                int value = JsonPayloadData["value"];
-
-                std::string ChannelName = VectorPayloadString[0];
-
-                if (ChannelName.find("player:") != std::string::npos)
-                {
-                    std::string AccountID = ChannelName.substr(ChannelName.find(":") + 1);
-
-                    progression_entry* new_entry = new progression_entry;
-                    new_entry->challenge = challenge;
-                    new_entry->objective = objective;
-                    new_entry->value = value;
-                    new_entry->player = AccountID;
-
-                    challenges_progression_queue.push_back(new_entry);
-                }
-            }
-        }
-        
-        // If we receive a kick message, kick the target player
-        if (VectorPayloadString[1] == "kick")
-        {
-            kick_events_queue.push_back(JsonPayloadData);
-        }
-        
-        // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
-        if (VectorPayloadString[1] == "player")
-        {
-            std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
-            std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
-           
-            // Add to the valid EncryptionToken list
-            player_component::EncryptionTokenList.push_back(wEncryptionToken);
-
-            // Properly handle incoming fill and ticket
-            if (JsonPayloadData.contains("fill") && JsonPayloadData.contains("ticket"))
-            {
-                bool fill = false;
-                std::string ticket = "";
-                
-                if (JsonPayloadData["ticket"].is_string())
-                {
-                    ticket = JsonPayloadData["ticket"];
-                }
-                if (JsonPayloadData["fill"].is_boolean())
-                {
-                    fill = JsonPayloadData["fill"];
-                }
-
-                if (ticket.length() > 0)
-                {
-                    const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
-                    
-                    auto& new_team_instance = team_component::TeamsMap[wTicket];
-                    new_team_instance.TeamMembers.push_back(wEncryptionToken);
-                    new_team_instance.fill = fill;
-                }
-            }
-
-            if (JsonPayloadData.contains("profile"))
-            {
-                if (JsonPayloadData["profile"].is_object())
-                {
-                    player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
-                }
-            }
-        }
     }
 #endif
 }
