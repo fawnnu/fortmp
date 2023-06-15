@@ -7,6 +7,7 @@
 #include "creative_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
+#include "loader_component.hpp"
 #include "moderation_component.hpp"
 #include "net_component.hpp"
 #include "team_component.hpp"
@@ -143,6 +144,15 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
 
         InvalidTokensReceived++;
 
+        if (InvalidTokensReceived >= 10)
+        {
+            // Mark as pending shutdown
+            loader_component::bPendingShutdown = true;
+
+            // Log
+            spdlog::warn(L"loader_component::bPendingShutdown changed to true: InvalidTokensReceived exceeds maximum allowed value.");
+        }
+        
         // Limit for invalid tokens
         if (InvalidTokensReceived >= 150)
         {
