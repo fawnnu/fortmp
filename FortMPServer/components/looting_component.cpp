@@ -5,6 +5,7 @@
 
 #include <random>
 
+#include "config_manager.hpp"
 #include "reviving_component.hpp"
 
 looting_component::looting_component()
@@ -23,6 +24,9 @@ looting_component::looting_component()
     
     blacklisted_item_definitions = {FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SmokeBomb_Athena/Athena_SmokeBomb.Athena_SmokeBomb")};
     blacklisted_classes = {};
+
+    // Parse loot_pool_changes
+    parse_loot_pool_changes();
 }
 
 std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_category)
@@ -57,6 +61,9 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
         
         if (category_loot_tier_data->TierGroup() == loot_category)
         {
+            // Apply patches
+            apply_loot_pool_changes(category_loot_tier_data, category_row_name);
+
             if (category_loot_tier_data->Weight() > 0.0f)
             {
                 category_row_names.push_back(category_row_name);
@@ -105,6 +112,9 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
 
         if (loot_package_data->LootPackageID().ToString() == final_loot_tier_data->LootPackage().ToString())
         {
+            // Patch
+            apply_loot_pool_changes(loot_package_data, loot_package_name, ELootDataTableEditType::LootPackages_WorldPKG);
+            
             // Add current loot package data to list of names
             category_row_names.push_back(loot_package_name);
         }
@@ -154,6 +164,9 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
 
                 if (loot_package_data->LootPackageID().ToString() == loot_tier_packages_map[*name_iterator].Value->LootPackageCall().c_str())
                 {
+                    // Patch
+                    apply_loot_pool_changes(loot_package_data, loot_package_name, ELootDataTableEditType::LootPackages_WorldList);
+                    
                     // Add to temp loot packages
                     temp_loot_package_calls.push_back(loot_package_name);
                 }
@@ -773,6 +786,111 @@ float looting_component::get_best_damage(UFortItemDefinition* in_item_definition
     }
     
     return 0;
+}
+
+void looting_component::parse_loot_pool_changes()
+{
+    auto config = config_manager::get_server_config();
+
+    for (auto& elem : config["loot_pool_changes"].items())
+    {
+        if (elem.value().is_object())
+        {
+            nlohmann::json object = elem.value();
+
+            if (object.contains("type") &&
+                object.contains("target_cl") &&
+                object.contains("id"))
+            {
+                FLootDataTableEdit NewEdit;
+                
+                NewEdit.Type = object["type"];
+                NewEdit.TargetCL = object["target_cl"];
+
+                if (NewEdit.TargetCL == GetCL())
+                {
+                    std::string sID = object["id"];
+                    TO_WSTRING(sID, ID);
+                    NewEdit.ID = ID.c_str();
+                
+                    if (object.contains("new_weight"))
+                    {
+                        NewEdit.NewWeight = object["new_weight"];
+                    }
+                    if (object.contains("new_count"))
+                    {
+                        NewEdit.NewCount = object["new_count"];
+                    }
+                    if (object.contains("new_loot_package"))
+                    {
+                        std::string sNewLootPackage = object["new_loot_package"];
+                        TO_WSTRING(sNewLootPackage, NewLootPackage)
+                        NewEdit.NewLootPackage = NewLootPackage.c_str();
+                    }
+                    if (object.contains("new_loot_package_call"))
+                    {
+                        std::string sNewLootPackageCall = object["new_loot_package_call"];
+                        TO_EX_WSTRING(sNewLootPackageCall, NewEdit.NewLootPackageCall)
+                    }
+
+                    // Log
+                    spdlog::info(L"Parsed loot pool change [TYPE: {}, VERSION: {}, TARGET_ROW: {}, NEW_WEIGHT: {}, NEW_COUNT: {}, NEW_LOOT_PACKAGE: {}, NEW_LOOT_PACKAGE_CALL: {}]",  static_cast<uint8_t>(NewEdit.Type), NewEdit.TargetCL, NewEdit.ID.ToString().c_str(), NewEdit.NewWeight, NewEdit.NewCount, NewEdit.NewLootPackage.ToString().c_str(), NewEdit.NewLootPackageCall.c_str());
+
+                    loot_pool_changes.push_back(NewEdit);
+                }
+            }
+        }
+    }
+}
+
+void looting_component::apply_loot_pool_changes(FFortLootTierData* ToLootTierData, FName category_row_name)
+{
+    for (auto change : loot_pool_changes)
+    {
+        if (change.Type == ELootDataTableEditType::LootTierData)
+        {
+            if (change.ID == category_row_name)
+            {
+                if (change.NewLootPackage != FName())
+                {
+                    ToLootTierData->LootPackage() = change.NewLootPackage;
+                }
+                if (change.NewWeight != -1)
+                {
+                    ToLootTierData->Weight() = change.NewWeight;
+                }
+            }
+        }
+    }
+}
+
+void looting_component::apply_loot_pool_changes(FFortLootPackageData* ToLootPackageData, FName category_row_name, ELootDataTableEditType CallType)
+{
+    for (auto change : loot_pool_changes)
+    {
+        if (change.Type == CallType)
+        {
+            if (change.ID == category_row_name)
+            {
+                if (change.NewWeight != -1)
+                {
+                    ToLootPackageData->Weight() = change.NewWeight;
+                }
+                if (change.NewCount != -1)
+                {
+                    ToLootPackageData->Count() = change.NewCount;
+                }
+
+                if (CallType == ELootDataTableEditType::LootPackages_WorldPKG)
+                {
+                    if (change.NewLootPackageCall.length() > 0)
+                    {
+                        ToLootPackageData->LootPackageCall() = change.NewLootPackageCall.c_str();
+                    }
+                }
+            }
+        }
+    }
 }
 
 void looting_component_hooks::PickLootDrops_Hook(TArray<FFortItemEntry>* OutLootToDrop, FName TierGroupName)

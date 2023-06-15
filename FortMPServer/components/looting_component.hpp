@@ -5,6 +5,38 @@ class looting_component
 public:
     looting_component();
 
+    // Loot pool edit type
+    enum class ELootDataTableEditType : uint8_t
+    {
+        None = 0,
+        LootPackages_WorldPKG = 1,
+        LootPackages_WorldList = 2,
+        LootTierData = 3
+    };
+    
+    // Loot pool editing
+    struct FLootDataTableEdit
+    {
+        FLootDataTableEdit()
+        {
+            Type = ELootDataTableEditType::None;
+            TargetCL = -1;
+            ID = FName();
+            NewWeight = -1;
+            NewCount = -1;
+            NewLootPackage = FName();
+            NewLootPackageCall = TEXT("");
+        }
+        
+        ELootDataTableEditType Type;
+        int TargetCL;
+        FName ID;
+        float NewWeight;
+        int NewCount;
+        FName NewLootPackage;
+        std::wstring NewLootPackageCall;
+    };
+
     // Picks loot for a given tier group name
     static std::map<UFortItemDefinition*, int> spawn_loot(FName loot_category);
 
@@ -38,6 +70,13 @@ public:
     // Get the highest possible damage for a weapon
     static float get_best_damage(UFortItemDefinition* in_item_definition);
 
+    // Parse loot_pool_changes
+    static void parse_loot_pool_changes();
+
+    // Apply changes
+    static inline void apply_loot_pool_changes(FFortLootTierData* ToLootTierData, FName RowName);
+    static inline void apply_loot_pool_changes(FFortLootPackageData* ToLootPackageData, FName RowName, ELootDataTableEditType CallType);
+
 private:
 
     // blacklisted item defintions when picking loot
@@ -45,6 +84,9 @@ private:
 
     // blacklisted classes when picking loot
     inline static std::vector<UObject*> blacklisted_classes;
+
+    // list of patches to consider
+    inline static std::vector<FLootDataTableEdit> loot_pool_changes;
 };
 
 namespace looting_component_hooks

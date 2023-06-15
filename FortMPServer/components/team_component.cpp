@@ -229,9 +229,17 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
             if (TeamMember == player_controller)
             {
                 number_of_teammates = team_information.TeamMembers.size();
-                team_info = &team_information;
-                found_team = true;
-                break;
+
+                if (number_of_teammates > 0)
+                {
+                    team_info = &team_information;
+                    found_team = true;
+                    break;
+                }
+                else
+                {
+                    spdlog::error(L"team_component::find_free_team: invalid number_of_teammates.");
+                }
             }
         }
     }

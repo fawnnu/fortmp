@@ -32,6 +32,7 @@
 
 #define TO_STRING(in_wstring, out_string) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_wstring##_converter; std::string out_string = in_wstring##_converter.to_bytes(in_wstring);
 #define TO_WSTRING(in_string, out_wstring) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_string##_converter; std::wstring out_wstring = in_string##_converter.from_bytes(in_string);
+#define TO_EX_WSTRING(in_string, out_wstring) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_string##_converter; out_wstring = in_string##_converter.from_bytes(in_string);
 
 #pragma warning(pop)
 #pragma warning(disable: 4100)

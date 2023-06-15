@@ -24,7 +24,8 @@ nlohmann::json config_manager::get_server_config()
                 "scp_enabled": false,
                 "warmup_duration": 90,
                 "name": "",
-                "scheduler_port": -1
+                "scheduler_port": -1,
+                "loot_pool_changes": []
             }
         )"_json;
     
