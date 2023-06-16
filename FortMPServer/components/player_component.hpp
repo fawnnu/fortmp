@@ -14,11 +14,10 @@ public:
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
     static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
-
     static std::string get_account_id(AFortPlayerController* target_player_controller);
     static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);
-
     static void handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage);
+    static uint8_t convert_quick_chat_index_to_message(uint8_t Index);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
@@ -68,6 +67,9 @@ namespace player_component_hooks
 
     // Reimplement hit-markers
     DEFINE_FUNCTION_HOOK(__int64, OnTargetDataReadyCallback, (UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FGameplayTag ApplicationTag));
+
+    // Reimplement quick chat
+    DEFINE_FUNCTION_HOOK(void, ServerPlaySquadQuickChatMessage, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

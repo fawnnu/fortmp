@@ -243,6 +243,12 @@ public:
     }
 };
 
+struct FAthenaQuickChatActiveEntry
+{
+    DEFINE_STRUCT_PROPERTY(uint8_t, Index);
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaQuickChatActiveEntry");
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -263,6 +269,38 @@ public:
     DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
+    void ClientReceiveSquadQuickChatMessage(FAthenaQuickChatActiveEntry& ChatEntry, AFortPlayerController* SenderPC)
+    {
+        STATIC_FINDFUNCTION(ClientReceiveSquadQuickChatMessage)
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        std::vector<int> PropertyOffsets; // Index 0 = ChatEntry, Index 1 = SenderPC
+            
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_ClientReceiveSquadQuickChatMessage) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            PropertyOffsets.push_back(offset);
+            
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        // memcpy ChatEntry
+        memcpy(reinterpret_cast<FAthenaQuickChatActiveEntry*>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[0]), &ChatEntry, FAthenaQuickChatActiveEntry::GetStructSize());
+
+        // Set SenderPC
+        *reinterpret_cast<AFortPlayerController**>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[1]) = SenderPC;
+
+        // ProcessEvent
+        ProcessEvent(this, Function_ClientReceiveSquadQuickChatMessage, Params);
+    }
+    
     void OnRep_CreativePlotLinkedVolume()
     {
         STATIC_FINDFUNCTION(OnRep_CreativePlotLinkedVolume)

@@ -74,7 +74,20 @@ public:
     DEFINE_PROPERTY(uint8_t, Ping);
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
 
+    DEFINE_PROPERTY(uint8_t, ReplicatedTeamMemberState);
+    DEFINE_PROPERTY(uint8_t, TeamMemberState);
+
     DEFINE_PROPERTY(int, NumRejoins);
+    
+    void OnRep_ReplicatedTeamMemberState()
+    {
+        STATIC_FINDFUNCTION(OnRep_ReplicatedTeamMemberState)
+
+        if (Function_OnRep_ReplicatedTeamMemberState)
+        {
+            Call(Function_OnRep_ReplicatedTeamMemberState);
+        }
+    }
     
     void ClientReportKill(AFortPlayerStateAthena* Player)
     {

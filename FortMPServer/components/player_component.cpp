@@ -46,6 +46,7 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAddMapMarker, L"/Script/FortniteGame.AthenaMarkerComponent.ServerAddMapMarker", player_component_hooks::ServerAddMapMarker_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
 
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     
@@ -337,55 +338,58 @@ void player_component::ApplyBackpack(AFortPlayerControllerAthena* NewPlayer)
 
 void player_component::play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset)
 {
-    if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
+    if (dance_asset)
     {
-        auto new_ability_spec = FGameplayAbilitySpec();
+        if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
+        {
+            auto new_ability_spec = FGameplayAbilitySpec();
         
-        // set the ability in the newly created struct    TODO: ADD TOYS
-        if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
-        {
-            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C", true, false);
-        }
-        else
-        {
-            new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
-        }
+            // set the ability in the newly created struct    TODO: ADD TOYS
+            if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
+            {
+                new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C", true, false);
+            }
+            else
+            {
+                new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
+            }
         
-        new_ability_spec.SourceObject = dance_asset; // set the sourceobject, in this case the emote we want to execute
-        new_ability_spec.Level = 1; 
-        new_ability_spec.InputID = -1;
-        new_ability_spec.ReplicationID = -1;
-        new_ability_spec.ReplicationKey = -1;
-        new_ability_spec.MostRecentArrayReplicationKey = -1;
-        new_ability_spec.Handle = rand();
+            new_ability_spec.SourceObject = dance_asset; // set the sourceobject, in this case the emote we want to execute
+            new_ability_spec.Level = 1; 
+            new_ability_spec.InputID = -1;
+            new_ability_spec.ReplicationID = -1;
+            new_ability_spec.ReplicationKey = -1;
+            new_ability_spec.MostRecentArrayReplicationKey = -1;
+            new_ability_spec.Handle = rand();
 
-        const auto unk = new DWORD();
+            const auto unk = new DWORD();
 
-        // plays the emote by activating the ability.
-        // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
-        // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
-        GiveAbilityAndActivateOnce(player_controller->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
+            // plays the emote by activating the ability.
+            // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
+            // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
+            GiveAbilityAndActivateOnce(player_controller->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
 
-        // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
-        STATIC_HASPROPERTY(dance_asset, bMovingEmote);
-        STATIC_HASPROPERTY(dance_asset, bMoveForwardOnly);
-        STATIC_HASPROPERTY(dance_asset, WalkForwardSpeed);
-        STATIC_HASPROPERTY(player_controller->Pawn(), EmoteWalkSpeed);
-        STATIC_HASPROPERTY(player_controller->Pawn(), LastEmoteItemDef);
-        STATIC_HASPROPERTY(player_controller->Pawn(), LastReplicatedEmoteExecuted);
-        if (bExists_bMovingEmote &&
-            bExists_bMoveForwardOnly &&
-            bExists_WalkForwardSpeed &&
-            bExists_EmoteWalkSpeed &&
-            bExists_LastEmoteItemDef &&
-            bExists_LastReplicatedEmoteExecuted)
-        {
-            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmote", dance_asset->bMovingEmote());
-            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmoteForwardOnly", dance_asset->bMoveForwardOnly());
-            player_controller->Pawn()->EmoteWalkSpeed() = dance_asset->WalkForwardSpeed();
+            // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
+            STATIC_HASPROPERTY(dance_asset, bMovingEmote);
+            STATIC_HASPROPERTY(dance_asset, bMoveForwardOnly);
+            STATIC_HASPROPERTY(dance_asset, WalkForwardSpeed);
+            STATIC_HASPROPERTY(player_controller->Pawn(), EmoteWalkSpeed);
+            STATIC_HASPROPERTY(player_controller->Pawn(), LastEmoteItemDef);
+            STATIC_HASPROPERTY(player_controller->Pawn(), LastReplicatedEmoteExecuted);
+            if (bExists_bMovingEmote &&
+                bExists_bMoveForwardOnly &&
+                bExists_WalkForwardSpeed &&
+                bExists_EmoteWalkSpeed &&
+                bExists_LastEmoteItemDef &&
+                bExists_LastReplicatedEmoteExecuted)
+            {
+                UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmote", dance_asset->bMovingEmote());
+                UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bMovingEmoteForwardOnly", dance_asset->bMoveForwardOnly());
+                player_controller->Pawn()->EmoteWalkSpeed() = dance_asset->WalkForwardSpeed();
 
-            player_controller->Pawn()->LastEmoteItemDef() = dance_asset;
-            player_controller->Pawn()->LastReplicatedEmoteExecuted() = dance_asset;
+                player_controller->Pawn()->LastEmoteItemDef() = dance_asset;
+                player_controller->Pawn()->LastReplicatedEmoteExecuted() = dance_asset;
+            }
         }
     }
 }
@@ -453,6 +457,54 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
     {
         DamageDealtMap[Instigator] += Damage;
     }
+}
+
+uint8_t player_component::convert_quick_chat_index_to_message(uint8_t Index)
+{
+    UEnum* ETeamMemberState = FindObject<UEnum>(TEXT("/Script/FortniteGame.ETeamMemberState"));
+
+    if (Index == 0)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("EnemySpotted"));
+    }
+    if (Index == 1)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedBandages"));
+    }
+    if (Index == 2)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedShields"));
+    }
+    if (Index == 3)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedMaterials"));
+    }
+    if (Index == 4)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedWeapon"));
+    }
+    if (Index == 5)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoLight"));
+    }
+    if (Index == 6)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoMedium"));
+    }
+    if (Index == 7)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoHeavy"));
+    }
+    if (Index == 8)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoShells"));
+    }
+    if (Index == 9)
+    {
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoRocket"));
+    }
+
+    return 0;
 }
 
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
@@ -807,4 +859,29 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
     }
     
     return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
+}
+
+void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerControllerAthena* SenderPC, FFrame& StackFrame)
+{
+    GET_PARAMETER(FAthenaQuickChatActiveEntry, ChatEntry);
+    
+    if (SenderPC)
+    {
+        if (AFortPlayerStateAthena* PlayerState = SenderPC->PlayerState())
+        {
+            STATIC_HASPROPERTY(PlayerState, ReplicatedTeamMemberState);
+            STATIC_HASPROPERTY(PlayerState, TeamMemberState);
+            
+            if (bExists_TeamMemberState &&
+                bExists_ReplicatedTeamMemberState)
+            {
+                PlayerState->ReplicatedTeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
+                PlayerState->TeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
+            }
+        }
+        
+        SenderPC->PlayerState()->OnRep_ReplicatedTeamMemberState();
+        
+        player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"));
+    }
 }
