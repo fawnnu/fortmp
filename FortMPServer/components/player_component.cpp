@@ -465,43 +465,43 @@ uint8_t player_component::convert_quick_chat_index_to_message(uint8_t Index)
 
     if (Index == 0)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("EnemySpotted"));
+        return ETeamMemberState->GetEnumIndex(TEXT("EnemySpotted")) - 1;
     }
     if (Index == 1)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedBandages"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedBandages")) - 1;
     }
     if (Index == 2)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedShields"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedShields")) - 1;
     }
     if (Index == 3)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedMaterials"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedMaterials")) - 1;
     }
     if (Index == 4)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedWeapon"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedWeapon")) - 1;
     }
     if (Index == 5)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoLight"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoLight")) - 1;
     }
     if (Index == 6)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoMedium"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoMedium")) - 1;
     }
     if (Index == 7)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoHeavy"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoHeavy")) - 1;
     }
     if (Index == 8)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoShells"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoShells")) - 1;
     }
     if (Index == 9)
     {
-        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoRocket"));
+        return ETeamMemberState->GetEnumIndex(TEXT("NeedAmmoRocket")) - 1;
     }
 
     return 0;
@@ -877,7 +877,7 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
             {
                 PlayerState->ReplicatedTeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
                 PlayerState->TeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
-                
+
                 SenderPC->PlayerState()->OnRep_ReplicatedTeamMemberState();
             }
         }
