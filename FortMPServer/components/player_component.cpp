@@ -877,10 +877,10 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
             {
                 PlayerState->ReplicatedTeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
                 PlayerState->TeamMemberState() = player_component::convert_quick_chat_index_to_message(ChatEntry.Index());
+                
+                SenderPC->PlayerState()->OnRep_ReplicatedTeamMemberState();
             }
         }
-        
-        SenderPC->PlayerState()->OnRep_ReplicatedTeamMemberState();
         
         player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"));
     }
