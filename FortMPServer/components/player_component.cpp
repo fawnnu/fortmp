@@ -535,13 +535,27 @@ uint8_t player_component::convert_quick_chat_index_to_message(uint8_t Index)
 
 void player_component::initialize_player_banner_icon(AFortPlayerController* TargetPlayerController, std::string BannerIcon)
 {
-    TO_WSTRING(BannerIcon, wBannerIcon);
-
-    static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerIconId() = wBannerIcon;
-    
-    if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+    if (BannerIcon.find("HomebaseBannerIcon:") != std::string::npos)
     {
-        PlayerState->Banner().IconId() = wBannerIcon;
+        BannerIcon = BannerIcon.substr(BannerIcon.find(":") + 1);
+        
+        TO_WSTRING(BannerIcon, wBannerIcon);
+
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerIconId"))
+        {
+            static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerIconId() = wBannerIcon;
+        }
+
+        if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+        {
+            if (STATIC_HASPROPERTY(PlayerState, Banner))
+            {
+                if (FindPropertyByName(FPlayerBannerInfo::GetClass(), L"IconId"))
+                {
+                    PlayerState->Banner().IconId() = wBannerIcon;
+                }
+            }
+        }
     }
 }
 
@@ -549,19 +563,39 @@ void player_component::initialize_player_banner_level(AFortPlayerController* Tar
 {
     if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
     {
-        PlayerState->Banner().Level() = Level;
+        if (STATIC_HASPROPERTY(PlayerState, Banner))
+        {
+            if (FindPropertyByName(FPlayerBannerInfo::GetClass(), L"Level"))
+            {
+                PlayerState->Banner().Level() = Level;
+            }
+        }
     }
 }
 
 void player_component::initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor)
 {
-    TO_WSTRING(BannerColor, wBannerColor);
-
-    static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerColorId() = wBannerColor;
-
-    if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+    if (BannerColor.find("HomebaseBannerColor:") != std::string::npos)
     {
-        PlayerState->Banner().ColorId() = wBannerColor;
+        BannerColor = BannerColor.substr(BannerColor.find(":") + 1);
+        
+        TO_WSTRING(BannerColor, wBannerColor);
+
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerColorId"))
+        {
+            static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerColorId() = wBannerColor;
+        }
+    
+        if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+        {
+            if (STATIC_HASPROPERTY(PlayerState, Banner))
+            {
+                if (FindPropertyByName(FPlayerBannerInfo::GetClass(), L"ColorId"))
+                {
+                    PlayerState->Banner().ColorId() = wBannerColor;
+                }
+            }
+        }
     }
 }
 
