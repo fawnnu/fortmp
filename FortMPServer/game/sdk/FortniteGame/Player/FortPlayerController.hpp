@@ -146,6 +146,13 @@ public:
     DEFINE_PROPERTY(AFortInventory*, WorldInventory);
     DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
 
+    class UFortQuestManager* GetQuestManager(uint8_t SubGame)
+    {
+        STATIC_FINDFUNCTION(GetQuestManager)
+        
+        return Call<UFortQuestManager*>(Function_GetQuestManager, SubGame);
+    }
+    
     bool IsInAircraft()
     {
         STATIC_FINDFUNCTION(IsInAircraft)

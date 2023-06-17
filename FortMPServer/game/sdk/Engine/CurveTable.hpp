@@ -48,4 +48,6 @@ struct FCurveTableRowHandle
             static_cast<FSimpleCurve*>(CurveTableMap[RowName].Value)->Keys()[Index].Value() :
             static_cast<FRichCurve*>(CurveTableMap[RowName].Value)->Keys()[Index].Value();
     }
+
+    DEFINE_STRUCT_CLASS(L"/Script/Engine.CurveTableRowHandle");
 };

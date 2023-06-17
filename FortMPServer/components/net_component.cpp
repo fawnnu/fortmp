@@ -141,7 +141,26 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                 spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
             }
 
-            // TODO: Find out how to add live progression
+            /*if (challenge.find("Quest:") != std::string::npos)
+            {
+                challenge = challenge.substr(challenge.find(":") + 1);
+
+                TO_WSTRING(objective, wObjective);
+                TO_WSTRING(challenge, wChallenge);
+
+                if (UFortQuestItemDefinition* QuestItemDefinition = FindObject<UFortQuestItemDefinition>(wChallenge.c_str(), false, true))
+                {
+                    TArrayManager Objectives = TArrayManager<FFortMcpQuestObjectiveInfo>(&QuestItemDefinition->Objectives(), FFortMcpQuestObjectiveInfo::GetStructSize());
+
+                    for (FFortMcpQuestObjectiveInfo& Objective : Objectives)
+                    {
+                        if (Objective.BackendName().ToString() == wObjective)
+                        {
+                            UFortAsyncAction_SendQuestStatEvent::SendClientStatEvent(PlayerController->GetQuestManager(1), Objective.ObjectiveStatHandle(), value);
+                        }
+                    }
+                }
+            }*/
         }
 
         challenges_progression_queue.pop_front();
