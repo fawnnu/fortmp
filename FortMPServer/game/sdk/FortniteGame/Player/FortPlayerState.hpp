@@ -63,21 +63,28 @@ struct FDeathInfo
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.DeathInfo");
 };
 
+struct FPlayerBannerInfo
+{
+    DEFINE_STRUCT_PROPERTY(FString, IconId);
+    DEFINE_STRUCT_PROPERTY(FString, ColorId);
+    DEFINE_STRUCT_PROPERTY(int, Level);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.PlayerBannerInfo")
+};
+
 class AFortPlayerStateAthena : public AFortPlayerState
 {
 public:
     DEFINE_PROPERTY(uint8_t, TeamIndex);
     DEFINE_PROPERTY(uint8_t, SquadId);
-    
     DEFINE_PROPERTY(int, KillScore);
     DEFINE_PROPERTY(bool, bShouldUpdateReplicatedPing);
     DEFINE_PROPERTY(uint8_t, Ping);
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
-
     DEFINE_PROPERTY(uint8_t, ReplicatedTeamMemberState);
     DEFINE_PROPERTY(uint8_t, TeamMemberState);
-
     DEFINE_PROPERTY(int, NumRejoins);
+    DEFINE_PROPERTY(FPlayerBannerInfo, Banner);
     
     void OnRep_ReplicatedTeamMemberState()
     {

@@ -208,6 +208,8 @@ public:
 
 struct FFortAthenaLoadout
 {
+    DEFINE_STRUCT_PROPERTY(FString, BannerIconId);
+    DEFINE_STRUCT_PROPERTY(FString, BannerColorId);
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, SkyDiveContrail);
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, Glider);
     DEFINE_STRUCT_PROPERTY(UAthenaPickaxeItemDefinition*, Pickaxe);

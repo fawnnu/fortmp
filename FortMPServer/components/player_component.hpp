@@ -18,6 +18,9 @@ public:
     static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);
     static void handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage);
     static uint8_t convert_quick_chat_index_to_message(uint8_t Index);
+    static void initialize_player_banner_icon(AFortPlayerController* TargetPlayerController, std::string BannerIcon);
+    static void initialize_player_banner_level(AFortPlayerController* TargetPlayerController, int Level);
+    static void initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;

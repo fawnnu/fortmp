@@ -251,6 +251,14 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             }
                         }
                     }
+
+                    if (data.contains("level"))
+                    {
+                        if (static_cast<int>(data["level"]) > 0)
+                        {
+                            initialize_player_banner_level(NewPlayer, data["level"]);
+                        }
+                    }
             
                     if (data.contains("locker"))
                     {
@@ -261,6 +269,24 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             // If it's a valid string
                             if (elem.value().is_string() && std::string(elem.value()).find(":") != std::string::npos)
                             {
+                                // Banners
+                                if (locker.contains("banner") &&
+                                    locker.contains("banner_color"))
+                                {
+                                    if (elem.value() == locker["banner"])
+                                    {
+                                        initialize_player_banner_icon(NewPlayer, elem.value());
+                                        
+                                        continue;
+                                    }
+                                    if (elem.value() == locker["banner_color"])
+                                    {
+                                        initialize_player_banner_color(NewPlayer, elem.value());
+                                        
+                                        continue;
+                                    }
+                                }
+                                
                                 std::string value = std::string(elem.value()).substr(std::string(elem.value()).find(":")+1);
 
                                 UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
@@ -505,6 +531,38 @@ uint8_t player_component::convert_quick_chat_index_to_message(uint8_t Index)
     }
 
     return 0;
+}
+
+void player_component::initialize_player_banner_icon(AFortPlayerController* TargetPlayerController, std::string BannerIcon)
+{
+    TO_WSTRING(BannerIcon, wBannerIcon);
+
+    static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerIconId() = wBannerIcon;
+    
+    if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+    {
+        PlayerState->Banner().IconId() = wBannerIcon;
+    }
+}
+
+void player_component::initialize_player_banner_level(AFortPlayerController* TargetPlayerController, int Level)
+{
+    if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+    {
+        PlayerState->Banner().Level() = Level;
+    }
+}
+
+void player_component::initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor)
+{
+    TO_WSTRING(BannerColor, wBannerColor);
+
+    static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerColorId() = wBannerColor;
+
+    if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
+    {
+        PlayerState->Banner().ColorId() = wBannerColor;
+    }
 }
 
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
