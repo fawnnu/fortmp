@@ -17,14 +17,14 @@ struct DamageDealtMapValue
 {
     DamageDealtMapValue() = default;
 
-    float PistolDamage;
-    float ShotgunDamage;
-    float AssaultRifleDamage;
-    float SniperDamage;
-    float GrenadeDamage;
-    float SMGDamage;
-    float GrenadeLauncherDamage;
-    float RPGDamage;
+    int PistolDamage;
+    int ShotgunDamage;
+    int AssaultRifleDamage;
+    int SniperDamage;
+    int GrenadeDamage;
+    int SMGDamage;
+    int GrenadeLauncherDamage;
+    int RPGDamage;
 };
 
 class player_component
