@@ -481,7 +481,46 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
 {
     if (Instigator)
     {
-        DamageDealtMap[Instigator] += Damage;
+        if (DamageCauser->IsA(AFortWeapon::StaticClass()))
+        {
+            DamageDealtMapValue& Value = DamageDealtMap[Instigator];
+
+            if (UFortItemDefinition* ItemDefinition = static_cast<AFortWeapon*>(DamageCauser)->WeaponData())
+            {
+                if (STATIC_HASPROPERTY(ItemDefinition, GameplayTags))
+                {
+                    switch (get_damage_causer(ItemDefinition->GameplayTags()))
+                    {
+                    case EDamageCauser::Pistol:
+                        Value.PistolDamage += Damage;
+                        break;
+                    case EDamageCauser::Shotgun:
+                        Value.ShotgunDamage += Damage;
+                        break;
+                    case EDamageCauser::AssaultRifle:
+                        Value.AssaultRifleDamage += Damage;
+                        break;
+                    case EDamageCauser::Sniper:
+                        Value.SniperDamage += Damage;
+                        break;
+                    case EDamageCauser::Grenade:
+                        Value.GrenadeDamage += Damage;
+                        break;
+                    case EDamageCauser::SMG:
+                        Value.SMGDamage += Damage;
+                        break;
+                    case EDamageCauser::GrenadeLauncher:
+                        Value.GrenadeLauncherDamage += Damage;
+                        break;
+                    case EDamageCauser::RPG:
+                        Value.RPGDamage += Damage;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -597,6 +636,41 @@ void player_component::initialize_player_banner_color(AFortPlayerController* Tar
             }
         }
     }
+}
+
+EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
+{
+    static std::map<FName, EDamageCauser> death_cause_map =
+    {
+        { L"Weapon.Ranged.Shotgun", EDamageCauser::Shotgun },
+        { L"Weapon.Ranged.Shotgun.Pump", EDamageCauser::Shotgun },
+        { L"Weapon.Ranged.Shotgun.Tactical", EDamageCauser::Shotgun },
+        { L"Weapon.Ranged.Assault", EDamageCauser::AssaultRifle },
+        { L"weapon.ranged.assault.burst", EDamageCauser::AssaultRifle },
+        { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
+        { L"weapon.ranged.assault.silenced", EDamageCauser::AssaultRifle },
+        { L"Weapon.Ranged.LMG", EDamageCauser::AssaultRifle },
+        { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
+        { L"Weapon.Ranged.Sniper", EDamageCauser::Sniper },
+        { L"weapon.ranged.sniper.bolt", EDamageCauser::Sniper },
+        { L"Weapon.Ranged.SMG", EDamageCauser::SMG },
+        { L"Weapon.Ranged.Crossbow", EDamageCauser::Sniper },
+        { L"Weapon.Ranged.Minigun", EDamageCauser::AssaultRifle },
+        { L"weapon.ranged.heavy.rocket_launcher", EDamageCauser::RPG},
+        { L"weapon.ranged.heavy.grenade_launcher", EDamageCauser::GrenadeLauncher},
+        { L"Weapon.ranged.heavy.grenade", EDamageCauser::Grenade}
+    };
+
+    for (FGameplayTag gameplay_tag : Tags.GameplayTags)
+    {
+        if (death_cause_map.contains(gameplay_tag.TagName))
+        {
+            // Return a death cause if we have it mapped
+            return death_cause_map[gameplay_tag.TagName];
+        }
+    }
+
+    return EDamageCauser::None;
 }
 
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)

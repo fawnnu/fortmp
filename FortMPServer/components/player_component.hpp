@@ -1,5 +1,32 @@
 ﻿#pragma once
 
+enum class EDamageCauser : uint8_t
+{
+    None,
+    Pistol,
+    Shotgun,
+    AssaultRifle,
+    Sniper,
+    Grenade,
+    SMG,
+    GrenadeLauncher,
+    RPG
+};
+
+struct DamageDealtMapValue
+{
+    DamageDealtMapValue() = default;
+
+    float PistolDamage;
+    float ShotgunDamage;
+    float AssaultRifleDamage;
+    float SniperDamage;
+    float GrenadeDamage;
+    float SMGDamage;
+    float GrenadeLauncherDamage;
+    float RPGDamage;
+};
+
 class player_component
 {
 public:
@@ -21,11 +48,12 @@ public:
     static void initialize_player_banner_icon(AFortPlayerController* TargetPlayerController, std::string BannerIcon);
     static void initialize_player_banner_level(AFortPlayerController* TargetPlayerController, int Level);
     static void initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor);
+    static EDamageCauser get_damage_causer(FGameplayTagContainer& Tags);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
-    static inline std::map<AFortPlayerController*, float> DamageDealtMap;
+    static inline std::map<AFortPlayerController*, DamageDealtMapValue> DamageDealtMap;
     static inline int InvalidTokensReceived;
     static inline int global_player_id = 0;
 };

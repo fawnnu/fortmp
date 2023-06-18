@@ -508,6 +508,31 @@ void gameserver_client::SendEventToChannel(std::string channel, std::string even
 #endif
 }
 
+void gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters)
+{
+#ifdef _RELEASE
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
+
+            payload.push_back(0); // Channel Ref
+            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(channel); // Channel
+            payload.push_back(event_type); // Event Type
+            payload.push_back(parameters); // param
+
+            // Send
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+        }
+    }
+#endif
+}
+
 void scheduler_client::Initialize()
 {
     auto config = config_manager::get_server_config();
