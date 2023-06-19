@@ -6,10 +6,6 @@
 
 challenges_component::challenges_component()
 {
-    CustomLiveProgressionHandledChallenges = {
-        FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Interact_ScavengerHunt_TreasureMap_01.Quest_BR_Interact_ScavengerHunt_TreasureMap_01", true),
-        FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Interact_FORTNITE.Quest_BR_Interact_FORTNITE", true)
-    };
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -134,74 +130,81 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
 {
     if (KillerPlayerController && VictimPlayerController)
     {
-        std::string killer_account_id = player_component::get_account_id(KillerPlayerController);
-        std::string victim_account_id = player_component::get_account_id(VictimPlayerController);
-
-        if (killer_account_id.size() > 0 && victim_account_id.size() > 0)
+        if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
         {
-            std::string weapon;
-            static UEnum* death_cause_enum = FindObject<UEnum>(L"/Script/FortniteGame.EDeathCause");
+            std::string killer_account_id = player_component::get_account_id(KillerPlayerController);
+            std::string victim_account_id = player_component::get_account_id(VictimPlayerController);
 
-            if (DeathCause > 0)
+            if (killer_account_id.size() > 0 && victim_account_id.size() > 0)
             {
-                if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
+                std::string weapon;
+                static UEnum* death_cause_enum = FindObject<UEnum>(L"/Script/FortniteGame.EDeathCause");
+
+                if (DeathCause > 0)
                 {
-                    weapon = "pistol";
+                    if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
+                    {
+                        weapon = "pistol";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Shotgun"))
+                    {
+                        weapon = "shotgun";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Rifle"))
+                    {
+                        weapon = "assault_rifle";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Sniper") ||
+                             DeathCause == death_cause_enum->GetEnumIndex(L"SniperNoScope") )
+                    {
+                        weapon = "sniper";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Grenade"))
+                    {
+                        weapon = "grenade";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"SMG"))
+                    {
+                        weapon = "smg";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"GrenadeLauncher"))
+                    {
+                        weapon = "grenade_launcher";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"RocketLauncher"))
+                    {
+                        weapon = "rpg";
+                    }
                 }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Shotgun"))
-                {
-                    weapon = "shotgun";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Rifle"))
-                {
-                    weapon = "assault_rifle";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Sniper") ||
-                         DeathCause == death_cause_enum->GetEnumIndex(L"SniperNoScope") )
-                {
-                    weapon = "sniper";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"Grenade"))
-                {
-                    weapon = "grenade";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"SMG"))
-                {
-                    weapon = "smg";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"GrenadeLauncher"))
-                {
-                    weapon = "grenade_launcher";
-                }
-                else if (DeathCause == death_cause_enum->GetEnumIndex(L"RocketLauncher"))
-                {
-                    weapon = "rpg";
-                }
+            
+                std::map<std::string, std::string> parameters{
+                        {"x", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().X)},
+                        {"y", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().Y)},
+                        {"weapon", weapon},
+                        {"victim", victim_account_id}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
             }
-            
-            std::map<std::string, std::string> parameters{
-                    {"x", std::to_string(VictimPlayerController->K2_GetActorLocation().X)},
-                    {"y", std::to_string(VictimPlayerController->K2_GetActorLocation().Y)},
-                    {"weapon", weapon},
-                    {"victim", victim_account_id}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
         }
     }
 }
 
-void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter)
+void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective)
 {
     if (InteractingController && Letter)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
 
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
                 {"x", Letter->K2_GetActorLocation().X},
-                {"y", Letter->K2_GetActorLocation().Y}
+                {"y", Letter->K2_GetActorLocation().Y},
+                {"objective", sObjective}
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:letter", parameters);
@@ -223,6 +226,24 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
+        }
+    }   
+}
+
+void challenges_component::SendPortAFortInteraction(AFortPlayerController* InteractingController)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:port-a-fort", parameters);
         }
     }   
 }

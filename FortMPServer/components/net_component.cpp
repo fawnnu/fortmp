@@ -151,20 +151,16 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
 
                 if (UFortQuestItemDefinition* QuestItemDefinition = FindObject<UFortQuestItemDefinition>(wChallenge.c_str(), false, true))
                 {
-                    // Make sure this challenge's live progression is NOT handled elsewhere
-                    if (std::find(challenges_component::CustomLiveProgressionHandledChallenges.begin(), challenges_component::CustomLiveProgressionHandledChallenges.end(), QuestItemDefinition) == challenges_component::CustomLiveProgressionHandledChallenges.end())
-                    {
-                        TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
+                    TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
 
-                        FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
-                        ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
-                        NewObjectiveStat->Quest() = QuestItemDefinition;
-                        NewObjectiveStat->BackendName() = wObjective.c_str();
-                        NewObjectiveStat->StatValue() = value;
+                    FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+                    ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+                    NewObjectiveStat->Quest() = QuestItemDefinition;
+                    NewObjectiveStat->BackendName() = wObjective.c_str();
+                    NewObjectiveStat->StatValue() = value;
 
-                        // Send live progression to client
-                        UpdatedObjectiveStats.Add(NewObjectiveStat);
-                    }
+                    // Send live progression to client
+                    UpdatedObjectiveStats.Add(NewObjectiveStat);
                 }
             }
         }

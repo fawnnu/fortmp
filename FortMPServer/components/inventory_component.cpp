@@ -4,6 +4,7 @@
 #include "pickup_component.hpp"
 
 #include "ability_component.hpp"
+#include "challenges_component.hpp"
 #include "function_component.hpp"
 
 inventory_component::inventory_component()
@@ -719,6 +720,15 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                 spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
 
                 inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
+                
+                // Check if its a port a fort
+                if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())
+                {
+                    if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TowerGrenade/Athena_TowerGrenade.Athena_TowerGrenade"))
+                    {
+                        challenges_component::SendPortAFortInteraction(PlayerController);
+                    }
+                }
 
                 return true;
             }

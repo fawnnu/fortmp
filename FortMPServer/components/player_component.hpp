@@ -101,6 +101,9 @@ namespace player_component_hooks
 
     // Reimplement quick chat
     DEFINE_FUNCTION_HOOK(void, ServerPlaySquadQuickChatMessage, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
+
+    // OnDamageServer
+    DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Self, UObject* Function, void* Params));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

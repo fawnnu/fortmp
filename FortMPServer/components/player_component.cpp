@@ -60,6 +60,7 @@ player_component::player_component()
 
     // Finish spawning a player
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
 }
@@ -1049,5 +1050,37 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
         }
         
         player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"));
+    }
+}
+
+// Only use this to keep track of sniper damage, as projectiles are not taken into account by NetMulticast_Athena_BatchedDamageCues
+void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);   
+    GET_PROCESS_EVENT_PARAMETER(float, Damage);   
+    GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
+
+    if (Self && InstigatedBy && DamageCauser)
+    {
+        if (DamageCauser->IsA(AFortProjectileAthena::StaticClass()))
+        {
+            if (DamageCauser->Owner()->IsA(AFortWeapon::StaticClass()))
+            {
+                if (AFortWeapon* FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner()))
+                {
+                    if (UFortItemDefinition* ItemDefinition = FortWeapon->WeaponData())
+                    {
+                        switch (player_component::get_damage_causer(ItemDefinition->GameplayTags()))
+                        {
+                        case EDamageCauser::Sniper:
+                            player_component::DamageDealtMap[InstigatedBy].SniperDamage += Damage;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

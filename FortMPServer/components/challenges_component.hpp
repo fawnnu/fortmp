@@ -11,10 +11,9 @@ public:
     static void SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama);
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause);
-    static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter);
+    static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar);
-
-    inline static std::vector<UFortQuestItemDefinition*> CustomLiveProgressionHandledChallenges;
+    static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
 };
 
 struct progression_entry
