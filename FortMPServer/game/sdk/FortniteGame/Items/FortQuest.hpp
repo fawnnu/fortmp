@@ -57,3 +57,9 @@ public:
         return FunctionParameters.ReturnValue;
     }
 };
+
+class AProp_QuestInteractable_Letter_Parent_C : public ABuildingSMActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/FortnightLetters/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
+};

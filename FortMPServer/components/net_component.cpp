@@ -141,7 +141,8 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                 spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
             }
 
-            /*if (challenge.find("Quest:") != std::string::npos)
+            // Working live progression
+            if (challenge.find("Quest:") != std::string::npos)
             {
                 challenge = challenge.substr(challenge.find(":") + 1);
 
@@ -150,17 +151,18 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
 
                 if (UFortQuestItemDefinition* QuestItemDefinition = FindObject<UFortQuestItemDefinition>(wChallenge.c_str(), false, true))
                 {
-                    TArrayManager Objectives = TArrayManager<FFortMcpQuestObjectiveInfo>(&QuestItemDefinition->Objectives(), FFortMcpQuestObjectiveInfo::GetStructSize());
+                    TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
 
-                    for (FFortMcpQuestObjectiveInfo& Objective : Objectives)
-                    {
-                        if (Objective.BackendName().ToString() == wObjective)
-                        {
-                            UFortAsyncAction_SendQuestStatEvent::SendClientStatEvent(PlayerController->GetQuestManager(1), Objective.ObjectiveStatHandle(), value);
-                        }
-                    }
+                    FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+                    ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+                    NewObjectiveStat->Quest() = QuestItemDefinition;
+                    NewObjectiveStat->BackendName() = wObjective.c_str();
+                    NewObjectiveStat->StatValue() = value;
+
+                    // Send live progression to client
+                    UpdatedObjectiveStats.Add(NewObjectiveStat);
                 }
-            }*/
+            }
         }
 
         challenges_progression_queue.pop_front();

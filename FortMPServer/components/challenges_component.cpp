@@ -187,3 +187,21 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
         }
     }
 }
+
+void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter)
+{
+    if (InteractingController && Letter)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Letter->K2_GetActorLocation().X},
+                {"y", Letter->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:letter", parameters);
+        }
+    }   
+}

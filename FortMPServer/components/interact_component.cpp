@@ -50,6 +50,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with llamas, mainly for challenges
         handle_llama_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_Letter_Parent_C::StaticClass()))
+    {
+        // Handle any interactions with letters, for challenges
+        handle_letter_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Letter_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -201,6 +206,12 @@ void interact_component::handle_vehicle_interaction(AFortPlayerController* playe
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
 {
     challenges_component::SendLlamaEvent(player_controller, supply_drop);
+}
+
+void interact_component::handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter)
+{
+    // Send interaction event
+    challenges_component::SendLetterInteraction(player_controller, letter);
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
