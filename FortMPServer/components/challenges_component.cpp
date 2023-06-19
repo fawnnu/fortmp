@@ -6,7 +6,10 @@
 
 challenges_component::challenges_component()
 {
-       
+    CustomLiveProgressionHandledChallenges = {
+        FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Interact_ScavengerHunt_TreasureMap_01.Quest_BR_Interact_ScavengerHunt_TreasureMap_01", true),
+        FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Interact_FORTNITE.Quest_BR_Interact_FORTNITE", true)
+    };
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -202,6 +205,24 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:letter", parameters);
+        }
+    }   
+}
+
+void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar)
+{
+    if (InteractingController && BattleStar)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", BattleStar->K2_GetActorLocation().X},
+                {"y", BattleStar->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
         }
     }   
 }

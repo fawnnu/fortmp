@@ -55,6 +55,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with letters, for challenges
         handle_letter_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Letter_Parent_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass()))
+    {
+        // Handle any interactions with battle stars
+        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -210,8 +215,50 @@ void interact_component::handle_llama_interaction(AFortPlayerController* player_
 
 void interact_component::handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter)
 {
-    // Send interaction event
-    challenges_component::SendLetterInteraction(player_controller, letter);
+    STATIC_HASPROPERTY(letter, QuestItem);
+    STATIC_HASPROPERTY(letter, QuestBackendObjectiveName);
+
+    if (bExists_QuestItem && bExists_QuestBackendObjectiveName)
+    {
+        // Send interaction event
+        challenges_component::SendLetterInteraction(player_controller, letter);
+
+        // Play animation and mark as interacted on client
+        TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&player_controller->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
+
+        FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+        ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+        NewObjectiveStat->Quest() = letter->QuestItem();
+        NewObjectiveStat->BackendName() = letter->QuestBackendObjectiveName();
+        NewObjectiveStat->StatValue() = 1;
+
+        // Send live progression to client
+        UpdatedObjectiveStats.Add(NewObjectiveStat);
+    }
+}
+
+void interact_component::handle_battlestar_interaction(AFortPlayerController* player_controller, AProp_QuestObject_Interactable_Parent_C* battlestar)
+{
+    STATIC_HASPROPERTY(battlestar, QuestItem);
+    STATIC_HASPROPERTY(battlestar, QuestBackendObjectiveName);
+
+    if (bExists_QuestItem && bExists_QuestBackendObjectiveName)
+    {
+        // Send interaction event
+        challenges_component::SendBattleStarInteraction(player_controller, battlestar);
+
+        // Play animation and mark as interacted on client
+        TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&player_controller->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
+
+        FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+        ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+        NewObjectiveStat->Quest() = battlestar->QuestItem();
+        NewObjectiveStat->BackendName() = battlestar->QuestBackendObjectiveName();
+        NewObjectiveStat->StatValue() = 1;
+
+        // Send live progression to client
+        UpdatedObjectiveStats.Add(NewObjectiveStat);
+    }
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
