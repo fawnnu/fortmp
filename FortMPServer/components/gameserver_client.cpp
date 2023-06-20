@@ -196,6 +196,17 @@ void gameserver_client::Register()
     }
 }
 
+void gameserver_client::WaitForReply(int MessageReference, PVOID callback)
+{
+    if (Client)
+    {
+        if (!Client->MessagesMap.contains(MessageReference))
+        {
+            Client->MessagesMap[MessageReference] = callback;
+        }
+    }
+}
+
 void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 {
 #ifdef _RELEASE
@@ -213,9 +224,15 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         auto JsonPayload = nlohmann::json::parse(payload);
         
         std::vector<std::string> VectorPayloadString;
+        std::vector<int> VectorPayloadInt;
         nlohmann::json JsonPayloadData;
         for (auto& elem : JsonPayload.items())
         {
+            if (elem.value().is_number_integer())
+            {
+                VectorPayloadInt.push_back(elem.value());
+            }
+            
             if (elem.value().is_string())
             {
                 VectorPayloadString.push_back(elem.value());
@@ -230,6 +247,18 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // Make sure it's a phoenix message
         if (VectorPayloadString.size() == 2)
         {
+            // If it's a phx_reply message, check if there's any callback to call
+            if (VectorPayloadString[1] == "phx_reply")
+            {
+                if (MessagesMap.contains(VectorPayloadInt[1]))
+                {
+                    reinterpret_cast<void (*)(std::string, nlohmann::json)>(MessagesMap[VectorPayloadInt[1]])(VectorPayloadString[0], JsonPayloadData);
+
+                    // Remove message from MessagesMap
+                    MessagesMap.erase(MessagesMap.find(VectorPayloadInt[1]));
+                }
+            }
+            
             // If it's a "progression" message, process it to send the client a live progression notification
             if (VectorPayloadString[1] == "progression")
             {
@@ -314,7 +343,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 #endif
 }
 
-void gameserver_client::SendJoin()
+int gameserver_client::SendJoin()
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -325,6 +354,9 @@ void gameserver_client::SendJoin()
         if (Connection->get_state() == websocketpp::session::state::open)
         {
             nlohmann::json payload = R"([])"_json;
+
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
@@ -336,12 +368,16 @@ void gameserver_client::SendJoin()
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendUpdate()
+int gameserver_client::SendUpdate()
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -352,6 +388,9 @@ void gameserver_client::SendUpdate()
         if (Connection->get_state() == websocketpp::session::state::open)
         {
             nlohmann::json payload = R"([])"_json;
+            
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
@@ -369,12 +408,16 @@ void gameserver_client::SendUpdate()
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendLeave()
+int gameserver_client::SendLeave()
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -385,6 +428,9 @@ void gameserver_client::SendLeave()
         if (Connection->get_state() == websocketpp::session::state::open)
         {
             nlohmann::json payload = R"([])"_json;
+
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
@@ -395,12 +441,16 @@ void gameserver_client::SendLeave()
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendBan(std::string uuid)
+int gameserver_client::SendBan(std::string uuid)
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -411,6 +461,9 @@ void gameserver_client::SendBan(std::string uuid)
         if (Connection->get_state() == websocketpp::session::state::open)
         {
             nlohmann::json payload = R"([])"_json;
+
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
 
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
@@ -422,42 +475,16 @@ void gameserver_client::SendBan(std::string uuid)
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendSummary(std::string account_id, int Placement)
-{
-    spdlog::warn(L"WARNING: gameserver_client::SendSummary is deprecated.");
-
-    return;
-#ifdef _RELEASE
-    websocketpp::lib::error_code ec;
-    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
-
-    if (Connection)
-    {
-        if (Connection->get_state() == websocketpp::session::state::open)
-        {
-            nlohmann::json payload = R"([])"_json;
-
-            payload.push_back(0);
-            payload.push_back(MessageRef++);
-            payload.push_back("server:" + UUID);
-            payload.push_back("summary:" + account_id);
-            payload.push_back(std::map<std::string, std::string>{
-                {"placement", std::to_string(Placement)}
-            });
-
-            // Send
-            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
-        }
-    }
-#endif
-}
-
-void gameserver_client::SendHeartbeat()
+int gameserver_client::SendHeartbeat()
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -469,7 +496,10 @@ void gameserver_client::SendHeartbeat()
         {
             nlohmann::json payload = R"([])"_json;
 
-            payload.push_back(nullptr); // Channel Ref
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
+
+            payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
             payload.push_back("phoenix"); // Channel
             payload.push_back("heartbeat"); // Event Type
@@ -478,12 +508,16 @@ void gameserver_client::SendHeartbeat()
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters)
+int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters)
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -495,6 +529,9 @@ void gameserver_client::SendEventToChannel(std::string channel, std::string even
         {
             nlohmann::json payload = R"([])"_json;
 
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
+
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
             payload.push_back(channel); // Channel
@@ -503,12 +540,16 @@ void gameserver_client::SendEventToChannel(std::string channel, std::string even
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 
-void gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters)
+int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters)
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
@@ -520,6 +561,9 @@ void gameserver_client::SendEventToChannel(std::string channel, std::string even
         {
             nlohmann::json payload = R"([])"_json;
 
+            // Copy the message before bumping it
+            const int CurrentMessageReference = MessageRef;
+
             payload.push_back(0); // Channel Ref
             payload.push_back(MessageRef++); // Message ref
             payload.push_back(channel); // Channel
@@ -528,8 +572,12 @@ void gameserver_client::SendEventToChannel(std::string channel, std::string even
 
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+
+            return CurrentMessageReference;
         }
     }
+
+    return 0;
 #endif
 }
 

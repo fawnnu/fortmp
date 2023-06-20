@@ -39,20 +39,20 @@ public:
 
     void Initialize();
     void Register();
+    static void WaitForReply(int MessageReference, PVOID callback);
 
     // Event called when a connection is established
     void OnConnected(websocketpp::connection_hdl handle);
     void OnMessageReceived(websocketpp::connection_hdl handle, websocketpp::config::asio_client::message_type::ptr message);
 
     // Send events
-    void SendJoin();
-    void SendUpdate();
-    void SendLeave();
-    void SendBan(std::string uuid);
-    void SendSummary(std::string account_id, int Placement);
-    void SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters);
-    void SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters);
-    void SendHeartbeat();
+    int SendJoin();
+    int SendUpdate();
+    int SendLeave();
+    int SendBan(std::string uuid);
+    int SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters);
+    int SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters);
+    int SendHeartbeat();
 
     // Client WS object
     websocketpp::client<websocketpp::config::asio_tls_client> Client_WS;
@@ -74,6 +74,9 @@ public:
 
     // Number of non-acknowledged local heartbeats
     int LocalNonAckHeartbeats;
+
+    // Map for messages and their callbacks
+    std::map<int, PVOID> MessagesMap;
 
     int LocalNonAckHeartbeatsForPlayers;
 };
