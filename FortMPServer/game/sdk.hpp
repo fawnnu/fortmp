@@ -74,6 +74,14 @@
         return *reinterpret_cast<int*>(__int64(GetClass()) + CoreOffsets::StructSize);                 \
     }
 
+#define OVERLOAD_NEW_OPERATOR()\
+    FORCEINLINE void* operator new(size_t)\
+    {\
+        auto Block = malloc(GetStructSize());\
+        ZeroMemory(Block, GetStructSize());\
+        return Block;\
+    }
+
 #define DEFINE_STRUCT_PROPERTY(PropertyType, PropertyName)                                                                      \
     PropertyType##& PropertyName##()                                                                                            \
     {                                                                                                                           \

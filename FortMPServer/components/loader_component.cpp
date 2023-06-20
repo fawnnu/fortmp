@@ -437,6 +437,8 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
     {
         gameserver_client::Client->GameServer_Status.accepting_players = false;
         gameserver_client::Client->SendUpdate();
+
+        player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
     }
 #endif
 
@@ -633,6 +635,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::Players.clear();
         player_component::DamageDealtMap.clear();
         player_component::global_player_id = 0;
+        player_component::starting_players = 0;
         pickup_component::GlobalPickupStream.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));

@@ -459,6 +459,16 @@ struct Struct
     // Empty struct used when iterating through dynamic struct arrays
 };
 
+template <typename T>
+class TStaticArrayManager
+{
+public:
+	FORCEINLINE T& operator[](int Idx)
+	{
+		return *reinterpret_cast<T*>(uintptr_t(this) + Idx * sizeof(T));
+	}
+};
+
 template <typename T = Struct>
 class TArrayManager
 {

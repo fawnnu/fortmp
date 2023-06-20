@@ -256,6 +256,35 @@ struct FAthenaQuickChatActiveEntry
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaQuickChatActiveEntry");
 };
 
+struct FAthenaMatchStats
+{
+    DEFINE_STRUCT_PROPERTY(TStaticArrayManager<int>, Stats);
+    
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaMatchStats");
+};
+
+struct FAthenaMatchTeamStats
+{
+    FAthenaMatchTeamStats(int InPlace, int InTotalPlayers)
+    {
+        Place() = InPlace;
+        TotalPlayers() = InTotalPlayers;
+    }
+
+    DEFINE_STRUCT_PROPERTY(int, Place);
+    DEFINE_STRUCT_PROPERTY(int, TotalPlayers);
+    
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaMatchTeamStats");
+};
+
+struct FAthenaRewardResult
+{
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaRewardResult");
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -276,6 +305,90 @@ public:
     DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
 
+    void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, FAthenaRewardResult* Result)
+    {
+        STATIC_FINDFUNCTION(ClientSendEndBattleRoyaleMatchForPlayer)
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        std::vector<int> PropertyOffsets;
+        
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_ClientSendEndBattleRoyaleMatchForPlayer) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            PropertyOffsets.push_back(offset);
+            
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        *reinterpret_cast<bool*>(Params) = bSuccess;
+
+        memcpy(reinterpret_cast<FAthenaRewardResult*>(reinterpret_cast<uintptr_t>(Result) + PropertyOffsets[1]), Result, FAthenaRewardResult::GetStructSize());
+
+        // ProcessEvent
+        ProcessEvent(this, Function_ClientSendEndBattleRoyaleMatchForPlayer, Params);
+
+        free(Result);
+    }
+
+    void ClientSendTeamStatsForPlayer(FAthenaMatchTeamStats* MatchTeamStats)
+    {
+        STATIC_FINDFUNCTION(ClientSendTeamStatsForPlayer)
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_ClientSendTeamStatsForPlayer) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        memcpy(Params, MatchTeamStats, FAthenaMatchTeamStats::GetStructSize());
+
+        // ProcessEvent
+        ProcessEvent(this, Function_ClientSendTeamStatsForPlayer, Params);
+
+        free(MatchTeamStats);
+    }
+    
+    void ClientSendMatchStatsForPlayer(FAthenaMatchStats* MatchStats)
+    {
+        STATIC_FINDFUNCTION(ClientSendMatchStatsForPlayer)
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_ClientSendMatchStatsForPlayer) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        memcpy(Params, MatchStats, FAthenaMatchStats::GetStructSize());
+
+        // ProcessEvent
+        ProcessEvent(this, Function_ClientSendMatchStatsForPlayer, Params);
+    }
+    
     void ClientReceiveSquadQuickChatMessage(FAthenaQuickChatActiveEntry& ChatEntry, AFortPlayerController* SenderPC)
     {
         STATIC_FINDFUNCTION(ClientReceiveSquadQuickChatMessage)
