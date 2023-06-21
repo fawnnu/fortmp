@@ -314,6 +314,11 @@ struct FAthenaAwardGroup
 
 struct FAthenaRewardResult
 {
+    FAthenaRewardResult()
+    {
+        AntiAddictionMultiplier() = 1.f;
+    }
+    
     DEFINE_STRUCT_PROPERTY(int, LevelsGained);
     DEFINE_STRUCT_PROPERTY(int, PrePenaltySeasonXpGained);
     DEFINE_STRUCT_PROPERTY(int, TotalSeasonXpGained);
@@ -369,7 +374,7 @@ public:
 
         *reinterpret_cast<bool*>(Params) = bSuccess;
 
-        memcpy(reinterpret_cast<FAthenaRewardResult*>(reinterpret_cast<uintptr_t>(Result) + PropertyOffsets[1]), Result, FAthenaRewardResult::GetStructSize());
+        memcpy(reinterpret_cast<FAthenaRewardResult*>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[1]), Result, FAthenaRewardResult::GetStructSize());
 
         // ProcessEvent
         ProcessEvent(this, Function_ClientSendEndBattleRoyaleMatchForPlayer, Params);

@@ -264,7 +264,7 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                     if (Payload.contains("response") && Payload["response"].is_object())
                     {
                         nlohmann::json response = Payload["response"];
-                        FAthenaRewardResult* NewReward = new FAthenaRewardResult;
+                        FAthenaRewardResult* NewReward = new FAthenaRewardResult();
                         TArrayManager Rewards = TArrayManager<FAthenaAwardGroup>(&NewReward->Rewards(), FAthenaAwardGroup::GetStructSize());
                         TArrayManager XpMultipliers = TArrayManager<FAthenaMatchXpMultiplierGroup>(&NewReward->XpMultipliers(), FAthenaMatchXpMultiplierGroup::GetStructSize());
 
@@ -273,6 +273,7 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                             response.contains("placement"))
                         {
                             NewReward->TotalSeasonXpGained() = response["xp"];
+                            NewReward->PrePenaltySeasonXpGained() = response["xp"];
                             
                             static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(response["placement"], player_component::starting_players));
                         }
