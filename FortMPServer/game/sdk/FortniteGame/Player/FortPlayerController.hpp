@@ -279,8 +279,48 @@ struct FAthenaMatchTeamStats
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaMatchTeamStats");
 };
 
+struct FAthenaMatchXpMultiplierGroup
+{
+    FAthenaMatchXpMultiplierGroup(uint8_t InSource, int InAmount)
+    {
+        Source() = InSource;
+        Amount() = InAmount;
+    }
+    
+    DEFINE_STRUCT_PROPERTY(uint8_t, Source);
+    DEFINE_STRUCT_PROPERTY(int, Amount);
+    
+    OVERLOAD_NEW_OPERATOR()
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaMatchXpMultiplierGroup")
+};
+
+struct FAthenaAwardGroup
+{
+    FAthenaAwardGroup(uint8_t InRewardSource, int InScore, float InSeasonXp)
+    {
+        RewardSource() = InRewardSource;
+        Score() = InScore;
+        SeasonXp() = InSeasonXp;
+    }
+    
+    DEFINE_STRUCT_PROPERTY(uint8_t, RewardSource);
+    DEFINE_STRUCT_PROPERTY(int, Score);
+    DEFINE_STRUCT_PROPERTY(float, SeasonXp);
+    DEFINE_STRUCT_PROPERTY(int, BookXp);
+    
+    OVERLOAD_NEW_OPERATOR()
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaAwardGroup")
+};
+
 struct FAthenaRewardResult
 {
+    DEFINE_STRUCT_PROPERTY(int, LevelsGained);
+    DEFINE_STRUCT_PROPERTY(int, PrePenaltySeasonXpGained);
+    DEFINE_STRUCT_PROPERTY(int, TotalSeasonXpGained);
+    DEFINE_STRUCT_PROPERTY(float, AntiAddictionMultiplier);
+    DEFINE_STRUCT_PROPERTY(TArray<FAthenaAwardGroup>, Rewards);
+    DEFINE_STRUCT_PROPERTY(TArray<FAthenaMatchXpMultiplierGroup>, XpMultipliers);
+    
     OVERLOAD_NEW_OPERATOR();
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaRewardResult");
 };

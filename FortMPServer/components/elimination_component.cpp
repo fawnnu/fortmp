@@ -365,12 +365,6 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 {
                     // Send summary
                     challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
-
-                    // Tell each teammate about the placement
-                    static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(placement, player_component::starting_players));
-
-                    // Tell each teammate the battle royale match ended for them
-                    static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->ClientSendEndBattleRoyaleMatchForPlayer(true, new FAthenaRewardResult);
                 }
             }
         }

@@ -120,6 +120,23 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
         game_thread_queue.pop_front();
     }
 
+    while (!event_replies.empty())
+    {
+        reply_info* reply = event_replies.front();
+
+        if (reply)
+        {
+            if (reply->Callback)
+            {
+                reinterpret_cast<void (*)(std::string, nlohmann::json)>(reply->Callback)(reply->Channel, reply->Payload);
+            }
+        }
+
+        event_replies.pop_front();
+        
+        delete reply;
+    }
+
     while (!challenges_progression_queue.empty())
     {
         progression_entry* challenges_progression = challenges_progression_queue.front();

@@ -198,11 +198,14 @@ void gameserver_client::Register()
 
 void gameserver_client::WaitForReply(int MessageReference, PVOID callback)
 {
-    if (Client)
+    if (MessageReference >= 0)
     {
-        if (!Client->MessagesMap.contains(MessageReference))
+        if (Client)
         {
-            Client->MessagesMap[MessageReference] = callback;
+            if (!Client->MessagesMap.contains(MessageReference))
+            {
+                Client->MessagesMap[MessageReference] = callback;
+            }
         }
     }
 }
@@ -252,7 +255,8 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
             {
                 if (MessagesMap.contains(VectorPayloadInt[1]))
                 {
-                    reinterpret_cast<void (*)(std::string, nlohmann::json)>(MessagesMap[VectorPayloadInt[1]])(VectorPayloadString[0], JsonPayloadData);
+                    // Send the event to be processed by gamethread
+                    event_replies.push_back(new reply_info(MessagesMap[VectorPayloadInt[1]], VectorPayloadString[0], JsonPayloadData));
 
                     // Remove message from MessagesMap
                     MessagesMap.erase(MessagesMap.find(VectorPayloadInt[1]));
@@ -373,7 +377,7 @@ int gameserver_client::SendJoin()
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -413,7 +417,7 @@ int gameserver_client::SendUpdate()
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -446,7 +450,7 @@ int gameserver_client::SendLeave()
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -480,7 +484,7 @@ int gameserver_client::SendBan(std::string uuid)
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -513,7 +517,7 @@ int gameserver_client::SendHeartbeat()
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -545,7 +549,7 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 
@@ -577,7 +581,7 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
         }
     }
 
-    return 0;
+    return -1;
 #endif
 }
 

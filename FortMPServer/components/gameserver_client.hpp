@@ -32,6 +32,20 @@ struct gameserver_status
     std::string mode;
 };
 
+struct reply_info
+{
+    reply_info(PVOID InCallback, std::string InChannel, nlohmann::json InPayload)
+    {
+        Callback = InCallback;
+        Channel = InChannel;
+        Payload = InPayload;
+    }
+    
+    PVOID Callback;
+    std::string Channel;
+    nlohmann::json Payload;
+};
+
 class gameserver_client
 {
 public:
@@ -77,6 +91,8 @@ public:
 
     // Map for messages and their callbacks
     std::map<int, PVOID> MessagesMap;
+
+    
 
     int LocalNonAckHeartbeatsForPlayers;
 };
