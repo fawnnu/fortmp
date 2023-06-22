@@ -511,7 +511,7 @@ AFortPlayerController* player_component::get_player_by_account_id(std::wstring i
     return nullptr;   
 }
 
-void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage)
+void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage, FName BoneName)
 {
     if (Instigator)
     {
@@ -527,11 +527,32 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                 {
                     PlayerStats.Hits++;
                 }
+
+                // Damage taken
+                if (HitActor)
+                {
+                    if (HitActor->IsA(APlayerPawn_Athena_C::StaticClass()))
+                    {
+                        if (AFortPlayerController* PlayerController = HitActor->Controller())
+                        {
+                            PlayerStatsMap[PlayerController].DamageTaken += Damage;
+                        }
+                    }
+                }
+
+                // HeadShots
+                if (BoneName == FName(TEXT("HEAD")))
+                {
+                    PlayerStats.HeadShots++;
+                }
                 
                 if (STATIC_HASPROPERTY(ItemDefinition, GameplayTags))
                 {
                     switch (get_damage_causer(ItemDefinition->GameplayTags()))
                     {
+                    case EDamageCauser::Sniper:
+                        Value.SniperDamage += Damage;
+                        break;
                     case EDamageCauser::Pistol:
                         Value.PistolDamage += Damage;
                         break;
@@ -557,17 +578,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         break;
                     }
                 }
-            }
-        }
-    }
-
-    if (HitActor)
-    {
-        if (HitActor->IsA(APlayerPawn_Athena_C::StaticClass()))
-        {
-            if (AFortPlayerController* PlayerController = HitActor->Controller())
-            {
-                PlayerStatsMap[PlayerController].DamageTaken += Damage;
             }
         }
     }
@@ -1111,51 +1121,25 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
 
     if (Self && InstigatedBy && DamageCauser)
     {
-        if (DamageCauser->IsA(AFortProjectileAthena::StaticClass()))
+        AFortWeapon* FortWeapon = nullptr;
+        
+        if (DamageCauser->IsA(AFortWeapon::StaticClass()))
+        {
+            FortWeapon = static_cast<AFortWeapon*>(DamageCauser);
+        }
+        else if (DamageCauser->IsA(AFortProjectileAthena::StaticClass()))
         {
             if (DamageCauser->Owner()->IsA(AFortWeapon::StaticClass()))
             {
-                if (AFortWeapon* FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner()))
-                {
-                    if (UFortItemDefinition* ItemDefinition = FortWeapon->WeaponData())
-                    {
-                        switch (player_component::get_damage_causer(ItemDefinition->GameplayTags()))
-                        {
-                        case EDamageCauser::Sniper:
-                            {
-                                if (Self->IsA(APlayerPawn_Athena_C::StaticClass()))
-                                {
-                                    if (AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller())
-                                    {
-                                        player_component::PlayerStatsMap[PlayerController].DamageTaken += Damage;
-
-                                        if (ItemDefinition->IsA(UFortWeaponRangedItemDefinition::StaticClass()))
-                                        {
-                                            player_component::PlayerStatsMap[PlayerController].Hits++;
-                                        }
-                                    }
-                                }
-                                
-                                player_component::DamageDealtMap[InstigatedBy].SniperDamage += Damage;
-                                break;
-                            }
-                        default:
-                            break;
-                        }
-                    }
-                }
+                FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner());
             }
         }
 
-        if (AActor* Actor = HitInfo.Actor().Get())
+        if (FortWeapon)
         {
-            if (Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+            if (Self->IsA(APlayerPawn_Athena_C::StaticClass()))
             {
-                // Headshot
-                if (HitInfo.BoneName() == FName(TEXT("HEAD")))
-                {
-                    player_component::PlayerStatsMap[InstigatedBy].HeadShots++;
-                }
+                player_component::handle_player_damaged(static_cast<AFortPlayerPawn*>(Self), InstigatedBy, FortWeapon, Damage, HitInfo.BoneName());
             }
         }
     }
