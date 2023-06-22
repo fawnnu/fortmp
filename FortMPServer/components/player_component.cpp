@@ -518,9 +518,16 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
         if (DamageCauser->IsA(AFortWeapon::StaticClass()))
         {
             FDamageDealtMapValue& Value = DamageDealtMap[Instigator];
+            FPlayerStats& PlayerStats = PlayerStatsMap[Instigator];
 
             if (UFortItemDefinition* ItemDefinition = static_cast<AFortWeapon*>(DamageCauser)->WeaponData())
             {
+                // Bump hits 
+                if (ItemDefinition->IsA(UFortWeaponRangedItemDefinition::StaticClass()))
+                {
+                    PlayerStats.Hits++;
+                }
+                
                 if (STATIC_HASPROPERTY(ItemDefinition, GameplayTags))
                 {
                     switch (get_damage_causer(ItemDefinition->GameplayTags()))
@@ -1120,6 +1127,11 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                                     if (AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller())
                                     {
                                         player_component::PlayerStatsMap[PlayerController].DamageTaken += Damage;
+
+                                        if (ItemDefinition->IsA(UFortWeaponRangedItemDefinition::StaticClass()))
+                                        {
+                                            player_component::PlayerStatsMap[PlayerController].Hits++;
+                                        }
                                     }
                                 }
                                 

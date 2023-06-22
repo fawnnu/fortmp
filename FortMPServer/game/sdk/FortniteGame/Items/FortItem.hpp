@@ -131,6 +131,12 @@ public:
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, WeaponActorClass);
 };
 
+class UFortWeaponRangedItemDefinition : public UFortWeaponItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponRangedItemDefinition");
+};
+
 class UFortWeaponMeleeItemDefinition : public UFortWeaponItemDefinition
 {
 public:
