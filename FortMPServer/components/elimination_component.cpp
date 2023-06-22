@@ -371,6 +371,18 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
         // Tell the client that the match ended
         FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
+
+        // Stats
+        if (player_component::PlayerStatsMap.contains(VictimPlayerController))
+        {
+            if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()) && VictimPlayerController->PlayerState())
+            {
+                NewMatchStats->Stats()[3] = VictimPlayerController->PlayerState()->KillScore();
+            }
+            NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[VictimPlayerController].Revives;
+            NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[VictimPlayerController].DamageTaken;
+            NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[VictimPlayerController].DistanceTraveled;
+        }
         static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->ClientSendMatchStatsForPlayer(NewMatchStats);
         free(NewMatchStats);
 

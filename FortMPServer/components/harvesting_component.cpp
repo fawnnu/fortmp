@@ -130,15 +130,5 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
                 harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
             }
         }
-        else if (HitActor->IsA(APlayerPawn_Athena_C::StaticClass()))
-        {
-            if (player_controller->Pawn()->CurrentWeapon())
-            {
-                AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(HitActor);
-        
-                // Keep track of damage dealt to players for challenges
-                player_component::handle_player_damaged(PlayerPawn, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
-            }
-        }
     }
 }

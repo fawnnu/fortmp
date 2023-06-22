@@ -61,6 +61,16 @@
                                                                                                                                     \
     PropertyType##& PropertyName## = *reinterpret_cast<PropertyType##*>(__int64(Params) + PropertyName##_offset);
 
+#define GET_PARAMETER_SAFE(PropertyType, PropertyName, DefaultValue)\
+    static void* PropertyName##_property = FindPropertyByName(StackFrame.Node, #PropertyName);                                      \
+    PropertyType PropertyName## = DefaultValue;                                                                                  \
+    if (PropertyName##_property)                                                                                                    \
+    {                                                                                                                               \
+        static int PropertyName##_offset = *reinterpret_cast<int*>(__int64(PropertyName##_property) + CoreOffsets::Offset_Internal);\
+                                                                                                                                    \
+        PropertyName## = *reinterpret_cast<PropertyType##*>(StackFrame.Locals + PropertyName##_offset);                             \
+    }                                                                                                                               
+
 #define DEFINE_STRUCT_CLASS(ClassName)                                                                 \
     static UObject* GetClass()                                                                         \
     {                                                                                                  \

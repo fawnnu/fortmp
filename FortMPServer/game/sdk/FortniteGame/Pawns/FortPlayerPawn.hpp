@@ -91,6 +91,7 @@ public:
     DEFINE_PROPERTY(UFortMovementSet*, MovementSet);
     DEFINE_PROPERTY(TArray<AFortWeapon*>, CurrentWeaponList);
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnPawnLanded);
+    DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnDamaged);
     DEFINE_PROPERTY(TArray<AFortPickup*>, IncomingPickups);
     
     DEFINE_PROPERTY(float, EmoteWalkSpeed);
