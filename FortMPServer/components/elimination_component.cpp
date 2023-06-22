@@ -28,6 +28,7 @@ elimination_component::elimination_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPlayerControllerAthena.ClientNotifyTeamWon", elimination_component_hooks::ClientNotifyTeamWon_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(SpectateKillerPawnOnDeath, AFortPlayerControllerAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(SendEndMatchStats, AFortPlayerControllerAthena::StaticClass());
 }
 
 uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_state, FGameplayTagContainer tag_container, bool was_dbno)
@@ -370,7 +371,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
 
         // Send stats
-        elimination_component::SendEndMatchStats(VictimPlayerController);
+        elimination_component::DelaySendEndMatchStats(VictimPlayerController);
 
         // Send elimination event to the killer
         if (DeathReport.KillerPawn())
@@ -445,32 +446,43 @@ void elimination_component::NotifyWon(UObject* Object, UObject* Function, void* 
     }   
 }
 
-void elimination_component::SendEndMatchStats(AFortPlayerController* PlayerController)
+void elimination_component::DelaySendEndMatchStats(AFortPlayerController* PlayerController)
 {
+    if (PlayerController)
+    {
+        // Send stats with a delay
+        UKismetSystemLibrary::K2_SetTimer(PlayerController, L"SendEndMatchStats", 1, false);
+    }
+}
+
+void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+    
     // Tell the client that the match ended
     FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
 
     // Stats
-    if (player_component::PlayerStatsMap.contains(PlayerController))
+    if (player_component::PlayerStatsMap.contains(Self))
     {
-        if (!memory_manager::is_bad_read_pointer(PlayerController->PlayerState()) && PlayerController->PlayerState())
+        if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
         {
-            NewMatchStats->Stats()[3] = PlayerController->PlayerState()->KillScore();
+            NewMatchStats->Stats()[3] = Self->PlayerState()->KillScore();
         }
-        NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[PlayerController].Revives;
-        NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[PlayerController].DamageTaken;
-        NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[PlayerController].DistanceTraveled;
-        NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[PlayerController].MaterialsGathered;
-        NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[PlayerController].MaterialsUsed;
+        NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[Self].Revives;
+        NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[Self].DamageTaken;
+        NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[Self].DistanceTraveled;
+        NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[Self].MaterialsGathered;
+        NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[Self].MaterialsUsed;
     }
-    static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendMatchStatsForPlayer(NewMatchStats);
-    free(NewMatchStats);
+    Self->ClientSendMatchStatsForPlayer(NewMatchStats);
+    free(NewMatchStats);    
 }
 
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
 {
     elimination_component::NotifyWon(Object, Function, Params);
-    elimination_component::SendEndMatchStats(reinterpret_cast<AFortPlayerControllerAthena*>(Object));
+    elimination_component::DelaySendEndMatchStats(reinterpret_cast<AFortPlayerControllerAthena*>(Object));
 }
 
 void elimination_component_hooks::ClientNotifyTeamWon_Hook(UObject* Object, UObject* Function, void* Params)

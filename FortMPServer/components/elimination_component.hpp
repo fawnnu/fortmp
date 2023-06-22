@@ -11,8 +11,9 @@ public:
 
     static void NotifyWon(UObject* Object, UObject* Function, void* Params);
 
-    static void SendEndMatchStats(AFortPlayerController* PlayerController);
-    
+    static void DelaySendEndMatchStats(AFortPlayerController* PlayerController);
+
+    static void SendEndMatchStats(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     static void SpectateKillerPawnOnDeath(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
 };
 
