@@ -63,6 +63,7 @@ player_component::player_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
+    REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
 }
 
 void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn, FFrame& StackFrame)
@@ -110,6 +111,34 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
             // Progress land challenges
             challenges_component::SendLandingEvent(Self->Controller(), Self);
         }
+    }
+}
+
+void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        if (!memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+        {
+            if (PlayerStatsMap[Self].LastPos.IsValid())
+            {
+                const FVector CurrentLocation = Self->Pawn()->K2_GetActorLocation();
+                const FVector LastPos = PlayerStatsMap[Self].LastPos;
+
+                const float Distance = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
+                                            (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y) +
+                                            (CurrentLocation.Z - LastPos.Z) * (CurrentLocation.Z - LastPos.Z));
+
+                PlayerStatsMap[Self].DistanceTraveled += Distance;
+            }
+            
+            PlayerStatsMap[Self].LastPos = Self->Pawn()->K2_GetActorLocation();
+        }
+        
+        // Re-execute the same function in 1 second
+        UKismetSystemLibrary::K2_SetTimer(Self, L"GatherDistanceTraveled", 1, false);
     }
 }
 
@@ -210,6 +239,10 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_join", parameters);
 
+            // Initialize stats
+            PlayerStatsMap[FortPlayerController] = FPlayerStats();
+            static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->GatherDistanceTraveled();
+            
             // Log
             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
             std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
@@ -500,9 +533,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         break;
                     case EDamageCauser::AssaultRifle:
                         Value.AssaultRifleDamage += Damage;
-                        break;
-                    case EDamageCauser::Sniper:
-                        Value.SniperDamage += Damage;
                         break;
                     case EDamageCauser::Grenade:
                         Value.GrenadeDamage += Damage;

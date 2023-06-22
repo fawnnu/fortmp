@@ -28,6 +28,11 @@ struct FVector
     {
         return X*X + Y*Y + Z*Z;
     }
+
+    FORCEINLINE bool IsValid() const
+    {
+        return X != 0 && Y != 0 && Z != 0;
+    }
         
     // Vector's X component
     float X;

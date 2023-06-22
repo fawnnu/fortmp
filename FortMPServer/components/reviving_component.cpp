@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "reviving_component.hpp"
 
+#include "player_component.hpp"
+
 reviving_component::reviving_component()
 {
 }
@@ -73,5 +75,8 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
 
         // Set health
         player_to_revive->SetHealth(30.0f);
+
+        // Bump revives in player stats
+        player_component::PlayerStatsMap[player_controller].Revives++;
     }
 }

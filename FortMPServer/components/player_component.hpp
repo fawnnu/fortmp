@@ -27,12 +27,37 @@ struct DamageDealtMapValue
     int RPGDamage;
 };
 
+struct FPlayerStats
+{
+    FPlayerStats()
+    {
+        Eliminations = 0;
+        Assists = 0;
+        Revives = 0;
+        DamageTaken = 0;
+        DistanceTraveled = 0;
+        LastPos = FVector(0, 0, 0);
+        MaterialsGathered = 0;
+        MaterialsUsed = 0;
+    }
+    
+    int Eliminations;
+    int Assists;
+    int Revives;
+    int DamageTaken;
+    int DistanceTraveled;
+    FVector LastPos;
+    int MaterialsGathered;
+    int MaterialsUsed;
+};
+
 class player_component
 {
 public:
     player_component();
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
+    static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
@@ -54,6 +79,7 @@ public:
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline std::map<AFortPlayerController*, DamageDealtMapValue> DamageDealtMap;
+    static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline int InvalidTokensReceived;
     static inline int global_player_id = 0;
     static inline int starting_players = 0;

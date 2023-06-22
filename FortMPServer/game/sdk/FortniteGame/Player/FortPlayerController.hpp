@@ -256,9 +256,19 @@ struct FAthenaQuickChatActiveEntry
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaQuickChatActiveEntry");
 };
 
+struct FAthenaWeaponStats
+{
+    DEFINE_STRUCT_PROPERTY(TStaticArrayManager<int>, Stats);
+    DEFINE_STRUCT_PROPERTY(FString, WeaponId);
+    
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaWeaponStats");
+};
+
 struct FAthenaMatchStats
 {
     DEFINE_STRUCT_PROPERTY(TStaticArrayManager<int>, Stats);
+    DEFINE_STRUCT_PROPERTY(TArray<FAthenaWeaponStats>, WeaponStats);
     
     OVERLOAD_NEW_OPERATOR();
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaMatchStats");
@@ -492,6 +502,13 @@ public:
         STATIC_FINDFUNCTION(PostLobbyIslandTeleport)
         
         Call(Function_PostLobbyIslandTeleport, FortPlayerPawn);
+    }
+
+    void GatherDistanceTraveled()
+    {
+        STATIC_FINDFUNCTION(GatherDistanceTraveled)
+        
+        Call(Function_GatherDistanceTraveled);
     }
 };
 

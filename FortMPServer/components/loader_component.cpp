@@ -634,6 +634,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::Profiles.clear();
         player_component::Players.clear();
         player_component::DamageDealtMap.clear();
+        player_component::PlayerStatsMap.clear();
         player_component::global_player_id = 0;
         player_component::starting_players = 0;
         pickup_component::GlobalPickupStream.clear();
