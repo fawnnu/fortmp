@@ -525,7 +525,15 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                 // Bump hits 
                 if (ItemDefinition->IsA(UFortWeaponRangedItemDefinition::StaticClass()))
                 {
-                    PlayerStats.Hits++;
+                    // HeadShots
+                    if (BoneName == FName(TEXT("HEAD")))
+                    {
+                        PlayerStats.HeadShots++;
+                    }
+                    else
+                    {
+                        PlayerStats.Hits++;
+                    }
                 }
 
                 // Damage taken
@@ -538,12 +546,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                             PlayerStatsMap[PlayerController].DamageTaken += Damage;
                         }
                     }
-                }
-
-                // HeadShots
-                if (BoneName == FName(TEXT("HEAD")))
-                {
-                    PlayerStats.HeadShots++;
                 }
                 
                 if (STATIC_HASPROPERTY(ItemDefinition, GameplayTags))

@@ -267,13 +267,15 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                         TArrayManager XpMultipliers = TArrayManager<FAthenaMatchXpMultiplierGroup>(&NewReward->XpMultipliers(), FAthenaMatchXpMultiplierGroup::GetStructSize());
 
                         if (response.contains("score") &&
-                            response.contains("xp") &&
-                            response.contains("placement"))
+                            response.contains("xp"))
                         {
                             NewReward->TotalSeasonXpGained() = response["xp"];
                             NewReward->PrePenaltySeasonXpGained() = response["xp"];
-                            
-                            static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(response["placement"], player_component::starting_players));
+
+                            if (player_component::PlayerStatsMap.contains(PlayerController))
+                            {
+                                static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(player_component::PlayerStatsMap[PlayerController].Placement, player_component::starting_players));
+                            }
                         }
                         
                         if (response.contains("log") && response["log"].is_array())

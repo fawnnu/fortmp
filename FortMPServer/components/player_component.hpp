@@ -47,6 +47,7 @@ struct FPlayerStats
         MaterialsUsed = 0;
         Hits = 0;
         HeadShots = 0;
+        Placement = 0;
     }
     
     int Eliminations;
@@ -59,6 +60,7 @@ struct FPlayerStats
     int MaterialsUsed;
     int Hits;
     int HeadShots;
+    int Placement;
 };
 
 class player_component

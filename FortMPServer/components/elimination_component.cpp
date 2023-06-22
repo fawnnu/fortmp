@@ -366,6 +366,9 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 {
                     // Send summary
                     challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
+
+                    // Set placement
+                    player_component::PlayerStatsMap[static_cast<AFortPlayerController*>(TeamMember)].Placement = placement;
                 }
             }
         }
