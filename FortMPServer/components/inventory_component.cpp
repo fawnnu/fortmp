@@ -6,6 +6,7 @@
 #include "ability_component.hpp"
 #include "challenges_component.hpp"
 #include "function_component.hpp"
+#include "player_component.hpp"
 
 inventory_component::inventory_component()
 {
@@ -608,6 +609,40 @@ UFortWorldItem* inventory_component::get_pickaxe(AFortPlayerController* player_c
     return nullptr;   
 }
 
+void inventory_component::safe_update_materials_gathered(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count)
+{
+    static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+    static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+    static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+    
+    if (player_controller && item_definition)
+    {
+        if (item_definition == WoodItemData ||
+            item_definition == StoneItemData ||
+            item_definition == MetalItemData)
+        {
+            player_component::PlayerStatsMap[player_controller].MaterialsGathered += item_count;
+        }
+    }
+}
+
+void inventory_component::safe_update_materials_used(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count)
+{
+    static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+    static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+    static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+    if (player_controller && item_definition)
+    {
+        if (item_definition == WoodItemData ||
+            item_definition == StoneItemData ||
+            item_definition == MetalItemData)
+        {
+            player_component::PlayerStatsMap[player_controller].MaterialsUsed += item_count;
+        }
+    }
+}
+
 void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
@@ -721,12 +756,16 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
 
                 inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
                 
-                // Check if its a port a fort
                 if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())
                 {
+                    // Check if its a port a fort
                     if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TowerGrenade/Athena_TowerGrenade.Athena_TowerGrenade"))
                     {
                         challenges_component::SendPortAFortInteraction(PlayerController);
+                    }
+                    else // Check if it's a building resource
+                    {
+                        inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);
                     }
                 }
 

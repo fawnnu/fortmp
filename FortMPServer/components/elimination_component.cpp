@@ -382,6 +382,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[VictimPlayerController].Revives;
             NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[VictimPlayerController].DamageTaken;
             NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[VictimPlayerController].DistanceTraveled;
+            NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[VictimPlayerController].MaterialsGathered;
+            NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[VictimPlayerController].MaterialsUsed;
         }
         static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->ClientSendMatchStatsForPlayer(NewMatchStats);
         free(NewMatchStats);
