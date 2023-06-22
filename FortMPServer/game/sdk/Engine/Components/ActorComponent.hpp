@@ -28,6 +28,7 @@ struct FHitResult
     DEFINE_STRUCT_PROPERTY(FVector, Normal);
     DEFINE_STRUCT_PROPERTY(FVector, ImpactNormal);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AActor>, Actor);
+    DEFINE_STRUCT_PROPERTY(FName, BoneName);
     
     DEFINE_STRUCT_CLASS(TEXT("/Script/Engine.HitResult"))
 };

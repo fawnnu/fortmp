@@ -1107,6 +1107,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
     GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);   
     GET_PROCESS_EVENT_PARAMETER(float, Damage);   
     GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
+    GET_PROCESS_EVENT_PARAMETER(FHitResult, HitInfo);
 
     if (Self && InstigatedBy && DamageCauser)
     {
@@ -1142,6 +1143,18 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                             break;
                         }
                     }
+                }
+            }
+        }
+
+        if (AActor* Actor = HitInfo.Actor().Get())
+        {
+            if (Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+            {
+                // Headshot
+                if (HitInfo.BoneName() == FName(TEXT("HEAD")))
+                {
+                    player_component::PlayerStatsMap[InstigatedBy].HeadShots++;
                 }
             }
         }
