@@ -85,7 +85,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
     if (PlayerController)
     {
         std::string account_id = player_component::get_account_id(PlayerController);
-        DamageDealtMapValue DamageDealt = DamageDealtMapValue();
+        FDamageDealtMapValue DamageDealt = FDamageDealtMapValue();
 
         if (player_component::DamageDealtMap.contains(PlayerController))
         {
@@ -118,9 +118,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                 std::wstring wAccount_id = converter.from_bytes(account_id);
 
-                float TotalDamageDealt = DamageDealt.PistolDamage + DamageDealt.ShotgunDamage + DamageDealt.AssaultRifleDamage + DamageDealt.SniperDamage + DamageDealt.GrenadeDamage + DamageDealt.SMGDamage + DamageDealt.GrenadeLauncherDamage + DamageDealt.RPGDamage;
-                
-                spdlog::info(L"Sent summary event for {} [ACCOUNT_ID: {}, PLACEMENT: {}, DAMAGEDEALT: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wAccount_id.c_str(), Placement, TotalDamageDealt);
+                spdlog::info(L"Sent summary event for {} [ACCOUNT_ID: {}, PLACEMENT: {}, DAMAGEDEALT: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wAccount_id.c_str(), Placement, DamageDealt.GetPlayerDamage());
             }
         }
     }

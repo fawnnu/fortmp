@@ -461,6 +461,7 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
     
     // Tell the client that the match ended
     FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
+    FAthenaWeaponStats* NewWeaponStats = new FAthenaWeaponStats;
 
     // Stats
     if (player_component::PlayerStatsMap.contains(Self))
@@ -474,6 +475,14 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
         NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[Self].DistanceTraveled;
         NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[Self].MaterialsGathered;
         NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[Self].MaterialsUsed;
+
+        // Weapon stats
+        NewWeaponStats->Stats()[3] = player_component::DamageDealtMap[Self].GetPlayerDamage();
+        NewWeaponStats->Stats()[5] = player_component::DamageDealtMap[Self].StructureDamage;
+        NewWeaponStats->Stats()[8] = player_component::PlayerStatsMap[Self].Hits;
+        NewWeaponStats->Stats()[11] = player_component::PlayerStatsMap[Self].HeadShots;
+        TArrayManager<FAthenaWeaponStats>(&NewMatchStats->WeaponStats(), FAthenaWeaponStats::GetStructSize()).Add(NewWeaponStats);
+        free(NewWeaponStats);
     }
     Self->ClientSendMatchStatsForPlayer(NewMatchStats);
     free(NewMatchStats);    

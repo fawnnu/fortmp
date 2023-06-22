@@ -13,9 +13,14 @@ enum class EDamageCauser : uint8_t
     RPG
 };
 
-struct DamageDealtMapValue
+struct FDamageDealtMapValue
 {
-    DamageDealtMapValue() = default;
+    FDamageDealtMapValue() = default;
+
+    int GetPlayerDamage()
+    {
+        return PistolDamage + ShotgunDamage + AssaultRifleDamage + SniperDamage + GrenadeDamage + SMGDamage + GrenadeLauncherDamage + RPGDamage;
+    }
 
     int PistolDamage;
     int ShotgunDamage;
@@ -25,6 +30,7 @@ struct DamageDealtMapValue
     int SMGDamage;
     int GrenadeLauncherDamage;
     int RPGDamage;
+    int StructureDamage;
 };
 
 struct FPlayerStats
@@ -39,6 +45,8 @@ struct FPlayerStats
         LastPos = FVector(0, 0, 0);
         MaterialsGathered = 0;
         MaterialsUsed = 0;
+        Hits = 0;
+        HeadShots = 0;
     }
     
     int Eliminations;
@@ -49,6 +57,8 @@ struct FPlayerStats
     FVector LastPos;
     int MaterialsGathered;
     int MaterialsUsed;
+    int Hits;
+    int HeadShots;
 };
 
 class player_component
@@ -78,7 +88,7 @@ public:
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
-    static inline std::map<AFortPlayerController*, DamageDealtMapValue> DamageDealtMap;
+    static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline int InvalidTokensReceived;
     static inline int global_player_id = 0;

@@ -517,7 +517,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
     {
         if (DamageCauser->IsA(AFortWeapon::StaticClass()))
         {
-            DamageDealtMapValue& Value = DamageDealtMap[Instigator];
+            FDamageDealtMapValue& Value = DamageDealtMap[Instigator];
 
             if (UFortItemDefinition* ItemDefinition = static_cast<AFortWeapon*>(DamageCauser)->WeaponData())
             {

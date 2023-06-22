@@ -21,6 +21,9 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
     
         if (building_actor->IsA(BuildingSMActor_Class))
         {
+            // Track damage inflicted to building actors
+            player_component::DamageDealtMap[instigated_by].StructureDamage += damage;
+            
             // Make sure a player is damaging the building with their pickaxe
             if (building_actor->AttributeInitLevelSource() != 1 &&
                 damage_causer->IsA(FortWeapon_Class) &&
