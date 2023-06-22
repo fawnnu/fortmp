@@ -57,7 +57,6 @@ public:
     player_component();
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
-    static void OnPawnDamagedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
     static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
@@ -129,6 +128,9 @@ namespace player_component_hooks
 
     // Reimplement quick chat
     DEFINE_FUNCTION_HOOK(void, ServerPlaySquadQuickChatMessage, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
+    
+    // OnDamageServer
+    DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Self, UObject* Function, void* Params));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

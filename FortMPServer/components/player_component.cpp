@@ -60,9 +60,9 @@ player_component::player_component()
 
     // Finish spawning a player
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
-    REGISTER_CUSTOM_UFUNCTION(OnPawnDamagedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
 }
 
@@ -110,23 +110,6 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
 
             // Progress land challenges
             challenges_component::SendLandingEvent(Self->Controller(), Self);
-        }
-    }
-}
-
-void player_component::OnPawnDamagedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame)
-{
-    GET_PARAMETER_SAFE(float, Damage, 0.f);
-    GET_PARAMETER_SAFE(AFortPlayerController*, InstigatedBy, nullptr);
-    GET_PARAMETER_SAFE(AActor*, DamageCauser, nullptr);
-    
-    INIT_CUSTOM_FUNCTION();
-
-    if (Self)
-    {
-        if (InstigatedBy && DamageCauser)
-        {
-            handle_player_damaged(Self, InstigatedBy, DamageCauser, Damage);
         }
     }
 }
@@ -532,17 +515,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
 {
     if (Instigator)
     {
-        if (DamageCauser->IsA(AFortProjectileAthena::StaticClass()))
-        {
-            if (AActor* Owner = DamageCauser->Owner())
-            {
-                if (Owner->IsA(AFortWeapon::StaticClass()))
-                {
-                    DamageCauser = DamageCauser->Owner();
-                }
-            }
-        }
-        
         if (DamageCauser->IsA(AFortWeapon::StaticClass()))
         {
             DamageDealtMapValue& Value = DamageDealtMap[Instigator];
@@ -553,9 +525,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                 {
                     switch (get_damage_causer(ItemDefinition->GameplayTags()))
                     {
-                    case EDamageCauser::Sniper:
-                        Value.SniperDamage += Damage;
-                        break;
                     case EDamageCauser::Pistol:
                         Value.PistolDamage += Damage;
                         break;
@@ -998,12 +967,6 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
             NewPlayer->Pawn()->OnPawnLanded().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnLandedImplementation")));
         }
 
-        // Track damage
-        if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnDamaged))
-        {
-            NewPlayer->Pawn()->OnDamaged().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnDamagedImplementation")));
-        }
-
         // Implementable event
         (*GWorld)->AuthorityGameMode()->OnPawnFinishedSpawning(NewPlayer->Pawn());
     }
@@ -1128,5 +1091,47 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
         }
         
         player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"));
+    }
+}
+
+// Only use this to keep track of sniper damage, as projectiles are not taken into account by NetMulticast_Athena_BatchedDamageCues
+void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);   
+    GET_PROCESS_EVENT_PARAMETER(float, Damage);   
+    GET_PROCESS_EVENT_PARAMETER(AActor*, DamageCauser);
+
+    if (Self && InstigatedBy && DamageCauser)
+    {
+        if (DamageCauser->IsA(AFortProjectileAthena::StaticClass()))
+        {
+            if (DamageCauser->Owner()->IsA(AFortWeapon::StaticClass()))
+            {
+                if (AFortWeapon* FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner()))
+                {
+                    if (UFortItemDefinition* ItemDefinition = FortWeapon->WeaponData())
+                    {
+                        switch (player_component::get_damage_causer(ItemDefinition->GameplayTags()))
+                        {
+                        case EDamageCauser::Sniper:
+                            {
+                                if (Self->IsA(APlayerPawn_Athena_C::StaticClass()))
+                                {
+                                    if (AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller())
+                                    {
+                                        player_component::PlayerStatsMap[PlayerController].DamageTaken += Damage;
+                                    }
+                                }
+                                
+                                player_component::DamageDealtMap[InstigatedBy].SniperDamage += Damage;
+                                break;
+                            }
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

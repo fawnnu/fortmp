@@ -10,6 +10,8 @@ public:
     static int get_placement(AFortPlayerController* PlayerController);
 
     static void NotifyWon(UObject* Object, UObject* Function, void* Params);
+
+    static void SendEndMatchStats(AFortPlayerController* PlayerController);
     
     static void SpectateKillerPawnOnDeath(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
 };

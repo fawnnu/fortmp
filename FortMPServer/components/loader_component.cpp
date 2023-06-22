@@ -172,7 +172,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         if ((*GWorld)->AuthorityGameMode()->HasProperty(L"EndGameKickPlayersDelay"))
         {
-            (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 15.f;   
+            (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 30.f;   
         }
 
         // Bind delegate for gamephase updates
