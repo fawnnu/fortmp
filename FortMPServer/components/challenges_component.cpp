@@ -262,82 +262,104 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                     if (Payload.contains("response") && Payload["response"].is_object())
                     {
                         nlohmann::json response = Payload["response"];
-                        FAthenaRewardResult* NewReward = new FAthenaRewardResult();
-                        TArrayManager Rewards = TArrayManager<FAthenaAwardGroup>(&NewReward->Rewards(), FAthenaAwardGroup::GetStructSize());
-                        TArrayManager XpMultipliers = TArrayManager<FAthenaMatchXpMultiplierGroup>(&NewReward->XpMultipliers(), FAthenaMatchXpMultiplierGroup::GetStructSize());
-
-                        if (response.contains("score") &&
-                            response.contains("xp"))
-                        {
-                            NewReward->TotalSeasonXpGained() = response["xp"];
-                            NewReward->PrePenaltySeasonXpGained() = response["xp"];
-
-                            if (player_component::PlayerStatsMap.contains(PlayerController))
-                            {
-                                static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(player_component::PlayerStatsMap[PlayerController].Placement, player_component::starting_players));
-                            }
-                        }
                         
-                        if (response.contains("log") && response["log"].is_array())
+                        if (FAthenaRewardResult::GetClass())
                         {
-                            nlohmann::json log = response["log"];
+                            FAthenaRewardResult* NewReward = new FAthenaRewardResult;
 
-                            for (int i = 0; i < log.size(); i++)
+                            if (FindPropertyByName(FAthenaRewardResult::GetClass(), TEXT("Rewards")) &&
+                                FindPropertyByName(FAthenaRewardResult::GetClass(), TEXT("XpMultipliers")))
                             {
-                                nlohmann::json log_element = log.at(i);
-
-                                if (log_element.is_object() &&
-                                    log_element.contains("type") &&
-                                    log_element.contains("value"))
+                                if (FAthenaAwardGroup::GetClass() && FAthenaMatchXpMultiplierGroup::GetClass())
                                 {
-                                    std::string type = log_element["type"];
-                                    int value = log_element["value"];
+                                    TArrayManager Rewards = TArrayManager<FAthenaAwardGroup>(&NewReward->Rewards(), FAthenaAwardGroup::GetStructSize());
+                                    TArrayManager XpMultipliers = TArrayManager<FAthenaMatchXpMultiplierGroup>(&NewReward->XpMultipliers(), FAthenaMatchXpMultiplierGroup::GetStructSize());
 
-                                    if (type == "bonus")
+                                    if (response.contains("score") &&
+                                        response.contains("xp"))
                                     {
-                                        UEnum* EAthenaMatchXpMultiplierSource = FindObject<UEnum>(L"/Script/FortniteGame.EAthenaMatchXpMultiplierSource");
+                                        if (FindPropertyByName(FAthenaRewardResult::GetClass(), TEXT("TotalSeasonXpGained")))
+                                        {
+                                            NewReward->TotalSeasonXpGained() = response["xp"];
+                                        }
+                                        if (FindPropertyByName(FAthenaRewardResult::GetClass(), TEXT("PrePenaltySeasonXpGained")))
+                                        {
+                                            NewReward->PrePenaltySeasonXpGained() = response["xp"];
+                                        }
+                                        if (FindPropertyByName(FAthenaRewardResult::GetClass(), TEXT("AntiAddictionMultiplier")))
+                                        {
+                                            NewReward->AntiAddictionMultiplier() = 1.f;
+                                        }
                                         
-                                        FAthenaMatchXpMultiplierGroup* NewXPMultiplier = new FAthenaMatchXpMultiplierGroup(EAthenaMatchXpMultiplierSource->GetEnumIndex(L"BonusXpEvent"), value);
-                                        XpMultipliers.Add(NewXPMultiplier);
-                                        free(NewXPMultiplier);
+                                        if (player_component::PlayerStatsMap.contains(PlayerController))
+                                        {
+                                            static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(player_component::PlayerStatsMap[PlayerController].Placement, player_component::starting_players));
+                                        }
                                     }
-                                    else if (type == "placement")
+                        
+                                    if (response.contains("log") && response["log"].is_array())
                                     {
-                                        UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+                                        nlohmann::json log = response["log"];
 
-                                        FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"Placement"), value, value);
-                                        Rewards.Add(NewAward);
-                                        free(NewAward);
-                                    }
-                                    else if (type == "first_kill")
-                                    {
-                                        UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+                                        for (int i = 0; i < log.size(); i++)
+                                        {
+                                            nlohmann::json log_element = log.at(i);
 
-                                        FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"FirstKill"), value, value);
-                                        Rewards.Add(NewAward);
-                                        free(NewAward);
-                                    }
-                                    else if (type == "time")
-                                    {
-                                        UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+                                            if (log_element.is_object() &&
+                                                log_element.contains("type") &&
+                                                log_element.contains("value"))
+                                            {
+                                                std::string type = log_element["type"];
+                                                int value = log_element["value"];
 
-                                        FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"MinutesPlayed"), value, value);
-                                        Rewards.Add(NewAward);
-                                        free(NewAward);
-                                    }
-                                    else if (type == "eliminations")
-                                    {
-                                        UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+                                                if (type == "bonus")
+                                                {
+                                                    UEnum* EAthenaMatchXpMultiplierSource = FindObject<UEnum>(L"/Script/FortniteGame.EAthenaMatchXpMultiplierSource");
+                                        
+                                                    FAthenaMatchXpMultiplierGroup* NewXPMultiplier = new FAthenaMatchXpMultiplierGroup(EAthenaMatchXpMultiplierSource->GetEnumIndex(L"BonusXpEvent"), value);
+                                                    XpMultipliers.Add(NewXPMultiplier);
+                                                    free(NewXPMultiplier);
+                                                }
+                                                else if (type == "placement")
+                                                {
+                                                    UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
 
-                                        FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"TeamKills"), value, value);
-                                        Rewards.Add(NewAward);
-                                        free(NewAward);
+                                                    FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"Placement"), value, value);
+                                                    Rewards.Add(NewAward);
+                                                    free(NewAward);
+                                                }
+                                                else if (type == "first_kill")
+                                                {
+                                                    UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+
+                                                    FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"FirstKill"), value, value);
+                                                    Rewards.Add(NewAward);
+                                                    free(NewAward);
+                                                }
+                                                else if (type == "time")
+                                                {
+                                                    UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+
+                                                    FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"MinutesPlayed"), value, value);
+                                                    Rewards.Add(NewAward);
+                                                    free(NewAward);
+                                                }
+                                                else if (type == "eliminations")
+                                                {
+                                                    UEnum* ERewardSource = FindObject<UEnum>(L"/Script/FortniteGame.ERewardSource");
+
+                                                    FAthenaAwardGroup* NewAward = new FAthenaAwardGroup(ERewardSource->GetEnumIndex(L"TeamKills"), value, value);
+                                                    Rewards.Add(NewAward);
+                                                    free(NewAward);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            
+                            static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendEndBattleRoyaleMatchForPlayer(true, NewReward);
                         }
-                        
-                        static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendEndBattleRoyaleMatchForPlayer(true, NewReward);
                     }
                 }
             }

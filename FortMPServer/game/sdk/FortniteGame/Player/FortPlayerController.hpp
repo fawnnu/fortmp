@@ -324,11 +324,6 @@ struct FAthenaAwardGroup
 
 struct FAthenaRewardResult
 {
-    FAthenaRewardResult()
-    {
-        AntiAddictionMultiplier() = 1.f;
-    }
-    
     DEFINE_STRUCT_PROPERTY(int, LevelsGained);
     DEFINE_STRUCT_PROPERTY(int, PrePenaltySeasonXpGained);
     DEFINE_STRUCT_PROPERTY(int, TotalSeasonXpGained);
@@ -364,6 +359,11 @@ public:
     {
         STATIC_FINDFUNCTION(ClientSendEndBattleRoyaleMatchForPlayer)
 
+        if (Function_ClientSendEndBattleRoyaleMatchForPlayer == nullptr)
+        {
+            return;
+        }
+        
         // GET PARAMS SIZE
         int16_t parms_size = 0;
         std::vector<int> PropertyOffsets;
@@ -396,6 +396,11 @@ public:
     {
         STATIC_FINDFUNCTION(ClientSendTeamStatsForPlayer)
 
+        if (Function_ClientSendTeamStatsForPlayer == nullptr)
+        {
+            return;
+        }
+
         // GET PARAMS SIZE
         int16_t parms_size = 0;
         
@@ -422,6 +427,11 @@ public:
     void ClientSendMatchStatsForPlayer(FAthenaMatchStats* MatchStats)
     {
         STATIC_FINDFUNCTION(ClientSendMatchStatsForPlayer)
+
+        if (Function_ClientSendMatchStatsForPlayer == nullptr)
+        {
+            return;
+        }
 
         // GET PARAMS SIZE
         int16_t parms_size = 0;
