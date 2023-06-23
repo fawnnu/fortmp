@@ -43,6 +43,8 @@ namespace patches_component_hook
 
     DEFINE_FUNCTION_HOOK(__int64, FortPVPGameOverlayerCrash, ());
 
+    DEFINE_FUNCTION_HOOK(APawn*, SpawnDefaultPawnAtTransform_Implementation, (AGameModeBase* Self, APlayerController* NewPlayer, FTransform& SpawnTransform))
+
     // Prevents a crash related to updating the net debug stats widget
     void UpdateNetStats_Hook(UObject* NetDebugWidget);
 

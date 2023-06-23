@@ -26,6 +26,9 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    // Prevent players from having no pawn
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::SpawnDefaultPawnAtTransform_Implementation, memory_manager::find_function_by_string(L"SpawnDefaultPawnAtTransform: Couldn't spawn Pawn of type %s at %s"), patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook);
+    
     // Re-implement GC checks
     REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 420 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::ConditionalCollectGarbage, GetEngineVersionEasy() > 419 ? memory_manager::find_function_by_string(L"STAT_GCSweepTime") : 0, patches_component_hook::ConditionalCollectGarbage_Hook);
@@ -427,4 +430,30 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
     memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
     
     return OutLoadout;
+}
+
+APawn* patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook(AGameModeBase* Self, APlayerController* NewPlayer, FTransform& SpawnTransform)
+{
+    if (APawn* ReturnValue = SpawnDefaultPawnAtTransform_Implementation(Self, NewPlayer, SpawnTransform))
+    {
+        return ReturnValue;
+    }
+
+    // Call function again with offseted location
+    APawn* ReturnValue = nullptr;
+    do
+    {
+        spdlog::error(L"SpawnDefaultPawnAtTransform_Implementation failed. Calling again with a different location...");
+        
+        SpawnTransform.Translation.Z -= 200.f;
+        
+        ReturnValue = SpawnDefaultPawnAtTransform_Implementation(Self, NewPlayer, SpawnTransform);
+
+        if (ReturnValue)
+        {
+            spdlog::info(L"SpawnDefaultPawnAtTransform_Implementation succeeded.");
+        }
+    } while (ReturnValue == nullptr);
+
+    return ReturnValue;
 }
