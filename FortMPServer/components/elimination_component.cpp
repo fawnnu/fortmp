@@ -461,34 +461,49 @@ void elimination_component::DelaySendEndMatchStats(AFortPlayerController* Player
 void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
-    
-    // Tell the client that the match ended
-    FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
-    FAthenaWeaponStats* NewWeaponStats = new FAthenaWeaponStats;
 
-    // Stats
-    if (player_component::PlayerStatsMap.contains(Self))
+    if (FAthenaMatchStats::GetClass())
     {
-        if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
-        {
-            NewMatchStats->Stats()[3] = Self->PlayerState()->KillScore();
-        }
-        NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[Self].Revives;
-        NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[Self].DamageTaken;
-        NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[Self].DistanceTraveled;
-        NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[Self].MaterialsGathered;
-        NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[Self].MaterialsUsed;
+        // Tell the client that the match ended
+        FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
 
-        // Weapon stats
-        NewWeaponStats->Stats()[3] = player_component::DamageDealtMap[Self].GetPlayerDamage();
-        NewWeaponStats->Stats()[5] = player_component::DamageDealtMap[Self].StructureDamage;
-        NewWeaponStats->Stats()[8] = player_component::PlayerStatsMap[Self].Hits;
-        NewWeaponStats->Stats()[11] = player_component::PlayerStatsMap[Self].HeadShots;
-        TArrayManager<FAthenaWeaponStats>(&NewMatchStats->WeaponStats(), FAthenaWeaponStats::GetStructSize()).Add(NewWeaponStats);
-        free(NewWeaponStats);
+        // Stats
+        if (player_component::PlayerStatsMap.contains(Self))
+        {
+            if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("Stats")))
+            {
+                if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
+                {
+                    NewMatchStats->Stats()[3] = Self->PlayerState()->KillScore();
+                }
+                NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[Self].Revives;
+                NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[Self].DamageTaken;
+                NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[Self].DistanceTraveled;
+                NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[Self].MaterialsGathered;
+                NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[Self].MaterialsUsed;
+            }
+            
+            // Weapon stats
+            if (FAthenaWeaponStats::GetClass())
+            {
+                FAthenaWeaponStats* NewWeaponStats = new FAthenaWeaponStats;
+                if (FindPropertyByName(FAthenaWeaponStats::GetClass(), TEXT("Stats")))
+                {
+                    NewWeaponStats->Stats()[3] = player_component::DamageDealtMap[Self].GetPlayerDamage();
+                    NewWeaponStats->Stats()[5] = player_component::DamageDealtMap[Self].StructureDamage;
+                    NewWeaponStats->Stats()[8] = player_component::PlayerStatsMap[Self].Hits;
+                    NewWeaponStats->Stats()[11] = player_component::PlayerStatsMap[Self].HeadShots;
+                    if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("WeaponStats")))
+                    {
+                        TArrayManager<FAthenaWeaponStats>(&NewMatchStats->WeaponStats(), FAthenaWeaponStats::GetStructSize()).Add(NewWeaponStats);
+                    }
+                    free(NewWeaponStats);
+                }
+            }
+        }
+        Self->ClientSendMatchStatsForPlayer(NewMatchStats);
+        free(NewMatchStats);
     }
-    Self->ClientSendMatchStatsForPlayer(NewMatchStats);
-    free(NewMatchStats);    
 }
 
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
