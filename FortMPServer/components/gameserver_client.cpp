@@ -63,6 +63,9 @@ void HeartbeatThread()
         {
             // Log
             spdlog::warn(L"Lost connection to Era Services, attempting reconnection...");
+
+            // Restart server as soon as possible
+            loader_component::bPendingShutdown = true;
             
             websocketpp::lib::error_code error_code;
             Connection = gameserver_client::Client->Client_WS.get_connection(WS_URL + "/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
