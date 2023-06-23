@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "anticheat_component.hpp"
 #include "bots_component.hpp"
 #include "function_component.hpp"
 #include "looting_component.hpp"
@@ -638,6 +639,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::global_player_id = 0;
         player_component::starting_players = 0;
         pickup_component::GlobalPickupStream.clear();
+        anticheat_component::IllegalSniperActionsCount.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

@@ -40,7 +40,7 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
                 anticheat_component::IllegalSniperActionsCount[Controller]++;
             
                 // Check amount of illegal actions
-                if (anticheat_component::IllegalSniperActionsCount[Controller] >= 3)
+                if (anticheat_component::IllegalSniperActionsCount[Controller] >= 7)
                 {
                     // Perform a ban
                     if (auto account_id = player_component::get_account_id(Controller); account_id.size())
