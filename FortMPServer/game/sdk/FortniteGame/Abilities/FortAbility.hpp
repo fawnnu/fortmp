@@ -32,11 +32,20 @@ struct FFortAbilityCost
 class UGameplayAbility : public UObject
 {
 public:
+    DEFINE_PROPERTY(uint8_t, InstancingPolicy);
+    
     void K2_CancelAbility()
     {
         STATIC_FINDFUNCTION(K2_CancelAbility)
         
         Call(Function_K2_CancelAbility);
+    }
+
+    void K2_RemoveGameplayCue(FGameplayTag CueTag)
+    {
+        STATIC_FINDFUNCTION(K2_RemoveGameplayCue)
+
+        Call(Function_K2_RemoveGameplayCue, CueTag);
     }
 };
 

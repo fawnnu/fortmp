@@ -16,6 +16,8 @@ ability_component::ability_component()
     INIT_POINTER(MarkAbilitySpecDirty, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 86 ? ? ? ? 48 85 C0 75 08 48 8B CE E8 ? ? ? ? 8B 80 ? ? ? ? 89 86 ? ? ? ? B0 01", true, 1));
 
     INIT_POINTER(GiveAbilityAndActivateOnce, memory_manager::find_function_by_string(L"GiveAbilityAndActivateOnce called on ability %s that"));
+
+    INIT_POINTER(UpdateTagMap_Internal, memory_manager::find_function_by_string(L"Attempted to remove tag: %s from tag count container, but it is not explicitly in the container!"));
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -77,6 +79,54 @@ void ability_component::apply_ability_set(UObject* player_pawn, UObject* ability
 
     // Apply ability set
     reinterpret_cast<AFortAIPawn*>(player_pawn)->AddFortAbilitySet(ability_set);
+}
+
+void ability_component::UpdateTagMap(UAbilitySystemComponent* AbilitySystemComponent, FGameplayTag& Tag, int CountDelta)
+{
+    if (AbilitySystemComponent)
+    {
+        if (static void* BlockedAbilityBindings_Property = FindPropertyByName(AbilitySystemComponent->Class, TEXT("BlockedAbilityBindings")))
+        {
+            static int BlockedAbilityBindings_Offset = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(BlockedAbilityBindings_Property) + CoreOffsets::Offset_Internal);
+
+            const PVOID GameplayTagCountContainer = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(AbilitySystemComponent) + BlockedAbilityBindings_Offset + 0x10);
+
+            if (UpdateTagMap_Internal)
+            {
+                UpdateTagMap_Internal(GameplayTagCountContainer, Tag, CountDelta);
+            }
+        }
+    }
+}
+
+void ability_component::RemoveGameplayCue(UAbilitySystemComponent* AbilitySystemComponent, FGameplayTag& CueTag)
+{
+    if (AbilitySystemComponent)
+    {
+        TArrayManager Items = TArrayManager<FGameplayAbilitySpec>(&AbilitySystemComponent->ActivatableAbilities().Items(), FGameplayAbilitySpec::GetStructSize());
+
+        for (FGameplayAbilitySpec& Spec : Items)
+        {
+            if (Spec.Ability)
+            {
+                if (UEnum* EGameplayAbilityInstancingPolicy = FindObject<UEnum>(TEXT("/Script/GameplayAbilities.EGameplayAbilityInstancingPolicy")))
+                {
+                    if (static_cast<UGameplayAbility*>(Spec.Ability)->InstancingPolicy() != EGameplayAbilityInstancingPolicy->GetEnumIndex(TEXT("NonInstanced")))
+                    {
+                        // K2_RemoveGameplayCue for every instanced ability
+                        for (UGameplayAbility* ReplicatedInstance : Spec.ReplicatedInstances)
+                        {
+                            ReplicatedInstance->K2_RemoveGameplayCue(CueTag);
+                        }
+                        for (UGameplayAbility* NonReplicatedInstance : Spec.NonReplicatedInstances)
+                        {
+                            NonReplicatedInstance->K2_RemoveGameplayCue(CueTag);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ability_component_hooks::ServerTryActivateAbility_Hook(UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame)

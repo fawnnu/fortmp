@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "reviving_component.hpp"
 
+#include "ability_component.hpp"
 #include "player_component.hpp"
 
 reviving_component::reviving_component()
@@ -34,6 +35,9 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
         // Using SetBoolPropertyByName as property changes from boolean -> bit
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDBNO", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsHiddenForDeath", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDying", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bWasDBNOOnDeath", false);
 
         auto items = TArrayManager<FGameplayAbilitySpec>(&player_to_revive->AbilitySystemComponent()->ActivatableAbilities().Items(), FGameplayAbilitySpec::GetStructSize());
         
@@ -69,10 +73,19 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
         NewPayload->Instigator() = player_controller->Pawn();
         NewPayload->Target() = player_to_revive;
         NewPayload->EventTag() = player_to_revive->EventReviveTag();
+        NewPayload->EventMagnitude() = 1.0f;
 
         // Send gameplay event
         UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(player_to_revive, player_to_revive->EventReviveTag(), NewPayload);
+        
+        // Update tag map
+        FGameplayTag StatusTag = FGameplayTag(TEXT("Gameplay.Status.DBNOBeingRevived"));
+        ability_component::UpdateTagMap(player_to_revive->AbilitySystemComponent(), StatusTag, -1);
 
+        // Remove cue
+        FGameplayTag CueTag = FGameplayTag(TEXT("GameplayCue.Athena.Player.BeingRevivedFromDBNO"));
+        ability_component::RemoveGameplayCue(player_to_revive->AbilitySystemComponent(), CueTag);
+        
         // Set health
         player_to_revive->SetHealth(30.0f);
 

@@ -2,6 +2,16 @@
 
 struct FGameplayTag
 {
+    FGameplayTag()
+    {
+        TagName = FName();
+    }
+
+    FGameplayTag(FName InTagName)
+    {
+        TagName = InTagName;
+    }
+    
     FName TagName;
 };
 
