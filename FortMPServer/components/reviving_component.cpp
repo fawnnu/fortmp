@@ -29,9 +29,6 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
 
     if (player_to_revive->IsDBNO())
     {
-        // Null deathinfo
-        ZeroMemory(&player_to_revive->PlayerState()->DeathInfo(), FDeathInfo::GetStructSize());
-        
         // Using SetBoolPropertyByName as property changes from boolean -> bit
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDBNO", false);
@@ -91,5 +88,15 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
 
         // Bump revives in player stats
         player_component::PlayerStatsMap[player_controller].Revives++;
+
+        if (FindPropertyByName(FDeathInfo::GetClass(), TEXT("DeathTags")))
+        {
+            // Free DeathTags arrays
+            player_to_revive->PlayerState()->DeathInfo().DeathTags().GameplayTags.Free();
+            player_to_revive->PlayerState()->DeathInfo().DeathTags().ParentTags.Free();
+
+            // Reset DeathInfo
+            ZeroMemory(&player_to_revive->PlayerState()->DeathInfo(), FDeathInfo::GetStructSize());
+        }
     }
 }

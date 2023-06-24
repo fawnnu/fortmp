@@ -147,3 +147,10 @@ UFortPlaylistAthena* GetPlaylistEasy()
 
     return current_playlist;
 }
+
+void TArray<FGameplayTag>::Free()
+{
+    Count = 0;
+    Max = 0;
+    FMemory_Free(Data);
+}

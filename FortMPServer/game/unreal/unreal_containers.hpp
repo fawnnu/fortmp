@@ -83,6 +83,8 @@ struct TArray
 		Data[Count] = InElement;
 		++Count;
 	}
+
+	void Free();
     
 	// Pointer to array data
 	T* Data;
