@@ -150,7 +150,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     // Get playlist
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
-    if (!memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState()))
+    if (!memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState()) &&
+        !memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
     {
         if (DeathReport.KillerPlayerState())
         {
@@ -249,93 +250,97 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         }
     }
 
-    // Update DBNO status
-    if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+    // Make sure PlayerState is valid
+    if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
     {
-        VictimPlayerController->PlayerState()->DeathInfo().bDBNO() = VictimPlayerController->Pawn()->IsDBNO();
-    }
-    
-    // Get death cause
-    if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
-    {
-        VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
-    }
-    
-    // Mark death report as initialized
-    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"bInitialized"))
-    {
-        VictimPlayerController->PlayerState()->DeathInfo().bInitialized() = true;
-    }
-
-    // Add death tags
-    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathTags"))
-    {
-        // copy from deathreport.tags()
-        for (FGameplayTag GameplayTag : DeathReport.Tags().GameplayTags)
-        {
-            VictimPlayerController->PlayerState()->DeathInfo().DeathTags().GameplayTags.Add(GameplayTag);
-        }
-        for (FGameplayTag ParentTag : DeathReport.Tags().ParentTags)
-        {
-            VictimPlayerController->PlayerState()->DeathInfo().DeathTags().ParentTags.Add(ParentTag);
-        }
-    }
-
-    // Set the deathlocation
-    if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathLocation"))
-    {
+        // Update DBNO status
         if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
         {
-            VictimPlayerController->PlayerState()->DeathInfo().DeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
+            VictimPlayerController->PlayerState()->DeathInfo().bDBNO() = VictimPlayerController->Pawn()->IsDBNO();
         }
-    }
-
-    if (STATIC_HASPROPERTY(VictimPlayerController->PlayerState(), PawnDeathLocation))
-    {
+    
+        // Get death cause
         if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
         {
-            VictimPlayerController->PlayerState()->PawnDeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
+            VictimPlayerController->PlayerState()->DeathInfo().DeathCause() = elimination_component::to_death_cause(VictimPlayerController->PlayerState(), DeathReport.Tags(), VictimPlayerController->Pawn()->IsDBNO());
         }
-    }
     
-    // Spawn dead player loot
-    if (VictimPlayerController->WorldInventory())
-    {
-        if(creative_component::is_creative_enabled())
+        // Mark death report as initialized
+        if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"bInitialized"))
         {
-            if (STATIC_HASPROPERTY(VictimPlayerController, OwnedPortal))
+            VictimPlayerController->PlayerState()->DeathInfo().bInitialized() = true;
+        }
+
+        // Add death tags
+        if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathTags"))
+        {
+            // copy from deathreport.tags()
+            for (FGameplayTag GameplayTag : DeathReport.Tags().GameplayTags)
             {
-                if (static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal() != nullptr)
+                VictimPlayerController->PlayerState()->DeathInfo().DeathTags().GameplayTags.Add(GameplayTag);
+            }
+            for (FGameplayTag ParentTag : DeathReport.Tags().ParentTags)
+            {
+                VictimPlayerController->PlayerState()->DeathInfo().DeathTags().ParentTags.Add(ParentTag);
+            }
+        }
+
+        // Set the deathlocation
+        if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"DeathLocation"))
+        {
+            if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+            {
+                VictimPlayerController->PlayerState()->DeathInfo().DeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
+            }
+        }
+
+        if (STATIC_HASPROPERTY(VictimPlayerController->PlayerState(), PawnDeathLocation))
+        {
+            if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+            {
+                VictimPlayerController->PlayerState()->PawnDeathLocation() = VictimPlayerController->Pawn()->K2_GetActorLocation();
+            }
+        }
+    
+        // Spawn dead player loot
+        if (VictimPlayerController->WorldInventory())
+        {
+            if(creative_component::is_creative_enabled())
+            {
+                if (STATIC_HASPROPERTY(VictimPlayerController, OwnedPortal))
                 {
-                    if (auto Mutator = (*GWorld)->AuthorityGameMode()->GetMutatorByClass(static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal(), AFortAthenaMutator_InventoryOverride::StaticClass()))
+                    if (static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal() != nullptr)
                     {
-                        AFortAthenaMutator_InventoryOverride* mutator_inventory_override = static_cast<AFortAthenaMutator_InventoryOverride*>(Mutator);
-                        if (mutator_inventory_override->DropAllItemsOverride() != 2)
+                        if (auto Mutator = (*GWorld)->AuthorityGameMode()->GetMutatorByClass(static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal(), AFortAthenaMutator_InventoryOverride::StaticClass()))
                         {
-                            inventory_component::clear_primary_inventory(VictimPlayerController, true);
-                        }
-                    }   
-                }
-            }   
-        }
-        else
-        {
-            // Clear primary inventory as always if creative is enabled and there's no special mutators
-            inventory_component::clear_primary_inventory(VictimPlayerController, true);   
-        }
-    }
-
-    // Current weapon list crash fix
-    if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
-    {
-        static void* currentweaponlist_property = FindPropertyByName(VictimPlayerController->Pawn()->Class, L"CurrentWeaponList");
-
-        if (currentweaponlist_property && VictimPlayerController->Pawn()->CurrentWeaponList().Num() > 0)
-        {
-            for (auto i = VictimPlayerController->Pawn()->CurrentWeaponList().Num() - 1; i >= 0; i--)
+                            AFortAthenaMutator_InventoryOverride* mutator_inventory_override = static_cast<AFortAthenaMutator_InventoryOverride*>(Mutator);
+                            if (mutator_inventory_override->DropAllItemsOverride() != 2)
+                            {
+                                inventory_component::clear_primary_inventory(VictimPlayerController, true);
+                            }
+                        }   
+                    }
+                }   
+            }
+            else
             {
-                // Clear the array
-                GenericArray_Remove(&VictimPlayerController->Pawn()->CurrentWeaponList(), currentweaponlist_property, i);
+                // Clear primary inventory as always if creative is enabled and there's no special mutators
+                inventory_component::clear_primary_inventory(VictimPlayerController, true);   
+            }
+        }
+
+        // Current weapon list crash fix
+        if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+        {
+            static void* currentweaponlist_property = FindPropertyByName(VictimPlayerController->Pawn()->Class, L"CurrentWeaponList");
+
+            if (currentweaponlist_property && VictimPlayerController->Pawn()->CurrentWeaponList().Num() > 0)
+            {
+                for (auto i = VictimPlayerController->Pawn()->CurrentWeaponList().Num() - 1; i >= 0; i--)
+                {
+                    // Clear the array
+                    GenericArray_Remove(&VictimPlayerController->Pawn()->CurrentWeaponList(), currentweaponlist_property, i);
+                }
             }
         }
     }
@@ -376,15 +381,19 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             }
         }
 
-        // Send stats
-        elimination_component::DelaySendEndMatchStats(VictimPlayerController);
-
-        // Send elimination event to the killer
-        if (DeathReport.KillerPawn())
+        // Make sure PlayerState is valid
+        if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
         {
-            if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
+            // Send stats
+            elimination_component::DelaySendEndMatchStats(VictimPlayerController);
+
+            // Send elimination event to the killer
+            if (DeathReport.KillerPawn())
             {
-                challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause());
+                if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
+                {
+                    challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause());
+                }
             }
         }
         
