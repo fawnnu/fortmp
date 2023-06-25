@@ -149,101 +149,104 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
     // Get playlist
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
-    
-    if (DeathReport.KillerPlayerState())
+
+    if (!memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState()))
     {
-        if (DeathReport.KillerPlayerState()->TeamIndex() != VictimPlayerController->PlayerState()->TeamIndex())
+        if (DeathReport.KillerPlayerState())
         {
-            // Credit elimination if not on the same team
-            DeathReport.KillerPlayerState()->ClientReportKill(VictimPlayerController->PlayerState());
-            DeathReport.KillerPlayerState()->KillScore()++;
-        }
-
-        if (DeathReport.KillerPawn())
-        {
-            FGameplayEventData* GameplayEventData = FGameplayEventData::Create();
-            GameplayEventData->Instigator() = DeathReport.KillerPawn()->Controller();
-            GameplayEventData->Target() = DeathReport.KillerPawn();
-            GameplayEventData->OptionalObject() = DeathReport.KillerPawn();
-            GameplayEventData->OptionalObject2() = DeathReport.KillerPawn();
-            GameplayEventData->EventTag().TagName = FName(L"Event.EarnedElimination");
-            GameplayEventData->EventMagnitude() = 1.f;
-
-            UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(DeathReport.KillerPawn(), FGameplayTag(FName(L"Event.EarnedElimination")), GameplayEventData);
-            
-            if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"Distance"))
+            if (DeathReport.KillerPlayerState()->TeamIndex() != VictimPlayerController->PlayerState()->TeamIndex())
             {
-                // Get distance from killer pawn to eliminated pawn
-                if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
-                {
-                    VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
-                }
+                // Credit elimination if not on the same team
+                DeathReport.KillerPlayerState()->ClientReportKill(VictimPlayerController->PlayerState());
+                DeathReport.KillerPlayerState()->KillScore()++;
             }
 
-            // AntiCheat
-            if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+            if (DeathReport.KillerPawn())
             {
-                if (DeathReport.DamageCauser())
+                FGameplayEventData* GameplayEventData = FGameplayEventData::Create();
+                GameplayEventData->Instigator() = DeathReport.KillerPawn()->Controller();
+                GameplayEventData->Target() = DeathReport.KillerPawn();
+                GameplayEventData->OptionalObject() = DeathReport.KillerPawn();
+                GameplayEventData->OptionalObject2() = DeathReport.KillerPawn();
+                GameplayEventData->EventTag().TagName = FName(L"Event.EarnedElimination");
+                GameplayEventData->EventMagnitude() = 1.f;
+
+                UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(DeathReport.KillerPawn(), FGameplayTag(FName(L"Event.EarnedElimination")), GameplayEventData);
+            
+                if (FindPropertyByName(VictimPlayerController->PlayerState()->DeathInfo().GetClass(), L"Distance"))
                 {
-                    if (DeathReport.DamageCauser()->IsA(AFortProjectileAthena::StaticClass()))
+                    // Get distance from killer pawn to eliminated pawn
+                    if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
                     {
-                        if (STATIC_HASPROPERTY(DeathReport.DamageCauser(), FireStartLoc))
+                        VictimPlayerController->PlayerState()->DeathInfo().Distance() = VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn());
+                    }
+                }
+
+                // AntiCheat
+                if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
+                {
+                    if (DeathReport.DamageCauser())
+                    {
+                        if (DeathReport.DamageCauser()->IsA(AFortProjectileAthena::StaticClass()))
                         {
-                            auto FireStartLoc = static_cast<AFortProjectileAthena*>(DeathReport.DamageCauser())->FireStartLoc();
-                            auto ImpactLoc = VictimPlayerController->Pawn()->K2_GetActorLocation();
-
-                            // Distance
-                            auto Distance = sqrtf((FireStartLoc.X - ImpactLoc.X) * (FireStartLoc.X - ImpactLoc.X) +
-                                  (FireStartLoc.Y - ImpactLoc.Y) * (FireStartLoc.Y - ImpactLoc.Y) +
-                                  (FireStartLoc.Z - ImpactLoc.Z) * (FireStartLoc.Z - ImpactLoc.Z));
-
-                            // Log distance as meters
-                            spdlog::info(L"Player '{}' eliminated opponent using {}. [Distance: {}, Owner: {}]", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), DeathReport.DamageCauser()->GetName().c_str(), Distance / 100, DeathReport.DamageCauser()->GetOwner() ? DeathReport.DamageCauser()->GetOwner()->Class->GetName().c_str() : TEXT("NONE"));
-
-                            if (auto Owner = DeathReport.DamageCauser()->GetOwner())
+                            if (STATIC_HASPROPERTY(DeathReport.DamageCauser(), FireStartLoc))
                             {
-                                if (Owner->IsA(AFortWeapon::StaticClass()))
+                                auto FireStartLoc = static_cast<AFortProjectileAthena*>(DeathReport.DamageCauser())->FireStartLoc();
+                                auto ImpactLoc = VictimPlayerController->Pawn()->K2_GetActorLocation();
+
+                                // Distance
+                                auto Distance = sqrtf((FireStartLoc.X - ImpactLoc.X) * (FireStartLoc.X - ImpactLoc.X) +
+                                      (FireStartLoc.Y - ImpactLoc.Y) * (FireStartLoc.Y - ImpactLoc.Y) +
+                                      (FireStartLoc.Z - ImpactLoc.Z) * (FireStartLoc.Z - ImpactLoc.Z));
+
+                                // Log distance as meters
+                                spdlog::info(L"Player '{}' eliminated opponent using {}. [Distance: {}, Owner: {}]", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), DeathReport.DamageCauser()->GetName().c_str(), Distance / 100, DeathReport.DamageCauser()->GetOwner() ? DeathReport.DamageCauser()->GetOwner()->Class->GetName().c_str() : TEXT("NONE"));
+
+                                if (auto Owner = DeathReport.DamageCauser()->GetOwner())
                                 {
-                                    const float Range = static_cast<AFortWeapon*>(DeathReport.DamageCauser()->GetOwner())->GetRange();
-
-                                    if (Distance > Range)
+                                    if (Owner->IsA(AFortWeapon::StaticClass()))
                                     {
-                                        spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+                                        const float Range = static_cast<AFortWeapon*>(DeathReport.DamageCauser()->GetOwner())->GetRange();
 
-                                        DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                        if (Distance > Range)
+                                        {
+                                            spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+
+                                            DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
                 
-                    if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
-                    {
-                        const float Range = static_cast<AFortWeapon*>(DeathReport.DamageCauser())->GetRange();
+                        if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
+                        {
+                            const float Range = static_cast<AFortWeapon*>(DeathReport.DamageCauser())->GetRange();
                     
-                        if (Range > 0 && VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > Range)
-                        {
-                            spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
-
-                            DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
-                        }
-
-                        if (Range <= 0)
-                        {
-                            if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > 1000)
+                            if (Range > 0 && VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > Range)
                             {
                                 spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
 
                                 DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
                             }
+
+                            if (Range <= 0)
+                            {
+                                if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > 1000)
+                                {
+                                    spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+
+                                    DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // Update finisher/downer in kill feed
-        VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() = DeathReport.KillerPlayerState();
+            // Update finisher/downer in kill feed
+            VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() = DeathReport.KillerPlayerState();
+        }
     }
 
     // Update DBNO status
