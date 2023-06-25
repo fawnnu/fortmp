@@ -210,17 +210,21 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
     }   
 }
 
-void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar)
+void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective)
 {
     if (InteractingController && BattleStar)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
 
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
                 {"x", BattleStar->K2_GetActorLocation().X},
-                {"y", BattleStar->K2_GetActorLocation().Y}
+                {"y", BattleStar->K2_GetActorLocation().Y},
+                {"objective", sObjective}
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);

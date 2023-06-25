@@ -224,8 +224,11 @@ void interact_component::handle_letter_interaction(AFortPlayerController* player
 
 void interact_component::handle_battlestar_interaction(AFortPlayerController* player_controller, AProp_QuestObject_Interactable_Parent_C* battlestar)
 {
-    // Send interaction event
-    challenges_component::SendBattleStarInteraction(player_controller, battlestar);
+    if (STATIC_HASPROPERTY(battlestar, QuestBackendObjectiveName))
+    {
+        // Send interaction event
+        challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
+    }
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
