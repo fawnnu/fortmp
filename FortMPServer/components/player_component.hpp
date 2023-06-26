@@ -30,6 +30,8 @@ struct FDamageDealtMapValue
     int SMGDamage;
     int GrenadeLauncherDamage;
     int RPGDamage;
+    int SuppressedSMGDamage;
+    int SuppressedPistolDamage;
     int StructureDamage;
 };
 

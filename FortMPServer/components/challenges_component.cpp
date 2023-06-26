@@ -96,11 +96,13 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
         {
             nlohmann::json damage_enum = {
                 {"pistol", DamageDealt.PistolDamage},
+                {"suppressed_pistol", DamageDealt.SuppressedPistolDamage},
                 {"shotgun", DamageDealt.ShotgunDamage},
                 {"assault_rifle", DamageDealt.AssaultRifleDamage},
                 {"sniper", DamageDealt.SniperDamage},
                 {"grenade", DamageDealt.GrenadeDamage},
                 {"smg", DamageDealt.SMGDamage},
+                {"suppressed_smg", DamageDealt.SuppressedSMGDamage},
                 {"grenade_launcher", DamageDealt.GrenadeLauncherDamage},
                 {"rpg", DamageDealt.RPGDamage}
             };

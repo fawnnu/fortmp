@@ -559,8 +559,17 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.SniperDamage += Damage;
                         break;
                     case EDamageCauser::Pistol:
-                        Value.PistolDamage += Damage;
-                        break;
+                        {
+                            if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
+                            {
+                                Value.SuppressedPistolDamage += Damage;
+                            }
+                            else
+                            {
+                                Value.PistolDamage += Damage;
+                            }
+                            break;
+                        }
                     case EDamageCauser::Shotgun:
                         Value.ShotgunDamage += Damage;
                         break;
@@ -571,8 +580,17 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.GrenadeDamage += Damage;
                         break;
                     case EDamageCauser::SMG:
-                        Value.SMGDamage += Damage;
-                        break;
+                        {
+                            if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
+                            {
+                                Value.SuppressedSMGDamage += Damage;
+                            }
+                            else
+                            {
+                                Value.SMGDamage += Damage;
+                            }
+                            break;
+                        }
                     case EDamageCauser::GrenadeLauncher:
                         Value.GrenadeLauncherDamage += Damage;
                         break;

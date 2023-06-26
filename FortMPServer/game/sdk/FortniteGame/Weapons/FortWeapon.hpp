@@ -38,6 +38,18 @@ public:
         return Call<bool>(Function_IsProjectileWeapon);
     }
 
+    bool IsSuppressed()
+    {
+        STATIC_FINDFUNCTION(IsSuppressed)
+
+        if (Function_IsSuppressed)
+        {
+            return Call<bool>(Function_IsSuppressed);
+        }
+
+        return false;
+    }
+
     float GetFiringRate()
     {
         STATIC_FINDFUNCTION(GetFiringRate)
