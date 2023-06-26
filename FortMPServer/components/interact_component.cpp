@@ -60,6 +60,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with battle stars
         handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(ACBGA_LowGravity_UsingJump_C::StaticClass()))
+    {
+        // Handle any interaction with hop rocks, for challenges
+        handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -229,6 +234,12 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
         // Send interaction event
         challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
     }
+}
+
+void interact_component::handle_hoprock_interaction(AFortPlayerController* player_controller, ACBGA_LowGravity_UsingJump_C* hoprock)
+{
+    // Send interaction event
+    challenges_component::SendHopRockInteraction(player_controller, hoprock);
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

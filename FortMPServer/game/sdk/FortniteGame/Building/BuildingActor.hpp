@@ -264,3 +264,9 @@ public:
     DEFINE_PROPERTY(UEnvQuery*, QueryTemplate);
     DEFINE_PROPERTY(TArray<FFortItemEntry>, ConsumablesToSpawn);
 };
+
+class ACBGA_LowGravity_UsingJump_C : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/ForagedItems/LowGravity/CBGA_LowGravity_UsingJump.CBGA_LowGravity_UsingJump_C");
+};

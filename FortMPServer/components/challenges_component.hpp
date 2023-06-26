@@ -14,6 +14,7 @@ public:
     static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective);
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
+    static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
