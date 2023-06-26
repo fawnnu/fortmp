@@ -450,6 +450,9 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                 player_controller->Pawn()->LastEmoteItemDef() = dance_asset;
                 player_controller->Pawn()->LastReplicatedEmoteExecuted() = dance_asset;
             }
+
+            // Notify backend that we're dancing
+            challenges_component::SendDanceInteraction(player_controller);
         }
     }
 }

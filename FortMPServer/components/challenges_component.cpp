@@ -268,6 +268,24 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
     }   
 }
 
+void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:dance", parameters);
+        }
+    }   
+}
+
 void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::json Payload)
 {
     if (Channel.find("player:") != std::string::npos)
