@@ -8,25 +8,28 @@ reviving_component::reviving_component()
 {
 }
 
-void reviving_component::revive_player(AFortPlayerController* player_controller, AFortPlayerPawn* player_to_revive)
+void reviving_component::revive_player(AFortPlayerController* player_controller, AFortPlayerPawn* player_to_revive, bool bForceRevive)
 {
     if (player_controller == nullptr || player_to_revive == nullptr)
     {
         return;
     }
 
-    if (player_controller->PlayerState()->TeamIndex() != player_to_revive->PlayerState()->TeamIndex())
+    if (bForceRevive == false)
     {
-        // Only allow players to revive teammates
-        return;
-    }
+        if (player_controller->PlayerState()->TeamIndex() != player_to_revive->PlayerState()->TeamIndex())
+        {
+            // Only allow players to revive teammates
+            return;
+        }
 
-    if (player_controller->Pawn() == player_to_revive)
-    {
-        // Do not allow players to revive themselves
-        return;
+        if (player_controller->Pawn() == player_to_revive)
+        {
+            // Do not allow players to revive themselves
+            return;
+        }
     }
-
+    
     if (player_to_revive->IsDBNO())
     {
         // Using SetBoolPropertyByName as property changes from boolean -> bit

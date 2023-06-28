@@ -44,6 +44,7 @@ public:
     static void HandleWipeInventoryCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleKillPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleKeepInventoryCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleReviveCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;
