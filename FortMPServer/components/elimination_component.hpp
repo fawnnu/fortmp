@@ -15,6 +15,8 @@ public:
 
     static void SendEndMatchStats(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     static void SpectateKillerPawnOnDeath(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
+
+    static inline bool keep_inventory_after_death = false;
 };
 
 namespace elimination_component_hooks

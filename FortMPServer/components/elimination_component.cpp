@@ -322,7 +322,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     }
                 }   
             }
-            else
+            else if (elimination_component::keep_inventory_after_death == false)
             {
                 // Clear primary inventory as always if creative is enabled and there's no special mutators
                 inventory_component::clear_primary_inventory(VictimPlayerController, true);   
