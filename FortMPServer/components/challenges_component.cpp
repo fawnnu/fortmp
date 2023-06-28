@@ -288,6 +288,28 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
     }   
 }
 
+void challenges_component::SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective)
+{
+    if (InteractingController && RubberDuck)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", RubberDuck->K2_GetActorLocation().X},
+                {"y", RubberDuck->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rubber-duck", parameters);
+        }
+    }   
+}
+
 void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::json Payload)
 {
     if (Channel.find("player:") != std::string::npos)

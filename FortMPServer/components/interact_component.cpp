@@ -65,6 +65,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with hop rocks, for challenges
         handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_RubberDuckies_Parent_C::StaticClass()))
+    {
+        // Handle any interaction with rubber duckies for challenges
+        handle_rubberduck_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_RubberDuckies_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -240,6 +245,15 @@ void interact_component::handle_hoprock_interaction(AFortPlayerController* playe
 {
     // Send interaction event
     challenges_component::SendHopRockInteraction(player_controller, hoprock);
+}
+
+void interact_component::handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck)
+{
+    if (STATIC_HASPROPERTY(rubberduck, QuestBackendObjectiveName))
+    {
+        // Send interaction event
+        challenges_component::SendRubberDuckInteraction(player_controller, rubberduck, rubberduck->QuestBackendObjectiveName());
+    }
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
