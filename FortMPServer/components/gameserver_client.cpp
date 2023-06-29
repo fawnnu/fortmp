@@ -453,8 +453,8 @@ int gameserver_client::SendLeave()
         }
     }
 
-    return -1;
 #endif
+    return -1;
 }
 
 int gameserver_client::SendBan(std::string uuid)
@@ -487,8 +487,8 @@ int gameserver_client::SendBan(std::string uuid)
         }
     }
 
-    return -1;
 #endif
+    return -1;
 }
 
 int gameserver_client::SendHeartbeat()
@@ -552,8 +552,8 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
         }
     }
 
-    return -1;
 #endif
+    return -1;
 }
 
 int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters)
@@ -584,8 +584,8 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
         }
     }
 
-    return -1;
 #endif
+    return -1;
 }
 
 void scheduler_client::Initialize()
