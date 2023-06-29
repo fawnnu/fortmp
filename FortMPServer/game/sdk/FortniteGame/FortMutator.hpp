@@ -83,6 +83,13 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaExitCraftSpawner")
 
     DEFINE_PROPERTY(UFortAthenaExitCraftInfo*, ExitCraftInfo);
+
+    void StartExitCraftSpawnTimer()
+    {
+        STATIC_FINDFUNCTION(StartExitCraftSpawnTimer)
+
+        Call(Function_StartExitCraftSpawnTimer);
+    }
 };
 
 struct FLocationLerpData
