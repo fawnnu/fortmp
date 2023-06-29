@@ -55,7 +55,7 @@ public:
 class APawn : public AActor
 {
 public:
-    DEFINE_PROPERTY(AFortPlayerStateAthena*, PlayerState);
+    DEFINE_PROPERTY(class AFortPlayerStateAthena*, PlayerState);
 
     class AController* GetController()
     {
@@ -234,6 +234,8 @@ class AFortAthenaVehicle : public APawn
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaVehicle")
 
+    DEFINE_PROPERTY(float, GravityMultiplier);
+    
     UFortVehicleSeatWeaponComponent* GetSeatWeaponComponent(int SeatIndex)
     {
         STATIC_FINDFUNCTION(GetSeatWeaponComponent)
@@ -246,6 +248,13 @@ public:
         STATIC_FINDFUNCTION(GetPawnAtSeat)
 
         return Call<AFortPlayerPawn*>(Function_GetPawnAtSeat, SeatIdx);
+    }
+
+    void OnRep_GravityMultiplier()
+    {
+        STATIC_FINDFUNCTION(OnRep_GravityMultiplier)
+
+        Call(Function_OnRep_GravityMultiplier);
     }
 };
 

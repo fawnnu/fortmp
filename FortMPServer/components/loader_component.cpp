@@ -36,6 +36,7 @@ loader_component::loader_component()
         // Hook begin play for the classes we need
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaExitCraftSpawner>()->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
     }
     else
     {
@@ -448,16 +449,8 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 
     if (ServerPlaylist)
     {
-        // Can't use STATIC_HASPROPERTY as the playlist can change
-        if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
-        {
-            // Check if creative mode is enabled
-            if (ServerPlaylist->bEnableCreativeMode())
-            {
-                // Allow join in progress
-                (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
-            }
-        }
+        // Allow join in progress
+        (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
     }
 }
 
@@ -590,6 +583,19 @@ void loader_component_hooks::ABuildingFoundation_BeginPlay_Hook(ABuildingFoundat
         {
             UKismetSystemLibrary::SetBoolPropertyByName(Target, TEXT("bServerStreamedInLevel"), true);
         }
+    }
+}
+
+void loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay_Hook(AFortAthenaExitCraftSpawner* Target)
+{
+    AFortAthenaExitCraftSpawner_BeginPlay(Target);
+
+    if (Target)
+    {
+        // Start the timer to spawn ExitCrafts
+        Target->StartExitCraftSpawnTimer();
+
+        spdlog::info(L"ExitCraft {} has just started a spawn timer.", Target->GetName().c_str());
     }
 }
 

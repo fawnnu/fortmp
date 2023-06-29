@@ -128,7 +128,7 @@ struct FFortClientMarkerRequest
 struct FFortWorldMarkerData
 {
     DEFINE_STRUCT_PROPERTY(FMarkerID, MarkerID);
-    DEFINE_STRUCT_PROPERTY(AFortPlayerState*, Owner);
+    DEFINE_STRUCT_PROPERTY(class AFortPlayerState*, Owner);
     DEFINE_STRUCT_PROPERTY(uint8_t, MarkerType);
     DEFINE_STRUCT_PROPERTY(FVector, WorldPosition);
     DEFINE_STRUCT_PROPERTY(FVector, WorldPositionOffset);
