@@ -631,6 +631,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         // Clear temporary arrays
         team_component::TeamsMap.clear();
         team_component::TeamsList.clear();
+        team_component::MainTeamsList.clear();
         player_component::EncryptionTokenList.clear();
         player_component::Profiles.clear();
         player_component::Players.clear();

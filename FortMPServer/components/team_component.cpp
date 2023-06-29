@@ -16,6 +16,41 @@ team_component::team_component()
     DetourTransactionCommit();
 }
 
+uint8_t team_component::PickTeam_Implementation(uint8_t InTeamIndex, AFortPlayerController* FortPlayerController)
+{
+    if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
+    {
+        // Check properties
+        STATIC_HASPROPERTY(Playlist, MaxTeamSize);
+        STATIC_HASPROPERTY(Playlist, MaxSquadSize);
+
+        if (bExists_MaxSquadSize &&
+            bExists_MaxTeamSize)
+        {
+            era_team* FoundTeam = find_free_team(FortPlayerController);
+
+            if (Playlist->MaxSquadSize() != Playlist->MaxTeamSize())
+            {
+                FoundTeam = find_main_team(FortPlayerController);
+
+                if (FoundTeam)
+                {
+                    return FoundTeam->get_team_index();
+                }
+            }
+
+            if (FoundTeam)
+            {
+                return FoundTeam->get_team_index();
+            }
+        }
+    }
+    
+    spdlog::error(L"team_component::PickTeam_Implementation couldn't find a valid team, calling PickTeam...");
+    
+    return team_component_hooks::PickTeam((*GWorld)->AuthorityGameMode(), InTeamIndex, FortPlayerController);
+}
+
 void team_component::InitializeTeams()
 {
     // Loop through every available team
@@ -25,9 +60,25 @@ void team_component::InitializeTeams()
         {
             if (TeamInfo->Team() == TeamIdx)
             {
-                new era_team(TeamInfo);
+                new era_team(TeamInfo->Team(), false);
                 
                 break;
+            }
+        }
+    }
+
+    // Initialize main teams
+    if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
+    {
+        if (STATIC_HASPROPERTY(Playlist, MaxTeamCount))
+        {
+            uint8_t FirstTeam = get_default_first_team();
+            
+            for (int i = 0; i < Playlist->MaxTeamCount(); i++)
+            {
+                uint8_t CurrentTeam = FirstTeam + i;
+
+                new era_team(CurrentTeam, true);
             }
         }
     }
@@ -60,14 +111,105 @@ void team_component::Login(AFortPlayerController* player_controller, const FStri
     }
 }   
 
-void team_component::set_team(AFortPlayerController* player_controller, uint8_t team_index)
+era_team* team_component::find_main_team(AFortPlayerController* player_controller)
+{
+    bool found_team = false;
+    
+    int number_of_teammates = 0;
+    era_team_info* team_info = nullptr;
+
+    // Gather information about the current player's team
+    for (auto& [current_team_id, team_information] : TeamsMap)
+    {
+        if (found_team)
+        {
+            break;
+        }
+        
+        for (AFortPlayerController* TeamMember : team_information.TeamMembersControllers)
+        {
+            // If the current team has our player as member, get all the needed information
+            if (TeamMember == player_controller)
+            {
+                number_of_teammates = team_information.TeamMembers.size();
+
+                if (number_of_teammates > 0)
+                {
+                    team_info = &team_information;
+                    found_team = true;
+                    break;
+                }
+                else
+                {
+                    spdlog::error(L"team_component::find_main_team: invalid number_of_teammates.");
+                }
+            }
+        }
+    }
+
+    if (found_team)
+    {
+        if (team_info->preferred_team >= get_default_first_team() && team_info->preferred_team <= get_default_last_team())
+        {
+            for (era_team* team_instance : MainTeamsList)
+            {
+                if (team_instance->get_team_index() == team_info->preferred_team)
+                {
+                    team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+                    
+                    return team_instance;
+                }
+            }
+        }
+
+        // Pick a team if no preferred team was set
+        std::vector<era_team*> LocalMainTeamsList = MainTeamsList;
+        std::sort(LocalMainTeamsList.begin(), LocalMainTeamsList.end(), [](era_team* first, era_team* second)
+        {
+            return *first < *second;
+        });
+
+        for (era_team* team_instance : LocalMainTeamsList)
+        {
+            // Get the squad of the joining player
+            if (era_team* squad = find_era_team(player_controller, false))
+            {
+                if (team_instance->players_count + squad->players_count <= get_team_size())
+                {
+                    team_instance->players_count += squad->players_count;
+
+                    team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+
+                    return team_instance;
+                }
+            }
+        }
+
+        // If no option was found, ignore teammates
+        for (era_team* team_instance : LocalMainTeamsList)
+        {
+            if (team_instance->players_count + 1 <= get_team_size())
+            {
+                team_instance->players_count += 1;
+
+                team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+
+                return team_instance;
+            }
+        }
+    }
+    
+    return nullptr;
+}
+
+void team_component::set_team(AFortPlayerController* player_controller, uint8_t team_index, uint8_t squad_id)
 {
     // Set team
     player_controller->PlayerState()->TeamIndex() = team_index;
 
     if (STATIC_HASPROPERTY(player_controller->PlayerState(), SquadId))
     {
-        player_controller->PlayerState()->SquadId() = team_index;
+        player_controller->PlayerState()->SquadId() = squad_id;
     }
     
     if (FGameMemberInfo::GetClass())
@@ -76,7 +218,7 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
 
         // Setup game member info
         game_member_info.TeamIndex = team_index;
-        game_member_info.SquadId = team_index;
+        game_member_info.SquadId = squad_id;
         game_member_info.MemberUniqueId = player_controller->NetConnection()->PlayerID();
 
         // Add to game member list
@@ -107,24 +249,53 @@ AFortTeamInfo* team_component::find_team(AFortPlayerController* player_controlle
     return nullptr;
 }
 
-era_team* team_component::find_era_team(AFortPlayerController* player_controller)
+era_team* team_component::find_era_team(AFortPlayerController* player_controller, bool bTeamIndex)
 {
-    for (era_team* team : TeamsList)
+    if (bTeamIndex == false ||
+        get_team_size() == get_squad_size())
     {
-        if (AFortTeamInfo* team_info = team->bound_team_info)
+        for (era_team* team : TeamsList)
         {
-            for (AController* team_member : team_info->TeamMembers())
+            if (era_team_info* team_info = team->bound_era_team_info)
             {
-                if (team_member == player_controller)
+                for (AController* team_member : team_info->TeamMembersControllers)
                 {
-                    // Return found team
-                    return team;
+                    if (team_member == player_controller)
+                    {
+                        // Return found team
+                        return team;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        for (era_team* team : MainTeamsList)
+        {
+            if (era_team_info* team_info = team->bound_era_team_info)
+            {
+                for (AController* team_member : team_info->TeamMembersControllers)
+                {
+                    if (team_member == player_controller)
+                    {
+                        // Return found team
+                        return team;
+                    }
                 }
             }
         }
     }
     
     return nullptr;   
+}
+
+int team_component::get_squad_size()
+{
+    // Get current playlist
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
+
+    return current_playlist ? current_playlist->MaxSquadSize() : max_team_size_override;
 }
 
 int team_component::get_team_size()
@@ -256,7 +427,7 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
                 {
                     if (team_instance->status == era_team_status::available_for_fill)
                     {
-                        if (team_instance->get_team_members() + number_of_teammates <= get_team_size())
+                        if (team_instance->get_team_members() + number_of_teammates <= get_squad_size())
                         {
                             team_info->preferred_team = team_instance->get_team_index();
                             team_instance->get_team_members() += number_of_teammates;
@@ -272,8 +443,11 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
             {
                 if (team_instance->status == era_team_status::available_for_fill || team_instance->status == era_team_status::available_for_teammates)
                 {
-                    if (team_instance->get_team_index() == team_info->preferred_team && team_instance->get_team_members() <= get_team_size())
+                    if (team_instance->get_team_index() == team_info->preferred_team && team_instance->get_team_members() <= get_squad_size())
                     {
+                        // Add player to the team
+                        team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+
                         return team_instance;
                     }
                 }
@@ -292,6 +466,10 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
                 team_info->preferred_team = team_instance->get_team_index();
 
                 team_instance->get_team_members() += number_of_teammates;
+
+                // Add player to the team
+                team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+                
                 return team_instance;
             }
         }
@@ -302,12 +480,5 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
 
 uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
 {
-    if (era_team* picked_team = team_component::find_free_team(PlayerController))
-    {
-        return picked_team->get_team_index();
-    }
-
-    spdlog::error(L"team_component_hooks::PickTeam_Hook implementation couldn't find a valid team, calling PickTeam...");
-    
-    return PickTeam(FortGameMode, InTeamIndex, PlayerController);
+    return team_component::PickTeam_Implementation(InTeamIndex, PlayerController);
 }

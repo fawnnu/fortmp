@@ -10,6 +10,8 @@ public:
     DEFINE_PROPERTY(uint8_t, DefaultFirstTeam);
     DEFINE_PROPERTY(uint8_t, DefaultLastTeam);
     DEFINE_PROPERTY(int, MaxTeamSize);
+    DEFINE_PROPERTY(int, MaxSquadSize);
+    DEFINE_PROPERTY(int, MaxTeamCount);
 };
 
 class UFortPlaylistAthena : public UFortPlaylist
@@ -23,4 +25,5 @@ public:
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevels);
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevelsServerOnly);
     DEFINE_BIT_PROPERTY(bool, bEnableCreativeMode);
+    DEFINE_PROPERTY(bool, bIsLargeTeamGame);
 };
