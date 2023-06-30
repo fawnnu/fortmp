@@ -150,6 +150,14 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     // Get playlist
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
+    // Do nothing if playerstate is a bad ptr
+    if (memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
+    {
+        spdlog::error(L"ClientOnPawnDied_Hook: bad pointer playerstate");
+        
+        return;
+    }
+
     if (!memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState()) &&
         !memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
     {
