@@ -643,12 +643,22 @@ class UFortPlaylistAthena* GetPlaylistEasy();
 template <typename T>
 T* CreateDefaultObject()
 {
-    return reinterpret_cast<T*>(CreateDefaultObject_Internal(T::StaticClass()));
+    if (T::StaticClass())
+    {
+        return reinterpret_cast<T*>(CreateDefaultObject_Internal(T::StaticClass()));
+    }
+
+    return nullptr;
 }
 
 template <typename T>
 T* CreateDefaultObject(UObject* InClass)
 {
-    return reinterpret_cast<T*>(CreateDefaultObject_Internal(InClass));
+    if (InClass)
+    {
+        return reinterpret_cast<T*>(CreateDefaultObject_Internal(InClass));
+    }
+
+    return nullptr;
 }
 

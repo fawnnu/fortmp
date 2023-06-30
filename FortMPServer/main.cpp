@@ -108,7 +108,8 @@ void Setup()
 
                 // Remove the server's player
                 LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
-                    
+
+                loader_component::pre_init();
                 new hook_manager();
                 new net_component();
                 new loader_component();

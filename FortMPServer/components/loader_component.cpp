@@ -15,6 +15,16 @@
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
 
+void loader_component::pre_init()
+{
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetCurrentPlaylistId, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object found in AFortGameStateAthena::SetCurrentPlaylistId()"), loader_component_hooks::SetCurrentPlaylistId_Hook);
+
+    DetourTransactionCommit();
+}
+
 loader_component::loader_component()
 {
     AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
@@ -36,7 +46,11 @@ loader_component::loader_component()
         // Hook begin play for the classes we need
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaExitCraftSpawner>()->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
+
+        if (const AFortAthenaExitCraftSpawner* DefaultObject = CreateDefaultObject<AFortAthenaExitCraftSpawner>())
+        {
+            REGISTER_VTABLE_HOOK(DefaultObject->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
+        }
     }
     else
     {
@@ -207,33 +221,47 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
 bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
 {
-    if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData))
+    if (loader_component_hooks::SetCurrentPlaylistId)
     {
-        (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
+        if (STATIC_HASPROPERTY(in_playlist, PlaylistId))
+        {
+            loader_component_hooks::SetCurrentPlaylistId((*GWorld)->GameState(), in_playlist->PlaylistId());
 
-        // Load playlist on the server
-        (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
-    }
-    else if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistInfo))
-    {
-        (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
-        (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
-        (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
+            return true;
+        }
 
-        // Load playlist on the server
-        (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
+        return false;
     }
     else
     {
-        if (in_playlist)
+        if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData))
         {
-            spdlog::error(L"Could not set playlist '{}', as playlist data pointer is invalid",
-                in_playlist->GetName().c_str());
+            (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
+
+            // Load playlist on the server
+            (*GWorld)->GameState()->OnRep_CurrentPlaylistData();
+        }
+        else if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistInfo))
+        {
+            (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist() = in_playlist;
+            (*GWorld)->GameState()->CurrentPlaylistInfo().OverridePlaylist() = in_playlist;
+            (*GWorld)->GameState()->CurrentPlaylistInfo().PlaylistReplicationKey()++;
+
+            // Load playlist on the server
+            (*GWorld)->GameState()->OnRep_CurrentPlaylistInfo();
+        }
+        else
+        {
+            if (in_playlist)
+            {
+                spdlog::error(L"Could not set playlist '{}', as playlist data pointer is invalid",
+                    in_playlist->GetName().c_str());
                 
-            return false;
+                return false;
+            }
         }
     }
-
+    
     return true;
 }
 
@@ -666,4 +694,9 @@ bool loader_component_hooks::SetGameMode_Hook()
     }
 
     return false;
+}
+
+void loader_component_hooks::SetCurrentPlaylistId_Hook(AFortGameStateAthena* Self, int PlaylistId)
+{
+    // Steal the function   
 }

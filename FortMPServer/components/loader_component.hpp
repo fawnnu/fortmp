@@ -4,6 +4,7 @@ class loader_component
 {
 public:
     loader_component();
+    static void pre_init();
 
     static void start_match(UFortPlaylistAthena* in_playlist = nullptr);
 
@@ -34,4 +35,7 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, AFortAthenaExitCraftSpawner_BeginPlay, (AFortAthenaExitCraftSpawner* Target));
 
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
+
+    // Steal the function
+    DEFINE_FUNCTION_HOOK(void, SetCurrentPlaylistId, (AFortGameStateAthena* Self, int PlaylistId));
 }

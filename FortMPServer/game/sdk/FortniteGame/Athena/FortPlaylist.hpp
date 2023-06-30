@@ -26,4 +26,5 @@ public:
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevelsServerOnly);
     DEFINE_BIT_PROPERTY(bool, bEnableCreativeMode);
     DEFINE_PROPERTY(bool, bIsLargeTeamGame);
+    DEFINE_PROPERTY(int, PlaylistId);
 };
