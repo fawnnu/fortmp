@@ -113,47 +113,13 @@ void team_component::Login(AFortPlayerController* player_controller, const FStri
 
 era_team* team_component::find_main_team(AFortPlayerController* player_controller)
 {
-    bool found_team = false;
-    
-    int number_of_teammates = 0;
-    era_team_info* team_info = nullptr;
-
-    // Gather information about the current player's team
-    for (auto& [current_team_id, team_information] : TeamsMap)
+    if (era_team* squad = find_era_team(player_controller, false))
     {
-        if (found_team)
-        {
-            break;
-        }
-        
-        for (AFortPlayerController* TeamMember : team_information.TeamMembersControllers)
-        {
-            // If the current team has our player as member, get all the needed information
-            if (TeamMember == player_controller)
-            {
-                number_of_teammates = team_information.TeamMembers.size();
-
-                if (number_of_teammates > 0)
-                {
-                    team_info = &team_information;
-                    found_team = true;
-                    break;
-                }
-                else
-                {
-                    spdlog::error(L"team_component::find_main_team: invalid number_of_teammates.");
-                }
-            }
-        }
-    }
-
-    if (found_team)
-    {
-        if (team_info->preferred_team >= get_default_first_team() && team_info->preferred_team <= get_default_last_team())
+        if (squad->bound_era_team_info->preferred_main_team >= get_default_first_team() && squad->bound_era_team_info->preferred_main_team <= get_default_last_team())
         {
             for (era_team* team_instance : MainTeamsList)
             {
-                if (team_instance->get_team_index() == team_info->preferred_team)
+                if (team_instance->get_team_index() == squad->bound_era_team_info->preferred_main_team)
                 {
                     team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
                     
@@ -161,41 +127,43 @@ era_team* team_component::find_main_team(AFortPlayerController* player_controlle
                 }
             }
         }
+    }
 
-        // Pick a team if no preferred team was set
-        std::vector<era_team*> LocalMainTeamsList = MainTeamsList;
-        std::sort(LocalMainTeamsList.begin(), LocalMainTeamsList.end(), [](era_team* first, era_team* second)
-        {
-            return *first < *second;
-        });
+    // Pick a team if no preferred team was set
+    std::vector<era_team*> LocalMainTeamsList = MainTeamsList;
+    std::sort(LocalMainTeamsList.begin(), LocalMainTeamsList.end(), [](era_team* first, era_team* second)
+    {
+        return *first < *second;
+    });
 
-        for (era_team* team_instance : LocalMainTeamsList)
+    for (era_team* team_instance : LocalMainTeamsList)
+    {
+        // Get the squad of the joining player
+        if (era_team* squad = find_era_team(player_controller, false))
         {
-            // Get the squad of the joining player
-            if (era_team* squad = find_era_team(player_controller, false))
+            if (team_instance->players_count + squad->players_count <= get_team_size())
             {
-                if (team_instance->players_count + squad->players_count <= get_team_size())
-                {
-                    team_instance->players_count += squad->players_count;
-
-                    team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
-
-                    return team_instance;
-                }
-            }
-        }
-
-        // If no option was found, ignore teammates
-        for (era_team* team_instance : LocalMainTeamsList)
-        {
-            if (team_instance->players_count + 1 <= get_team_size())
-            {
-                team_instance->players_count += 1;
+                team_instance->players_count += squad->players_count;
 
                 team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
 
+                squad->bound_era_team_info->preferred_main_team = team_instance->get_team_index();
+
                 return team_instance;
             }
+        }
+    }
+
+    // If no option was found, ignore teammates
+    for (era_team* team_instance : LocalMainTeamsList)
+    {
+        if (team_instance->players_count + 1 <= get_team_size())
+        {
+            team_instance->players_count += 1;
+
+            team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
+
+            return team_instance;
         }
     }
     
