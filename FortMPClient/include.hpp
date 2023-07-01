@@ -8,6 +8,7 @@
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 
 #define XOR(STR) xorstr(STR).crypt_get()
 
@@ -37,8 +38,8 @@
 #include "nlohmann/json.hpp"
 #include "toml++/toml.h"
 #include "httplib/httplib.h"
-#include "websocketpp/config/asio_no_tls.hpp"
-#include "websocketpp/server.hpp"
+#include "websocketpp/config/asio_client.hpp"
+#include "websocketpp/client.hpp"
 
 #include "game/unreal.hpp"
 #include "game/sdk.hpp"

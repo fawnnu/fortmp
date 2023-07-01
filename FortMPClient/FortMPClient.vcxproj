@@ -164,13 +164,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="components\anticheat_component.cpp" />
-    <ClCompile Include="components\api_component.cpp" />
     <ClCompile Include="components\battlepass_component.cpp" />
     <ClCompile Include="components\hwid_component.cpp" />
-    <ClCompile Include="components\matchmaking_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\pe_component.cpp" />
+    <ClCompile Include="components\phoenix_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
+    <ClCompile Include="components\voice_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />
     <ClCompile Include="include.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -196,13 +196,13 @@
     <ClInclude Include="API\profile.hpp" />
     <ClInclude Include="API\storefront.hpp" />
     <ClInclude Include="components\anticheat_component.hpp" />
-    <ClInclude Include="components\api_component.hpp" />
     <ClInclude Include="components\battlepass_component.hpp" />
     <ClInclude Include="components\hwid_component.hpp" />
-    <ClInclude Include="components\matchmaking_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\pe_component.hpp" />
+    <ClInclude Include="components\phoenix_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
+    <ClInclude Include="components\voice_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
     <ClInclude Include="game\sdk\Actor.hpp" />
     <ClInclude Include="game\sdk\Engine.hpp" />

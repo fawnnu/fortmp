@@ -7,6 +7,7 @@
 #include "patches_component.hpp"
 #include "pe_component.hpp"
 #include "battlepass_component.hpp"
+#include "voice_component.hpp"
 
 void oauth_token_callback(request* req)
 {
@@ -29,7 +30,8 @@ void oauth_token_callback(request* req)
 
                         new pe_component();
                         new battlepass_component();
-
+                        new voice_component(); // Voice chat!
+                        
                         patches_component::initialize_ProjectWorldToScreen_patch();
                     }
                 }

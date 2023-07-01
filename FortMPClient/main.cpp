@@ -3,9 +3,8 @@
 #include "components/anticheat_component.hpp"
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
-#include "components/api_component.hpp"
 #include "components/hwid_component.hpp"
-#include "components/matchmaking_component.hpp"
+#include "components/voice_component.hpp"
 
 void Setup()
 {
