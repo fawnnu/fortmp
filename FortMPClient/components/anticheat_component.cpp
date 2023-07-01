@@ -51,6 +51,9 @@ anticheat_component::anticheat_component()
                         if (QueryResult.RegionSize > 4096)
                         {
                             TerminateProcess(GetCurrentProcess(), 0);
+
+                            // If some fucker patches TerminateProcess, just crash the process
+                            *reinterpret_cast<char*>(reinterpret_cast<uintptr_t>(Pointer) + 0x1) = 1;
                         }
                     }
                 } while (QueryResult.RegionSize > 0);
