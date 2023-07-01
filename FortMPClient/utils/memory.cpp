@@ -166,3 +166,38 @@ bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
 	return true;
 }
 
+std::vector<MODULEENTRY32W> memory_manager::GetModules()
+{
+	std::vector<MODULEENTRY32W> module_entries;
+	HANDLE snapshot;
+    
+	do
+	{
+		snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+
+		Sleep(200);
+	}
+	while (snapshot == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PARTIAL_COPY); // Modules are not loaded instantly, wait for them to be
+    
+	// make sure snapshot is valid
+	if (snapshot != INVALID_HANDLE_VALUE)
+	{
+		MODULEENTRY32W CurrentModuleEntry;
+		ZeroMemory(&CurrentModuleEntry, sizeof MODULEENTRY32W);
+		CurrentModuleEntry.dwSize = sizeof MODULEENTRY32W;
+		
+		if (Module32FirstW(snapshot, &CurrentModuleEntry))
+		{
+			do
+			{
+				module_entries.push_back(CurrentModuleEntry);
+				ZeroMemory(&CurrentModuleEntry, sizeof MODULEENTRY32W);
+				CurrentModuleEntry.dwSize = sizeof MODULEENTRY32W;
+			} while (Module32NextW(snapshot, &CurrentModuleEntry));
+		}
+
+		CloseHandle(snapshot);
+	}
+
+	return module_entries;
+}

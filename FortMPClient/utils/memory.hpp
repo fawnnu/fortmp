@@ -16,4 +16,5 @@ public:
     static uintptr_t find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes = {}, int Offset = 0, bool Backwards = true);
 
     static bool is_bad_read_pointer(void* pointer_to_read);
+    static std::vector<MODULEENTRY32W> GetModules();
 };

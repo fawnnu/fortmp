@@ -1,5 +1,6 @@
 #include "include.hpp"
 
+#include "components/anticheat_component.hpp"
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
 #include "components/api_component.hpp"
@@ -22,6 +23,7 @@ void Setup()
     //Instantly start the SSL bypass
     new ssl_bypass_component();
     new hwid_component();
+    new anticheat_component();
 
     {
         while (true)

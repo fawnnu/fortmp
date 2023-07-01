@@ -25,6 +25,9 @@
 #include <Windows.h>
 #include <Psapi.h>
 #include <codecvt>
+#include "winternl.h"
+#include <TlHelp32.h>
+#include <filesystem>
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>
