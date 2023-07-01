@@ -31,9 +31,12 @@ public:
     static uintptr_t allocate_page_near_address(uintptr_t address, ENewPageLocation location = ENewPageLocation::LOW);
     static uintptr_t get_function_end(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_calls_in_function(uintptr_t function_start);
+    static std::vector<uintptr_t> get_all_leas_in_function(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_stripped_calls_in_function(uintptr_t function_start);
+    static std::vector<uintptr_t> get_all_stripped_leas_in_function(uintptr_t function_start);
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
+    static bool is_function_stripped_wiktor(uintptr_t function);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
     static void lea_hook(uintptr_t lea_instruction_address, uintptr_t hook_address);
     static uintptr_t scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address = 0, bool Backwards = false);

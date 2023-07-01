@@ -277,6 +277,29 @@ std::vector<uintptr_t> memory_manager::get_all_calls_in_function(uintptr_t funct
 	return calls_list;
 }
 
+std::vector<uintptr_t> memory_manager::get_all_leas_in_function(uintptr_t function_start)
+{
+	std::vector<uintptr_t> calls_list;
+
+	uintptr_t function_end = get_function_end(function_start);
+	uintptr_t instruction_address = function_start;
+
+	for (; instruction_address <= function_end; instruction_address++)
+	{
+		if (*reinterpret_cast<uint8_t*>(instruction_address) == 0x48 && *reinterpret_cast<uint8_t*>(instruction_address + 1) == 0x8D && *reinterpret_cast<uint8_t*>(instruction_address + 2) == 0x05) // Lea
+			{
+			uintptr_t called_function = instruction_address + 7 + *reinterpret_cast<int*>(instruction_address + 3);
+
+			if (is_valid_function(called_function))
+			{
+				calls_list.push_back(instruction_address);
+			}
+			}
+	}
+
+	return calls_list;
+}
+
 std::vector<uintptr_t> memory_manager::get_all_stripped_calls_in_function(uintptr_t function_start)
 {
 	std::vector<uintptr_t> stripped_calls_list;
@@ -286,6 +309,23 @@ std::vector<uintptr_t> memory_manager::get_all_stripped_calls_in_function(uintpt
 	for (auto call : all_calls)
 	{
 		if (is_stripped_function(call + 5 + *reinterpret_cast<int*>(call + 1)))
+		{
+			stripped_calls_list.push_back(call);
+		}
+	}
+
+	return stripped_calls_list;
+}
+
+std::vector<uintptr_t> memory_manager::get_all_stripped_leas_in_function(uintptr_t function_start)
+{
+	std::vector<uintptr_t> stripped_calls_list;
+    
+	auto all_calls = get_all_leas_in_function(function_start);
+
+	for (auto call : all_calls)
+	{
+		if (is_function_stripped_wiktor(call + 7 + *reinterpret_cast<int*>(call + 3)))
 		{
 			stripped_calls_list.push_back(call);
 		}
@@ -319,6 +359,17 @@ bool memory_manager::is_stripped_function(uintptr_t function)
 		   reinterpret_cast<uint8_t*>(function)[0] == 0xc3 ||	// RET
 		   reinterpret_cast<uint8_t*>(function)[1] == 0xc3 ||	// RET
 		   reinterpret_cast<uint8_t*>(function)[2] == 0xc3;		// RET
+}
+
+bool memory_manager::is_function_stripped_wiktor(uintptr_t function)
+{
+	for (int x = 0; x < 8; x++)
+	{
+		auto Byte = reinterpret_cast<uint8_t*>(function)[x];
+		if (Byte == 0xC3 || Byte == 0xC2 || Byte == 0xEB)
+			return true;
+	}
+	return false;
 }
 
 void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)
