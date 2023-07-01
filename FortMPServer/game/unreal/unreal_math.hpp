@@ -207,3 +207,11 @@ struct FMath : FGenericPlatformMath
         return A*A;
     }
 };
+
+struct FVector2D
+{
+    FVector2D() = default;
+    
+    float X;
+    float Y;
+};

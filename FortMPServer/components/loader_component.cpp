@@ -730,6 +730,85 @@ void loader_component::ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* Exi
         van->LocationLerpData().TotalLerpTime() = spawn_info->ExitCraftInfo().ExitCraftTimeToHoverLocation().GetValueAtLevel(0, nullptr);
   
         van->OnRep_LocationLerpData();
+        
+        auto SpecialActorData = game_state->SpecialActorData();
+        FSpecialActorRepDataArray* actorRepList = &SpecialActorData->SpecialActorRepList();
+        auto SpecialActorList = TArrayManager<FSpecialActorRepData>(&actorRepList->SpecialActorList(), FSpecialActorRepData::GetStructSize());
+
+	    int SpawnerIndex = -1;
+	    FSpecialActorRepData* SpawnerRepData = nullptr;
+
+        for (int i = 0; i < SpecialActorList.Num(); ++i)
+        {
+            FSpecialActorRepData* RepData = &SpecialActorList[i];
+            if (!RepData) continue;
+    
+            if (RepData->SpecialActor() != ExitCraftSpawner) continue;
+    
+            SpawnerIndex = i;
+            SpawnerRepData = RepData;
+            break;
+        }
+        
+	    FSpecialActorRepData* VanRepData = (FSpecialActorRepData*)FMemory_Realloc(0,FSpecialActorRepData::GetStructSize(),0);
+	    memcpy(VanRepData,SpawnerRepData,FSpecialActorRepData::GetStructSize());
+    
+	    VanRepData->MostRecentArrayReplicationKey = -1;
+	    VanRepData->ReplicationID = -1;
+	    VanRepData->ReplicationKey = -1;
+    
+	    VanRepData->SpecialActorID() = van->CraftSpecialActorID();
+	    VanRepData->CategoryTag() = heist_mutator->ExitCraftTag();
+	    VanRepData->SpecialActor() = van;
+    
+	    memcpy(&VanRepData->MainIconBrush(), &spawn_info->CraftMinimapIconBrush(),FSlateBrush::GetStructSize());
+	    VanRepData->MinimapScale() = spawn_info->CraftMinimapIconScale();
+    
+	    memcpy(&VanRepData->CompassIconBrush(),&spawn_info->CraftCompassIconBrush(),FSlateBrush::GetStructSize());
+	    VanRepData->CompassScale() = spawn_info->CraftCompassIconScale();
+    
+	    VanRepData->AddedToClientTime() = reinterpret_cast<UWorld*>(GWorld)->TimeSeconds();
+    
+	    VanRepData->LastLocationReplicationTime() = 0.0f;
+	    VanRepData->PrevLocationReplicatedTime() = 0.0f;
+    
+	    VanRepData->LastYawReplicationTime() = 0.0f;
+	    VanRepData->PrevYawReplicatedTime() = 0.0f;
+    
+	    VanRepData->LastRepLocation() = FVector{0,0,0};
+	    VanRepData->PrevRepLocation() = FVector{0,0,0};
+	    VanRepData->LerpStartLocation() = start_location;
+    
+	    VanRepData->bActorIsRelevant() = true;
+    
+	    SpecialActorList.Add(VanRepData);
+    
+	    FSpecialActorRepData* RefoundVanData = nullptr;
+	    for (int i = 0; i < SpecialActorList.Num(); ++i)
+	    {
+	    	FSpecialActorRepData* RepData = &SpecialActorList[i];
+    
+	    	if (RepData->SpecialActor() == van)
+	    	{
+	    		RefoundVanData = RepData;
+	    		break;
+	    	}
+	    }
+
+        actorRepList->MarkItemDirty(*RefoundVanData);
+        
+	    memcpy(VanRepData,RefoundVanData,FSpecialActorRepData::GetStructSize());
+    
+	    heist_mutator->OnSpecialActorAdded(*SpawnerRepData);
+        heist_mutator->OnSpecialActorRemoved(*SpawnerRepData);
+    
+        static void* special_actor_list = FindPropertyByName(FSpecialActorRepDataArray::GetClass(), L"SpecialActorList");
+            
+	    SpecialActorList.Remove(SpawnerIndex, special_actor_list);
+        
+	    actorRepList->MarkArrayDirty();
+    
+	    FMemory_Free(VanRepData);
     }
 }
 

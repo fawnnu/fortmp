@@ -53,7 +53,7 @@ public:
         Default__KismetSystemLibrary->Call(FunctionObject, Target, PropertyName, Value);
     }
 
-    static void ExecuteConsoleCommand(FString Command, APlayerController* SpecificPlayer = nullptr)
+    static void ExecuteConsoleCommand(FString Command, class APlayerController* SpecificPlayer = nullptr)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
 
@@ -290,7 +290,7 @@ class UAIBlueprintHelperLibrary : public UObject
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortKismetLibrary")
     
-    static AController* GetAIController(AActor* ControlledActor)
+    static class AController* GetAIController(AActor* ControlledActor)
     {
         // Static function to use default object
         static UObject* Default__AIBlueprintHelperLibrary = FindObject(L"/Script/AIModule.Default__AIBlueprintHelperLibrary");

@@ -69,14 +69,14 @@ public:
         Call(Function_PortalOpenChanged);
     }
 
-    void OnPlayerPawnTeleported(AFortPlayerPawn* FortPlayerPawn)
+    void OnPlayerPawnTeleported(class AFortPlayerPawn* FortPlayerPawn)
     {
         STATIC_FINDFUNCTION(OnPlayerPawnTeleported)
         
         Call(Function_OnPlayerPawnTeleported, FortPlayerPawn);
     }
 
-    void NotifyTeleportedPlayerPawn(AFortPlayerPawn* FortPlayerPawn)
+    void NotifyTeleportedPlayerPawn(class AFortPlayerPawn* FortPlayerPawn)
     {
         STATIC_FINDFUNCTION(NotifyTeleportedPlayerPawn)
         

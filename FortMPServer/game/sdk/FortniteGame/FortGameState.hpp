@@ -40,6 +40,11 @@ struct FPlaylistPropertyArray
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.PlaylistPropertyArray");
 };
 
+struct FSlateBrush
+{
+    DEFINE_STRUCT_CLASS(L"/Script/SlateCore.SlateBrush");
+};
+
 class AFortWorldManager : public UObject
 {
 public:
@@ -51,7 +56,7 @@ class AFortTeamInfo : public UObject
 public:
     DEFINE_PROPERTY(uint8_t, Team);
     
-    DEFINE_PROPERTY(TArray<AController*>, TeamMembers);
+    DEFINE_PROPERTY(TArray<class AController*>, TeamMembers);
 };
 
 class AGameStateBase : public AActor
@@ -157,11 +162,23 @@ struct FGameMemberInfoArray : FFastArraySerializer
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfoArray");
 };
 
-struct FSpecialActorRepData : FFastArraySerializerItem
+struct FSpecialActorSingleStatData
 {
-	DEFINE_STRUCT_PROPERTY(struct FName, SpecialActorID);              
+    DEFINE_STRUCT_PROPERTY(uint8, StatType);
+    DEFINE_STRUCT_PROPERTY(float, Value);             
+    DEFINE_STRUCT_PROPERTY(float, StatLogicValue);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorSingleStatData");
+};
+
+struct FSpecialActorRepData : public FFastArraySerializerItem
+{
+	DEFINE_STRUCT_PROPERTY(FName, SpecialActorID);              
 	DEFINE_STRUCT_PROPERTY(struct FGameplayTag, CategoryTag);
 	DEFINE_STRUCT_PROPERTY(class AActor*, SpecialActor);
+    DEFINE_STRUCT_PROPERTY(bool, bActorIsRelevant);
+    DEFINE_STRUCT_PROPERTY(FSlateBrush, MainIconBrush);
+    DEFINE_STRUCT_PROPERTY(FSlateBrush, CompassIconBrush);
 	DEFINE_STRUCT_PROPERTY(FVector, LastRepLocation);             
 	DEFINE_STRUCT_PROPERTY(FVector, PrevRepLocation);             
 	DEFINE_STRUCT_PROPERTY(FVector, LerpStartLocation);           
@@ -172,8 +189,15 @@ struct FSpecialActorRepData : FFastArraySerializerItem
 	DEFINE_STRUCT_PROPERTY(float, LerpStartYaw);                
 	DEFINE_STRUCT_PROPERTY(bool, bReplicateHealth);            
 	DEFINE_STRUCT_PROPERTY(bool, bReplicateShield);
+    DEFINE_STRUCT_PROPERTY(float, AddedToClientTime);
+    DEFINE_STRUCT_PROPERTY(TArray<struct FSpecialActorSingleStatData>, TrackedStats);
+    DEFINE_STRUCT_PROPERTY(float, LastLocationReplicationTime);
+    DEFINE_STRUCT_PROPERTY(float, PrevLocationReplicatedTime);
+    DEFINE_STRUCT_PROPERTY(struct FVector2D, MinimapScale);
+    DEFINE_STRUCT_PROPERTY(struct FVector2D, CompassScale);
 
-    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorRepDataArray");
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorRepData");
 };
 
 struct FSpecialActorRepDataArray : FFastArraySerializer
