@@ -151,6 +151,7 @@
 #include "sdk/FortniteGame/Weapons/FortWeapon.hpp"
 #include "sdk/FortniteGame/Items/FortQuickbars.hpp"
 #include "sdk/FortniteGame/Athena/FortAircraft.hpp"
+#include "sdk/FortniteGame/Athena/FortAthenaEvents.hpp"
 #include "sdk/FortniteGame/Weapons/FortDecoTool.hpp"
 
 #include "sdk/Engine/Components/ActorComponent.hpp"

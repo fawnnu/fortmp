@@ -260,6 +260,7 @@
     <ClInclude Include="game\sdk\Engine\World.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Abilities\FortAbility.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\FortAircraft.hpp" />
+    <ClInclude Include="game\sdk\FortniteGame\Athena\FortAthenaEvents.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\FortAthenaSupplyDrop.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\FortCreative.hpp" />
     <ClInclude Include="game\sdk\FortniteGame\Athena\FortPlaylist.hpp" />
