@@ -495,8 +495,16 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 
     if (ServerPlaylist)
     {
-        // Allow join in progress
-        (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+        // Can't use STATIC_HASPROPERTY as the playlist can change
+        if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
+        {
+            // Check if creative mode is enabled
+            if (ServerPlaylist->bEnableCreativeMode())
+            {
+                // Allow join in progress
+                (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+            }
+        }
     }
 }
 
