@@ -1,4 +1,5 @@
 #pragma once
+#include "FortGameState.hpp"
 #include "Pawns/FortPlayerPawn.hpp"
 
 struct FLocationLerpData
@@ -104,6 +105,21 @@ public:
     DEFINE_PROPERTY(FGameplayTag, ExitCraftTag);
     DEFINE_PROPERTY(int, NumSpawnedExitCrafts);
     DEFINE_PROPERTY(int, NumUnspawnedExitCrafts);
+
+    void OnSpecialActorAdded(struct FSpecialActorRepData SpecialActorData)
+    {
+        STATIC_FINDFUNCTION(OnSpecialActorAdded)
+
+        Call(Function_OnSpecialActorAdded, SpecialActorData);
+        
+    }
+
+    void OnSpecialActorRemoved(struct FSpecialActorRepData SpecialActorData)
+    {
+        STATIC_FINDFUNCTION(OnSpecialActorRemoved)
+
+        Call(Function_OnSpecialActorRemoved, SpecialActorData);
+    }
     
     void OnExitCraftSpawned(class AFortAthenaExitCraft* ExitCraft, class AFortAthenaExitCraftSpawner* ExitCraftSpawner)
     {
@@ -114,7 +130,9 @@ public:
 
     FHeistExitCraftData* FindCraftData(AFortAthenaExitCraftSpawner* Spawner)
     {
-        for (auto& CraftData : SpawnedExitCraftList())
+        auto spawned_exit_craft_list = TArrayManager<FHeistExitCraftData>(&SpawnedExitCraftList(), FHeistExitCraftData::GetStructSize());
+        
+        for (FHeistExitCraftData& CraftData : spawned_exit_craft_list)
         {
             if (CraftData.ExitCraftSpawner() == Spawner)
             {
@@ -131,6 +149,10 @@ public:
     // Fortnite Typo, do not correct.
     DEFINE_PROPERTY(UObject*, ExitCaftClass);
     DEFINE_PROPERTY(FExitCraftInfo, ExitCraftInfo);
+    DEFINE_PROPERTY(struct FSlateBrush, CraftMinimapIconBrush);
+    DEFINE_PROPERTY(FVector2D, CraftMinimapIconScale);
+    DEFINE_PROPERTY(struct FSlateBrush, CraftCompassIconBrush);
+    DEFINE_PROPERTY(FVector2D, CraftCompassIconScale);
 };
 
 class AFortAthenaExitCraft : public AFortAthenaVehicle
