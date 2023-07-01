@@ -1,6 +1,43 @@
 #pragma once
 #include "Pawns/FortPlayerPawn.hpp"
 
+struct FLocationLerpData
+{
+    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_Start);
+    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_End);
+    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_Target);
+    DEFINE_STRUCT_PROPERTY(float, TotalLerpTime);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.LocationLerpData");
+};
+
+struct FHeistExitCraftData
+{
+    DEFINE_STRUCT_PROPERTY(class AFortAthenaExitCraftSpawner*, ExitCraftSpawner);
+    DEFINE_STRUCT_PROPERTY(class AFortAthenaExitCraft*, SpawnedExitCraft);
+    DEFINE_STRUCT_PROPERTY(uint8, ExitCraftState);
+    DEFINE_STRUCT_PROPERTY(TArray<AFortPlayerPawnAthena*>, DepartedPawns);
+    DEFINE_STRUCT_PROPERTY(float, SpawnTime);
+    DEFINE_STRUCT_PROPERTY(bool, bIsUsed);
+    DEFINE_STRUCT_PROPERTY(bool, bHasDeparted);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.HeistExitCraftData");
+};
+
+struct FExitCraftInfo
+{
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftSpawnerZOffset);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftZOffset);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTargetZOffset);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitZOffset);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitTime);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTimeToHoverLocation);
+    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTimeToHoverRotation);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.ExitCraftInfo");
+};
+
 class AFortGameplayMutator : public AActor
 {
 public:
@@ -41,32 +78,51 @@ public:
     }
 };
 
+class AFortAthenaExitCraftSpawner : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaExitCraftSpawner")
+
+    DEFINE_PROPERTY(class UFortAthenaExitCraftInfo*, ExitCraftInfo);
+    DEFINE_PROPERTY(FName, SpawnerSpecialActorID);
+    
+    void StartExitCraftSpawnTimer()
+    {
+        STATIC_FINDFUNCTION(StartExitCraftSpawnTimer)
+
+        Call(Function_StartExitCraftSpawnTimer);
+    }
+};
+
 class AFortAthenaMutator_Heist : public AFortAthenaMutator
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaMutator_Heist")
 
     DEFINE_PROPERTY(class UFortAthenaExitCraftInfo*, ExitCraftInfo);
-
+    DEFINE_PROPERTY(TArray<struct FHeistExitCraftData>, SpawnedExitCraftList);
+    DEFINE_PROPERTY(FGameplayTag, ExitCraftTag);
+    DEFINE_PROPERTY(int, NumSpawnedExitCrafts);
+    DEFINE_PROPERTY(int, NumUnspawnedExitCrafts);
+    
     void OnExitCraftSpawned(class AFortAthenaExitCraft* ExitCraft, class AFortAthenaExitCraftSpawner* ExitCraftSpawner)
     {
         STATIC_FINDFUNCTION(OnExitCraftSpawned)
 
         Call(Function_OnExitCraftSpawned, ExitCraft, ExitCraftSpawner);
     }
-};
 
-struct FExitCraftInfo
-{
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftSpawnerZOffset);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftZOffset);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTargetZOffset);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitZOffset);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitTime);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTimeToHoverLocation);
-    DEFINE_STRUCT_PROPERTY(struct FScalableFloat, ExitCraftTimeToHoverRotation);
-    
-    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.ExitCraftInfo");
+    FHeistExitCraftData* FindCraftData(AFortAthenaExitCraftSpawner* Spawner)
+    {
+        for (auto& CraftData : SpawnedExitCraftList())
+        {
+            if (CraftData.ExitCraftSpawner() == Spawner)
+            {
+                return &CraftData;
+            }
+        }
+        return nullptr;
+    }
 };
 
 class UFortAthenaExitCraftInfo : public UObject
@@ -77,32 +133,6 @@ public:
     DEFINE_PROPERTY(FExitCraftInfo, ExitCraftInfo);
 };
 
-class AFortAthenaExitCraftSpawner : public AActor
-{
-public:
-    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaExitCraftSpawner")
-
-    DEFINE_PROPERTY(UFortAthenaExitCraftInfo*, ExitCraftInfo);
-
-    void StartExitCraftSpawnTimer()
-    {
-        STATIC_FINDFUNCTION(StartExitCraftSpawnTimer)
-
-        Call(Function_StartExitCraftSpawnTimer);
-    }
-};
-
-struct FLocationLerpData
-{
-    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_Start);
-    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_End);
-    DEFINE_STRUCT_PROPERTY(FVector, PositionLerp_Target);
-    DEFINE_STRUCT_PROPERTY(float, TotalLerpTime);
-
-    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.LocationLerpData");
-};
-
-
 class AFortAthenaExitCraft : public AFortAthenaVehicle
 {
 public:
@@ -111,6 +141,7 @@ public:
     DEFINE_PROPERTY(uint8, CurrentState);
     DEFINE_PROPERTY(class UFortAthenaExitCraftInfo*, ExitCraftInfo);
     DEFINE_PROPERTY(FLocationLerpData, LocationLerpData);
+    DEFINE_PROPERTY(FName, CraftSpecialActorID);
     
     void OnMoveEnd()
     {

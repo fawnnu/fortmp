@@ -19,7 +19,8 @@ public:
     static void handle_battle_bus_overrides();
 
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
-
+    static void ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* ExitCraftSpawner, FFrame& StackFrame);
+    
     inline static bool bPendingShutdown;
 };
 

@@ -68,6 +68,7 @@ loader_component::loader_component()
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(ExitCraftOnTimerFinished, AFortAthenaExitCraftSpawner::StaticClass())
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -623,7 +624,92 @@ void loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay_Hook(AFortAth
         // Start the timer to spawn ExitCrafts
         Target->StartExitCraftSpawnTimer();
 
+        // Temporary custom timer for van spawning
+        UKismetSystemLibrary::K2_SetTimer(Target, L"ExitCraftOnTimerFinished", 60, false);
+        
         spdlog::info(L"ExitCraft {} has just started a spawn timer.", Target->GetName().c_str());
+    }
+}
+
+void loader_component::ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* ExitCraftSpawner, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (ExitCraftSpawner)
+    {
+        spdlog::info(L"Exit Craft Spawner timer finished, spawning!");
+        
+        AFortGameModeAthena* game_mode = (*GWorld)->AuthorityGameMode();
+        AFortGameStateAthena* game_state = (*GWorld)->GameState();
+        
+	    if (!game_mode) return;
+	    if (!game_state) return;
+
+        AFortAthenaMutator_Heist* heist_mutator = nullptr;
+
+        TArray<AActor*> out_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, AFortAthenaMutator_Heist::StaticClass());
+
+        for (AActor* out_actor : out_actors)
+        {
+            heist_mutator = static_cast<AFortAthenaMutator_Heist*>(out_actor);
+        }
+
+        if (!heist_mutator)
+        {
+            spdlog::error(L"Couldn't find Heist mutator!");
+            return;
+        }
+
+        FHeistExitCraftData* CraftData = heist_mutator->FindCraftData(ExitCraftSpawner);
+        if (!CraftData)
+        {
+            spdlog::error(L"CraftData was not found!");
+            return;
+        }
+  
+        heist_mutator->NumSpawnedExitCrafts()++;
+        heist_mutator->NumUnspawnedExitCrafts()--;
+  
+        UFortAthenaExitCraftInfo* spawn_info = ExitCraftSpawner->ExitCraftInfo();
+  
+        UObject* van_class = ExitCraftSpawner->ExitCraftInfo()->ExitCaftClass();
+  
+        FVector location = ExitCraftSpawner->K2_GetActorLocation();
+  
+        FVector start_location = location;
+        start_location.Z += spawn_info->ExitCraftInfo().ExitCraftZOffset().GetValueAtLevel(0, nullptr);
+	  
+        FRotator rotation = ExitCraftSpawner->K2_GetActorRotation();
+        
+        FActorSpawnParameters spawn_parameters = {};
+
+        AFortAthenaExitCraft* van = static_cast<AFortAthenaExitCraft*>(SpawnActor(*GWorld, van_class, &start_location, &rotation, spawn_parameters));
+        if (!van) return;
+
+        van->ExitCraftInfo() = spawn_info;
+
+        van->CurrentState() = 1;
+        van->OnNewState(1);
+
+        van->CraftSpecialActorID() = ExitCraftSpawner->SpawnerSpecialActorID();
+  
+        CraftData->SpawnedExitCraft() = van;
+        CraftData->ExitCraftState() = 2;
+        CraftData->SpawnTime() = (*GWorld)->TimeSeconds();
+        CraftData->bIsUsed() = false;
+        CraftData->bHasDeparted() = false;
+  
+        heist_mutator->OnExitCraftSpawned(van, ExitCraftSpawner);
+  
+        FVector TargetLocation = location;
+        TargetLocation.Z += spawn_info->ExitCraftInfo().ExitCraftTargetZOffset().GetValueAtLevel(0, nullptr);
+  
+        van->LocationLerpData().PositionLerp_Start() = start_location;
+        van->LocationLerpData().PositionLerp_End() = TargetLocation;
+        van->LocationLerpData().PositionLerp_Target() = TargetLocation;
+        van->LocationLerpData().TotalLerpTime() = spawn_info->ExitCraftInfo().ExitCraftTimeToHoverLocation().GetValueAtLevel(0, nullptr);
+  
+        van->OnRep_LocationLerpData();
     }
 }
 

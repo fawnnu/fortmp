@@ -157,6 +157,39 @@ struct FGameMemberInfoArray : FFastArraySerializer
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfoArray");
 };
 
+struct FSpecialActorRepData : FFastArraySerializerItem
+{
+	DEFINE_STRUCT_PROPERTY(struct FName, SpecialActorID);              
+	DEFINE_STRUCT_PROPERTY(struct FGameplayTag, CategoryTag);
+	DEFINE_STRUCT_PROPERTY(class AActor*, SpecialActor);
+	DEFINE_STRUCT_PROPERTY(FVector, LastRepLocation);             
+	DEFINE_STRUCT_PROPERTY(FVector, PrevRepLocation);             
+	DEFINE_STRUCT_PROPERTY(FVector, LerpStartLocation);           
+	DEFINE_STRUCT_PROPERTY(float, LastYawReplicationTime);      
+	DEFINE_STRUCT_PROPERTY(float, PrevYawReplicatedTime);       
+	DEFINE_STRUCT_PROPERTY(float, LastRepYaw);                  
+	DEFINE_STRUCT_PROPERTY(float, PrevRepYaw);                  
+	DEFINE_STRUCT_PROPERTY(float, LerpStartYaw);                
+	DEFINE_STRUCT_PROPERTY(bool, bReplicateHealth);            
+	DEFINE_STRUCT_PROPERTY(bool, bReplicateShield);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorRepDataArray");
+};
+
+struct FSpecialActorRepDataArray : FFastArraySerializer
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FSpecialActorRepData>, SpecialActorList);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorRepDataArray");
+};
+
+class AFortSpecialActorReplicationInfo : public AActor
+{
+public:
+    DEFINE_PROPERTY(struct FSpecialActorRepDataArray, SpecialActorRepList);
+};
+
 class AFortGameStateAthena : public AFortGameState
 {
 public:
@@ -187,6 +220,8 @@ public:
     DEFINE_PROPERTY(class AFortAthenaMapInfo*, MapInfo);
 
     DEFINE_PROPERTY(class AFortVolumeManager*, VolumeManager);
+
+    DEFINE_PROPERTY(class AFortSpecialActorReplicationInfo*, SpecialActorData);
 
     void OnRep_CurrentPlaylistInfo()
     {
