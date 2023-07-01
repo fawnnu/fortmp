@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="components\anticheat_component.cpp" />
     <ClCompile Include="components\api_component.cpp" />
     <ClCompile Include="components\battlepass_component.cpp" />
     <ClCompile Include="components\hwid_component.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="API\matchmaking.hpp" />
     <ClInclude Include="API\profile.hpp" />
     <ClInclude Include="API\storefront.hpp" />
+    <ClInclude Include="components\anticheat_component.hpp" />
     <ClInclude Include="components\api_component.hpp" />
     <ClInclude Include="components\battlepass_component.hpp" />
     <ClInclude Include="components\hwid_component.hpp" />
