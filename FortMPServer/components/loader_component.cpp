@@ -50,6 +50,24 @@ loader_component::loader_component()
         if (const AFortAthenaExitCraftSpawner* DefaultObject = CreateDefaultObject<AFortAthenaExitCraftSpawner>())
         {
             REGISTER_VTABLE_HOOK(DefaultObject->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
+
+            static UFunction* FunctionObject = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaExitCraftSpawner.StartExitCraftSpawnTimer");
+
+            if(FunctionObject)
+            {
+                auto start = memory_manager::scan_for(reinterpret_cast<uintptr_t>(FunctionObject->get_native_function()), {0xE9}, 0, false);
+                
+                auto result = (((uintptr_t)start + 5) + *(int32_t*)((uintptr_t)start + 1));
+                
+                auto stripped_leas = memory_manager::get_all_stripped_leas_in_function(result);
+
+                for (int i = 0; i < stripped_leas.size(); ++i)
+                {
+                    uintptr_t func = stripped_leas[i];
+                    
+                    memory_manager::lea_hook(func, reinterpret_cast<uintptr_t>(ExitCraftOnTimerFinished));
+                }
+            }
         }
     }
     else
@@ -68,7 +86,6 @@ loader_component::loader_component()
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(ExitCraftOnTimerFinished, AFortAthenaExitCraftSpawner::StaticClass())
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -478,8 +495,16 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 
     if (ServerPlaylist)
     {
-        // Allow join in progress
-        (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+        // Can't use STATIC_HASPROPERTY as the playlist can change
+        if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
+        {
+            // Check if creative mode is enabled
+            if (ServerPlaylist->bEnableCreativeMode())
+            {
+                // Allow join in progress
+                (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+            }
+        }
     }
 }
 
@@ -623,9 +648,6 @@ void loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay_Hook(AFortAth
     {
         // Start the timer to spawn ExitCrafts
         Target->StartExitCraftSpawnTimer();
-
-        // Temporary custom timer for van spawning
-        UKismetSystemLibrary::K2_SetTimer(Target, L"ExitCraftOnTimerFinished", 60, false);
         
         spdlog::info(L"ExitCraft {} has just started a spawn timer.", Target->GetName().c_str());
     }
@@ -633,8 +655,6 @@ void loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay_Hook(AFortAth
 
 void loader_component::ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* ExitCraftSpawner, FFrame& StackFrame)
 {
-    INIT_CUSTOM_FUNCTION();
-
     if (ExitCraftSpawner)
     {
         spdlog::info(L"Exit Craft Spawner timer finished, spawning!");
