@@ -201,3 +201,49 @@ std::vector<MODULEENTRY32W> memory_manager::GetModules()
 
 	return module_entries;
 }
+
+std::vector<std::wstring> memory_manager::GetProcessesExecutables()
+{
+	std::vector<std::wstring> process_executables;
+	HANDLE snapshot;
+    
+	do
+	{
+		snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, GetCurrentProcessId());
+
+		Sleep(200);
+	}
+	while (snapshot == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PARTIAL_COPY); // 
+    
+	// make sure snapshot is valid
+	if (snapshot != INVALID_HANDLE_VALUE)
+	{
+		PROCESSENTRY32W CurrentProcessEntry;
+		ZeroMemory(&CurrentProcessEntry, sizeof PROCESSENTRY32W);
+		CurrentProcessEntry.dwSize = sizeof PROCESSENTRY32W;
+		
+		if (Process32FirstW(snapshot, &CurrentProcessEntry))
+		{
+			do
+			{
+				if (CurrentProcessEntry.th32ProcessID != 0)
+				{
+					HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, CurrentProcessEntry.th32ProcessID);
+					wchar_t path[MAX_PATH];
+					if (K32GetModuleFileNameExW(hProcess, nullptr, path, MAX_PATH))
+					{
+						process_executables.push_back(std::wstring(path));
+					}
+					CloseHandle(hProcess);
+				}
+				
+				ZeroMemory(&CurrentProcessEntry, sizeof PROCESSENTRY32W);
+				CurrentProcessEntry.dwSize = sizeof PROCESSENTRY32W;
+			} while (Process32NextW(snapshot, &CurrentProcessEntry));
+		}
+
+		CloseHandle(snapshot);
+	}
+
+	return process_executables;
+}

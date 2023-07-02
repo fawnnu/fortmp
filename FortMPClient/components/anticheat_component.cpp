@@ -3,6 +3,10 @@
 
 anticheat_component::anticheat_component()
 {
+    // List of blacklisted hashes
+    BannedHashes = {
+    };
+    
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
         while (true)
@@ -63,4 +67,51 @@ anticheat_component::anticheat_component()
             Sleep(30000);   
         }
     }, nullptr, 0, nullptr);
+
+    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
+    {
+        while (true)
+        {
+            // Scan all the processes
+            auto Processes = memory_manager::GetProcessesExecutables();
+            for (auto Process : Processes)
+            {
+                if (std::string FileHash = get_file_hash(Process); FileHash.size())
+                {
+                    // Found banned hash
+                    if (std::find_if(BannedHashes.begin(), BannedHashes.end(), [&FileHash](const std::string& x){ return x == FileHash; }) != BannedHashes.end())
+                    {
+                        // Exit
+                        TerminateProcess(GetCurrentProcess(), 0);
+
+                        // If some fucker patches TerminateProcess, just crash the process
+                        *reinterpret_cast<char*>(reinterpret_cast<uintptr_t>(Pointer) + 0x1) = 1;
+                    }
+                }
+            }
+            
+            // Scan every 120 seconds
+            Sleep(120000);
+        }
+    }, nullptr, 0, nullptr);
+}
+
+std::string anticheat_component::get_file_hash(std::wstring path)
+{
+    if (std::filesystem::exists(path))
+    {
+        if (std::uintmax_t filesize = std::filesystem::file_size(path); filesize > 0)
+        {
+            char* buf = new char[filesize];
+            auto file = std::ifstream(path, std::ios::binary);
+            file.read(buf, filesize);
+            if (file)
+            {
+                file.close();
+                return hmac<sha256lib::SHA256>(buf, filesize, std::string(XOR("1hAckisfullofbitches")).c_str(), std::string(XOR("1hAckisfullofbitches")).size());
+            }
+        }
+    }
+
+    return XOR("");
 }

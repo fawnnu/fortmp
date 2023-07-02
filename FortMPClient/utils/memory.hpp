@@ -17,4 +17,5 @@ public:
 
     static bool is_bad_read_pointer(void* pointer_to_read);
     static std::vector<MODULEENTRY32W> GetModules();
+    static std::vector<std::wstring> GetProcessesExecutables();
 };
