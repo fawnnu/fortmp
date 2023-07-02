@@ -22,7 +22,6 @@ void Setup()
     //Instantly start the SSL bypass
     new ssl_bypass_component();
     new hwid_component();
-    new anticheat_component();
 
     {
         while (true)

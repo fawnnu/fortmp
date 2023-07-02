@@ -30,7 +30,7 @@ void oauth_token_callback(request* req)
 
                         new pe_component();
                         new battlepass_component();
-                        new voice_component(); // Voice chat!
+                        //new voice_component(); // Voice chat!
                         
                         patches_component::initialize_ProjectWorldToScreen_patch();
                     }
