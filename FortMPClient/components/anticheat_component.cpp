@@ -5,6 +5,7 @@ anticheat_component::anticheat_component()
 {
     // List of blacklisted hashes
     BannedHashes = {
+        XOR("8b5bf916ee40fbe213aaa1a4bff029b03faa84229b2c8e9f2ecbc0022b1867a9")
     };
     
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
