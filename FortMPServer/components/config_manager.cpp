@@ -25,7 +25,8 @@ nlohmann::json config_manager::get_server_config()
                 "warmup_duration": 90,
                 "name": "",
                 "scheduler_port": -1,
-                "loot_pool_changes": []
+                "loot_pool_changes": [],
+                "override_region": ""
             }
         )"_json;
     

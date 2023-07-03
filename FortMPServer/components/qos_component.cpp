@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "qos_component.hpp"
 
+#include "config_manager.hpp"
+
 qos_component::qos_component()
 {
     // Register regions
@@ -54,6 +56,24 @@ std::wstring qos_component::convert_region_name(std::wstring original_name)
 
 std::string qos_component::pick_best_region()
 {
+    auto config = config_manager::get_server_config();
+    if (config.contains("override_region") && config["override_region"].is_string())
+    {
+        std::string override_region = config["override_region"];
+        if (override_region.length() > 0)
+        {
+            TO_WSTRING(override_region, wOverride_region);
+
+            // Make sure it's a valid region
+            if (era_regions.contains(wOverride_region))
+            {
+                spdlog::warn("qos_component::pick_best_region() was overridden. Picked region \"{}\"", override_region.c_str());
+                
+                return override_region;
+            }
+        }
+    }
+    
     // Create a QOS region manager
     UQosRegionManager* QosRegionManager = static_cast<UQosRegionManager*>(UGameplayStatics::SpawnObject(UQosRegionManager::StaticClass(), FindObject(L"/Engine/Transient")));
 
