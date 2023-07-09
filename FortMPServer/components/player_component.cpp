@@ -1014,12 +1014,15 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
 
 void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* MarkerComponent, FFrame& StackFrame)
 {
+    if (!WorldMarkerDataCtr) spdlog::error(L"ERROR: Unable to add map marker, WorldMarkerDataCtr is invalid."); return;
+    
     GET_PARAMETER(FFortClientMarkerRequest, MarkerRequest);
     
     AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(MarkerComponent->GetOwner());
 
     // Construct FFortWorldMarkerData
     FFortWorldMarkerData* FortWorldMarkerData = static_cast<FFortWorldMarkerData*>(malloc(FFortWorldMarkerData::GetStructSize()));
+    
     FortWorldMarkerData = WorldMarkerDataCtr(FortWorldMarkerData);
 
     FMarkerID MarkerID(PlayerController->PlayerState()->PlayerID(), MarkerRequest.InstanceId());
