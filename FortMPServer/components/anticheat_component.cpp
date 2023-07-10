@@ -8,17 +8,19 @@ anticheat_component::anticheat_component()
 {
     Initialize();
     
-    uintptr_t GetFiringRateAddress = memory_manager::get_function_start(memory_manager::find_pattern("49 8B DE 48 85 ? 74 ? 48 8D 93 ? ? ? ? 48 85 DB 75 03 49 8B D6 48 8B ? 48 8B ? FF 90"));
-    for (int i = 0; i < INT_MAX; i++)
+    if (uintptr_t GetFiringRateAddress = memory_manager::get_function_start(memory_manager::find_pattern("49 8B DE 48 85 ? 74 ? 48 8D 93 ? ? ? ? 48 85 DB 75 03 49 8B D6 48 8B ? 48 8B ? FF 90")))
     {
-        static AFortWeaponRanged* FortWeaponRanged__DefaultObject = CreateDefaultObject<AFortWeaponRanged>();
-        
-        if (FortWeaponRanged__DefaultObject->VTable[i] == reinterpret_cast<PVOID>(GetFiringRateAddress))
+        for (int i = 0; i < INT_MAX; i++)
         {
-            anticheat_component_offsets::GetFiringRateOffset = i;
-            anticheat_component_offsets::GetBurstFiringRateOffset = i + 1;
+            static AFortWeaponRanged* FortWeaponRanged__DefaultObject = CreateDefaultObject<AFortWeaponRanged>();
+        
+            if (FortWeaponRanged__DefaultObject->VTable[i] == reinterpret_cast<PVOID>(GetFiringRateAddress))
+            {
+                anticheat_component_offsets::GetFiringRateOffset = i;
+                anticheat_component_offsets::GetBurstFiringRateOffset = i + 1;
 
-            break;
+                break;
+            }
         }
     }
     
