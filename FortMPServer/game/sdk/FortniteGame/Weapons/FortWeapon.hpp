@@ -97,6 +97,12 @@ struct FMountedWeaponInfoRepped
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.MountedWeaponInfoRepped");
 };
 
+class AFortWeaponRanged : public AFortWeapon
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWeaponRanged")
+};
+
 class AFortWeaponRangedForVehicle : public AFortWeapon
 {
 public:

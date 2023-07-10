@@ -2,6 +2,7 @@
 #include "player_component.hpp"
 
 #include "ability_component.hpp"
+#include "anticheat_component.hpp"
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
@@ -844,9 +845,13 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         
             static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
         }
-    
-        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
 
+#ifdef _RELEASE
+        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+#elif _TESTING
+        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
+#endif
+        
         // Make pawn invulnerable on spawn island
         UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
 
@@ -1074,39 +1079,44 @@ void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* Mar
 
 long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FGameplayTag ApplicationTag)
 {
-    if (static bool bRun = GetEngineVersionEasy() > 422)
+    if (anticheat_component::ValidateTargetData(RangedWeaponAbility))
     {
-        if (RangedWeaponAbility)
+        if (static bool bRun = GetEngineVersionEasy() > 422)
         {
-            AFortWeapon* SourceWeapon = RangedWeaponAbility->CurrentWeapon();
-
-            // Controller & pawn
-            AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(SourceWeapon->GetOwner());
-            AFortPlayerController* Controller = Pawn->Controller();
-
-            if (!SourceWeapon->IsProjectileWeapon())
+            if (RangedWeaponAbility)
             {
-                if (Controller)
+                AFortWeapon* SourceWeapon = RangedWeaponAbility->CurrentWeapon();
+
+                // Controller & pawn
+                AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(SourceWeapon->GetOwner());
+                AFortPlayerController* Controller = Pawn->Controller();
+
+                if (!SourceWeapon->IsProjectileWeapon())
                 {
-                    TArray<uint8> HitReplaces{};
-                    for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
+                    if (Controller)
                     {
-                        if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
+                        TArray<uint8> HitReplaces{};
+                        for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
                         {
-                            if (SingleTargetHit->bHitReplaced())
+                            if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
                             {
-                                HitReplaces.Add(i);
+                                if (SingleTargetHit->bHitReplaced())
+                                {
+                                    HitReplaces.Add(i);
+                                }
                             }
                         }
-                    }
 
-                    Controller->ClientConfirmTargetData(InData.UniqueId, true, HitReplaces);
+                        Controller->ClientConfirmTargetData(InData.UniqueId, true, HitReplaces);
+                    }
                 }
             }
         }
-    }
     
-    return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
+        return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
+    }
+
+    return 0;
 }
 
 void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerControllerAthena* SenderPC, FFrame& StackFrame)

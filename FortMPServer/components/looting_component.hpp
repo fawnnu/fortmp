@@ -70,6 +70,9 @@ public:
     // Get the highest possible damage for a weapon
     static float get_best_damage(UFortItemDefinition* in_item_definition);
 
+    // Get a pointer to weapon stats
+    static FFortBaseWeaponStats* get_weapon_stats(UFortItemDefinition* in_item_definition);
+
     // Parse loot_pool_changes
     static void parse_loot_pool_changes();
 

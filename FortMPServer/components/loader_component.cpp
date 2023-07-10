@@ -860,6 +860,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::starting_players = 0;
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();
+        anticheat_component::Initialize();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 

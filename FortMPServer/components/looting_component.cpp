@@ -788,6 +788,24 @@ float looting_component::get_best_damage(UFortItemDefinition* in_item_definition
     return 0;
 }
 
+FFortBaseWeaponStats* looting_component::get_weapon_stats(UFortItemDefinition* in_item_definition)
+{
+    if (in_item_definition)
+    {
+        static auto FortWeaponItemDefinition = FindObject(L"/Script/FortniteGame.FortWeaponItemDefinition");
+        static auto FortTrapItemDefinition = FindObject(L"/Script/FortniteGame.FortTrapItemDefinition");
+    
+        if (in_item_definition->IsA(FortWeaponItemDefinition) &&
+            !in_item_definition->IsA(FortTrapItemDefinition))
+        {
+            auto Map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(__int64(static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().Table) + 0x30);
+            return Map[static_cast<UFortWeaponItemDefinition*>(in_item_definition)->WeaponStatHandle().RowName].Value;
+        }
+    }
+    
+    return nullptr;    
+}
+
 void looting_component::parse_loot_pool_changes()
 {
     auto config = config_manager::get_server_config();
