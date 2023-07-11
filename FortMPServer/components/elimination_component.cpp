@@ -67,7 +67,11 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
         { L"Weapon.Ranged.Massive", death_cause_enum->GetEnumIndex(L"MassiveRanged") },
         { L"weapon.ranged.heavy.rocket_launcher",  death_cause_enum->GetEnumIndex(L"RocketLauncher")},
         { L"weapon.ranged.heavy.grenade_launcher",  death_cause_enum->GetEnumIndex(L"GrenadeLauncher")},
-        { L"Weapon.ranged.heavy.grenade",  death_cause_enum->GetEnumIndex(L"Grenade")}
+        { L"Weapon.ranged.heavy.grenade",  death_cause_enum->GetEnumIndex(L"Grenade")},
+        { L"trap.floor", death_cause_enum->GetEnumIndex(L"Trap") },
+        { L"trap.wall", death_cause_enum->GetEnumIndex(L"Trap") },
+        { L"trap.ceiling", death_cause_enum->GetEnumIndex(L"Trap") },
+        { L"trap.hostile", death_cause_enum->GetEnumIndex(L"Trap") }
     };
 
     for (FGameplayTag gameplay_tag : tag_container.GameplayTags)

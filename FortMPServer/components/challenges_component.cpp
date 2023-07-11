@@ -175,6 +175,10 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {
                         weapon = "rpg";
                     }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Trap"))
+                    {
+                        weapon = "trap";
+                    }
                 }
             
                 std::map<std::string, std::string> parameters{

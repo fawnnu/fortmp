@@ -181,6 +181,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Handle eventual battle bus overrides (Specific per build)
         handle_battle_bus_overrides();
 
+        // Handle build specific additions
+        handle_cl_specific_additions();
+
         // Initialize era_teams
         team_component::InitializeTeams();
 
@@ -469,6 +472,21 @@ void loader_component::handle_battle_bus_overrides()
             {
                 GameState->DefaultBattleBus() = BattleBusOverride;
             }
+        }
+    }
+}
+
+void loader_component::handle_cl_specific_additions()
+{
+    // Spawn the week 4 star, on 4.1
+    if (GetCL() == 4053532)
+    {
+        FVector SpawnLocation = FVector(-44330, 59200, 1230);
+        FRotator SpawnRotation = FRotator();
+        FActorSpawnParameters SpawnParameters{};
+        if (UObject* SpawnedActor = SpawnActor(*GWorld, FindObject(L"/Game/Athena/Items/QuestInteractables/HiddenStars/Prop_HiddenStars_Interactable_Triangulate_02.Prop_HiddenStars_Interactable_Triangulate_02_C"), &SpawnLocation, &SpawnRotation, SpawnParameters))
+        {
+            spdlog::info(L"Successfully spawned '{}' at [{} {} {}]", UKismetSystemLibrary::GetPathName(SpawnedActor).c_str(), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
         }
     }
 }
