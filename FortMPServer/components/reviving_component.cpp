@@ -2,6 +2,7 @@
 #include "reviving_component.hpp"
 
 #include "ability_component.hpp"
+#include "challenges_component.hpp"
 #include "player_component.hpp"
 
 reviving_component::reviving_component()
@@ -77,6 +78,12 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
 
         // Send gameplay event
         UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(player_to_revive, player_to_revive->EventReviveTag(), NewPayload);
+
+        if (bForceRevive == false)
+        {
+            // Send event to backend
+            challenges_component::SendRevive(player_controller, player_to_revive->Controller());
+        }
         
         // Update tag map
         FGameplayTag StatusTag = FGameplayTag(TEXT("Gameplay.Status.DBNOBeingRevived"));

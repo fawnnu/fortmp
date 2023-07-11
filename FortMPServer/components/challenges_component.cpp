@@ -194,6 +194,30 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
     }
 }
 
+void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController)
+{
+    if (ExecutingPlayerController && VictimPlayerController)
+    {
+        const std::string executing_account_id = player_component::get_account_id(ExecutingPlayerController);
+        const std::string victim_account_id = player_component::get_account_id(VictimPlayerController);
+
+        if (executing_account_id.size() > 0 &&
+            victim_account_id.size() > 0)
+        {
+            if (!memory_manager::is_bad_read_pointer(ExecutingPlayerController->Pawn()) && ExecutingPlayerController->Pawn())
+            {
+                nlohmann::json parameters{
+                    {"x", ExecutingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", ExecutingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"victim", victim_account_id}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:" + executing_account_id, "event:revive", parameters);
+            }
+        }
+    }
+}
+
 void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective)
 {
     if (InteractingController && Letter)
