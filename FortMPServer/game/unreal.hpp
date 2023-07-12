@@ -82,6 +82,7 @@ namespace CoreOffsets
     inline DWORD PropertyFlags;
     inline DWORD StructSize;
     inline DWORD SuperStruct;
+    inline DWORD LastHitch;
 }
 
 namespace NetworkOffsets

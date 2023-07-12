@@ -47,9 +47,14 @@ bool anticheat_component::ValidateTargetData(UFortGameplayAbility_RangedWeapon* 
             // Get owning Controller & Pawn
             AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(CurrentWeapon->GetOwner());
             AFortPlayerController* Controller = Pawn->Controller();
-            int WorldPlayerID = Controller->PlayerState()->WorldPlayerId();
-            FRangedAbilityData& AbilityData = RangedAbilityDataList[WorldPlayerID];
+            const int WorldPlayerID = Controller->PlayerState()->WorldPlayerId();
+            if (WorldPlayerID >= RangedAbilityDataList.size())
+            {
+                RangedAbilityDataList.resize(WorldPlayerID + 1);
+            }
 
+            FRangedAbilityData& AbilityData = RangedAbilityDataList[WorldPlayerID];
+            
             if (FFortBaseWeaponStats* WeaponStats = looting_component::get_weapon_stats(CurrentWeapon->WeaponData()))
             {
                 if (WeaponStats->CartridgePerFire() <= 1)
@@ -61,8 +66,7 @@ bool anticheat_component::ValidateTargetData(UFortGameplayAbility_RangedWeapon* 
                         float FiringRatePerSecond = 1.0 / FiringRate;
                         if (!ValidateTargetDataFrequency(AbilityData, Ability, *GWorld, FiringRatePerSecond, std::fmaxf(std::fminf(FiringRatePerSecond - 0.1, FiringRatePerSecond * 0.5), 0.0), CurrentWeapon->CustomTimeDilation()))
                         {
-                            //TODO: Implement ability time check
-                            //if ()
+                            if ((*GWorld)->TimeSeconds() - (*GWorld)->AuthorityGameMode()->LastHitch() > (*GWorld)->AuthorityGameMode()->AbilityRefireHitchCooldown())
                             {
                                 // Log only first 10 times
                                 if (AbilityData.TimesLogged < 10)

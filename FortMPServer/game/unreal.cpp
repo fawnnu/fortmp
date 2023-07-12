@@ -65,6 +65,11 @@ unreal_manager::unreal_manager()
     INIT_POINTER(GIsClient, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28", true, 21));
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
 
+    if (const uintptr_t LastHitchSig = memory_manager::find_pattern("8B 88 ? ? ? ? 89 8B ? ? ? ? F2 0F 11 B3 ? ? ? ? 48 8B 5C 24 ? 0F 28 74 24 ? 48 83 C4 30"))
+    {
+        CoreOffsets::LastHitch = *reinterpret_cast<DWORD*>(LastHitchSig + 8);
+    }
+
     // Instantly set GIsClient to false
     if (GetEngineVersionEasy() > 421 && GetFortniteVersionEasy() < 10)
     {

@@ -65,6 +65,8 @@ class AFortGameMode : public AGameMode
 public:
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, ConnectedPlayerControllers);
     DEFINE_PROPERTY(AGameSession*, FortGameSession);
+    DEFINE_PROPERTY(float, AbilityRefireHitchCooldown);
+    DEFINE_PROPERTY_BY_OFFSET(float, LastHitch, CoreOffsets::LastHitch);
 };
 
 class AFortGameModeZone : public AFortGameMode
