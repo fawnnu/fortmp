@@ -9,6 +9,7 @@ struct FRangedAbilityData
     float TargetDataTime[8];
     int TargetDataTimeIndex;
     int TargetDataTimeCount;
+    int TotalDetections;
 };
 
 class anticheat_component
