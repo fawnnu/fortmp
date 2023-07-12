@@ -75,13 +75,6 @@ bool anticheat_component::ValidateTargetData(UFortGameplayAbility_RangedWeapon* 
                                     AbilityData.TimesLogged++;
                                 }
                                 
-                                if (AbilityData.TotalDetections >= 50)
-                                {
-                                    // Kick
-                                    Controller->ClientReturnToMainMenu(L"");
-                                }
-                                AbilityData.TotalDetections++;
-                                
                                 return false;
                             }
                         }
@@ -104,13 +97,6 @@ bool anticheat_component::ValidateTargetData(UFortGameplayAbility_RangedWeapon* 
                                 spdlog::error(L"Player '{}' has insufficient TimeShotDelta [Value: {}, ExpectedValue: {}, CartridgePerFire: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), TimeShotDelta, std::fmaxf(std::fminf(1.0 / FiringRate - 0.1, 1.0 / FiringRate * 0.5), 0.0), WeaponStats->CartridgePerFire());
                                 AbilityData.TimesLogged++;
                             }
-
-                            if (AbilityData.TotalDetections >= 50)
-                            {
-                                // Kick
-                                Controller->ClientReturnToMainMenu(L"");
-                            }
-                            AbilityData.TotalDetections++;
                         
                             return false;
                         }
