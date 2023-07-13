@@ -59,4 +59,8 @@ namespace patches_component_hook
 
     // Replace call to NetConnection::Close
     void NetConnection__Close__Replacement();
+
+    DEFINE_FUNCTION_HOOK(bool, FSocketBSD__RecvFrom, (void* Self, uint8* Data, int32 BufferSize, int32& BytesRead, void* Source, int Flags));
 };
+
+inline int TimesLoggedMSGSIZEExploit;

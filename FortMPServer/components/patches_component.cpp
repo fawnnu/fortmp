@@ -23,6 +23,8 @@ uintptr_t anti_tampering_bypass_hooks::AntiTamper_Hook()
 
 patches_component::patches_component()
 {
+    TimesLoggedMSGSIZEExploit = 0;
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
@@ -55,7 +57,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::NotifyAcceptingConnection, memory_manager::find_function_by_string(L"NotifyAcceptingConnection: Client refused"), patches_component_hook::NotifyAcceptingConnection_Hook);
-
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::FSocketBSD__RecvFrom, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 44 8B 54 24 ? 49 8B D9 48 8B 44 24 ? 45 8B DA 41 83 E3 02"), patches_component_hook::FSocketBSD__RecvFrom_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::PRIVATE_GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
     if (!patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides)
     {
@@ -454,6 +456,29 @@ APawn* patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook(A
             spdlog::info(L"SpawnDefaultPawnAtTransform_Implementation succeeded.");
         }
     } while (ReturnValue == nullptr);
+
+    return ReturnValue;
+}
+
+bool patches_component_hook::FSocketBSD__RecvFrom_Hook(void* Self, uint8* Data, int32 BufferSize,  int32& BytesRead, void* Source, int Flags)
+{
+    bool ReturnValue = FSocketBSD__RecvFrom(Self, Data, BufferSize, BytesRead, Source, Flags);
+    
+    if (!ReturnValue)
+    {
+        if (GetLastError() == WSAEMSGSIZE)
+        {
+            if (TimesLoggedMSGSIZEExploit < 10)
+            {
+                spdlog::error(L"patches_component_hook::FSocketBSD__RecvFrom_Hook: EMSGSIZE, ignoring packet");
+                
+                TimesLoggedMSGSIZEExploit++;
+            }
+
+            ReturnValue = true;
+            BytesRead = 0;
+        }
+    }
 
     return ReturnValue;
 }
