@@ -47,34 +47,12 @@ void hwid_component::StartMessageService()
     
         while (true)
         {
-            std::string HWID;
-            if (std::string DiskSerial = GetDiskSerial(); DiskSerial.size())
-            {
-                HWID += DiskSerial;
-            }
-            if (std::string SysUUID = GetSysUUID(); SysUUID.size())
-            {
-                HWID += SysUUID;
-            }
-            if (std::string BootUUID = GetBootUUID(); BootUUID.size())
-            {
-                HWID += BootUUID;
-            }
-            if (std::string BoardSerial = GetBoardSerial(); BoardSerial.size())
-            {
-                HWID += BoardSerial;
-            }
-
+            std::string HWID = GetHashedHWID();
             if (HWID.size() == 0)
             {
                 MessageBoxA(0, XOR("An error occurred while attempting to log in. Please report this error."), 0, 0);
-                
+
                 return 1;
-            }
-            else
-            {
-                // Hash HWID
-                HWID = hmac<sha256lib::SHA256>(HWID, XOR("1681819033_DANII"));
             }
             
             std::string signature_not_encrypted = HWID + ":" + version + ":" + std::to_string(MessageCounter++);
@@ -264,4 +242,36 @@ std::string hwid_component::GetBootUUID()
 
     return boot_uuid;
 }
+
+std::string hwid_component::GetHashedHWID()
+{
+    std::string HWID;
+    if (std::string DiskSerial = GetDiskSerial(); DiskSerial.size())
+    {
+        HWID += DiskSerial;
+    }
+    if (std::string SysUUID = GetSysUUID(); SysUUID.size())
+    {
+        HWID += SysUUID;
+    }
+    if (std::string BootUUID = GetBootUUID(); BootUUID.size())
+    {
+        HWID += BootUUID;
+    }
+    if (std::string BoardSerial = GetBoardSerial(); BoardSerial.size())
+    {
+        HWID += BoardSerial;
+    }
+
+    if (HWID.size() == 0)
+    { 
+        return XOR("");
+    }
+
+    // Hash HWID
+    HWID = hmac<sha256lib::SHA256>(HWID, XOR("1681819033_DANII"));
+
+    return HWID;
+}
+
 

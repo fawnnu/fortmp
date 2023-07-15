@@ -12,6 +12,8 @@ public:
     static std::string GetSysUUID();
     static std::string GetBootUUID();
     static std::string GetBoardSerial();
+
+    static std::string GetHashedHWID();
     
     inline static std::string access_token;
     inline static int MessageCounter;
