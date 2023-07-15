@@ -361,96 +361,106 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
     {
         return false;
     }
-    
-    if (AFortPawn* PickupTarget = Pickup->PickupLocationData().PickupTarget())
+
+    if (!memory_manager::is_bad_read_pointer(Pickup->PickupLocationData().PickupTarget()))
     {
-        AFortPlayerController* PlayerController = PickupTarget->Controller();
-
-        if (!PlayerController)
+        if (AFortPawn* PickupTarget = Pickup->PickupLocationData().PickupTarget())
         {
-            spdlog::error(L"Player attempted to pickup actor with invalid PlayerController.");
+            AFortPlayerController* PlayerController = PickupTarget->Controller();
 
-            return false;
-        }
-        
-        if (!PlayerController->WorldInventory())
-        {
-            spdlog::error(L"Player attempted to pickup actor with invalid WorldInventory.");
-            
-            return false;
-        }
-
-        // For some reason this code breaks on 3.5, so do not run it
-        if (GetCL() != 4008490)
-        {
-            // Check if the current pickup is found in the incoming pickups stream
-            if (!PickupTarget->IncomingPickups().Find(Pickup))
+            if (!PlayerController)
             {
-                return false; 
+                spdlog::error(L"Player attempted to pickup actor with invalid PlayerController.");
+
+                return false;
             }
         
-            // If it is found, remove from the stream
-            for (int i = 0; i < PickupTarget->IncomingPickups().Num(); i++)
+            if (!PlayerController->WorldInventory())
             {
-                if (PickupTarget->IncomingPickups()[i] == Pickup)
+                spdlog::error(L"Player attempted to pickup actor with invalid WorldInventory.");
+            
+                return false;
+            }
+
+            // For some reason this code breaks on 3.5, so do not run it
+            if (GetCL() != 4008490)
+            {
+                // Check if the current pickup is found in the incoming pickups stream
+                if (!PickupTarget->IncomingPickups().Find(Pickup))
                 {
-                    TArrayManager<AFortPickup*>(&PickupTarget->IncomingPickups(), 8).Remove(i, FindPropertyByName(PickupTarget->Class, TEXT("IncomingPickups")));
-                    break;
+                    return false; 
                 }
-            }
-        }
-
-        std::vector<float> GenericAttributeValues;
-        if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
-        {
-            for (float Value : Pickup->PrimaryPickupItemEntry().GenericAttributeValues())
-            {
-                GenericAttributeValues.push_back(Value);
-            }
-        }
         
-        UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo(), GenericAttributeValues);
-
-        if (inventory_component::is_inventory_full(PlayerController))
-        {
-            UFortItemDefinition* SwapItemDefinition = PickupTarget->CurrentWeapon()->WeaponData();
-            FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
-            bool bShouldFocusOnSwappedItem = true;
-            
-            if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
-                inventory_component::has_item_type(PlayerController, SwapItemDefinition))
-            {
-                // Swap item
-                inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);
-
-                if (spawned_item)
+                // If it is found, remove from the stream
+                for (int i = 0; i < PickupTarget->IncomingPickups().Num(); i++)
                 {
-                    if (TryAddToQuickBar)
+                    if (PickupTarget->IncomingPickups()[i] == Pickup)
                     {
-                        TryAddToQuickBar(PlayerController, spawned_item);
-                    }
-
-                    // Equip item on client
-                    if (bShouldFocusOnSwappedItem)
-                    {
-                        PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                        TArrayManager<AFortPickup*>(&PickupTarget->IncomingPickups(), 8).Remove(i, FindPropertyByName(PickupTarget->Class, TEXT("IncomingPickups")));
+                        break;
                     }
                 }
             }
-            else
+
+            std::vector<float> GenericAttributeValues;
+            if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
             {
-                if (spawned_item)
+                for (float Value : Pickup->PrimaryPickupItemEntry().GenericAttributeValues())
                 {
-                    // Unable to swap
-                    inventory_component::remove_item(PlayerController, spawned_item->ItemEntry().ItemGuid(), -1);   
+                    GenericAttributeValues.push_back(Value);
                 }
             }
-        }
+        
+            UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo(), GenericAttributeValues);
 
-        // on 3.5, run the old code
-        if (GetCL() == 4008490)
-        {
-            Pickup->PickupLocationData().PickupTarget() = nullptr;
+            if (inventory_component::is_inventory_full(PlayerController))
+            {
+                if (!memory_manager::is_bad_read_pointer(PickupTarget->CurrentWeapon()) && PickupTarget->CurrentWeapon())
+                {
+                    UFortItemDefinition* SwapItemDefinition = PickupTarget->CurrentWeapon()->WeaponData();
+                    FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
+                    bool bShouldFocusOnSwappedItem = true;
+            
+                    if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
+                        inventory_component::has_item_type(PlayerController, SwapItemDefinition))
+                    {
+                        // Swap item
+                        inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);
+
+                        if (spawned_item)
+                        {
+                            if (TryAddToQuickBar)
+                            {
+                                TryAddToQuickBar(PlayerController, spawned_item);
+                            }
+
+                            // Equip item on client
+                            if (bShouldFocusOnSwappedItem)
+                            {
+                                PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (spawned_item)
+                        {
+                            // Unable to swap
+                            inventory_component::remove_item(PlayerController, spawned_item->ItemEntry().ItemGuid(), -1);   
+                        }
+                    }
+                }
+                else
+                {
+                    spdlog::error(L"pickup_component_hooks::OnAboutToEnterBackpack_Hook: Invalid CurrentWeapon.");
+                }
+            }
+
+            // on 3.5, run the old code
+            if (GetCL() == 4008490)
+            {
+                Pickup->PickupLocationData().PickupTarget() = nullptr;
+            }
         }
     }
     
