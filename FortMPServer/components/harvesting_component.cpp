@@ -121,6 +121,13 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
     // Get owner controller
     AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerPawn*>(Object)->Controller();
 
+    // Safety check
+    if (memory_manager::is_bad_read_pointer(player_controller) || player_controller == nullptr)
+    {
+        spdlog::error(L"harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook: Invalid PlayerController");
+        return;
+    }
+
     // Filter by building actors
     static UObject* building_actor_class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
     
@@ -128,12 +135,15 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
     {
         if (HitActor->IsA(building_actor_class))
         {
-            if (player_controller->Pawn()->CurrentWeapon())
+            if (player_controller->Pawn())
             {
-                ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(HitActor);
+                if (player_controller->Pawn()->CurrentWeapon())
+                {
+                    ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(HitActor);
         
-                // Handle harvesting materials if we have a building actor and weapon
-                harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
+                    // Handle harvesting materials if we have a building actor and weapon
+                    harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
+                }
             }
         }
     }
