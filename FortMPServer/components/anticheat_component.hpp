@@ -4,12 +4,37 @@ struct FRangedAbilityData
 {
     FRangedAbilityData() = default;
 
+    void Update(UFortGameplayAbility_RangedWeapon* InCurrentAbility)
+    {
+        // Check if we've changed ability 
+        if (CurrentAbility == InCurrentAbility)
+        {
+            return;
+        }
+        if (CurrentAbility == nullptr)
+        {
+            CurrentAbility = InCurrentAbility;
+            return;
+        }
+
+        // Save times we logged abilities time violations
+        const int SavedTimesLogged = TimesLogged;
+
+        // Reset the struct instance
+        ZeroMemory(this, sizeof FRangedAbilityData);
+
+        // Set TimesLogged and update CurrentAbility
+        CurrentAbility = InCurrentAbility;
+        TimesLogged = SavedTimesLogged;
+    }
+
     float LastShotTime;
     int TimesLogged;
     float TargetDataTime[8];
     int TargetDataTimeIndex;
     int TargetDataTimeCount;
     int TotalDetections;
+    UFortGameplayAbility_RangedWeapon* CurrentAbility;
 };
 
 class anticheat_component

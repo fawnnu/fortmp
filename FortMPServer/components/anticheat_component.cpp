@@ -54,6 +54,7 @@ bool anticheat_component::ValidateTargetData(UFortGameplayAbility_RangedWeapon* 
             }
 
             FRangedAbilityData& AbilityData = RangedAbilityDataList[WorldPlayerID];
+            AbilityData.Update(Ability);
             
             if (FFortBaseWeaponStats* WeaponStats = looting_component::get_weapon_stats(CurrentWeapon->WeaponData()))
             {
