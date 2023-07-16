@@ -246,31 +246,62 @@ std::string hwid_component::GetBootUUID()
 std::string hwid_component::GetHashedHWID()
 {
     std::string HWID;
-    if (std::string DiskSerial = GetDiskSerial(); DiskSerial.size())
+    bool bSuccessfulRegistryKeyRead = false;
+    
+    HKEY Key;
+    LSTATUS Status = RegOpenKeyExA(HKEY_CURRENT_USER, XOR("SOFTWARE\\Microsoft\\UserCache"), 0, KEY_READ, &Key);
+    if (Status == ERROR_SUCCESS)
     {
-        HWID += DiskSerial;
-    }
-    if (std::string SysUUID = GetSysUUID(); SysUUID.size())
-    {
-        HWID += SysUUID;
-    }
-    if (std::string BootUUID = GetBootUUID(); BootUUID.size())
-    {
-        HWID += BootUUID;
-    }
-    if (std::string BoardSerial = GetBoardSerial(); BoardSerial.size())
-    {
-        HWID += BoardSerial;
+        char Value[255];
+        DWORD BufferSize = 8192;
+        if (RegGetValueA(HKEY_CURRENT_USER, XOR("SOFTWARE\\Microsoft\\UserCache"), XOR("CachedHash"), RRF_RT_ANY, NULL, &Value, &BufferSize) == ERROR_SUCCESS)
+        {
+            if (const std::string sValue = std::string(Value); sValue.length() > 0)
+            {
+                HWID = sValue;
+                bSuccessfulRegistryKeyRead = true;
+            }
+        }
+        RegCloseKey(Key);
     }
 
-    if (HWID.size() == 0)
-    { 
-        return XOR("");
+    if (bSuccessfulRegistryKeyRead == false)
+    {
+        if (std::string DiskSerial = GetDiskSerial(); DiskSerial.size())
+        {
+            HWID += DiskSerial;
+        }
+        if (std::string SysUUID = GetSysUUID(); SysUUID.size())
+        {
+            HWID += SysUUID;
+        }
+        if (std::string BootUUID = GetBootUUID(); BootUUID.size())
+        {
+            HWID += BootUUID;
+        }
+        if (std::string BoardSerial = GetBoardSerial(); BoardSerial.size())
+        {
+            HWID += BoardSerial;
+        }
+
+        if (HWID.size() == 0)
+        { 
+            return XOR("");
+        }
+
+        // Hash HWID
+        HWID = hmac<sha256lib::SHA256>(HWID, XOR("1681819033_DANII"));
+
+        // Create the key and set the value
+        HKEY NewKey;
+        if (RegCreateKeyA(HKEY_CURRENT_USER, XOR("SOFTWARE\\Microsoft\\UserCache"), &NewKey) == ERROR_SUCCESS)
+        {
+            if (RegSetKeyValueA(HKEY_CURRENT_USER, XOR("SOFTWARE\\Microsoft\\UserCache"), XOR("CachedHash"), REG_EXPAND_SZ, HWID.c_str(), HWID.size() + 1) ==  ERROR_SUCCESS)
+            {
+            }
+        }
     }
-
-    // Hash HWID
-    HWID = hmac<sha256lib::SHA256>(HWID, XOR("1681819033_DANII"));
-
+    
     return HWID;
 }
 
