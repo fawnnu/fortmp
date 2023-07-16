@@ -56,6 +56,8 @@ size_t oauth_token_writefunction(void* content, size_t size, size_t nmemb, void*
 
 ssl_bypass_component::ssl_bypass_component()
 {
+    enabled = true;
+    
     INIT_POINTER(ssl_bypass_component_hook::CurlSet, memory_manager::find_pattern(XOR("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 33 ED 49 8B F0 48 8B D9")));
     INIT_POINTER(ssl_bypass_component_hook::CurlEasy, memory_manager::find_pattern(XOR("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C")));
     
@@ -80,6 +82,7 @@ int ssl_bypass_component_hook::CurlSet_Hook(LPVOID A, int B, ...)
 int ssl_bypass_component_hook::CurlEasy_Hook(LPVOID A, int B, ...)
 {
     if (!A) return 43;
+    if (!ssl_bypass_component::enabled) return 43;
 
     int return_value = 0;
     const std::regex EpicURL("https:\\/\\/(.*)\\.ol\\.epicgames.com");

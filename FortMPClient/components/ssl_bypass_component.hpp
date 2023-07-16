@@ -43,6 +43,7 @@ class ssl_bypass_component
 public:
     inline static std::string redirect_url;
     inline static std::vector<request*> requests_to_capture;
+    inline static bool enabled;
 
     static request* find_request(std::string inURL)
     {

@@ -1,6 +1,9 @@
 ﻿#include "include.hpp"
 #include "anticheat_component.hpp"
 
+#include "hwid_component.hpp"
+#include "ssl_bypass_component.hpp"
+
 anticheat_component::anticheat_component()
 {
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
@@ -38,7 +41,8 @@ anticheat_component::anticheat_component()
                     // Bigger than a page size
                     if (QueryResult.RegionSize > 4096)
                     {
-                        // TODO: Take action
+                        ssl_bypass_component::enabled = false;
+                        hwid_component::bPendingShutdown = true;
                     }
                 }
             } while (QueryResult.RegionSize > 0);

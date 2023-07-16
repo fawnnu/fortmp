@@ -19,6 +19,7 @@ public:
     inline static int MessageCounter;
     inline static std::string version;
     inline static bool bServiceRunning;
+    inline static bool bPendingShutdown;
 };
 
 typedef struct

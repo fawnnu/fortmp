@@ -11,6 +11,7 @@ hwid_component::hwid_component()
     MessageCounter = 0;
     version = XOR("1.6.1");
     bServiceRunning = false;
+    bPendingShutdown = false;
 }
 
 void hwid_component::StartMessageService()
@@ -47,6 +48,11 @@ void hwid_component::StartMessageService()
     
         while (true)
         {
+            if (bPendingShutdown)
+            {
+                return 1;
+            }
+            
             std::string HWID = GetHashedHWID();
             if (HWID.size() == 0)
             {
