@@ -19,11 +19,11 @@ void hwid_component::StartMessageService()
     // Do everything on a separate thread
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
     {
-        Sleep(3000);
-
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR)
         {
+            Sleep(3000);
+
             // retry
             StartMessageService();
 
@@ -33,6 +33,8 @@ void hwid_component::StartMessageService()
         SOCKET SendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (SendSocket == INVALID_SOCKET)
         {
+            Sleep(3000);
+
             WSACleanup();
             
             // retry
