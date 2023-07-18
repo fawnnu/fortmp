@@ -8,6 +8,7 @@ qos_component::qos_component()
     // Register regions
     era_regions[TEXT("EU")] = TEXT("142.132.145.234:22222");
     era_regions[TEXT("NA")] = TEXT("69.10.34.38:22222");
+    era_regions[TEXT("OCE")] = TEXT("139.99.209.91:22222");
     
     if (memory_manager::does_address_belong_to_func(memory_manager::find_function_by_string(L"Failed to send broadcast packet %d", {0xe8, 0x100, 0x100, 0x100, 0x1}, 1, true, false, true), memory_manager::find_function_by_string(L"Failed to send broadcast packet %d")))
     {
@@ -49,6 +50,10 @@ std::wstring qos_component::convert_region_name(std::wstring original_name)
         original_name.find(TEXT("GB")) != std::wstring::npos)
     {
         return TEXT("EU");
+    }
+    if (original_name.find(TEXT("OCE")) != std::wstring::npos)
+    {
+        return TEXT("OCE");
     }
     
     return TEXT("NA"); // Default region
