@@ -70,6 +70,17 @@ AFortPlayerController* moderation_component::get_player_by_name(FString InPlayer
     return nullptr;    
 }
 
+TArray<UNetConnection*> moderation_component::get_all_players()
+{
+    if (*GWorld)
+    {
+        if (UNetDriver* NetDriver = (*GWorld)->NetDriver())
+        {
+            return NetDriver->ClientConnections();
+        }
+    }
+}
+
 void moderation_component::grant_admin_permission_safe(AFortPlayerController* JoiningPlayer)
 {
     if (JoiningPlayer && JoiningPlayer->PlayerState())
@@ -313,6 +324,11 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 
     if (PlayerName.IsValid())
     {
+        if (PlayerName == L"@all")
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Unable to kick every player, kick just one/turn off the server."));
+        }
+        
         if (AFortPlayerController* TargetPlayerController = get_player_by_name(PlayerName))
         {
             if (OptionalKickReason.IsValid())
@@ -496,7 +512,8 @@ void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerCo
 {
     // OP a player (Give them cheatmanager, without registering them as admin)
     FString TargetPlayerName;
-
+    TArray<AFortPlayerController*> target_players;
+    
     if (!FParse::Token(InStream, TargetPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
@@ -505,28 +522,40 @@ void moderation_component::HandleOpCommand(const TCHAR*& InStream, AFortPlayerCo
 
     if (TargetPlayerName.IsValid())
     {
-        if (AFortPlayerController* TargetPlayer = get_player_by_name(TargetPlayerName))
+        if (AFortPlayerController* target_player = get_player_by_name(TargetPlayerName))
         {
-            if (TargetPlayer == nullptr)
+            target_players.Add(target_player);
+        }
+        else if(TargetPlayerName == L"@all")
+        {
+            for (UNetConnection* net_connection : get_all_players())
+            {
+                target_players.Add(net_connection->PlayerController());
+            }
+        }
+        
+        for (auto player_controller : target_players)
+        {
+            if (player_controller == nullptr)
             {
                 ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
                 return;
             }
 
-            if (TargetPlayer->CheatManager() != nullptr)
+            if (player_controller->CheatManager() != nullptr)
             {
                 ExecutingPlayerController->ClientMessage(TEXT("The specified player is already an admin!"));
                 return;
             }
-
+        
             // Op!
-            TargetPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), TargetPlayer));
+            player_controller->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), player_controller));
 
             // Get IP
             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            const std::wstring AdminIPAddress = TargetPlayer->PlayerState()->SavedNetworkAddress().c_str();
+            const std::wstring AdminIPAddress = player_controller->PlayerState()->SavedNetworkAddress().c_str();
             std::string sAdminIPAddress = converter.to_bytes(AdminIPAddress);
-            
+        
             // Save as opped
             auto config = config_manager::get_server_config();
             config["opped_players"].push_back(sAdminIPAddress);
@@ -541,7 +570,8 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
 {
     // OP a player (Give them cheatmanager, without registering them as admin)
     FString TargetPlayerName;
-
+    TArray<AFortPlayerController*> target_players;
+    
     if (!FParse::Token(InStream, TargetPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
@@ -550,22 +580,34 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
 
     if (TargetPlayerName.IsValid())
     {
-        if (AFortPlayerController* TargetPlayer = get_player_by_name(TargetPlayerName))
+        if (AFortPlayerController* target_player = get_player_by_name(TargetPlayerName))
         {
-            if (TargetPlayer == nullptr)
+            target_players.Add(target_player);
+        }
+        else if(TargetPlayerName == L"@all")
+        {
+            for (UNetConnection* net_connection : get_all_players())
+            {
+                target_players.Add(net_connection->PlayerController());
+            }
+        }
+        
+        for (auto player_controller : target_players)
+        {
+            if (player_controller == nullptr)
             {
                 ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
                 return;
             }
 
-            if (TargetPlayer->CheatManager() == nullptr)
+            if (player_controller->CheatManager() == nullptr)
             {
                 ExecutingPlayerController->ClientMessage(TEXT("The specified player is not opped!"));
                 return;
             }
 
             // Get the IP as std::string
-            std::wstring wTargetPlayerIP = TargetPlayer->PlayerState()->SavedNetworkAddress().c_str();
+            std::wstring wTargetPlayerIP = player_controller->PlayerState()->SavedNetworkAddress().c_str();
             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
             std::string TargetPlayerIP = converter.to_bytes(wTargetPlayerIP);
 
@@ -601,7 +643,7 @@ void moderation_component::HandleDeopCommand(const TCHAR*& InStream, AFortPlayer
                 config_manager::save_server_config(config);
                 
                 // If the player is not a registered admin, de-op it
-                TargetPlayer->CheatManager() = nullptr;
+                player_controller->CheatManager() = nullptr;
 
                 ExecutingPlayerController->ClientMessage(TEXT("Successfully deopped player!"));
             }
@@ -649,37 +691,48 @@ void moderation_component::HandleSetSpeedCommand(const TCHAR*& InStream, AFortPl
 
 void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
+    TArray<AFortPlayerController*> target_players;
+    
     FString InPlayerName;
-
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
         return;
     }
 
-    if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
+    FString InWID;
+    if (!FParse::Token(InStream, InWID, 0))
     {
-        FString InWID;
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Item parameter."));
+        return;
+    }
 
-        if (!FParse::Token(InStream, InWID, 0))
+    FString InCount;
+    if (!FParse::Token(InStream, InCount, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
+        return;
+    }
+    
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if (InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
         {
-            ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Item parameter."));
-            return;
+            target_players.Add(net_connection->PlayerController());
         }
-
+    }
+        
+    for (auto player_controller : target_players)
+    {
         UFortItemDefinition* TargetItemDefinition = FindObject<UFortItemDefinition>(InWID.c_str(), false, true);
 
         if (TargetItemDefinition == nullptr)
         {
             ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified item."));
-            return;
-        }
-
-        FString InCount;
-
-        if (!FParse::Token(InStream, InCount, 0))
-        {
-            ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
             return;
         }
 
@@ -690,16 +743,16 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
         if (Count > 0)
         {
             // If the given player has space in their inventory, give the item, else spawn it as a pickup
-            if (TargetPlayer->WorldInventory() && TargetPlayer->MyFortPawn())
+            if (player_controller->WorldInventory() && player_controller->MyFortPawn())
             {
-                if (inventory_component::is_inventory_full(TargetPlayer))
+                if (inventory_component::is_inventory_full(player_controller))
                 {
                     // Spawn a pickup
-                    pickup_component::spawn_pickup(TargetItemDefinition, TargetPlayer->MyFortPawn()->K2_GetActorLocation(), Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
+                    pickup_component::spawn_pickup(TargetItemDefinition, player_controller->MyFortPawn()->K2_GetActorLocation(), Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
                 }
                 else
                 {
-                    inventory_component::add_item(TargetPlayer, TargetItemDefinition, Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
+                    inventory_component::add_item(player_controller, TargetItemDefinition, Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
                 }
 
                 ExecutingPlayerController->ClientMessage(TEXT("Successfully granted item!"));
@@ -709,10 +762,6 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
         {
             ExecutingPlayerController->ClientMessage(TEXT("Invalid count."));
         }
-    }
-    else
-    {
-        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
     }
 }
 
@@ -772,6 +821,11 @@ void moderation_component::HandleBanCommand(const TCHAR*& InStream, AFortPlayerC
 
     if (InPlayerName.IsValid())
     {
+        if (InPlayerName == L"@all")
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Unable to ban all players."));
+        }
+        
         if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
         {
             if (is_registered_admin(ExecutingPlayerController))
@@ -988,44 +1042,73 @@ void moderation_component::HandleSetWarmupDurationCommand(const TCHAR*& InStream
 
 void moderation_component::HandleWipeInventoryCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    FString InPlayerName;
+    TArray<AFortPlayerController*> target_players;
     
+    FString InPlayerName;
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
         return;
     }
-    
-    if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
     {
-        inventory_component::clear_primary_inventory(TargetPlayer, false);
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
     }
     else
     {
         ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::clear_primary_inventory(player_controller, false);
     }
 }
 
 void moderation_component::HandleKillPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    FString InPlayerName;
+    TArray<AFortPlayerController*> target_players;
     
+    FString InPlayerName;
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
         return;
     }
-    
-    if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
     {
-        // Force suicide upon this player
-        TargetPlayer->ServerSuicide();
-        
-        ExecutingPlayerController->ClientMessage(TEXT("Successfully killed a player."));
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            if (net_connection->PlayerController() != ExecutingPlayerController)
+            {
+                target_players.Add(net_connection->PlayerController());
+            }
+        }
     }
     else
     {
         ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        // Force suicide upon this player
+        player_controller->ServerSuicide();
+        
+        ExecutingPlayerController->ClientMessage(TEXT("Successfully killed a player."));
     }
 }
 
@@ -1038,24 +1121,37 @@ void moderation_component::HandleToggleKeepInventoryCommand(const TCHAR*& InStre
 
 void moderation_component::HandleReviveCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    FString InPlayerName;
+    TArray<AFortPlayerController*> target_players;
     
+    FString InPlayerName;
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
         ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
         return;
     }
-    
-    if (AFortPlayerController* TargetPlayer = get_player_by_name(InPlayerName))
-    {
-        // Force revive a player
-        reviving_component::revive_player(ExecutingPlayerController, TargetPlayer->Pawn(), true);
 
-        ExecutingPlayerController->ClientMessage(TEXT("Successfully revived a player."));
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
     }
     else
     {
         ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        // Force revive a player
+        reviving_component::revive_player(ExecutingPlayerController, player_controller->Pawn(), true);
+
+        ExecutingPlayerController->ClientMessage(TEXT("Successfully revived a player."));
     }
 }
 

@@ -515,7 +515,7 @@ AFortPlayerController* player_component::get_player_by_account_id(std::wstring i
     return nullptr;   
 }
 
-void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, float Damage, FName BoneName)
+void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, int Damage, FName BoneName)
 {
     if (Instigator)
     {

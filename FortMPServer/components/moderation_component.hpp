@@ -8,6 +8,9 @@ public:
     // get player by username
     static AFortPlayerController* get_player_by_name(FString InPlayerName);
 
+    // Get all players
+    static TArray<UNetConnection*> get_all_players();
+    
     // Check if the player's IP is marked as Administrator, if so, grant admin permission
     static void grant_admin_permission_safe(AFortPlayerController* JoiningPlayer);
 
