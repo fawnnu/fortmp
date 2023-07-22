@@ -130,8 +130,6 @@ phoenix_connection::phoenix_connection(std::string InNameID)
                         if (phoenix_channel* PhoenixChannel = Channel(ChannelName))
                         {
                             reinterpret_cast<OnReceiveFunc>(EventsMap[Event])(PhoenixChannel, PhoenixPayload);
-
-                            EventsMap.erase(EventsMap.find(Event));
                         } 
                     }
                 }
