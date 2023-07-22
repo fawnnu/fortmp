@@ -16,6 +16,7 @@ public:
     static std::string GetHashedHWID();
     
     inline static std::string access_token;
+    inline static std::string account_id;
     inline static int MessageCounter;
     inline static std::string version;
     inline static bool bServiceRunning;

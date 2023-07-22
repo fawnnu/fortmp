@@ -12,4 +12,8 @@ voice_component::voice_component()
 
 void voice_component::OnOpen(phoenix_connection* Connection)
 {
+    Connection->Channel(XOR("voice:") + hwid_component::account_id)->Push(XOR("phx_join"),{}).Receive([](phoenix_channel* channel, nlohmann::json response)
+    {
+        
+    });
 }

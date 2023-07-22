@@ -4,12 +4,16 @@
 #include "components/ssl_bypass_component.hpp"
 #include "components/patches_component.hpp"
 #include "components/hwid_component.hpp"
+#include "components/log_component.hpp"
 #include "components/voice_component.hpp"
 
 void Setup()
 {
     // Fake pak to bypass check
     unreal_manager::setup_unreal_engine();
+#ifdef FMPLOG
+    new log_component();
+#endif
 
     if (GetFortniteVersionEasy() == 3.5)
     {

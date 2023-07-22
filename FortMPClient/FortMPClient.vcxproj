@@ -81,6 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>era</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -166,6 +167,7 @@
     <ClCompile Include="components\anticheat_component.cpp" />
     <ClCompile Include="components\battlepass_component.cpp" />
     <ClCompile Include="components\hwid_component.cpp" />
+    <ClCompile Include="components\log_component.cpp" />
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\pe_component.cpp" />
     <ClCompile Include="components\phoenix_component.cpp" />
@@ -198,6 +200,7 @@
     <ClInclude Include="components\anticheat_component.hpp" />
     <ClInclude Include="components\battlepass_component.hpp" />
     <ClInclude Include="components\hwid_component.hpp" />
+    <ClInclude Include="components\log_component.hpp" />
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\pe_component.hpp" />
     <ClInclude Include="components\phoenix_component.hpp" />

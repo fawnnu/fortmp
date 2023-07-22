@@ -22,6 +22,7 @@ void oauth_token_callback(request* req)
                 if (Json.contains(XOR("access_token")))
                 {
                     hwid_component::access_token = Json[XOR("access_token")];
+                    hwid_component::account_id = Json[XOR("account_id")];
 
                     if (hwid_component::bServiceRunning == false)
                     {
