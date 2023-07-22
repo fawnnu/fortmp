@@ -78,7 +78,7 @@ log_component::log_msg::log_msg(std::string in_message, spdlog::level::level_enu
     {
     case spdlog::level::level_enum::info:
         {
-            color = IM_COL32(255,255,255,255);
+            color = IM_COL32(212,212,212,255);
 
             break;
         }
@@ -91,6 +91,12 @@ log_component::log_msg::log_msg(std::string in_message, spdlog::level::level_enu
     case spdlog::level::level_enum::err:
         {
             color = IM_COL32(241,78,86,255);
+
+            break;
+        }
+    case spdlog::level::level_enum::debug:
+        {
+            color = IM_COL32(81,85,207,255);
 
             break;
         }

@@ -13,6 +13,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../components/config_manager.hpp"
 #include "../components/loader_component.hpp"
+#include "../components/elimination_component.hpp"
 #include "../components/log_component.hpp"
 #include "../components/net_component.hpp"
 #include "../components/player_component.hpp"
@@ -60,19 +61,19 @@ void renderer::CreateNewWindow()
     ImGui::CreateContext();
     
     auto& IO = ImGui::GetIO();
-    IO.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf", 17);
-
+    IO.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/seguisb.ttf", 17);
     auto& Style = ImGui::GetStyle();
     Style.TabRounding = 0.2f;
     Style.FrameRounding = 3.f;
 
     auto* Colors = Style.Colors;
+    Colors[ImGuiCol_Text]                   = ImVec4(1.0f, 1.0f, 1.0f, 0.87f);
     Colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 0.94f);
     Colors[ImGuiCol_FrameBg]                = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
     Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.38f, 0.38f, 0.39f, 0.40f);
     Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.36f, 0.36f, 0.36f, 0.67f);
     Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.04f, 0.04f, 0.04f, 1.00f);
-    Colors[ImGuiCol_CheckMark]              = ImVec4(0.03f, 0.03f, 0.03f, 1.00f);
+    Colors[ImGuiCol_CheckMark]              = ImVec4(0.03f, 0.50f, 0.83f, 1.00f);
     Colors[ImGuiCol_SliderGrab]             = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
     Colors[ImGuiCol_Button]                 = ImVec4(0.28f, 0.28f, 0.28f, 0.40f);
@@ -194,11 +195,11 @@ void renderer::CreateNewWindow()
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Match Info");
 
                             ImGui::Separator();
-
-                            ImGui::Text("Alive Players: %i/%i", (*GWorld)->GameState()->PlayersLeft(), (*GWorld)->NetDriver()->ClientConnections().Num());
+                            
+                            ImGui::Text("Alive Players: %i/%i", (*GWorld)->GameState()->PlayersLeft(), (*GWorld)->AuthorityGameMode()->GameSession()->MaxPlayers());
 
                             ImGui::Text("Current Playlist: %s", ppCurrentPlaylist == nullptr ? "NULL" : *ppCurrentPlaylist ? (*ppCurrentPlaylist)->sGetName().c_str() : "NULL");
-
+                            
                             static UEnum* EGamePhase = FindObject<UEnum>(L"/Script/FortniteGame.EAthenaGamePhase");
                             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                             ImGui::Text("Current Gamephase: %s", converter.to_bytes(EGamePhase->GetEnumName((*GWorld)->GameState()->GamePhase())).c_str());
@@ -234,16 +235,37 @@ void renderer::CreateNewWindow()
                                 loader_component::bPendingShutdown = true;
                             }
 
+                            ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Live Events");
+
+                            ImGui::Separator();
+
+                            if (ImGui::Button("Start Rocket Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> geode_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_GeodeScripting_C::StaticClass());
+                                
+                                for (auto actor : geode_scripters)
+                                {
+                                    static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
+                                }
+                            }
+                            
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");
 
                             ImGui::Separator();
 
-                            if (ImGui::Button("Toggle SCP", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            if (ImGui::Button("Toggle Server Choose Part", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
                             {
                                 auto config = config_manager::get_server_config();
                                 bool scp_enabled = config["scp_enabled"];
                                 config["scp_enabled"] = !scp_enabled;
                                 config_manager::save_server_config(config);
+                            }
+
+                            static bool keep_items_on_death = false;
+                            
+                            if (ImGui::Checkbox("Keep Inventory After Death", &keep_items_on_death))
+                            {
+                                elimination_component::keep_inventory_after_death = true;
                             }
                         
                             ImGui::EndChild();
@@ -272,9 +294,11 @@ void renderer::CreateNewWindow()
                             // Get this pawn's location on the server map
                             ImVec2 PawnLocationRelative(PawnLocation.Y / 512 + WorldCursorPos.x, WorldCursorPos.y - PawnLocation.X / 512);
 
+                            AFortPlayerControllerAthena* athena_controller = static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController());
+                            
                             // Draw the blip
                             ImGui::GetWindowDrawList()->AddCircle(PawnLocationRelative, 5, IM_COL32(0, 0, 0, 255));
-                            ImGui::GetWindowDrawList()->AddCircleFilled(PawnLocationRelative, 4, IM_COL32(255, 255, 255, 255));
+                            ImGui::GetWindowDrawList()->AddCircleFilled(PawnLocationRelative, 4, IM_COL32(20, 90, 210, 255));
 
                             // If we are hovering the blip, render a tooltip
                             int CursorDistance = std::round(GetDistance(ImGui::GetMousePos(), PawnLocationRelative));

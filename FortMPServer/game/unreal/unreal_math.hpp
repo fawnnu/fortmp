@@ -61,6 +61,25 @@ struct FColor
 
     float A;
 };
+
+struct FLinearColor
+{
+    FLinearColor() = default;
+    
+    FLinearColor(float InR, float InG, float InB, float InA) :
+        R(InR), G(InG), B(InB), A(InA)
+    {
+    }
+    
+    float R;
+    
+    float G;
+
+    float B;
+
+    float A;
+};
+
 struct FRotator
 {
     FRotator() = default;
