@@ -133,13 +133,14 @@ void vehicles_component_hooks::ServerOnExitVehicle_Hook(AFortPlayerPawn* FortPla
 
 void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
-    GET_PARAMETER(int, TargetSeatIndex);
 
     // Unequip vehicle weapon
     vehicles_component::unequip_vehicle_weapon(FortPlayerController);
 
     if (UFortVehicleSeatWeaponComponent::StaticClass())
     {
+        GET_PARAMETER(int, TargetSeatIndex);
+        
         if (FortPlayerController->Pawn()->IsInVehicle())
         {
             if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = FortPlayerController->Pawn()->GetVehicle()->GetSeatWeaponComponent(TargetSeatIndex))
