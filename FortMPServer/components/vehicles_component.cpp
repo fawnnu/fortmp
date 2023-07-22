@@ -125,21 +125,21 @@ void vehicles_component_hooks::ServerOnExitVehicle_Hook(AFortPlayerPawn* FortPla
     
     // Unequip the equipped vehicle weapon
     vehicles_component::unequip_vehicle_weapon(FortPlayerController);
+
+    FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->GetItemGuid());
     
-    // First entry is always pickaxe
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-    FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
 }
 
 void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
-    GET_PARAMETER(int, TargetSeatIndex);
 
     // Unequip vehicle weapon
     vehicles_component::unequip_vehicle_weapon(FortPlayerController);
 
     if (UFortVehicleSeatWeaponComponent::StaticClass())
     {
+        GET_PARAMETER(int, TargetSeatIndex);
+        
         if (FortPlayerController->Pawn()->IsInVehicle())
         {
             if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = FortPlayerController->Pawn()->GetVehicle()->GetSeatWeaponComponent(TargetSeatIndex))
