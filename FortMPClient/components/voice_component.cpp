@@ -7,7 +7,7 @@
 voice_component::voice_component()
 {
     auto NewPhoenixConnection = new phoenix_connection(XOR("VoiceChatConnection"));
-    NewPhoenixConnection->Connect(std::string(XOR("wss://apollo.v1.erafn.org/voice/websocket?token=")) + hwid_component::access_token, OnOpen);
+    NewPhoenixConnection->Connect(std::string(XOR("wss://apollo.v1.erafn.org/voice/websocket?token=")) + hwid_component::access_token + XOR("&vsn=2.0.0"), OnOpen);
 }
 
 void voice_component::OnOpen(phoenix_connection* Connection)
