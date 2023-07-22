@@ -34,6 +34,9 @@ public:
 
     // Push implementation: send a message
     phoenix_message Push(std::string EventName, nlohmann::json Payload);
+
+    // Callback when event occurs on this channel
+    void On(std::string EventName, OnReceiveFunc Callback);
     
     // Name of this channel
     std::string Channel;
@@ -75,6 +78,9 @@ public:
     
     // Map for messages and their callbacks
     std::map<int, PVOID> MessagesMap;
+    
+    // Map for events and their callbacks
+    std::map<std::string, PVOID> EventsMap;
 
     // Array of channels
     std::vector<phoenix_channel*> Channels;

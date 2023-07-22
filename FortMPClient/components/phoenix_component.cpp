@@ -26,6 +26,17 @@ void phoenix_message::Receive(OnReceiveFunc Callback)
     }
 }
 
+void phoenix_channel::On(std::string EventName, OnReceiveFunc Callback)
+{
+    if (OwnerConnection)
+    {
+        if (!OwnerConnection->EventsMap.contains(EventName))
+        {
+            OwnerConnection->EventsMap[EventName] = Callback;
+        }
+    }
+}
+
 phoenix_channel::phoenix_channel(std::string InChannel, phoenix_connection* InOwnerConnection)
 {
     Channel = InChannel;
@@ -95,7 +106,11 @@ phoenix_connection::phoenix_connection(std::string InNameID)
                 // Make sure it's a phoenix message
                 if (ParsedPayload.is_array() && ParsedPayload.size() == 5)
                 {
-                    int MessageReference = ParsedPayload.at(1);
+                    int MessageReference = 0;
+                    if (ParsedPayload.at(1).is_number_integer())
+                    {
+                        MessageReference = ParsedPayload.at(1);
+                    }
                     std::string ChannelName = ParsedPayload.at(2);
                     std::string Event = ParsedPayload.at(3);
                     nlohmann::json PhoenixPayload = ParsedPayload.at(4);
@@ -109,6 +124,15 @@ phoenix_connection::phoenix_connection(std::string InNameID)
 
                             MessagesMap.erase(MessagesMap.find(MessageReference));
                         }
+                    }
+                    else if (EventsMap.contains(Event)) // If we're tracking this event, process the message
+                    {
+                        if (phoenix_channel* PhoenixChannel = Channel(ChannelName))
+                        {
+                            reinterpret_cast<OnReceiveFunc>(EventsMap[Event])(PhoenixChannel, PhoenixPayload);
+
+                            EventsMap.erase(EventsMap.find(Event));
+                        } 
                     }
                 }
             }
