@@ -9,6 +9,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
+//#define FMPLOG
 
 #define XOR(STR) xorstr(STR).crypt_get()
 
@@ -29,6 +30,7 @@
 #include "winternl.h"
 #include <TlHelp32.h>
 #include <filesystem>
+#include "portaudio/portaudio.h"
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>
