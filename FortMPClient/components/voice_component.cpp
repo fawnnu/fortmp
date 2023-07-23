@@ -10,6 +10,10 @@ voice_component::voice_component()
     NewPhoenixConnection->Connect(std::string(XOR("wss://apollo.v1.erafn.org/voice/websocket?token=")) + hwid_component::access_token + XOR("&vsn=2.0.0"), OnOpen);
 }
 
+void voice_component::AudioThread()
+{
+}
+
 void voice_component::OnOpen(phoenix_connection* Connection)
 {
     phoenix_channel* VoiceChannel = Connection->Channel(XOR("voice:") + hwid_component::account_id);

@@ -30,6 +30,7 @@
 #include "winternl.h"
 #include <TlHelp32.h>
 #include <filesystem>
+#include "portaudio/portaudio.h"
 
 #include <spdlog/spdlog.h>
 #include <Detours.h>
