@@ -17,7 +17,16 @@ void voice_component::OnOpen(phoenix_connection* Connection)
     {
         channel->On(XOR("connect"), [](phoenix_channel* channel, nlohmann::json response)
         {
-            
+            if (response.contains(XOR("party")))
+            {
+                std::string PartyID = response[XOR("party")];
+                phoenix_channel* PartyChannel = channel->OwnerConnection->Channel(XOR("party:") + PartyID);
+                PartyChannel->Push(XOR("phx_join"), {
+                }).Receive([](phoenix_channel* channel, nlohmann::json response)
+                {
+                    
+                });
+            }
         });
     });
 }
