@@ -44,25 +44,28 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                 }
             }
         }
-
-        switch (MarkerOptionalAdjustment)
+        
+        if (static UEnum* EFortBuildPreviewMarkerOptionalAdjustment = FindObject<UEnum>(L"/Script/FortniteGame.EFortBuildPreviewMarkerOptionalAdjustment"))
         {
-        case 1:
+            switch (MarkerOptionalAdjustment)
             {
-                FVector NewBuildLocation = building_location;
-                NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
+            case 1:
+                {
+                    FVector NewBuildLocation = building_location;
+                    NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                    spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
+                    break;
+                }
+            case 2:
+                {
+                    FVector NewBuildLocation = building_location;
+                    NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                    spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
+                    break;
+                }
+            default:
                 break;
             }
-        case 2:
-            {
-                FVector NewBuildLocation = building_location;
-                NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
-                break;
-            }
-        default:
-            break;
         }
             
         // Spawn a building actor in the world
