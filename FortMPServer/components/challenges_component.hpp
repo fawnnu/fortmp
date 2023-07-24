@@ -6,6 +6,7 @@ public:
     challenges_component();
 
     static void SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
+    static void SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop);
     static void SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
     static void SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self);
     static void SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama);
@@ -18,6 +19,7 @@ public:
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
     static void SendDanceInteraction(AFortPlayerController* InteractingController);
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
+    static void SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

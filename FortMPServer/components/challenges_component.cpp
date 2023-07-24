@@ -26,6 +26,24 @@ void challenges_component::SendChestEvent(AFortPlayerController* InteractingCont
     }
 }
 
+void challenges_component::SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop)
+{
+    if (InteractingController && SupplyDrop)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            std::map<std::string, std::string> parameters{
+                {"x", std::to_string(SupplyDrop->K2_GetActorLocation().X)},
+                {"y", std::to_string(SupplyDrop->K2_GetActorLocation().Y)}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:supply-drop", parameters);
+        }
+    }
+}
+
 void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
 {
     if (InteractingController && TargetContainer)
@@ -312,6 +330,24 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:dance", parameters);
+        }
+    }   
+}
+
+void challenges_component::SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine)
+{
+    if (InteractingController && VendingMachine)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", VendingMachine->K2_GetActorLocation().X},
+                {"y", VendingMachine->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:vending", parameters);
         }
     }   
 }
