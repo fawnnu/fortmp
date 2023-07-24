@@ -6,6 +6,7 @@
 
 challenges_component::challenges_component()
 {
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C.Rising__FinishedFunc", challenges_component_hooks::Rising__FinishedFunc_Hook);
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -518,6 +519,61 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+void challenges_component::SendDiscoBallInteraction(AFortPlayerController* InteractingController)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:disco-ball", parameters);
+        }
+    }   
+}
+
+void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    if (Object->IsA(ABA_QuestInteractable_DancePlatforms::StaticClass()))
+    {
+        ABA_QuestInteractable_DancePlatforms* DancePlatform = static_cast<ABA_QuestInteractable_DancePlatforms*>(Object);
+
+        for (auto Platform1Pawn : DancePlatform->Platform1_Pawns())
+        {
+            if (Platform1Pawn && Platform1Pawn->Controller())
+            {
+                challenges_component::SendDiscoBallInteraction(Platform1Pawn->Controller());
+            }
+        }
+        for (auto Platform2Pawn : DancePlatform->Platform2_Pawns())
+        {
+            if (Platform2Pawn && Platform2Pawn->Controller())
+            {
+                challenges_component::SendDiscoBallInteraction(Platform2Pawn->Controller());
+            }
+        }
+        for (auto Platform3Pawn : DancePlatform->Platform3_Pawns())
+        {
+            if (Platform3Pawn && Platform3Pawn->Controller())
+            {
+                challenges_component::SendDiscoBallInteraction(Platform3Pawn->Controller());
+            }
+        }
+        for (auto Platform4Pawn : DancePlatform->Platform4_Pawns())
+        {
+            if (Platform4Pawn && Platform4Pawn->Controller())
+            {
+                challenges_component::SendDiscoBallInteraction(Platform4Pawn->Controller());
             }
         }
     }

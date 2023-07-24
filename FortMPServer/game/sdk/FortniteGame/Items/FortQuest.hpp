@@ -84,3 +84,15 @@ public:
     
     DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestObject_Interactable_Parent.Prop_QuestObject_Interactable_Parent_C");
 };
+
+class ABA_QuestInteractable_DancePlatforms : public AActor
+{
+public:
+    DEFINE_PROPERTY(TArray<AFortPlayerPawn*>, Platform1_Pawns);
+    DEFINE_PROPERTY(TArray<AFortPlayerPawn*>, Platform2_Pawns);
+    DEFINE_PROPERTY(TArray<AFortPlayerPawn*>, Platform3_Pawns);
+    DEFINE_PROPERTY(TArray<AFortPlayerPawn*>, Platform4_Pawns);
+    DEFINE_PROPERTY(FName, QuestObjBackendName);
+    
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C");
+};

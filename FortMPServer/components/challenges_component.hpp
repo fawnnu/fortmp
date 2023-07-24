@@ -21,6 +21,7 @@ public:
     static void SendSprayInteraction(AFortPlayerController* InteractingController);
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
     static void SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine);
+    static void SendDiscoBallInteraction(AFortPlayerController* InteractingController);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
@@ -32,3 +33,8 @@ struct progression_entry
     int value;
     std::string player;
 };
+
+namespace challenges_component_hooks
+{
+    DEFINE_FUNCTION_HOOK(void, Rising__FinishedFunc, (UObject* Object, UObject* Function, void* Params))
+}
