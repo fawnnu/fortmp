@@ -409,10 +409,16 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
                 new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C", true, false);
+                
+                // Notify backend that we're dancing
+                challenges_component::SendSprayInteraction(player_controller);
             }
             else
             {
                 new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
+                
+                // Notify backend that we're dancing
+                challenges_component::SendDanceInteraction(player_controller);
             }
         
             new_ability_spec.SourceObject = dance_asset; // set the sourceobject, in this case the emote we want to execute
@@ -451,9 +457,6 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                 player_controller->Pawn()->LastEmoteItemDef() = dance_asset;
                 player_controller->Pawn()->LastReplicatedEmoteExecuted() = dance_asset;
             }
-
-            // Notify backend that we're dancing
-            challenges_component::SendDanceInteraction(player_controller);
         }
     }
 }

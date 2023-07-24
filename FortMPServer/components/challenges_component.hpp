@@ -18,6 +18,7 @@ public:
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
     static void SendDanceInteraction(AFortPlayerController* InteractingController);
+    static void SendSprayInteraction(AFortPlayerController* InteractingController);
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
     static void SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine);
 
