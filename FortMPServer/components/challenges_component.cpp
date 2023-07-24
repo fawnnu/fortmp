@@ -122,6 +122,8 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 {"smg", DamageDealt.SMGDamage},
                 {"suppressed_smg", DamageDealt.SuppressedSMGDamage},
                 {"grenade_launcher", DamageDealt.GrenadeLauncherDamage},
+                {"lmg", DamageDealt.LMGDamage},
+                {"minigun", DamageDealt.MinigunDamage},
                 {"rpg", DamageDealt.RPGDamage}
             };
 
@@ -184,6 +186,14 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"SMG"))
                     {
                         weapon = "smg";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"LMG"))
+                    {
+                        weapon = "lmg";
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Minigun"))
+                    {
+                        weapon = "minigun";
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"GrenadeLauncher"))
                     {

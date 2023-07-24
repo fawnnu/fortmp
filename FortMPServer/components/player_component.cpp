@@ -598,6 +598,12 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     case EDamageCauser::GrenadeLauncher:
                         Value.GrenadeLauncherDamage += Damage;
                         break;
+                    case EDamageCauser::LMG:
+                        Value.LMGDamage += Damage;
+                        break;
+                    case EDamageCauser::Minigun:
+                        Value.MinigunDamage += Damage;
+                        break;
                     case EDamageCauser::RPG:
                         Value.RPGDamage += Damage;
                         break;
@@ -735,13 +741,13 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"weapon.ranged.assault.burst", EDamageCauser::AssaultRifle },
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
         { L"weapon.ranged.assault.silenced", EDamageCauser::AssaultRifle },
-        { L"Weapon.Ranged.LMG", EDamageCauser::AssaultRifle },
+        { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
         { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
         { L"Weapon.Ranged.Sniper", EDamageCauser::Sniper },
         { L"weapon.ranged.sniper.bolt", EDamageCauser::Sniper },
         { L"Weapon.Ranged.SMG", EDamageCauser::SMG },
         { L"Weapon.Ranged.Crossbow", EDamageCauser::Sniper },
-        { L"Weapon.Ranged.Minigun", EDamageCauser::AssaultRifle },
+        { L"Weapon.Ranged.Minigun", EDamageCauser::Minigun },
         { L"weapon.ranged.heavy.rocket_launcher", EDamageCauser::RPG},
         { L"weapon.ranged.heavy.grenade_launcher", EDamageCauser::GrenadeLauncher},
         { L"Weapon.ranged.heavy.grenade", EDamageCauser::Grenade}

@@ -58,6 +58,7 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
         { L"Weapon.Ranged.SMG", death_cause_enum->GetEnumIndex(L"SMG") },
         { L"Weapon.Ranged.Crossbow", death_cause_enum->GetEnumIndex(L"Bow") },
         { L"Weapon.Ranged.Minigun", death_cause_enum->GetEnumIndex(L"Minigun") },
+        { L"Weapon.Ranged.LMG", death_cause_enum->GetEnumIndex(L"LMG") },
         { L"Gameplay.Damage.Environment.Falling", death_cause_enum->GetEnumIndex(L"FallDamage") },
         { L"Gameplay.Damage.OutsideSafeZone", death_cause_enum->GetEnumIndex(L"OutsideSafeZone") },
         { L"Gameplay.Damage.DBNOBleedOut", death_cause_enum->GetEnumIndex(L"DBNOTimeout") },
