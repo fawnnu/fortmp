@@ -40,7 +40,7 @@ void challenges_component::SendSupplyDropEvent(AFortPlayerController* Interactin
                 {"y", std::to_string(SupplyDrop->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:supply-drop", parameters);
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:supply", parameters);
         }
     }
 }

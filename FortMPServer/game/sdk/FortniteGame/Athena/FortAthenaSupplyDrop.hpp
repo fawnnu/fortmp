@@ -3,7 +3,7 @@
 class AFortAthenaSupplyDrop : public AActor
 {
 public:
-    
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaSupplyDrop")
 };
 
 class AAthenaSupplyDrop_Llama_C : public AFortAthenaSupplyDrop
