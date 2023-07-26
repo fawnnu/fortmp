@@ -120,14 +120,19 @@ void vehicles_component_hooks::ServerAttemptExitVehicle_Hook(AFortPlayerControll
 void vehicles_component_hooks::ServerOnExitVehicle_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
 {
     ServerOnExitVehicle(FortPlayerPawn, StackFrame);
-    
-    AFortPlayerController* FortPlayerController = FortPlayerPawn->Controller();
-    
-    // Unequip the equipped vehicle weapon
-    vehicles_component::unequip_vehicle_weapon(FortPlayerController);
 
-    FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->GetItemGuid());
+    if (FortPlayerPawn && FortPlayerPawn->Controller())
+    {
+        AFortPlayerController* FortPlayerController = FortPlayerPawn->Controller();
     
+        // Unequip the equipped vehicle weapon
+        vehicles_component::unequip_vehicle_weapon(FortPlayerController);
+
+        if (UFortWorldItem* Pickaxe = inventory_component::get_pickaxe(FortPlayerController))
+        {
+            FortPlayerController->ServerExecuteInventoryItem(Pickaxe->GetItemGuid());
+        }
+    }
 }
 
 void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
