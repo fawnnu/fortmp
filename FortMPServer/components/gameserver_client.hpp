@@ -92,7 +92,8 @@ public:
     // Map for messages and their callbacks
     std::map<int, PVOID> MessagesMap;
 
-    
+    // Last message sent
+    nlohmann::json LastMessagePayload;
 
     int LocalNonAckHeartbeatsForPlayers;
 };

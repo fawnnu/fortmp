@@ -253,6 +253,24 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // Make sure it's a phoenix message
         if (VectorPayloadString.size() == 2)
         {
+            // If it's a phx_error message, log it
+            if (VectorPayloadString[1] == "phx_error")
+            {
+                std::string ChannelName = VectorPayloadString[0];
+                if (ChannelName.size() > 0)
+                {
+                    spdlog::error("Channel '{}' crashed. [Received phx_error]", ChannelName.c_str());
+                    try
+                    {
+                        spdlog::error("phx_error last message: {}", LastMessagePayload.dump().c_str());
+                    }
+                    catch (nlohmann::json::other_error& err)
+                    {
+                        spdlog::error("phx_error last message can't be dumped.");
+                    }
+                }
+            }
+            
             // If it's a phx_reply message, check if there's any callback to call
             if (VectorPayloadString[1] == "phx_reply")
             {
@@ -373,6 +391,9 @@ int gameserver_client::SendJoin()
                 {"name", {GameServer_Status.name.length() >= 2 && GameServer_Status.name.length() <= 16 ? GameServer_Status.name : qos_component::best_region}}
             }); // param
 
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -413,6 +434,9 @@ int gameserver_client::SendUpdate()
                 {"playlist", {GameServer_Status.mode}}
             }); // param
 
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -446,6 +470,9 @@ int gameserver_client::SendLeave()
             payload.push_back(std::map<std::string, std::string>{
             }); // param
 
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -479,7 +506,10 @@ int gameserver_client::SendBan(std::string uuid)
             payload.push_back(std::map<std::string, std::string>{
                 {"account_id", uuid}
             }); // param
-
+            
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -513,6 +543,9 @@ int gameserver_client::SendHeartbeat()
             payload.push_back(std::map<std::string, std::string>{
             }); // param
 
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -544,7 +577,10 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             payload.push_back(channel); // Channel
             payload.push_back(event_type); // Event Type
             payload.push_back(parameters); // param
-
+            
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
@@ -577,6 +613,9 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             payload.push_back(event_type); // Event Type
             payload.push_back(parameters); // param
 
+            // Copy last message
+            LastMessagePayload = payload;
+            
             // Send
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
 
