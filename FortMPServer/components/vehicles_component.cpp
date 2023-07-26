@@ -5,6 +5,7 @@
 
 vehicles_component::vehicles_component()
 {
+    INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 55 53 56 57 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 C7 41 0F 10 00 4C 8B 7D 77 48 8B D9 48 8B 89 ? ? ? ? 45 0F B6 F1 0F 29 45 87 49 8B F8"));
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 53 55 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 41 0F 10 00 4C 8B B4 24 ? ? ? ?"));
     
     // Hook the last call in EquipAbilityWeapon
