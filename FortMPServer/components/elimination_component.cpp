@@ -181,7 +181,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 siphon_mutator_params SiphonParams;
                 SiphonParams.Target = DeathReport.KillerPawn()->Controller();
                 SiphonParams.Victim = VictimPlayerController;
-                era_mutators_component::Execute("siphon", &Params);
+                era_mutators_component::Execute("siphon", &SiphonParams);
                                 
                 FGameplayEventData* GameplayEventData = FGameplayEventData::Create();
                 GameplayEventData->Instigator() = DeathReport.KillerPawn()->Controller();
