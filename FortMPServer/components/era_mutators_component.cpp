@@ -1,0 +1,62 @@
+﻿#include "include.hpp"
+#include "era_mutators_component.hpp"
+
+#include "config_manager.hpp"
+#include "inventory_component.hpp"
+
+era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callback)
+{
+    mutator_name = in_mutator_name;
+    callback = in_callback;
+    era_mutators_component::era_mutators.push_back(this);
+}
+
+era_mutators_component::era_mutators_component()
+{
+    new era_mutator("siphon", [](LPVOID Parameters)
+    {
+        siphon_mutator_params* SiphonParameters = static_cast<siphon_mutator_params*>(Parameters);
+        AFortPlayerController* TargetPlayerController = SiphonParameters->Target;
+        AFortPlayerController* VictimPlayerController = SiphonParameters->Victim;
+
+        // Add the items to the victim's inventory
+        inventory_component::add_item(VictimPlayerController, FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData"), 50);
+        inventory_component::add_item(VictimPlayerController, FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData"), 50);
+        inventory_component::add_item(VictimPlayerController, FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData"), 50);
+
+        // Health To Apply
+        float HealthToApply = 50.0;
+
+        //TODO: Logic
+    });
+
+    // See what mutators are enabled
+    parse_loaded_mutators();
+}
+
+void era_mutators_component::parse_loaded_mutators()
+{
+    auto config = config_manager::get_server_config();
+
+    for (auto& mutator_name_element : config["loaded_mutators"].items())
+    {
+        if (mutator_name_element.value().is_string())
+        {
+            std::string mutator_name = mutator_name_element.value();
+
+            enabled_era_mutators.push_back(mutator_name);
+        }
+    }
+}
+
+void era_mutators_component::Execute(std::string Name, void* Params)
+{
+    if (const auto Iterator = std::find(era_mutators.begin(), era_mutators.end(), Name); Iterator != era_mutators.end())
+    {
+        // make sure it's enabled
+        if (std::find(enabled_era_mutators.begin(), enabled_era_mutators.end(), Name) != enabled_era_mutators.end())
+        {
+            (*Iterator)->callback(Params);
+        }
+    }
+}

@@ -32,6 +32,7 @@
 #include "components/playlist_component.hpp"
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
+#include "components/era_mutators_component.hpp"
 
 #include "gui/renderer.hpp"
 #include "utils/webhook_manager.hpp"
@@ -137,6 +138,7 @@ void Setup()
                 new playlist_component();
                 new anticheat_component();
                 new challenges_component();
+                new era_mutators_component();
                     
                 break;
             }

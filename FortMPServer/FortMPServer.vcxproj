@@ -216,6 +216,7 @@
     <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
+    <ClInclude Include="components\era_mutators_component.hpp" />
     <ClInclude Include="components\function_component.hpp" />
     <ClInclude Include="components\gamemodes_component.hpp" />
     <ClInclude Include="components\gameserver_client.hpp" />
@@ -344,6 +345,7 @@
     <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />
+    <ClCompile Include="components\era_mutators_component.cpp" />
     <ClCompile Include="components\function_component.cpp" />
     <ClCompile Include="components\gamemodes_component.cpp" />
     <ClCompile Include="components\gameserver_client.cpp" />

@@ -27,6 +27,7 @@ nlohmann::json config_manager::get_server_config()
                 "scheduler_port": -1,
                 "loot_pool_changes": [],
                 "weapon_hotfixes": {},
+                "loaded_mutators": [],
                 "override_region": ""
             }
         )"_json;

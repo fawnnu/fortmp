@@ -110,3 +110,17 @@ public:
         return Call<uint8_t>(Function_ToDeathCause, InTags, bWasDBNO);
     }
 };
+
+class UFortHealthSet : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortHealthSet");
+
+    DEFINE_PROPERTY(FGameplayAttributeData, CurrentShield);
+    void OnRep_CurrentShield()
+    {
+        STATIC_FINDFUNCTION(OnRep_CurrentShield);
+
+        Call(Function_OnRep_CurrentShield);
+    }
+};

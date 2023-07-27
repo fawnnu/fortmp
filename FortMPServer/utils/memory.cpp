@@ -63,7 +63,7 @@ uintptr_t memory_manager::find_pattern(const char* signature, bool bRelative, ui
 	return NULL;
 }
 
-uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards, bool bRelative, bool bTakeAddressOfOpcode, bool bExactString)
+uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::vector<DWORD> Opcodes, int Offset, bool Backwards, bool bRelative, bool bTakeAddressOfOpcode, bool bExactString,  uintptr_t* OutStringAddress, uintptr_t* OutLeaInstructionAddress)
 {
     __int64 BaseAddress = (__int64)GetModuleHandle(NULL);
 
@@ -95,6 +95,15 @@ uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::ve
 			{
 				if (std::wstring((const wchar_t*)(StringAddress)) == std::wstring(String))
 				{
+					if (OutStringAddress)
+					{
+						*OutStringAddress = StringAddress;
+					}
+					if (OutLeaInstructionAddress)
+					{
+						*OutLeaInstructionAddress = reinterpret_cast<unsigned long long>(&Bytes[i]);
+					}
+					
 					Bytes = &Bytes[i];
 					bFound = true;
 					break;
@@ -102,6 +111,15 @@ uintptr_t memory_manager::find_function_by_string(const wchar_t* String, std::ve
 			}
 			else if (wcsstr((const wchar_t*)(StringAddress), String))
 			{
+				if (OutStringAddress)
+				{
+					*OutStringAddress = StringAddress;
+				}
+				if (OutLeaInstructionAddress)
+				{
+					*OutLeaInstructionAddress = reinterpret_cast<unsigned long long>(&Bytes[i]);
+				}
+				
 				Bytes = &Bytes[i];
 				bFound = true;
 				break;

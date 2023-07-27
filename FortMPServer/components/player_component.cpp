@@ -15,6 +15,8 @@
 
 player_component::player_component()
 {
+    INIT_POINTER(HealthProperty, memory_manager::find_pattern("48 8B 15 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 48 8B CE E8 ? ? ? ? 48 85 C0 74 11 41 0F 28 D0 48 8D 54 24 ? 48 8B C8 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8D 4E 30 E8 ? ? ? ? 44 0F 28 C0 48 8D 4E 50 F3 45 0F 5C C1 F3 44 0F 5F C7 E8 ? ? ? ? 48 8D 4E 30 44 0F 28 C8 E8 ? ? ? ?", true, 3));
+    
     // Initialize serverchoosepart
     if (const uintptr_t index = memory_manager::find_function_by_string(L"ServerChoosePart_Validate", {0xff, 0x90}, 2, false, false))
     {
@@ -1028,7 +1030,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
 
 void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* MarkerComponent, FFrame& StackFrame)
 {
-    if (!WorldMarkerDataCtr) spdlog::error(L"ERROR: Unable to add map marker, WorldMarkerDataCtr is invalid."); return;
+    if (!WorldMarkerDataCtr)
+    {
+        spdlog::error(L"ERROR: Unable to add map marker, WorldMarkerDataCtr is invalid.");
+        return;
+    }
     
     GET_PARAMETER(FFortClientMarkerRequest, MarkerRequest);
     
@@ -1187,5 +1193,25 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 player_component::handle_player_damaged(static_cast<AFortPlayerPawn*>(Self), InstigatedBy, FortWeapon, Damage, HitInfo.BoneName());
             }
         }
+    }
+}
+
+void AFortPawn::SetShield(float NewShieldVal)
+{
+    STATIC_FINDFUNCTION(SetShield)
+    STATIC_FINDFUNCTION(SetHealth)
+
+    if (Function_SetShield == nullptr)
+    {
+        if (player_component::HealthProperty)
+        {
+            *player_component::HealthProperty = FindPropertyByName(UFortHealthSet::StaticClass(), L"CurrentShield");
+            Call(Function_SetHealth, NewShieldVal);
+            *player_component::HealthProperty = FindPropertyByName(UFortHealthSet::StaticClass(), L"Health");
+        }
+    }
+    else
+    {
+        Call(Function_SetShield);
     }
 }

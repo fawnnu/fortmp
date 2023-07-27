@@ -93,7 +93,7 @@ public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnPawnLanded);
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPawn>, OnDamaged);
     DEFINE_PROPERTY(TArray<AFortPickup*>, IncomingPickups);
-    
+    DEFINE_PROPERTY(class UFortHealthSet*, HealthSet);
     DEFINE_PROPERTY(float, EmoteWalkSpeed);
     DEFINE_PROPERTY(UFortItemDefinition*, LastEmoteItemDef);
     DEFINE_PROPERTY(UFortItemDefinition*, LastReplicatedEmoteExecuted);
@@ -139,6 +139,8 @@ public:
         
         Call(Function_SetHealth, NewHealthVal);
     }
+
+    void SetShield(float NewShieldVal);
 
     float GetHealth()
     {

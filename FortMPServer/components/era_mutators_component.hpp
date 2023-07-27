@@ -1,0 +1,45 @@
+﻿#pragma once
+
+// Existing mutator definitions
+struct siphon_mutator_params
+{
+    AFortPlayerController* Target;
+    AFortPlayerController* Victim;
+};
+
+// typedefs
+typedef void(*ExecuteCallback)(void* Params);
+
+class era_mutator
+{
+public:
+    era_mutator() = default;
+    era_mutator(std::string in_mutator_name, ExecuteCallback in_callback);
+    
+    std::string mutator_name;
+    ExecuteCallback callback;
+};
+
+// Overload operator
+FORCEINLINE bool operator==(era_mutator* Mutator, std::string Name)
+{
+    return Mutator->mutator_name == Name;
+}
+
+class era_mutators_component
+{
+public:
+    era_mutators_component();
+
+    // Parse loaded_mutators
+    void parse_loaded_mutators();
+
+    // Execute
+    void Execute(std::string Name, void* Params);
+
+    // Mutators list
+    static inline std::vector<era_mutator*> era_mutators;
+
+    // Active list of mutators
+    static inline std::vector<std::string> enabled_era_mutators;
+};

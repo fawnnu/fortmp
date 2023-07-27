@@ -101,6 +101,7 @@ public:
     static inline int InvalidTokensReceived;
     static inline int global_player_id = 0;
     static inline int starting_players = 0;
+    static inline void** HealthProperty;
 };
 
 namespace player_component_hooks
