@@ -861,6 +861,54 @@ void looting_component::parse_loot_pool_changes()
     }
 }
 
+void looting_component::parse_weapon_hotfixes()
+{
+    auto config = config_manager::get_server_config();
+
+    for (auto& weapon_hotfix : config["weapon_hotfixes"].items())
+    {
+        std::string key = weapon_hotfix.key();
+        TO_WSTRING(key, wKey);
+
+        if (weapon_hotfix.value().is_object())
+        {
+            if (UObject* AthenaRangedWeapons = FindObject(L"/Game/Athena/Items/Weapons/AthenaRangedWeapons.AthenaRangedWeapons", true))
+            {
+                TMap<FName, FFortBaseWeaponStats*> athena_ranged_weapons_map = *reinterpret_cast<TMap<FName, FFortBaseWeaponStats*>*>(reinterpret_cast<uintptr_t>(AthenaRangedWeapons) + 0x30);
+
+                for (auto athena_ranged_weapons_entry : athena_ranged_weapons_map)
+                {
+                    if (athena_ranged_weapons_entry.Element.Key.ToString() == wKey)
+                    {
+                        // Loop through values in the weapon_hotfix element
+                        for (auto& weapon_hotfix_info : weapon_hotfix.value().items())
+                        {
+                            std::string key_info = weapon_hotfix_info.key();
+                            TO_WSTRING(key_info, wKey_info);
+
+                            if (weapon_hotfix_info.value().is_number_float())
+                            {
+                                if (FindPropertyByName(athena_ranged_weapons_entry.Element.Value->GetClass(), wKey_info.c_str()))
+                                {
+                                    int Offset = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(FindPropertyByName(athena_ranged_weapons_entry.Element.Value->GetClass(), wKey_info.c_str())) + CoreOffsets::Offset_Internal);
+                                    float& CurrentValue = *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(athena_ranged_weapons_entry.Element.Value) + Offset);
+
+                                    // info
+                                    spdlog::info(L"looting_component::parse_weapon_hotfixes(): Hotfixing '{}' [PROPERTY: {}, VALUE: {}] with new value [{}]", wKey.c_str(), wKey_info.c_str(), CurrentValue, float(weapon_hotfix_info.value()));
+
+                                    CurrentValue = float(weapon_hotfix_info.value());
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void looting_component::apply_loot_pool_changes(FFortLootTierData* ToLootTierData, FName category_row_name)
 {
     for (auto change : loot_pool_changes)

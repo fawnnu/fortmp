@@ -189,6 +189,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Initialize bot managers and mutator
         bots_component::initialize_data();
+
+        // Weapon patches
+        looting_component::parse_weapon_hotfixes();
         
         // Update gamemode for clients
         (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");

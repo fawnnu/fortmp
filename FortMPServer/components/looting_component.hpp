@@ -76,6 +76,9 @@ public:
     // Parse loot_pool_changes
     static void parse_loot_pool_changes();
 
+    // Parse weapon_hotfixes
+    static void parse_weapon_hotfixes();
+
     // Apply changes
     static inline void apply_loot_pool_changes(FFortLootTierData* ToLootTierData, FName RowName);
     static inline void apply_loot_pool_changes(FFortLootPackageData* ToLootPackageData, FName RowName, ELootDataTableEditType CallType);
