@@ -27,7 +27,29 @@ era_mutators_component::era_mutators_component()
         // Health To Apply
         float HealthToApply = 50.0;
 
-        //TODO: Logic
+        // Health & Shield
+        float CurrentHealth = TargetPlayerController->Pawn()->GetHealth();
+        float CurrentShield = TargetPlayerController->Pawn()->GetShield();
+
+        CurrentHealth += HealthToApply;
+        if (CurrentHealth >= 100)
+        {
+            HealthToApply = CurrentHealth - 100;
+            CurrentHealth = 100;
+
+            if (HealthToApply > 0)
+            {
+                CurrentShield += HealthToApply;
+                if (CurrentShield >= 100)
+                {
+                    CurrentShield = 100;
+                }
+            }
+        }
+
+        // Apply
+        TargetPlayerController->Pawn()->SetHealth(CurrentHealth);
+        TargetPlayerController->Pawn()->SetShield(CurrentShield);
     });
 
     // See what mutators are enabled

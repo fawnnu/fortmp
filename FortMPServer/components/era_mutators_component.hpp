@@ -32,10 +32,10 @@ public:
     era_mutators_component();
 
     // Parse loaded_mutators
-    void parse_loaded_mutators();
+    static void parse_loaded_mutators();
 
     // Execute
-    void Execute(std::string Name, void* Params);
+    static void Execute(std::string Name, void* Params);
 
     // Mutators list
     static inline std::vector<era_mutator*> era_mutators;

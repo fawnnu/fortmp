@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "creative_component.hpp"
+#include "era_mutators_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
@@ -176,6 +177,12 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
             if (DeathReport.KillerPawn())
             {
+                // Siphon
+                siphon_mutator_params SiphonParams;
+                SiphonParams.Target = DeathReport.KillerPawn()->Controller();
+                SiphonParams.Victim = VictimPlayerController;
+                era_mutators_component::Execute("siphon", &Params);
+                                
                 FGameplayEventData* GameplayEventData = FGameplayEventData::Create();
                 GameplayEventData->Instigator() = DeathReport.KillerPawn()->Controller();
                 GameplayEventData->Target() = DeathReport.KillerPawn();
