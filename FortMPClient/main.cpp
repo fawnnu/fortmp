@@ -15,12 +15,6 @@ void Setup()
     new log_component();
 #endif
 
-    if (GetFortniteVersionEasy() == 3.5)
-    {
-        std::ofstream pak(XOR("../../Content/Paks/pakchunk1_do_not_delete.pak"));
-        pak.close();
-    }
-    
     ssl_bypass_component::redirect_url = XOR("https://api.v1.external.erafn.org/api/external/fortnite");
 
     //Instantly start the SSL bypass
