@@ -43,28 +43,11 @@ gamemodes_component::gamemodes_component()
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
-
-#ifdef _RELEASE
-    // Notify era services
-    gameserver_client::Client->GameServer_Status.accepting_players = true;
-    gameserver_client::Client->GameServer_Status.status = "online";
-    gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-    gameserver_client::Client->SendUpdate();
-
-    nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-mpfeed");
-    webhook_manager::send_webhook(payload);
-#endif
 }
 
 void gamemodes_component::OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
-
-#ifdef _RELEASE
-    // Notify era services
-    gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
-    gameserver_client::Client->SendUpdate();
-#endif
 }
 
 void gamemodes_component::OnUpdateStorm(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue)

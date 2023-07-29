@@ -888,6 +888,12 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Notify gamemode
         (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
 
+#ifdef _RELEASE
+        // Notify era services
+        gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
+        gameserver_client::Client->SendUpdate();
+#endif
+
         // Notify backend
         player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));
 

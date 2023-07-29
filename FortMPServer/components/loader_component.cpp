@@ -242,6 +242,17 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
 
+#ifdef _RELEASE
+        // Notify era services
+        gameserver_client::Client->GameServer_Status.accepting_players = true;
+        gameserver_client::Client->GameServer_Status.status = "online";
+        gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+        gameserver_client::Client->SendUpdate();
+
+        nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-mpfeed");
+        webhook_manager::send_webhook(payload);
+#endif
+
         spdlog::info(L"Match started in world '{}' and listening for connections",
             (*GWorld)->GetName().c_str());
     }
