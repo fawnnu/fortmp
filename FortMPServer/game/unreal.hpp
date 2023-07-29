@@ -342,7 +342,7 @@ public:
 
         static int UStruct_Size = *reinterpret_cast<int*>(uintptr_t(UStruct__Class) + CoreOffsets::StructSize);
         
-        static int parms_size_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0x8 : 0x6;
+        static int parms_size_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0x8 : UStruct_Size + 0x6;
 
         *reinterpret_cast<int*>(uintptr_t(this) + parms_size_offset) = InParmsSize;
     }
@@ -353,7 +353,7 @@ public:
 
         static int UStruct_Size = *reinterpret_cast<int*>(uintptr_t(UStruct__Class) + CoreOffsets::StructSize);
         
-        static int return_value_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0xA : 0x8;
+        static int return_value_offset = GetEngineVersionEasy() == 416 ? UStruct_Size + 0xA : UStruct_Size + 0x8;
 
         *reinterpret_cast<int*>(uintptr_t(this) + return_value_offset) = InReturnValueOffset;
     }
