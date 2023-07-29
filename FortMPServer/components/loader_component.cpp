@@ -17,12 +17,16 @@
 
 void loader_component::pre_init()
 {
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
+    // Season 5 crash fix
+    if (GetEngineVersionEasy() < 421)
+    {
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
     
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetCurrentPlaylistId, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object found in AFortGameStateAthena::SetCurrentPlaylistId()"), loader_component_hooks::SetCurrentPlaylistId_Hook);
+        REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetCurrentPlaylistId, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object found in AFortGameStateAthena::SetCurrentPlaylistId()"), loader_component_hooks::SetCurrentPlaylistId_Hook);
 
-    DetourTransactionCommit();
+        DetourTransactionCommit();
+    }
 }
 
 loader_component::loader_component()
