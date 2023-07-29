@@ -472,11 +472,14 @@ bool memory_manager::does_address_belong_to_func(uintptr_t target_address, uintp
 	return target_address < get_function_end(function_start) && target_address > function_start;
 }
 
-bool memory_manager::is_bad_read_pointer(void* pointer_to_read)
+bool memory_manager::is_bad_read_pointer(void* pointer_to_read, bool use_cache)
 {
-    if (pointer_cache.find(pointer_to_read) != pointer_cache.end())
+	if (use_cache)
 	{
-		return pointer_cache[pointer_to_read];
+		if (pointer_cache.find(pointer_to_read) != pointer_cache.end())
+		{
+			return pointer_cache[pointer_to_read];
+		}
 	}
 
 	MEMORY_BASIC_INFORMATION mbi;

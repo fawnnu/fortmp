@@ -45,8 +45,11 @@ void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Func
             hook_manager::hooked_functions[Function](Object, Function, Params);
         }
     }
-    
-    return AActor_ProcessEvent(Object, Function, Params);
+
+    if (Object && Function)
+    {
+        return AActor_ProcessEvent(Object, Function, Params);
+    }
 }
 
 void hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)

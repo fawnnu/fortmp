@@ -163,6 +163,20 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         return;
     }
 
+    // Check if anything is a bad pointer but not a nullptr
+    if (memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState(), false) && DeathReport.KillerPlayerState())
+    {
+        DeathReport.KillerPlayerState() = nullptr;
+    }
+    if (memory_manager::is_bad_read_pointer(DeathReport.DamageCauser(), false) && DeathReport.DamageCauser())
+    {
+        DeathReport.DamageCauser() = nullptr;
+    }
+    if (memory_manager::is_bad_read_pointer(DeathReport.KillerPawn(), false) && DeathReport.KillerPawn())
+    {
+        DeathReport.KillerPawn() = nullptr;
+    }
+
     if (!memory_manager::is_bad_read_pointer(DeathReport.KillerPlayerState()) &&
         !memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
     {

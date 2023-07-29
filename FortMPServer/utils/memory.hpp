@@ -94,7 +94,7 @@ public:
         VirtualProtect(reinterpret_cast<PVOID>(target_address), 1, PAGE_READONLY, &OldProtection);
     }
     
-    static bool is_bad_read_pointer(void* pointer_to_read);
+    static bool is_bad_read_pointer(void* pointer_to_read, bool use_cache = true);
 };
 
 // small UNWIND_INFO implementation
