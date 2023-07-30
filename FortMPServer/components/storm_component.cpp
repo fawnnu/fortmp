@@ -8,6 +8,10 @@ storm_component::storm_component()
 
     // Only hook on builds where storm does not work
     REGISTER_FUNCTION_DETOUR(storm_component_hooks::SetSafezoneValues, memory_manager::find_function_by_string(L"FortGameModeAthena: No MegaStorm on SafeZone[%d]."), storm_component_hooks::SetSafezoneValues_Hook);
+    if (!storm_component_hooks::SetSafezoneValues)
+    {
+        REGISTER_FUNCTION_DETOUR(storm_component_hooks::SetSafezoneValues, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 70 48 8B B9 ? ? ? ? 33 DB 0F 29 74 24 ? 48 8B F1 48 85 FF"), storm_component_hooks::SetSafezoneValues_Hook);
+    }
     
     DetourTransactionCommit();
 }
