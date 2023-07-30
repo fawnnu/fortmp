@@ -61,6 +61,7 @@ public:
     static void HandleSpawnPickupCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSpawnChestCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleChangeScaleCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSummonCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;
