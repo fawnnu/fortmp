@@ -374,7 +374,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\ncheat infiniteammo\ncheat vanish\ncheat god <optional_playername>\ncheat launchplayer <optional_playername>\ncheat givewood <optional_playername>\ncheat givestone <optional_playername>\ncheat givemetal <optional_playername>\ncheat giveresources <optional_playername>\ncheat giveammo <optional_playername>\ncheat simulatebusjump <optional_playername>\ncheat spawnpickup <item wid> <item count>\ncheat spawnchest\ncheat changescale <scale>\n\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -696,7 +696,7 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
     FString InPlayerName;
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
-        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter. Input @s if you want to quickly give yourself an item."));
         return;
     }
 
@@ -724,6 +724,10 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
         {
             target_players.Add(net_connection->PlayerController());
         }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
     }
         
     for (auto player_controller : target_players)
@@ -1062,6 +1066,10 @@ void moderation_component::HandleWipeInventoryCommand(const TCHAR*& InStream, AF
             target_players.Add(net_connection->PlayerController());
         }
     }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
     else
     {
         ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
@@ -1126,8 +1134,7 @@ void moderation_component::HandleReviveCommand(const TCHAR*& InStream, AFortPlay
     FString InPlayerName;
     if (!FParse::Token(InStream, InPlayerName, 0))
     {
-        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Player parameter."));
-        return;
+        InPlayerName = L"@s";
     }
 
     if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
@@ -1141,6 +1148,10 @@ void moderation_component::HandleReviveCommand(const TCHAR*& InStream, AFortPlay
             target_players.Add(net_connection->PlayerController());
         }
     }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
     else
     {
         ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
@@ -1152,6 +1163,426 @@ void moderation_component::HandleReviveCommand(const TCHAR*& InStream, AFortPlay
         reviving_component::revive_player(ExecutingPlayerController, player_controller->Pawn(), true);
 
         ExecutingPlayerController->ClientMessage(TEXT("Successfully revived a player."));
+    }
+}
+
+void moderation_component::HandleToggleInfiniteAmmoCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    UKismetSystemLibrary::SetBoolPropertyByName(ExecutingPlayerController, L"bInfiniteAmmo", !ExecutingPlayerController->bInfiniteAmmo());
+    ExecutingPlayerController->ClientMessage(TEXT("Infinite ammo toggled."));
+}
+
+void moderation_component::HandleVanishCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    UKismetSystemLibrary::SetBoolPropertyByName(ExecutingPlayerController->Pawn(), L"bHidden", !ExecutingPlayerController->Pawn()->bHidden());
+    ExecutingPlayerController->Pawn()->SetPawnVisibility(ExecutingPlayerController->Pawn()->bHidden(), true);
+    ExecutingPlayerController->ClientMessage(TEXT("Vanish toggled."));
+}
+
+void moderation_component::HandleGodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", !player_controller->Pawn()->bIsInvulnerable());
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleLaunchPlayerCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        player_controller->Pawn()->LaunchCharacterJump(FVector{0, 0, 15000}, false, false, true, true);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleGiveWoodCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WoodItemData", false, true), 500);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleGiveStoneCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"StoneItemData", false, true), 500);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleGiveMetalCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"MetalItemData", false, true), 500);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleGiveResourcesCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WoodItemData", false, true), 500);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"StoneItemData", false, true), 500);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"MetalItemData", false, true), 500);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleGiveAmmoCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        for (UNetConnection* net_connection : get_all_players())
+        {
+            target_players.Add(net_connection->PlayerController());
+        }
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"AmmoDataRockets", false, true), 50);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"AthenaAmmoDataBulletsHeavy", false, true), 60);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"AthenaAmmoDataBulletsLight", false, true), 500);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"AthenaAmmoDataBulletsMedium", false, true), 350);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"AthenaAmmoDataShells", false, true), 75);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleSimulateBusJumpCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerName;
+    if (!FParse::Token(InStream, InPlayerName, 0))
+    {
+        InPlayerName = L"@s";
+    }
+
+    if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
+    {
+        target_players.Add(target_player);
+    }
+    else if(InPlayerName == L"@all")
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Cannot simulate a bus jump for every player!"));
+    }
+    else if(InPlayerName == L"@s")
+    {
+        target_players.Add(ExecutingPlayerController);
+    }
+    else
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified player."));
+    }
+        
+    for (auto player_controller : target_players)
+    {
+        FVector bus_final_loc = player_controller->Pawn()->K2_GetActorLocation();
+        bus_final_loc.Z = 20000;
+        FRotator bus_final_rot = player_controller->Pawn()->K2_GetActorRotation();
+        player_controller->Pawn()->K2_TeleportTo(bus_final_loc, bus_final_rot);
+        player_controller->Pawn()->BeginSkydiving(true);
+
+        player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_Drop_Cue.FlyingBus_Drop_Cue", true, false), 1.0f, 1.0f);
+        player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_HornDoppler_Cue.FlyingBus_HornDoppler_Cue", true, false), 1.0f, 1.0f);
+        
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleSpawnPickupCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+
+    FString InWID;
+    if (!FParse::Token(InStream, InWID, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Item parameter."));
+        return;
+    }
+
+    FString InCount;
+    if (!FParse::Token(InStream, InCount, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
+        return;
+    }
+    
+    target_players.Add(ExecutingPlayerController);
+        
+    for (auto player_controller : target_players)
+    {
+        UFortItemDefinition* TargetItemDefinition = FindObject<UFortItemDefinition>(InWID.c_str(), false, true);
+
+        if (TargetItemDefinition == nullptr)
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Couldn't find the specified item."));
+            return;
+        }
+
+        std::wstring wInCount = InCount.c_str();
+        int Count = std::stoi(wInCount);
+
+        // Make sure the count is positive
+        if (Count > 0)
+        {
+            // If the given player has space in their inventory, give the item, else spawn it as a pickup
+            if (player_controller->WorldInventory() && player_controller->MyFortPawn())
+            {
+                // Spawn a pickup
+                pickup_component::spawn_pickup(TargetItemDefinition, player_controller->MyFortPawn()->K2_GetActorLocation(), Count, looting_component::get_default_loaded_ammo(TargetItemDefinition));
+
+                ExecutingPlayerController->ClientMessage(TEXT("Successfully spawned item!"));
+            }
+        }
+        else
+        {
+            ExecutingPlayerController->ClientMessage(TEXT("Invalid count."));
+        }
+    }
+}
+
+void moderation_component::HandleSpawnChestCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    FVector SpawnLocation = ExecutingPlayerController->Pawn()->K2_GetActorLocation();
+    SpawnLocation.X += ExecutingPlayerController->Pawn()->GetActorForwardVector().X * 500;
+    SpawnLocation.Y += ExecutingPlayerController->Pawn()->GetActorForwardVector().Y * 500;
+    SpawnLocation.Z += ExecutingPlayerController->Pawn()->GetActorForwardVector().Z * 500;
+        
+    FRotator SpawnRotation = FRotator();
+    FActorSpawnParameters SpawnParameters{};
+    if (UObject* SpawnedActor = SpawnActor(*GWorld, FindObject(L"/Game/Building/ActorBlueprints/Containers/Tiered_Chest_6_Parent.Tiered_Chest_6_Parent_C"), &SpawnLocation, &SpawnRotation, SpawnParameters))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandleChangeScaleCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    TArray<AFortPlayerController*> target_players;
+    
+    FString InPlayerScale;
+    
+    if (!FParse::Token(InStream, InPlayerScale, 0))
+    {
+        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing scale parameter."));
+        return;
+    }
+    std::wstring wPlayerScale = InPlayerScale.c_str();
+    float fNewScaleValue = std::stof(wPlayerScale);
+
+    FVector new_scale = FVector(fNewScaleValue, fNewScaleValue, fNewScaleValue);
+    
+    if (ExecutingPlayerController->Pawn())
+    {
+        ExecutingPlayerController->Pawn()->SetActorScale3D(new_scale);
     }
 }
 
@@ -1291,6 +1722,58 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("REVIVE")))
             {
                 moderation_component::HandleReviveCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("INFINITEAMMO")))
+            {
+                moderation_component::HandleToggleInfiniteAmmoCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("VANISH")))
+            {
+                moderation_component::HandleVanishCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GOD")))
+            {
+                moderation_component::HandleGodCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("LAUNCHPLAYER")))
+            {
+                moderation_component::HandleLaunchPlayerCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVEWOOD")))
+            {
+                moderation_component::HandleGiveWoodCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVERESOURCES")))
+            {
+                moderation_component::HandleGiveResourcesCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVESTONE")))
+            {
+                moderation_component::HandleGiveStoneCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVEMETAL")))
+            {
+                moderation_component::HandleGiveMetalCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVEAMMO")))
+            {
+                moderation_component::HandleGiveAmmoCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SIMULATEBUSJUMP")))
+            {
+                moderation_component::HandleSimulateBusJumpCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SPAWNPICKUP")))
+            {
+                moderation_component::HandleSpawnPickupCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("SPAWNCHEST")))
+            {
+                moderation_component::HandleSpawnChestCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("CHANGESCALE")))
+            {
+                moderation_component::HandleChangeScaleCommand(Stream, Self);
             }
             else
             {

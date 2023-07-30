@@ -75,6 +75,12 @@ public:
     DEFINE_PROPERTY(float, ViewRollMax);
 };
 
+class USoundBase : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.SoundBase");
+};
+
 class APlayerController : public AController
 {
 public:
@@ -90,6 +96,19 @@ public:
         Call(Function_SwitchLevel, URL);
     }
 
+    void ClientPlaySound(USoundBase* Sound, float VolumeMultiplier, float PitchMultiplier)
+    {
+        STATIC_FINDFUNCTION(ClientPlaySound)
+
+        if (Sound)
+        {
+            if (Sound->IsA(USoundBase::StaticClass()))
+            {
+                Call(Function_ClientPlaySound, Sound, VolumeMultiplier, PitchMultiplier);
+            }
+        }
+    }
+    
     void ClientGotoState(FName NewState)
     {
         STATIC_FINDFUNCTION(ClientGotoState)
@@ -135,6 +154,7 @@ class AFortPlayerController : public APlayerController
 {
 public:
     DEFINE_BIT_PROPERTY(bool, bIsDisconnecting);
+    DEFINE_BIT_PROPERTY(bool, bInfiniteAmmo);
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
     DEFINE_PROPERTY(UFortRegisteredPlayerInfo*, MyPlayerInfo);
     DEFINE_PROPERTY(TArray<struct FFortUpdatedObjectiveStat>, UpdatedObjectiveStats);

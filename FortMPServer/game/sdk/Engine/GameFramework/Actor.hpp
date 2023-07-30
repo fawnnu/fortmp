@@ -71,11 +71,25 @@ public:
         return Call<FTransform>(Function_GetTransform);
     }
 
+    void SetActorScale3D(FVector& NewScale3D)
+    {
+        STATIC_FINDFUNCTION(SetActorScale3D)
+        
+        Call(Function_SetActorScale3D, NewScale3D);
+    }
+    
     FVector K2_GetActorLocation()
     {
         STATIC_FINDFUNCTION(K2_GetActorLocation)
         
         return Call<FVector>(Function_K2_GetActorLocation);
+    }
+
+    FVector GetActorForwardVector()
+    {
+        STATIC_FINDFUNCTION(GetActorForwardVector)
+        
+        return Call<FVector>(Function_GetActorForwardVector);
     }
     
     FRotator K2_GetActorRotation()
@@ -85,6 +99,13 @@ public:
         return Call<FRotator>(Function_K2_GetActorRotation);
     }
 
+    void SetActorHiddenInGame(bool bNewHidden)
+    {
+        STATIC_FINDFUNCTION(SetActorHiddenInGame)
+        
+        Call(Function_SetActorHiddenInGame);
+    }
+    
     bool K2_SetActorRotation(FRotator NewRotation, bool bTeleportPhysics)
     {
         STATIC_FINDFUNCTION(K2_SetActorRotation)

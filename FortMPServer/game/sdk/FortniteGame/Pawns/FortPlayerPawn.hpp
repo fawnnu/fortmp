@@ -195,6 +195,21 @@ public:
 
         return Call<bool>(Function_IsInVehicle);
     }
+
+    void SetPawnVisibility(bool bNewHidden, bool bPropagateToWeapon)
+    {
+        STATIC_FINDFUNCTION(SetPawnVisibility)
+
+        Call(Function_SetPawnVisibility, bNewHidden, bPropagateToWeapon);
+    }
+    
+    void BeginSkydiving(bool bFromBus)
+    {
+        STATIC_FINDFUNCTION(BeginSkydiving)
+
+        Call(Function_BeginSkydiving, bFromBus, bFromBus);
+    }
+    
     class AFortAthenaVehicle* GetVehicle()
     {
         STATIC_FINDFUNCTION(GetVehicle)

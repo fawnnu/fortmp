@@ -48,6 +48,19 @@ public:
     static void HandleKillPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleKeepInventoryCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleReviveCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleToggleInfiniteAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleVanishCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleLaunchPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveWoodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveStoneCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveMetalCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveResourcesCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSimulateBusJumpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSpawnPickupCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleSpawnChestCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleChangeScaleCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;
