@@ -22,4 +22,6 @@ public:
     static void OnPawnFinishedSpawning(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 
     static void GetRandomLootPackageData(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue);
+
+    static void SetShield(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 };  

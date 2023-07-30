@@ -38,6 +38,9 @@ gamemodes_component::gamemodes_component()
     REGISTER_CUSTOM_UFUNCTION(GetRandomLootPackageData, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 1024);
     INIT_CUSTOM_FUNC_RET_OFFSET(GetRandomLootPackageData, AFortGameModeAthena::StaticClass(), 0x10);
+
+    REGISTER_CUSTOM_UFUNCTION(SetShield, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(SetShield, AFortGameModeAthena::StaticClass(), 0x10);
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -107,4 +110,17 @@ void gamemodes_component::GetRandomLootPackageData(AFortGameModeAthena* FortGame
     INIT_CUSTOM_FUNCTION();
 
     memcpy(ReturnValue, looting_component::get_random_loot_package_data_from_id(DataTable, LootPackageID), FFortLootPackageData::GetStructSize());
+}
+
+void gamemodes_component::SetShield(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    GET_CUSTOM_FUNCTION_BP_PARAM(AFortPlayerController*, PlayerController);
+    GET_CUSTOM_FUNCTION_BP_PARAM(float, NewShieldValue);
+
+    INIT_CUSTOM_FUNCTION();
+
+    if (PlayerController->Pawn())
+    {
+        PlayerController->Pawn()->SetShield(NewShieldValue);
+    }
 }
