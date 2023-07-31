@@ -61,6 +61,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with letters, for challenges
         handle_letter_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Letter_Parent_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_Quest_GniceGnomes_Parent_C::StaticClass()))
+    {
+        // Handle any interactions with gnomes, for challenges
+        handle_gnome_interaction(player_controller, reinterpret_cast<AProp_Quest_GniceGnomes_Parent_C*>(receiving_actor));
+    }
     else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass()))
     {
         // Handle any interactions with battle stars
@@ -268,6 +273,20 @@ void interact_component::handle_letter_interaction(AFortPlayerController* player
     {
         // Send interaction event
         challenges_component::SendLetterInteraction(player_controller, letter, letter->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_gnome_interaction(AFortPlayerController* player_controller, AProp_Quest_GniceGnomes_Parent_C* gnome)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_gnome_interaction is sending gnome interaction.");
+    }
+    
+    if (STATIC_HASPROPERTY(gnome, QuestBackendObjectiveName))
+    {
+        // Send interaction event
+        challenges_component::SendGnomeInteraction(player_controller, gnome, gnome->QuestBackendObjectiveName());
     }
 }
 

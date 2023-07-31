@@ -14,6 +14,7 @@ public:
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause);
     static void SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController);
     static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective);
+    static void SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective);
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
