@@ -538,6 +538,9 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     if (BoneName == FName(TEXT("HEAD")))
                     {
                         PlayerStats.HeadShots++;
+
+                        // Track headshot damage
+                        Value.HeadshotDamage += Damage;
                     }
                     else
                     {
@@ -561,6 +564,9 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                 {
                     switch (get_damage_causer(ItemDefinition->GameplayTags()))
                     {
+                    case EDamageCauser::Pickaxe:
+                        Value.PickaxeDamage += Damage;
+                        break;
                     case EDamageCauser::Sniper:
                         Value.SniperDamage += Damage;
                         break;
@@ -752,7 +758,8 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"Weapon.Ranged.Minigun", EDamageCauser::Minigun },
         { L"weapon.ranged.heavy.rocket_launcher", EDamageCauser::RPG},
         { L"weapon.ranged.heavy.grenade_launcher", EDamageCauser::GrenadeLauncher},
-        { L"Weapon.ranged.heavy.grenade", EDamageCauser::Grenade}
+        { L"Weapon.ranged.heavy.grenade", EDamageCauser::Grenade},
+        { L"Weapon.Melee.Impact.Pickaxe", EDamageCauser::Pickaxe}
     };
 
     for (FGameplayTag gameplay_tag : Tags.GameplayTags)

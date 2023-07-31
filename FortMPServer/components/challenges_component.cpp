@@ -163,12 +163,14 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 {"grenade_launcher", DamageDealt.GrenadeLauncherDamage},
                 {"lmg", DamageDealt.LMGDamage},
                 {"minigun", DamageDealt.MinigunDamage},
-                {"rpg", DamageDealt.RPGDamage}
+                {"rpg", DamageDealt.RPGDamage},
+                {"pickaxe", DamageDealt.PickaxeDamage}
             };
 
             nlohmann::json parameters = {
                 {"placement", Placement},
-                {"damage", damage_enum}
+                {"damage", damage_enum},
+                {"headshot_damage", DamageDealt.HeadshotDamage}
             };
             
             gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);

@@ -12,7 +12,8 @@ enum class EDamageCauser : uint8_t
     GrenadeLauncher,
     LMG,
     Minigun,
-    RPG
+    RPG,
+    Pickaxe
 };
 
 struct FDamageDealtMapValue
@@ -21,7 +22,7 @@ struct FDamageDealtMapValue
 
     int GetPlayerDamage()
     {
-        return PistolDamage + ShotgunDamage + AssaultRifleDamage + SniperDamage + GrenadeDamage + SMGDamage + GrenadeLauncherDamage + RPGDamage + LMGDamage + MinigunDamage;
+        return PistolDamage + ShotgunDamage + AssaultRifleDamage + SniperDamage + GrenadeDamage + SMGDamage + GrenadeLauncherDamage + RPGDamage + LMGDamage + MinigunDamage + PickaxeDamage;
     }
 
     int PistolDamage;
@@ -37,6 +38,8 @@ struct FDamageDealtMapValue
     int MinigunDamage;
     int LMGDamage;
     int StructureDamage;
+    int HeadshotDamage;
+    int PickaxeDamage;
 };
 
 struct FPlayerStats

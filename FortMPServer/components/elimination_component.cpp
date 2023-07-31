@@ -65,6 +65,7 @@ uint8_t elimination_component::to_death_cause(AFortPlayerStateAthena* player_sta
         { L"Weapon.Melee.Massive.Charge", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
         { L"weapon.melee.Massive", death_cause_enum->GetEnumIndex(L"MassiveMelee") },
         { L"Weapon.Melee.Massive.Divebomb", death_cause_enum->GetEnumIndex(L"MassiveDiveBomb") },
+        { L"Weapon.Melee.Impact.Pickaxe", death_cause_enum->GetEnumIndex(L"Melee") },
         { L"Weapon.Ranged.Massive", death_cause_enum->GetEnumIndex(L"MassiveRanged") },
         { L"weapon.ranged.heavy.rocket_launcher",  death_cause_enum->GetEnumIndex(L"RocketLauncher")},
         { L"weapon.ranged.heavy.grenade_launcher",  death_cause_enum->GetEnumIndex(L"GrenadeLauncher")},
