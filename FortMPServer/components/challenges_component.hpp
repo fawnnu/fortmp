@@ -17,6 +17,7 @@ public:
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective);
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
+    static void SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter);
     static void SendDanceInteraction(AFortPlayerController* InteractingController);
     static void SendSprayInteraction(AFortPlayerController* InteractingController);
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);

@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "pickup_component.hpp"
 
+#include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "looting_component.hpp"
@@ -495,27 +496,34 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     // Filter overlap capsule
     static UObject* fort_pickup_class = FindObject<UObject>(L"/Script/FortniteGame.FortPickupAthena");
 
-    if (OtherActor->IsA(fort_pickup_class))
+    if (OtherActor)
     {
-        // Cast overlap capsule to FortPickup instance
-        AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
-
-        // Filter pickup classes
-        static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
-        static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
-        static UFortItemDefinition* trap_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortTrapItemDefinition");
-        
-        if (fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(ammo_definition) ||
-            fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(resource_definition) ||
-            fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(trap_definition))
+        if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
         {
-            if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
+            challenges_component::SendStormCenterInteraction(PlayerPawn->Controller(), static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor));
+        }
+        else if (OtherActor->IsA(fort_pickup_class))
+        {
+            // Cast overlap capsule to FortPickup instance
+            AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
+
+            // Filter pickup classes
+            static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
+            static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
+            static UFortItemDefinition* trap_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortTrapItemDefinition");
+        
+            if (fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(ammo_definition) ||
+                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(resource_definition) ||
+                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(trap_definition))
             {
-                if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
-                {
-                    // Pickup item automatically if it is not currently being tossed
-                    pickup_component::handle_pickup(fort_pickup, PlayerPawn);
-                }
+                if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
+                    {
+                    if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
+                    {
+                        // Pickup item automatically if it is not currently being tossed
+                        pickup_component::handle_pickup(fort_pickup, PlayerPawn);
+                    }
+                    }
             }
         }
     }

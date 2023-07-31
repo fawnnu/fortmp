@@ -96,3 +96,9 @@ public:
     
     DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C");
 };
+
+class ABA_QuestInteractable_StormCenter_Single : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
+};

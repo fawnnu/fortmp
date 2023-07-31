@@ -412,6 +412,31 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
     }   
 }
 
+void challenges_component::SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter)
+{
+    if (InteractingController && StormCenter)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", StormCenter->K2_GetActorLocation().X},
+                {"y", StormCenter->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:storm-center", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
     if (InteractingController && InteractingController->Pawn())
