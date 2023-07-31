@@ -261,6 +261,11 @@ void renderer::CreateNewWindow()
                                 config_manager::save_server_config(config);
                             }
 
+                            if (ImGui::Button("Toggle Debug Logs", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                log_component::enable_debug_logs = !log_component::enable_debug_logs;
+                            }
+
                             static bool keep_items_on_death = false;
                             
                             if (ImGui::Checkbox("Keep Inventory After Death", &keep_items_on_death))

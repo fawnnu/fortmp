@@ -28,7 +28,8 @@ nlohmann::json config_manager::get_server_config()
                 "loot_pool_changes": [],
                 "weapon_hotfixes": {},
                 "loaded_mutators": [],
-                "override_region": ""
+                "override_region": "",
+                "enable_debug_logs": false
             }
         )"_json;
     

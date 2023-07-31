@@ -3,8 +3,16 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "config_manager.hpp"
+
 log_component::log_component()
 {
+    auto config = config_manager::get_server_config();
+    if (config.contains("enable_debug_logs") && config["enable_debug_logs"].is_boolean())
+    {
+        enable_debug_logs = bool(config["enable_debug_logs"]);
+    }
+    
     // Setup file sink for logging
     const time_t current_time = std::time(nullptr);
     

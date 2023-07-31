@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
 #include "reviving_component.hpp"
@@ -80,6 +81,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
     ABuildingContainer* building_container)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_container_interaction is sending container interaction.");
+    }
+    
     if (!building_container->bAlreadySearched())
     {
         STATIC_HASPROPERTY(building_container, LootSpawnLocation_Athena);
@@ -127,6 +133,11 @@ void interact_component::handle_player_pawn_interaction(AFortPlayerController* p
 
 void interact_component::handle_vending_machine_interaction(AFortPlayerController* player_controller, ABuildingItemCollectorActor* vending_machine)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_vending_machine_interaction is sending vending_machine interaction.");
+    }
+    
     UFortItemDefinition* deposit_item_definition = vending_machine->ActiveInputItem();
     
     // now get the item collection that takes the current deposit item
@@ -228,16 +239,31 @@ void interact_component::handle_vehicle_interaction(AFortPlayerController* playe
 
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_llama_interaction is sending llama interaction.");
+    }
+    
     challenges_component::SendLlamaEvent(player_controller, supply_drop);
 }
 
 void interact_component::handle_supplydrop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_supplydrop_interaction is sending supplydrop interaction.");
+    }
+    
     challenges_component::SendSupplyDropEvent(player_controller, supply_drop);
 }
 
 void interact_component::handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_letter_interaction is sending letter interaction.");
+    }
+    
     if (STATIC_HASPROPERTY(letter, QuestBackendObjectiveName))
     {
         // Send interaction event
@@ -247,6 +273,11 @@ void interact_component::handle_letter_interaction(AFortPlayerController* player
 
 void interact_component::handle_battlestar_interaction(AFortPlayerController* player_controller, AProp_QuestObject_Interactable_Parent_C* battlestar)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_battlestar_interaction is sending battlestar interaction.");
+    }
+    
     if (STATIC_HASPROPERTY(battlestar, QuestBackendObjectiveName))
     {
         // Send interaction event
@@ -256,12 +287,22 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
 
 void interact_component::handle_hoprock_interaction(AFortPlayerController* player_controller, ACBGA_LowGravity_UsingJump_C* hoprock)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_hoprock_interaction is sending hoprock interaction.");
+    }
+    
     // Send interaction event
     challenges_component::SendHopRockInteraction(player_controller, hoprock);
 }
 
 void interact_component::handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_rubberduck_interaction is sending rubberduck interaction.");
+    }
+    
     if (STATIC_HASPROPERTY(rubberduck, QuestBackendObjectiveName))
     {
         // Send interaction event

@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "challenges_component.hpp"
 
+#include "log_component.hpp"
 #include "player_component.hpp"
 #include "team_component.hpp"
 
@@ -24,6 +25,13 @@ void challenges_component::SendChestEvent(AFortPlayerController* InteractingCont
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:chest", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }
 }
 
@@ -41,6 +49,13 @@ void challenges_component::SendSupplyDropEvent(AFortPlayerController* Interactin
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:supply", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }
 }
@@ -60,6 +75,13 @@ void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingContr
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:ammo", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }
 }
 
@@ -78,6 +100,13 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:landing", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }
 }
 
@@ -95,6 +124,13 @@ void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingCont
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:llama", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }
 }
@@ -142,6 +178,13 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 std::wstring wAccount_id = converter.from_bytes(account_id);
 
                 spdlog::info(L"Sent summary event for {} [ACCOUNT_ID: {}, PLACEMENT: {}, DAMAGEDEALT: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wAccount_id.c_str(), Placement, DamageDealt.GetPlayerDamage());
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
             }
         }
     }
@@ -219,6 +262,13 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
             
                 gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
             }
+            else
+            {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"Invalid account_id while sending event.");
+                }
+            }
         }
     }
 }
@@ -244,6 +294,13 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
                 gameserver_client::Client->SendEventToChannel("player:" + executing_account_id, "event:revive", parameters);
             }
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }
 }
 
@@ -265,6 +322,13 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:letter", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }
@@ -288,6 +352,13 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }   
 }
 
@@ -305,6 +376,13 @@ void challenges_component::SendPortAFortInteraction(AFortPlayerController* Inter
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:port-a-fort", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }
@@ -324,6 +402,13 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:hop-rock", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }   
 }
 
@@ -341,6 +426,13 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:dance", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }
@@ -360,6 +452,13 @@ void challenges_component::SendSprayInteraction(AFortPlayerController* Interacti
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:spray", parameters);
         }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
     }   
 }
 
@@ -377,6 +476,13 @@ void challenges_component::SendVendingMachineInteraction(AFortPlayerController* 
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:vending", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }
@@ -399,6 +505,13 @@ void challenges_component::SendRubberDuckInteraction(AFortPlayerController* Inte
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rubber-duck", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }
@@ -538,6 +651,13 @@ void challenges_component::SendDiscoBallInteraction(AFortPlayerController* Inter
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:disco-ball", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
         }
     }   
 }

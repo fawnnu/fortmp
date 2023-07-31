@@ -25,6 +25,8 @@ public:
     static inline std::vector<log_msg> messages;
 
     static void add_message_safe(std::string message, spdlog::level::level_enum level);
+
+    static inline bool enable_debug_logs;
 };
 
 template<typename Mutex>

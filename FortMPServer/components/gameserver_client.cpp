@@ -4,6 +4,7 @@
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "loader_component.hpp"
+#include "log_component.hpp"
 #include "net_component.hpp"
 #include "player_component.hpp"
 #include "qos_component.hpp"
@@ -582,7 +583,20 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             LastMessagePayload = payload;
             
             // Send
-            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            websocketpp::lib::error_code ec2;
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+
+            if (log_component::enable_debug_logs)
+            {
+                if (ec2)
+                {
+                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                }
+                else
+                {
+                    spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                }
+            }
 
             return CurrentMessageReference;
         }
@@ -617,7 +631,20 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             LastMessagePayload = payload;
             
             // Send
-            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text);
+            websocketpp::lib::error_code ec2;
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+
+            if (log_component::enable_debug_logs)
+            {
+                if (ec2)
+                {
+                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                }
+                else
+                {
+                    spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                }
+            }
 
             return CurrentMessageReference;
         }
