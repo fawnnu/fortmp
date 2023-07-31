@@ -76,6 +76,16 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with hop rocks, for challenges
         handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(ACBGA_HealthSmall_C::StaticClass()))
+    {
+        // Handle any interaction with apples, for challenges
+        handle_apple_interaction(player_controller, reinterpret_cast<ACBGA_HealthSmall_C*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(ACBGA_ShieldsSmall_C::StaticClass()))
+    {
+        // Handle any interaction with mushrooms, for challenges
+        handle_mushroom_interaction(player_controller, reinterpret_cast<ACBGA_ShieldsSmall_C*>(receiving_actor));
+    }
     else if (receiving_actor->IsA(AProp_QuestInteractable_RubberDuckies_Parent_C::StaticClass()))
     {
         // Handle any interaction with rubber duckies for challenges
@@ -313,6 +323,28 @@ void interact_component::handle_hoprock_interaction(AFortPlayerController* playe
     
     // Send interaction event
     challenges_component::SendHopRockInteraction(player_controller, hoprock);
+}
+
+void interact_component::handle_apple_interaction(AFortPlayerController* player_controller, ACBGA_HealthSmall_C* apple)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_apple_interaction is sending apple interaction.");
+    }
+    
+    // Send interaction event
+    challenges_component::SendAppleInteraction(player_controller, apple);
+}
+
+void interact_component::handle_mushroom_interaction(AFortPlayerController* player_controller, ACBGA_ShieldsSmall_C* mushroom)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_mushroom_interaction is sending mushroom interaction.");
+    }
+    
+    // Send interaction event
+    challenges_component::SendMushroomInteraction(player_controller, mushroom);
 }
 
 void interact_component::handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck)

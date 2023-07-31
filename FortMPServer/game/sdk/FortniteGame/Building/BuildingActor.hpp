@@ -270,3 +270,15 @@ class ACBGA_LowGravity_UsingJump_C : public AActor
 public:
     DEFINE_STATIC_CLASS(L"/Game/Athena/Items/ForagedItems/LowGravity/CBGA_LowGravity_UsingJump.CBGA_LowGravity_UsingJump_C");
 };
+
+class ACBGA_HealthSmall_C : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/ForagedItems/HealthSmall/CBGA_HealthSmall.CBGA_HealthSmall_C");
+};
+
+class ACBGA_ShieldsSmall_C : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/ForagedItems/ShieldsSmall/CBGA_ShieldsSmall.CBGA_ShieldsSmall_C");
+};

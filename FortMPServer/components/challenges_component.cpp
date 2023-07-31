@@ -443,6 +443,56 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
     }   
 }
 
+void challenges_component::SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* Apple)
+{
+    if (InteractingController && Apple)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", Apple->K2_GetActorLocation().X},
+                    {"y", Apple->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:apple", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendMushroomInteraction(AFortPlayerController* InteractingController, ACBGA_ShieldsSmall_C* Mushroom)
+{
+    if (InteractingController && Mushroom)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", Mushroom->K2_GetActorLocation().X},
+                    {"y", Mushroom->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:mushroom", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter)
 {
     if (InteractingController && StormCenter)
