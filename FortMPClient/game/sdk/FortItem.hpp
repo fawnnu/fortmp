@@ -40,3 +40,17 @@ class UAthenaSeasonItemDefinition : public UFortAccountItemDefinition
 public:
     DEFINE_PROPERTY(FAthenaRewardSchedule, BookXpScheduleFree);
 };
+
+struct FFortItemQuantityPair
+{
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr, ItemDefinition);
+    DEFINE_STRUCT_PROPERTY(int, Quantity);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemQuantityPair")
+};
+
+class UFortQuestItemDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_PROPERTY(TArray<FFortItemQuantityPair>, Rewards);
+};

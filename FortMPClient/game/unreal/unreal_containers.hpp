@@ -247,6 +247,14 @@ public:
         GenericArray_Remove(Array, ArrayProperty, Idx);
     }
 
+    void Clear(void* ArrayProperty)
+    {
+        for (int i = Num() - 1; i >= 0; i--)
+        {
+            Remove(i, ArrayProperty);
+        }
+    }
+
     int Num()
     {
         return reinterpret_cast<TArray<Struct>*>(Array)->Num();

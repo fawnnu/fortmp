@@ -172,6 +172,7 @@
     <ClCompile Include="components\patches_component.cpp" />
     <ClCompile Include="components\pe_component.cpp" />
     <ClCompile Include="components\phoenix_component.cpp" />
+    <ClCompile Include="components\quests_component.cpp" />
     <ClCompile Include="components\ssl_bypass_component.cpp" />
     <ClCompile Include="components\voice_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="components\patches_component.hpp" />
     <ClInclude Include="components\pe_component.hpp" />
     <ClInclude Include="components\phoenix_component.hpp" />
+    <ClInclude Include="components\quests_component.hpp" />
     <ClInclude Include="components\ssl_bypass_component.hpp" />
     <ClInclude Include="components\voice_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
