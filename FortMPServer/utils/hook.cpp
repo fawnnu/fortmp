@@ -48,7 +48,13 @@ void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Func
 
     if (Object && Function)
     {
-        return AActor_ProcessEvent(Object, Function, Params);
+        AActor_ProcessEvent(Object, Function, Params);
+
+        if (hook_manager::post_hooked_functions[Function])
+        {
+            // Call hooked function
+            hook_manager::post_hooked_functions[Function](Object, Function, Params);
+        }
     }
 }
 

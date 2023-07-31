@@ -102,3 +102,10 @@ class ABA_QuestInteractable_StormCenter_Single : public AActor
 public:
     DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
 };
+
+class AAthena_SoccerGame_C : public AActor
+{
+public:
+    DEFINE_PROPERTY(AFortPawn*, PlayerWhoScored);
+    DEFINE_PROPERTY(FName, BackendObjName);
+};

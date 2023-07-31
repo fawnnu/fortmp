@@ -23,6 +23,7 @@ public:
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
     static void SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine);
     static void SendDiscoBallInteraction(AFortPlayerController* InteractingController);
+    static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
@@ -38,4 +39,6 @@ struct progression_entry
 namespace challenges_component_hooks
 {
     DEFINE_FUNCTION_HOOK(void, Rising__FinishedFunc, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
 }

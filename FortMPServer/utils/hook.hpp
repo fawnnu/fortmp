@@ -27,6 +27,12 @@
                                                                                                                                 \
     hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
+#define REGISTER_POST_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
+    { UObject* function_to_hook = FindObject<UObject>(FunctionObject) ?                                                         \
+        FindObject<UObject>(FunctionObject) : FindObject<UObject>(FunctionObject, false, true);                                 \
+                                                                                                                                \
+    hook_manager::post_hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
+
 #define REGISTER_CALL_DETOUR(FunctionObject, FunctionDetour) \
     { \
         UFunction* function_to_hook = FindObject<UFunction>(FunctionObject) ? \
@@ -80,6 +86,9 @@ public:
 
     // Map of functions to hook
     inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> hooked_functions;
+    
+    // Map of functions to hook
+    inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> post_hooked_functions;
 };
 
 // Queue of code to execute on game thread
