@@ -500,7 +500,16 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     {
         if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
         {
-            challenges_component::SendStormCenterInteraction(PlayerPawn->Controller(), static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor));
+            if (OtherActor->HasProperty(L"PlayersWhoHaveTouchedThisCenter"))
+            {
+                if (PlayerPawn->Controller())
+                {
+                    if (!static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor)->PlayersWhoHaveTouchedThisCenter().Find(PlayerPawn->Controller()->PlayerState()))
+                    {
+                        challenges_component::SendStormCenterInteraction(PlayerPawn->Controller(), static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor));
+                    }
+                }
+            }
         }
         else if (OtherActor->IsA(fort_pickup_class))
         {

@@ -170,14 +170,29 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                 {
                     TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
 
-                    FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
-                    ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
-                    NewObjectiveStat->Quest() = QuestItemDefinition;
-                    NewObjectiveStat->BackendName() = wObjective.c_str();
-                    NewObjectiveStat->StatValue() = value;
+                    bool bQuestAlreadyExists = false;
+                    for (FFortUpdatedObjectiveStat& ObjectiveStat : UpdatedObjectiveStats)
+                    {
+                        if (ObjectiveStat.Quest() == QuestItemDefinition)
+                        {
+                            bQuestAlreadyExists = true;
+                            ObjectiveStat.StatValue() = value;
+                            
+                            break;
+                        }
+                    }
 
-                    // Send live progression to client
-                    UpdatedObjectiveStats.Add(NewObjectiveStat);
+                    if (bQuestAlreadyExists == false)
+                    {
+                        FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+                        ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+                        NewObjectiveStat->Quest() = QuestItemDefinition;
+                        NewObjectiveStat->BackendName() = wObjective.c_str();
+                        NewObjectiveStat->StatValue() = value;
+
+                        // Send live progression to client
+                        UpdatedObjectiveStats.Add(NewObjectiveStat);
+                    }
                 }
             }
         }

@@ -11,6 +11,11 @@ struct FGameplayTag
     {
         TagName = InTagName;
     }
+
+    bool operator==(FGameplayTag& cmp)
+    {
+        return cmp.TagName == TagName;
+    }
     
     FName TagName;
 };

@@ -279,7 +279,7 @@ void interact_component::handle_letter_interaction(AFortPlayerController* player
         spdlog::info(L"interact_component::handle_letter_interaction is sending letter interaction.");
     }
     
-    if (STATIC_HASPROPERTY(letter, QuestBackendObjectiveName))
+    if (letter->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
         challenges_component::SendLetterInteraction(player_controller, letter, letter->QuestBackendObjectiveName());
@@ -293,7 +293,7 @@ void interact_component::handle_gnome_interaction(AFortPlayerController* player_
         spdlog::info(L"interact_component::handle_gnome_interaction is sending gnome interaction.");
     }
     
-    if (STATIC_HASPROPERTY(gnome, QuestBackendObjectiveName))
+    if (gnome->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
         challenges_component::SendGnomeInteraction(player_controller, gnome, gnome->QuestBackendObjectiveName());
@@ -307,7 +307,7 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
         spdlog::info(L"interact_component::handle_battlestar_interaction is sending battlestar interaction.");
     }
     
-    if (STATIC_HASPROPERTY(battlestar, QuestBackendObjectiveName))
+    if (battlestar->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
         challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
@@ -354,7 +354,7 @@ void interact_component::handle_rubberduck_interaction(AFortPlayerController* pl
         spdlog::info(L"interact_component::handle_rubberduck_interaction is sending rubberduck interaction.");
     }
     
-    if (STATIC_HASPROPERTY(rubberduck, QuestBackendObjectiveName))
+    if (rubberduck->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
         challenges_component::SendRubberDuckInteraction(player_controller, rubberduck, rubberduck->QuestBackendObjectiveName());

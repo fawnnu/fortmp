@@ -426,7 +426,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             {
                 if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
                 {
-                    challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause());
+                    challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause(), DeathReport.Tags());
                 }
             }
         }

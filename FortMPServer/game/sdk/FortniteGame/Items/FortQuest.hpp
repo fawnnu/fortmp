@@ -109,6 +109,7 @@ public:
 class ABA_QuestInteractable_StormCenter_Single : public AActor
 {
 public:
+    DEFINE_PROPERTY(TArray<APlayerState*>, PlayersWhoHaveTouchedThisCenter);
     DEFINE_STATIC_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
 };
 

@@ -490,7 +490,7 @@ std::string player_component::get_account_id(AFortPlayerController* target_playe
 {
     for (auto [account_id, player_controller] : Players)
     {
-        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
+        if (!memory_manager::is_bad_read_pointer(player_controller, false) && player_controller)
         {
             if (player_controller == target_player_controller)
             {

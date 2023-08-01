@@ -172,7 +172,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 {"damage", damage_enum},
                 {"headshot_damage", DamageDealt.HeadshotDamage}
             };
-            
+
             gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);
 
             // Log
@@ -194,7 +194,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
     }
 }
 
-void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause)
+void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags)
 {
     if (KillerPlayerController && VictimPlayerController)
     {
@@ -213,6 +213,11 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
                     {
                         weapon = "pistol";
+
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag(L"Weapon.Meta.Suppressed")))
+                        {
+                            weapon = "suppressed_pistol";
+                        }
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Shotgun"))
                     {
@@ -234,6 +239,11 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"SMG"))
                     {
                         weapon = "smg";
+
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag(L"Weapon.Meta.Suppressed")))
+                        {
+                            weapon = "suppressed_smg";
+                        }
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"LMG"))
                     {
