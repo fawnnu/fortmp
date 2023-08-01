@@ -213,6 +213,16 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaSkyDiveContrailItemDefinition")
 };
 
+struct FMcpVariantChannelInfo
+{
+    DEFINE_STRUCT_PROPERTY(struct FGameplayTag, VariantChannelTag);
+    DEFINE_STRUCT_PROPERTY(struct FGameplayTag, ActiveVariantTag);
+    DEFINE_STRUCT_PROPERTY(struct FGameplayTagContainer, OwnedVariantTags);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.McpVariantChannelInfo");
+};
+
 struct FFortAthenaLoadout
 {
     DEFINE_STRUCT_PROPERTY(FString, BannerIconId);
@@ -223,6 +233,7 @@ struct FFortAthenaLoadout
     DEFINE_STRUCT_PROPERTY(UAthenaCharacterItemDefinition*, Character);
     DEFINE_STRUCT_PROPERTY(UAthenaCharacterPartItemDefinition*, Backpack);
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, ItemWrapOverride);
+    DEFINE_STRUCT_PROPERTY(TArray<FMcpVariantChannelInfo>, CharacterVariantChannels);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAthenaLoadout");
 };

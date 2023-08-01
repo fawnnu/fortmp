@@ -303,52 +303,118 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                         for (auto& elem : locker.items())
                         {
-                            // If it's a valid string
-                            if (elem.value().is_string() && std::string(elem.value()).find(":") != std::string::npos)
+                            if (elem.value().is_object())
                             {
-                                // Banners
-                                if (locker.contains("banner") &&
-                                    locker.contains("banner_color"))
+                                if (elem.value().contains("asset"))
                                 {
-                                    if (elem.value() == locker["banner"])
+                                    nlohmann::json asset = elem.value()["asset"];
+                                    
+                                    // If it's a valid string
+                                    if (asset.is_string() && std::string(asset).find(":") != std::string::npos)
                                     {
-                                        initialize_player_banner_icon(NewPlayer, elem.value());
+                                        // Banners
+                                        if (locker.contains("banner") &&
+                                            locker["banner"].contains("asset") &&
+                                            locker.contains("banner_color") &&
+                                            locker["banner_color"].contains("asset"))
+                                        {
+                                            if (asset == locker["banner"]["asset"])
+                                            {
+                                                initialize_player_banner_icon(NewPlayer, asset);
                                         
-                                        continue;
-                                    }
-                                    if (elem.value() == locker["banner_color"])
-                                    {
-                                        initialize_player_banner_color(NewPlayer, elem.value());
+                                                continue;
+                                            }
+                                            if (asset == locker["banner_color"]["asset"])
+                                            {
+                                                initialize_player_banner_color(NewPlayer, asset);
                                         
-                                        continue;
+                                                continue;
+                                            }
+                                        }
+                                
+                                        std::string value = std::string(asset).substr(std::string(asset).find(":")+1);
+
+                                        UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
+
+                                        if (Object)
+                                        {
+                                            if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
+                                            {
+                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
+                                            }
+                                            else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
+                                            {
+                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
+                                            }
+                                            else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
+                                            {
+                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
+                                            }
+                                            else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
+                                            {
+                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
+                                            }
+                                            else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
+                                            {
+                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
+                                            }
+                                        }
                                     }
                                 }
-                                
-                                std::string value = std::string(elem.value()).substr(std::string(elem.value()).find(":")+1);
-
-                                UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
-
-                                if (Object)
+                                if (elem.value().contains("variants"))
                                 {
-                                    if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
+                                    nlohmann::json variants = elem.value()["variants"];
+
+                                    if (variants.is_array())
                                     {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
-                                    }
-                                    else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
-                                    {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
-                                    }
-                                    else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
-                                    {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
-                                    }
-                                    else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
-                                    {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
-                                    }
-                                    else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
-                                    {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
+                                        for (auto& elem_variant : variants.items())
+                                        {
+                                            if (elem_variant.value().is_object())
+                                            {
+                                                if (elem_variant.value().contains("active") &&
+                                                    elem_variant.value()["active"].is_string() &&
+                                                    elem_variant.value().contains("channel") &&
+                                                    elem_variant.value()["channel"].is_string() &&
+                                                    elem_variant.value().contains("owned") &&
+                                                    elem_variant.value()["owned"].is_array())
+                                                {
+                                                    std::string active = elem_variant.value()["active"];
+                                                    TO_WSTRING(active, wActive);
+                                                    std::string channel = elem_variant.value()["channel"];
+                                                    TO_WSTRING(channel, wChannel);
+                                                    nlohmann::json owned = elem_variant.value()["owned"];
+
+                                                    // Convert variant names
+                                                    wActive = std::wstring(L"Cosmetics.Variant.Property.") + wActive;
+                                                    wChannel = std::wstring(L"Cosmetics.Variant.Channel.") + wChannel;
+
+                                                    FMcpVariantChannelInfo* NewVariantInfo = new FMcpVariantChannelInfo;
+                                                    NewVariantInfo->ActiveVariantTag() = FName(wActive.c_str());
+                                                    NewVariantInfo->VariantChannelTag() = FName(wChannel.c_str());
+
+                                                    if (owned.is_array())
+                                                    {
+                                                        for (auto& elem_owned : owned.items())
+                                                        {
+                                                            if (elem_owned.value().is_string())
+                                                            {
+                                                                std::string sOwned = elem_owned.value();
+                                                                TO_WSTRING(sOwned, wOwned);
+                                                                wOwned = std::wstring(L"Cosmetics.Variant.Property.") + wOwned;
+
+                                                                NewVariantInfo->OwnedVariantTags().GameplayTags.Add(FGameplayTag(FName(wOwned.c_str())));
+                                                            }
+                                                        }
+
+                                                        // Add NewVariantInfo
+                                                        if (FindPropertyByName(static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
+                                                        {
+                                                            TArrayManager<FMcpVariantChannelInfo>(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()).Add(NewVariantInfo);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
