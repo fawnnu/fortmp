@@ -34,6 +34,19 @@
         return static_class;\
     }
 
+#define DEFINE_STATIC_CLASS_LOAD(ClassFullName)\
+    static UObject* StaticClass()\
+    {\
+        static UObject* static_class = FindObject(ClassFullName);\
+        \
+        if (static_class == nullptr)\
+        {\
+            static_class = FindObject(ClassFullName, true);\
+        }\
+        \
+        return static_class;\
+    }
+
 #define GET_PARAMETER(PropertyType, PropertyName)                                                                                   \
     static void* PropertyName##_property = FindPropertyByName(StackFrame.Node, #PropertyName);                                      \
     static int PropertyName##_offset = *reinterpret_cast<int*>(__int64(PropertyName##_property) + CoreOffsets::Offset_Internal);    \

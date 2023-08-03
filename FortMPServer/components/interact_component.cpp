@@ -365,6 +365,8 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
 {
     if (PlayerController == nullptr || PlayerController->MyFortPawn() == nullptr)
     {
+        spdlog::error(L"interact_component_hooks::PlayerController_ServerAttemptInteract_Hook: invalid PlayerController or MyFortPawn.");
+        
         return;
     }
 
@@ -375,19 +377,23 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
         return;
     }
     
+    GET_PARAMETER(AActor*, ReceivingActor);
+    AActor* CopiedReceivingActor = ReceivingActor;
+    
     // Call native function first
     PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
     
-    GET_PARAMETER(AActor*, ReceivingActor);
-
-    if (ReceivingActor == nullptr)
+    if (CopiedReceivingActor == nullptr)
     {
+        //
+        spdlog::error(L"interact_component_hooks::PlayerController_ServerAttemptInteract_Hook: attempting interaction with invalid CopiedReceivingActor.");
+        
         // No actor to interact with provided
         return;
     }
 
     // Interact with actor
-    interact_component::handle_interaction(PlayerController, ReceivingActor);
+    interact_component::handle_interaction(PlayerController, CopiedReceivingActor);
 }
 
 void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(UActorComponent* InteractionComponent, FFrame& StackFrame)
