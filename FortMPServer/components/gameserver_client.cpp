@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
+#include "era_mutators_component.hpp"
 #include "loader_component.hpp"
 #include "log_component.hpp"
 #include "net_component.hpp"
@@ -165,6 +166,17 @@ void gameserver_client::Register()
         {"max_players", std::to_string(GameServer_Status.max_players)},
         {"key", GameServer_Status.private_matchmaking_key}
     };
+
+    // Get grants from config
+    if (server_config.contains("grants") && server_config["grants"].is_array())
+    {
+        nlohmann::json grants_array = server_config["grants"];
+        for (auto& elem : grants_array.items())
+        {
+            PostPayload["grants"].push_back(elem.value());
+        }
+    }
+    
     PostPayload["region"] = qos_component::best_region;
     auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
 
@@ -254,6 +266,14 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // Make sure it's a phoenix message
         if (VectorPayloadString.size() == 2)
         {
+            if (VectorPayloadString[1] == "event:start")
+            {
+                if (JsonPayloadData.contains("type") && JsonPayloadData["type"].is_string())
+                {
+                    era_mutators_component::Execute(std::string(JsonPayloadData["type"]), nullptr);
+                }
+            }
+            
             // If it's a phx_error message, log it
             if (VectorPayloadString[1] == "phx_error")
             {

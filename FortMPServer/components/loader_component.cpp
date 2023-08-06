@@ -9,6 +9,7 @@
 #include "pickup_component.hpp"
 #include "team_component.hpp"
 #include "config_manager.hpp"
+#include "era_mutators_component.hpp"
 #include "player_component.hpp"
 #include "playlist_component.hpp"
 
@@ -506,6 +507,12 @@ void loader_component::handle_cl_specific_additions()
         {
             spdlog::info(L"Successfully spawned '{}' at [{} {} {}]", UKismetSystemLibrary::GetPathName(SpawnedActor).c_str(), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
         }
+    }
+
+    // Execute the rift_s4_finale mutator
+    if (GetCL() == 4159770)
+    {
+        era_mutators_component::Execute("rift_s4_finale", nullptr);
     }
 }
 

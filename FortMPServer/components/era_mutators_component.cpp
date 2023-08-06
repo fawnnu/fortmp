@@ -13,6 +13,31 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("rocket", [](LPVOID)
+    {
+        if (GetCL() == 4159770)
+        {
+            TArray<AActor*> geode_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_GeodeScripting_C::StaticClass());
+                                
+            for (auto actor : geode_scripters)
+            {
+                static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
+            }
+        }
+    });
+    
+    new era_mutator("rift_s4_finale", [](LPVOID Parameters)
+    {
+        // Enable the crack in the sky
+        TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
+
+        // Set properties on all Event Components
+        for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+        {
+            Event_Component->AreEndSequenceCrackVisible() = 1;
+        }
+    });
+    
     new era_mutator("siphon", [](LPVOID Parameters)
     {
         siphon_mutator_params* SiphonParameters = static_cast<siphon_mutator_params*>(Parameters);

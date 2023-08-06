@@ -29,7 +29,8 @@ nlohmann::json config_manager::get_server_config()
                 "weapon_hotfixes": {},
                 "loaded_mutators": [],
                 "override_region": "",
-                "enable_debug_logs": false
+                "enable_debug_logs": false,
+                "grants": []
             }
         )"_json;
     
