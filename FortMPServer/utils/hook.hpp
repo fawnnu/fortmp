@@ -22,16 +22,14 @@
     REGISTER_FUNCTION_DETOUR(FunctionName, native_to_hook, FunctionDetour); }
 
 #define REGISTER_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
-    { UObject* function_to_hook = FindObject<UObject>(FunctionObject) ?                                                         \
-        FindObject<UObject>(FunctionObject) : FindObject<UObject>(FunctionObject, false, true);                                 \
+    { UObject* function_to_hook = FindObject<UObject>(FunctionObject);                                                          \
                                                                                                                                 \
-    hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
+    if (function_to_hook) hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
 #define REGISTER_POST_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
-    { UObject* function_to_hook = FindObject<UObject>(FunctionObject) ?                                                         \
-        FindObject<UObject>(FunctionObject) : FindObject<UObject>(FunctionObject, false, true);                                 \
+    { UObject* function_to_hook = FindObject<UObject>(FunctionObject);                                                          \
                                                                                                                                 \
-    hook_manager::post_hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
+    if (function_to_hook) hook_manager::post_hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
 #define REGISTER_CALL_DETOUR(FunctionObject, FunctionDetour) \
     { \
