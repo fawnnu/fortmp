@@ -26,6 +26,18 @@ era_mutators_component::era_mutators_component()
         }
     });
     
+    new era_mutator("rift_s4_finale_no_cracks", [](LPVOID Parameters)
+    {
+        // Enable the crack in the sky
+        TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
+
+        // Set properties on all Event Components
+        for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+        {
+            Event_Component->AreEndSequenceCrackVisible() = 1;
+        }
+    });
+    
     new era_mutator("rift_s4_finale", [](LPVOID Parameters)
     {
         // Enable the crack in the sky
@@ -35,6 +47,8 @@ era_mutators_component::era_mutators_component()
         for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
         {
             Event_Component->AreEndSequenceCrackVisible() = 1;
+            Event_Component->AreCracksVisible() = 1;
+            Event_Component->CrackProgression() = 1.0;
         }
     });
     

@@ -301,6 +301,31 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     {
                         nlohmann::json locker = data["locker"];
 
+                        if (locker.contains("emotes"))
+                        {
+                            nlohmann::json emotes = locker["emotes"];
+
+                            // Emote ownership
+                            if (emotes.is_array())
+                            {
+                                for (auto& elem : emotes.items())
+                                {
+                                    std::string emote = elem.value();
+
+                                    if (emote.find(":") != std::string::npos)
+                                    {
+                                        emote = emote.substr(emote.find(":") + 1);
+                                        TO_WSTRING(emote, wEmote);
+
+                                        if (UAthenaDanceItemDefinition* EmoteAsset = FindObject<UAthenaDanceItemDefinition>(wEmote.c_str(), false, true))
+                                        {
+                                            OwnedEmotes[NewPlayer].push_back(EmoteAsset);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         for (auto& elem : locker.items())
                         {
                             if (elem.value().is_object())
@@ -471,6 +496,15 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
     {
         if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
         {
+            // Make sure the player owns the asset
+            if (std::find(OwnedEmotes[player_controller].begin(), OwnedEmotes[player_controller].end(), dance_asset) == OwnedEmotes[player_controller].end())
+            {
+                // Log
+                spdlog::error(L"Received attempt to play non-owned emote item.");
+                
+                return;
+            }
+            
             auto new_ability_spec = FGameplayAbilitySpec();
         
             // set the ability in the newly created struct    TODO: ADD TOYS
