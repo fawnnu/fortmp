@@ -26,6 +26,12 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
+    if (log_component::enable_debug_logs)
+    {
+        // Log receiving actor
+        spdlog::info(L"handle_interaction called on receiving_actor: {}", UKismetSystemLibrary::GetPathName(receiving_actor).c_str());
+    }
+
     if (receiving_actor->IsA(building_container_class))
     {
         // Handle any interactions with building containers
@@ -45,6 +51,12 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interactions with vending machines
         handle_vehicle_interaction(player_controller, reinterpret_cast<AFortAthenaVehicle*>(receiving_actor));
+
+        // Shopping carts
+        if (receiving_actor->IsA(AShoppingCartVehicleSK::StaticClass()))
+        {
+            handle_shoppingcart_interaction(player_controller, static_cast<AShoppingCartVehicleSK*>(receiving_actor));
+        }
     }
     else if (receiving_actor->IsA(AAthenaSupplyDrop_Llama_C::StaticClass()))
     {
@@ -250,6 +262,16 @@ void interact_component::handle_vehicle_interaction(AFortPlayerController* playe
             }
         }
     }
+}
+
+void interact_component::handle_shoppingcart_interaction(AFortPlayerController* player_controller, AShoppingCartVehicleSK* vehicle)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending llama interaction.");
+    }
+    
+    challenges_component::SendShoppingCartInteraction(player_controller);
 }
 
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)

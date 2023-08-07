@@ -16,6 +16,8 @@ public:
     static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective);
     static void SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective);
+    static void SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective);
+    static void SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing);
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
     static void SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* HealthSmall);
@@ -26,6 +28,7 @@ public:
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
     static void SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine);
     static void SendDiscoBallInteraction(AFortPlayerController* InteractingController);
+    static void SendShoppingCartInteraction(AFortPlayerController* InteractingController);
     static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);

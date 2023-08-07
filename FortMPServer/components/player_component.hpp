@@ -38,6 +38,7 @@ struct FDamageDealtMapValue
     int MinigunDamage;
     int LMGDamage;
     int StructureDamage;
+    int EnemyStructureDamage;
     int HeadshotDamage;
     int PickaxeDamage;
 };

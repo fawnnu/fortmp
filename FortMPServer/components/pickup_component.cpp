@@ -511,6 +511,23 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 }
             }
         }
+        else if (OtherActor->IsA(AProp_MountainSummit_QuestInteractable_Parent::StaticClass()))
+        {
+            if (OtherActor->HasProperty(L"QuestBackendObjectiveName"))
+            {
+                if (PlayerPawn->Controller())
+                {
+                    challenges_component::SendLocationInteraction(PlayerPawn->Controller(), static_cast<AProp_MountainSummit_QuestInteractable_Parent*>(OtherActor), static_cast<AProp_MountainSummit_QuestInteractable_Parent*>(OtherActor)->QuestBackendObjectiveName());
+                }
+            }
+        }
+        else if (OtherActor->IsA(AProp_SkydiveRings_QuestInteractable::StaticClass()))
+        {
+            if (PlayerPawn->Controller())
+            {
+                challenges_component::SendSkyDiveRingInteraction(PlayerPawn->Controller(), static_cast<AProp_SkydiveRings_QuestInteractable*>(OtherActor));
+            }
+        }
         else if (OtherActor->IsA(fort_pickup_class))
         {
             // Cast overlap capsule to FortPickup instance

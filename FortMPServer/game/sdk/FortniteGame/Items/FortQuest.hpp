@@ -119,3 +119,18 @@ public:
     DEFINE_PROPERTY(AFortPawn*, PlayerWhoScored);
     DEFINE_PROPERTY(FName, BackendObjName);
 };
+
+class AProp_MountainSummit_QuestInteractable_Parent : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/MountainSummit/Prop_MountainSummit_QuestInteractable_Parent.Prop_MountainSummit_QuestInteractable_Parent_C");
+    
+    DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};
+
+class AProp_SkydiveRings_QuestInteractable : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/SkydiveRings/Prop_SkydiveRings_QuestInteractable.Prop_SkydiveRings_QuestInteractable_C");
+};

@@ -167,7 +167,8 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 {"lmg", DamageDealt.LMGDamage},
                 {"minigun", DamageDealt.MinigunDamage},
                 {"rpg", DamageDealt.RPGDamage},
-                {"pickaxe", DamageDealt.PickaxeDamage}
+                {"pickaxe", DamageDealt.PickaxeDamage},
+                {"enemy_building", DamageDealt.EnemyStructureDamage}
             };
 
             nlohmann::json parameters = {
@@ -533,6 +534,60 @@ void challenges_component::SendStormCenterInteraction(AFortPlayerController* Int
     }   
 }
 
+void challenges_component::SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective)
+{
+    if (InteractingController && LocationProp)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", LocationProp->K2_GetActorLocation().X},
+                {"y", LocationProp->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:location", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing)
+{
+    if (InteractingController && SkydiveRing)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", SkydiveRing->K2_GetActorLocation().X},
+                {"y", SkydiveRing->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:ring", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
     if (InteractingController && InteractingController->Pawn())
@@ -772,6 +827,31 @@ void challenges_component::SendDiscoBallInteraction(AFortPlayerController* Inter
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:disco-ball", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendShoppingCartInteraction(AFortPlayerController* InteractingController)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:cart", parameters);
         }
         else
         {

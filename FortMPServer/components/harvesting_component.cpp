@@ -23,6 +23,20 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
         {
             // Track damage inflicted to building actors
             player_component::DamageDealtMap[instigated_by].StructureDamage += damage;
+
+            // If the building is player built & owned by another team, count EnemyStructureDamage
+            if (building_actor->AttributeInitLevelSource() == 1)
+            {
+                // Check PlayerState
+                if (instigated_by->PlayerState())
+                {
+                    // Check team
+                    if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
+                    {
+                        player_component::DamageDealtMap[instigated_by].EnemyStructureDamage += damage;
+                    }
+                }
+            }
             
             // Make sure a player is damaging the building with their pickaxe
             if (building_actor->AttributeInitLevelSource() != 1 &&
