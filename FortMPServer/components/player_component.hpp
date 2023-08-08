@@ -86,7 +86,7 @@ public:
     static void Setup(AFortPlayerController* NewPlayer, const FString& Options);
     static bool is_live_spectator(APlayerController* player_controller);
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
-    static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset);
+    static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset, bool b_requires_validation = true);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
     static std::string get_account_id(AFortPlayerController* target_player_controller);
     static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);

@@ -514,6 +514,12 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("rift_s4_finale", nullptr);
     }
+
+    // Execute the cube_s5 mutator
+    if (GetFortniteVersionEasy() >= 5 && GetFortniteVersionEasy() < 6)
+    {
+        era_mutators_component::Execute("cube_s5", nullptr);
+    }
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)

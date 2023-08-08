@@ -248,6 +248,16 @@ void renderer::CreateNewWindow()
                                     static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
                                 }
                             }
+
+                            if (ImGui::Button("Next Cube Step", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());
+                                
+                                for (auto actor : cube_scripter)
+                                {
+                                    static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+                                }
+                            }
                             
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");
 

@@ -51,6 +51,19 @@ era_mutators_component::era_mutators_component()
             Event_Component->CrackProgression() = 1.0;
         }
     });
+
+    new era_mutator("cube_s5", [](LPVOID Parameters)
+    {
+        // Get the Cube actor
+        TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());
+        
+        for (auto actor : cube_scripter)
+        {
+            // Spawn the cube at a specific step
+            auto cube = static_cast<ACUBE_C*>(actor);
+            cube->New(0);
+        }
+    });
     
     new era_mutator("siphon", [](LPVOID Parameters)
     {

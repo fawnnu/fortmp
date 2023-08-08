@@ -490,20 +490,25 @@ void player_component::ApplyBackpack(AFortPlayerControllerAthena* NewPlayer)
     }
 }
 
-void player_component::play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset)
+void player_component::play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset, bool b_requires_validation)
 {
     if (dance_asset)
     {
         if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
         {
-            // Make sure the player owns the asset
-            if (std::find(OwnedEmotes[player_controller].begin(), OwnedEmotes[player_controller].end(), dance_asset) == OwnedEmotes[player_controller].end())
+#ifdef _RELEASE
+            if (b_requires_validation)
             {
-                // Log
-                spdlog::error(L"Received attempt to play non-owned emote item.");
+                // Make sure the player owns the asset
+                if (std::find(OwnedEmotes[player_controller].begin(), OwnedEmotes[player_controller].end(), dance_asset) == OwnedEmotes[player_controller].end())
+                {
+                    // Log
+                    spdlog::error(L"Received attempt to play non-owned emote item.");
                 
-                return;
+                    return;
+                }
             }
+#endif
             
             auto new_ability_spec = FGameplayAbilitySpec();
         
@@ -1271,7 +1276,7 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
             }
         }
         
-        player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"));
+        player_component::play_emote_item(SenderPC, FindObject<UAthenaDanceItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/Emoji/Emoji_Comm.Emoji_Comm"), false);
     }
 }
 
