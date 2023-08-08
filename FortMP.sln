@@ -5,8 +5,6 @@ VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FortMPServer", "FortMPServer\FortMPServer.vcxproj", "{4567A7A0-01A1-4599-8B47-474EDA48B384}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FortMPClient", "FortMPClient\FortMPClient.vcxproj", "{6A96FE08-4C77-42FC-81B4-4A19A9D56DE2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
