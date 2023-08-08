@@ -512,6 +512,7 @@ void loader_component::handle_cl_specific_additions()
     // Execute the rift_s4_finale mutator
     if (GetCL() == 4159770)
     {
+        era_mutators_component::Execute("rift_s4_finale_no_cracks", nullptr);
         era_mutators_component::Execute("rift_s4_finale", nullptr);
     }
 

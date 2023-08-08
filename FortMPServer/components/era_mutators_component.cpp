@@ -17,51 +17,63 @@ era_mutators_component::era_mutators_component()
     {
         if (GetCL() == 4159770)
         {
-            TArray<AActor*> geode_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_GeodeScripting_C::StaticClass());
-                                
-            for (auto actor : geode_scripters)
+            if (ABP_GeodeScripting_C::StaticClass(true))
             {
-                static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
+                TArray<AActor*> geode_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_GeodeScripting_C::StaticClass());
+                                
+                for (auto actor : geode_scripters)
+                {
+                    static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
+                }
             }
         }
     });
     
     new era_mutator("rift_s4_finale_no_cracks", [](LPVOID Parameters)
     {
-        // Enable the crack in the sky
-        TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
-
-        // Set properties on all Event Components
-        for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+        if (ABP_Athena_Event_Components_C::StaticClass(true))
         {
-            Event_Component->AreEndSequenceCrackVisible() = 1;
+            // Enable the crack in the sky
+            TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
+
+            // Set properties on all Event Components
+            for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+            {
+                Event_Component->AreEndSequenceCrackVisible() = 1;
+            }
         }
     });
     
     new era_mutator("rift_s4_finale", [](LPVOID Parameters)
     {
-        // Enable the crack in the sky
-        TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
-
-        // Set properties on all Event Components
-        for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+        if (ABP_Athena_Event_Components_C::StaticClass(true))
         {
-            Event_Component->AreEndSequenceCrackVisible() = 1;
-            Event_Component->AreCracksVisible() = 1;
-            Event_Component->CrackProgression() = 1.0;
+            // Enable the crack in the sky
+            TArray<ABP_Athena_Event_Components_C*> Event_Components = UGameplayStatics::GetAllActorsOfClass<ABP_Athena_Event_Components_C>(*GWorld, ABP_Athena_Event_Components_C::StaticClass());
+
+            // Set properties on all Event Components
+            for (ABP_Athena_Event_Components_C* Event_Component : Event_Components)
+            {
+                Event_Component->AreEndSequenceCrackVisible() = 1;
+                Event_Component->AreCracksVisible() = 1;
+                Event_Component->CrackProgression() = 1.0;
+            }
         }
     });
 
     new era_mutator("cube_s5", [](LPVOID Parameters)
     {
-        // Get the Cube actor
-        TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());
-        
-        for (auto actor : cube_scripter)
+        if (ACUBE_C::StaticClass(true))
         {
-            // Spawn the cube at a specific step
-            auto cube = static_cast<ACUBE_C*>(actor);
-            cube->New(0);
+            // Get the Cube actor
+            TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());
+        
+            for (auto actor : cube_scripter)
+            {
+                // Spawn the cube at a specific step
+                auto cube = static_cast<ACUBE_C*>(actor);
+                cube->New(0);
+            }
         }
     });
     

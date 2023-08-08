@@ -27,21 +27,42 @@
     }
 
 #define DEFINE_STATIC_CLASS(ClassFullName)\
-    static UObject* StaticClass()\
-    {\
-        static UObject* static_class = FindObject(ClassFullName);\
-        \
-        return static_class;\
-    }
-
-#define DEFINE_STATIC_CLASS_LOAD(ClassFullName)\
-    static UObject* StaticClass()\
+    static UObject* StaticClass(bool bLog = false)\
     {\
         static UObject* static_class = FindObject(ClassFullName);\
         \
         if (static_class == nullptr)\
         {\
+            if (bLog)\
+            {\
+                spdlog::error(L"StaticClass: failed to find '{}'.", ClassFullName);\
+            }\
+        }\
+        \
+        return static_class;\
+    }
+
+#define DEFINE_STATIC_CLASS_LOAD(ClassFullName)\
+    static UObject* StaticClass(bool bLog = false)\
+    {\
+        static UObject* static_class = FindObject(ClassFullName);\
+        \
+        if (static_class == nullptr)\
+        {\
+            if (bLog)\
+            {\
+                spdlog::error(L"StaticClass: failed to find '{}'. Loading is enabled, trying again...", ClassFullName);\
+            }\
+            \
             static_class = FindObject(ClassFullName, true);\
+            \
+            if (static_class == nullptr)\
+            {\
+                if (bLog)\
+                {\
+                    spdlog::error(L"StaticClass: failed to find '{}' after attempting to load object.", ClassFullName);\
+                }\
+            }\
         }\
         \
         return static_class;\
