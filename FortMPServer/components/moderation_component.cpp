@@ -771,6 +771,10 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
 
 void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
+    // Temporary: disable the playlist command until matchmaking issues are sorted
+    ExecutingPlayerController->ClientMessage(TEXT("The SetPlaylist command is temporarily unavailable. Please contact us on discord if you'd like to change your gamemode."));
+    return;
+    
     FString InPlaylistName;
 
     if (!FParse::Token(InStream, InPlaylistName, 0))
