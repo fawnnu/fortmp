@@ -45,6 +45,15 @@ uint8_t team_component::PickTeam_Implementation(uint8_t InTeamIndex, AFortPlayer
             }
         }
     }
+    else
+    {
+        era_team* FoundTeam = find_free_team(FortPlayerController);
+
+        if (FoundTeam)
+        {
+            return FoundTeam->get_team_index();
+        }
+    }
     
     spdlog::error(L"team_component::PickTeam_Implementation couldn't find a valid team, calling PickTeam...");
     
