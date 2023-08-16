@@ -3,7 +3,7 @@
 class ABP_Athena_Event_Components_C : public AActor
 {
 public:
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Events/BP_Athena_Event_Components.BP_Athena_Event_Components_C");
+    DEFINE_CLASS(L"/Game/Athena/Events/BP_Athena_Event_Components.BP_Athena_Event_Components_C");
 
     DEFINE_PROPERTY(float, CrackProgression);
     DEFINE_PROPERTY(int, AreCracksVisible);
@@ -14,7 +14,7 @@ class ABP_GeodeScripting_C : public AActor
 {
 public:
 
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Maps/Test/Events/BP_GeodeScripting.BP_GeodeScripting_C")
+    DEFINE_CLASS(L"/Game/Athena/Maps/Test/Events/BP_GeodeScripting.BP_GeodeScripting_C")
     
     void LaunchSequence()
     {
@@ -42,7 +42,7 @@ class ACUBE_C : public AActor
 {
 public:
 
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C")
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Cube/CUBE.CUBE_C")
 
     DEFINE_PROPERTY(int, PathIndex);
     DEFINE_PROPERTY(int, CurrentIndex);

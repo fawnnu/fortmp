@@ -278,7 +278,7 @@ public:
 class AShoppingCartVehicleSK : public AFortAthenaVehicle
 {
 public:
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C")
+    DEFINE_CLASS(L"/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C")
 };
 
 class AFortPlayerPawnAthena : public AFortPlayerPawn

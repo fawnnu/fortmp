@@ -64,7 +64,7 @@ public:
     DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/FortnightLetters/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FortnightLetters/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
 };
 
 class AProp_Quest_GniceGnomes_Parent_C : public ABuildingSMActor
@@ -73,7 +73,7 @@ public:
     DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/GniceGnomes/Prop_Quest_GniceGnomes_Parent.Prop_Quest_GniceGnomes_Parent_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/GniceGnomes/Prop_Quest_GniceGnomes_Parent.Prop_Quest_GniceGnomes_Parent_C");
 };
 
 class AProp_QuestInteractable_RubberDuckies_Parent_C : public ABuildingSMActor
@@ -82,7 +82,7 @@ public:
     DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/RubberDuckies/Prop_QuestInteractable_RubberDuckies_Parent.Prop_QuestInteractable_RubberDuckies_Parent_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/RubberDuckies/Prop_QuestInteractable_RubberDuckies_Parent.Prop_QuestInteractable_RubberDuckies_Parent_C");
 };
 
 class AProp_QuestObject_Interactable_Parent_C : public ABuildingSMActor
@@ -91,7 +91,7 @@ public:
     DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
     
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestObject_Interactable_Parent.Prop_QuestObject_Interactable_Parent_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestObject_Interactable_Parent.Prop_QuestObject_Interactable_Parent_C");
 };
 
 class ABA_QuestInteractable_DancePlatforms : public AActor
@@ -103,14 +103,14 @@ public:
     DEFINE_PROPERTY(TArray<AFortPlayerPawn*>, Platform4_Pawns);
     DEFINE_PROPERTY(FName, QuestObjBackendName);
     
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C");
 };
 
 class ABA_QuestInteractable_StormCenter_Single : public AActor
 {
 public:
     DEFINE_PROPERTY(TArray<APlayerState*>, PlayersWhoHaveTouchedThisCenter);
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
 };
 
 class AAthena_SoccerGame_C : public AActor
@@ -123,7 +123,7 @@ public:
 class AProp_MountainSummit_QuestInteractable_Parent : public AActor
 {
 public:
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/MountainSummit/Prop_MountainSummit_QuestInteractable_Parent.Prop_MountainSummit_QuestInteractable_Parent_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/MountainSummit/Prop_MountainSummit_QuestInteractable_Parent.Prop_MountainSummit_QuestInteractable_Parent_C");
     
     DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
@@ -132,5 +132,5 @@ public:
 class AProp_SkydiveRings_QuestInteractable : public AActor
 {
 public:
-    DEFINE_STATIC_CLASS_LOAD(L"/Game/Athena/Items/QuestInteractables/SkydiveRings/Prop_SkydiveRings_QuestInteractable.Prop_SkydiveRings_QuestInteractable_C");
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/SkydiveRings/Prop_SkydiveRings_QuestInteractable.Prop_SkydiveRings_QuestInteractable_C");
 };
