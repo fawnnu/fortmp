@@ -195,31 +195,35 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
     {
         if (Hit.Actor().Get() && Hit.Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
         {
-            // Check if TraceEnd and the bullet's location on the server are different
-            FVector CurrentLoc = Self->K2_GetActorLocation();
-            float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
-            float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
-
-            if (Difference_X >= 5000 ||
-                Difference_Y >= 5000)
+            // Don't run these checks on less than 50m hits
+            if (Self->GetDistanceTo(Hit.Actor().Get()) > 5000)
             {
-                // Log
-                spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
+                // Check if TraceEnd and the bullet's location on the server are different
+                FVector CurrentLoc = Self->K2_GetActorLocation();
+                float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
+                float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
 
-                // Register invalid hit
-                anticheat_component::IllegalSniperActionsCount[Controller]++;
-            
-                // Check amount of illegal actions
-                if (anticheat_component::IllegalSniperActionsCount[Controller] >= 7)
+                if (Difference_X >= 5000 ||
+                    Difference_Y >= 5000)
                 {
-                    // Perform a ban
-                    if (auto account_id = player_component::get_account_id(Controller); account_id.size())
-                    {
-                        gameserver_client::Client->SendBan(account_id);
-                    }
-                }
+                    // Log
+                    spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
+
+                    // Register invalid hit
+                    anticheat_component::IllegalSniperActionsCount[Controller]++;
             
-                return;
+                    // Check amount of illegal actions
+                    if (anticheat_component::IllegalSniperActionsCount[Controller] >= 7)
+                    {
+                        // Perform a ban
+                        if (auto account_id = player_component::get_account_id(Controller); account_id.size())
+                        {
+                            gameserver_client::Client->SendBan(account_id);
+                        }
+                    }
+            
+                    return;
+                }
             }
         }
         
