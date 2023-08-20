@@ -47,6 +47,25 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameInstance");
 };
 
+class UAssetManager : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AssetManager");
+};
+
+class UFortAssetManager : public UAssetManager
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAssetManager");
+    DEFINE_PROPERTY(class UFortGameData*, GameData);
+};
+
+class UEngine : public UObject
+{
+public:
+    DEFINE_PROPERTY(UAssetManager*, AssetManager);
+};
+
 class UWorld : public UObject
 {
 public:

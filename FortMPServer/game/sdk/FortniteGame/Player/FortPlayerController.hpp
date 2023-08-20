@@ -165,6 +165,7 @@ public:
     DEFINE_PROPERTY(class AFortQuickBars*, ClientQuickBars);
     DEFINE_PROPERTY(AFortInventory*, WorldInventory);
     DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
+    DEFINE_PROPERTY(TArray<class AActor*>, ActiveToyInstances);
 
     class UFortQuestManager* GetQuestManager(uint8_t SubGame)
     {

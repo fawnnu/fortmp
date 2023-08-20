@@ -230,6 +230,21 @@ struct FRebootCardReplicatedState
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.RebootCardReplicatedState");
 };
 
+class AFortPhysicsBall : public ABuildingActor
+{
+};
+
+class AB_PlayerSpawnedBall_C : public AFortPhysicsBall
+{
+public:
+    void InitializeToyInstance(AFortPlayerController* player_controller, int NumTimesSummoned)
+    {
+        STATIC_FINDFUNCTION(InitializeToyInstance)
+
+        Call(Function_InitializeToyInstance, player_controller, NumTimesSummoned);
+    }
+};
+
 class ABuildingGameplayActorSpawnChip : public ABuildingActor
 {
 public:

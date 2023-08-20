@@ -166,6 +166,21 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaSprayItemDefinition");
 };
 
+class UAthenaToyItemDefinition : public UAthenaDanceItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaToyItemDefinition");
+
+    DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, ToySpawnAbility);
+    
+    TSoftObjectPtr<class UObject> GetToyActorClass()
+    {
+        STATIC_FINDFUNCTION(GetToyActorClass)
+        
+        return Call<TSoftObjectPtr<class UObject>>(Function_GetToyActorClass);
+    }
+};
+
 class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
 {
 public:

@@ -77,6 +77,13 @@ public:
         
         Call(Function_SetActorScale3D, NewScale3D);
     }
+
+    bool K2_SetActorTransform(FTransform NewTransform, bool bSweep, struct FHitResult* OutHitResult, bool bTeleport)
+    {
+        STATIC_FINDFUNCTION(K2_SetActorTransform)
+        
+        return Call<bool>(Function_K2_SetActorTransform, NewTransform, bSweep, OutHitResult, bTeleport);
+    }
     
     FVector K2_GetActorLocation()
     {

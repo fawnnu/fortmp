@@ -181,6 +181,16 @@ public:
         
         return Default__KismetMathLibrary->Call<bool>(FunctionObject, Weight);
     }
+
+    static FRotator Quat_Rotator(FQuat Q)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.Quat_Rotator")
+        
+        return Default__KismetMathLibrary->Call<FRotator>(FunctionObject, Q);
+    }
 };
 
 class UKismetStringLibrary : public UObject

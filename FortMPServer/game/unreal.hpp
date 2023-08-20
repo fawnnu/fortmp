@@ -14,10 +14,11 @@ public:
 };
 
 class UWorld;
+class UEngine;
 class UObject;
 
 inline UWorld** GWorld;
-inline UObject** GEngine;
+inline UEngine** GEngine;
 
 // Find UProperty/FProperty by FName
 inline void* (*FindPropertyByName)(UObject* InClass, FName PropertyToFind);
@@ -567,7 +568,7 @@ struct FActorSpawnParameters
 };
 
 // Spawn an actor
-inline UObject* (*SpawnActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, const FActorSpawnParameters& Params);
+inline class AActor* (*SpawnActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, const FActorSpawnParameters& Params);
 
 template<typename T = UObject>
 T* SpawnDefaultActor(UWorld* World, UObject* Class)

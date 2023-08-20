@@ -29,6 +29,30 @@ public:
         
         return Default__GameplayStatics->Call<UObject*>(FunctionObject, Class, Outer);
     }
+
+    static AActor* FinishSpawningActor(AActor* Actor, FTransform SpawnTransform)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.FinishSpawningActor")
+        
+        return Default__GameplayStatics->Call<AActor*>(FunctionObject, Actor, SpawnTransform);
+    }
+
+    static AActor* BeginDeferredActorSpawnFromClass(UObject* WorldContextObject, UObject* ActorClass, FTransform SpawnTransform, uint8_t CollisionHandlingOverride, AActor* Owner)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.BeginDeferredActorSpawnFromClass")
+        
+        return Default__GameplayStatics->Call<AActor*>(FunctionObject, WorldContextObject, ActorClass, SpawnTransform, CollisionHandlingOverride, Owner);
+    }
+
+    static AActor* SpawnActor(UObject* ActorClass, FTransform SpawnTransform, uint8_t CollisionHandlingOverride, AActor* Owner)
+    {
+        auto preactor = BeginDeferredActorSpawnFromClass((*GWorld), ActorClass, SpawnTransform, CollisionHandlingOverride, Owner);
+        return FinishSpawningActor(preactor, SpawnTransform);
+    }
     
     static FString ParseOption(FString Options, FString Key)
     {

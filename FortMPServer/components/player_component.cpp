@@ -32,6 +32,9 @@ player_component::player_component()
         
         INIT_POINTER(WorldMarkerDataCtr, WorldMarkerData_Addr);
     }
+
+    // PLAYER CONTROLLER IS BAD PTR, TODO: FIX
+   // REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance", player_component_hooks::SpawnToyInstance_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -67,6 +70,22 @@ player_component::player_component()
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
+}
+
+AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
+    FTransform SpawnPosition)
+{
+    if (PlayerController)
+    {
+        spdlog::info(PlayerController->Class->GetName().c_str());
+        FRotator spawn_rotation = UKismetMathLibrary::Quat_Rotator(SpawnPosition.Rotation);
+        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, nullptr));
+
+        toy_instance->InitializeToyInstance(PlayerController, 0);
+    
+        return toy_instance;   
+    }
+    return nullptr;
 }
 
 void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn, FFrame& StackFrame)
@@ -510,19 +529,26 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             }
 #endif
             
+            UFortGameData* game_data = UFortGameData::get_game_data();
+            
             auto new_ability_spec = FGameplayAbilitySpec();
         
-            // set the ability in the newly created struct    TODO: ADD TOYS
+            // set the ability in the newly created struct
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
-                new_ability_spec.Ability = FindObject(L"/Game/Abilities/Sprays/GAB_Spray_Generic.Default__GAB_Spray_Generic_C", true, false);
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(game_data->SprayGameplayAbility().Get());
                 
                 // Notify backend that we're dancing
                 challenges_component::SendSprayInteraction(player_controller);
             }
+            else if (dance_asset->IsA(UAthenaToyItemDefinition::StaticClass()))
+            {
+                auto toy_asset = static_cast<UAthenaToyItemDefinition*>(dance_asset);
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(toy_asset->ToySpawnAbility().Get());
+            }
             else
             {
-                new_ability_spec.Ability = FindObject(L"/Game/Abilities/Emotes/GAB_Emote_Generic.Default__GAB_Emote_Generic_C");
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(game_data->EmoteGameplayAbility().Get());
                 
                 // Notify backend that we're dancing
                 challenges_component::SendDanceInteraction(player_controller);
@@ -542,7 +568,8 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             // GiveAbility has an additional DWORD* param, which we will simply create and use ourselves
             // by using abilities for emoting, you won't have to deal with stopping the montage yourself when the pawn moves
             GiveAbilityAndActivateOnce(player_controller->Pawn()->AbilitySystemComponent(), unk, new_ability_spec);
-
+            delete unk;
+            
             // Traversal emotes implementation ( CR. wiktorwiktor12 for help)
             STATIC_HASPROPERTY(dance_asset, bMovingEmote);
             STATIC_HASPROPERTY(dance_asset, bMoveForwardOnly);
