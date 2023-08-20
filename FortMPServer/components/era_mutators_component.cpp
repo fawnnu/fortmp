@@ -65,6 +65,7 @@ era_mutators_component::era_mutators_component()
     {
         if (ACUBE_C::StaticClass(true))
         {
+            int Starting_Cube_Path_Index = 0;
             // Get the Cube actor
             TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());
         
@@ -72,7 +73,8 @@ era_mutators_component::era_mutators_component()
             {
                 // Spawn the cube at a specific step
                 auto cube = static_cast<ACUBE_C*>(actor);
-                cube->New(0);
+                cube->New(Starting_Cube_Path_Index-1);
+                cube->Next(Starting_Cube_Path_Index);
             }
         }
     });

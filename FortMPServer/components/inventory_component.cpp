@@ -95,17 +95,12 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         
         if (item_definition == replicated_entry.ItemDefinition())
         {
-
-            // If the item definition we're dealing with has tracked attributes, allow only one at a time in the inventory
+            // Don't allow 2 the same gadgets in inventory.
             if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
             {
-                if (item_definition->HasFunction(L"HasTrackedAttributes"))
+                if (UFortWorldItem* existant_item = static_cast<UFortWorldItem*>(get_inventory_item_by_definition(player_controller, item_definition)))
                 {
-                    if (static_cast<UFortGadgetItemDefinition*>(item_definition)->HasTrackedAttributes())
-                    {
-                        remove_item(player_controller, replicated_entry.ItemGuid(), -1);
-                        break;
-                    }
+                    remove_item(player_controller, existant_item->GetItemGuid(), existant_item->ItemEntry().Count(), true, false);
                 }
             }
             
