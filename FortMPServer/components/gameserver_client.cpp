@@ -200,6 +200,24 @@ void gameserver_client::Register()
     
             SendJoin();
             SendUpdate();
+
+            // Get cube info
+            try
+            {
+                for (auto& item : JsonResult["data"]["event_states"].items())
+                {
+                    std::string type = item.value()["type"];
+                    if (type == "cube")
+                    {
+                        int tracking = item.value()["state"]["tracking"];
+                        cube_mutator::step = tracking;
+                    }
+                }
+            }
+            catch (nlohmann::json::exception& err)
+            {
+                spdlog::error(L"gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
+            }
         }
         else
         {

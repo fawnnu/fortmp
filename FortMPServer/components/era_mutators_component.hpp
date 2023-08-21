@@ -20,6 +20,18 @@ public:
     ExecuteCallback callback;
 };
 
+class cube_mutator : public era_mutator
+{
+public:
+    cube_mutator() = default;
+    cube_mutator(std::string in_mutator_name, ExecuteCallback in_callback) :
+        era_mutator(in_mutator_name, in_callback)
+    {
+    }
+
+    static int step;
+};
+
 // Overload operator
 FORCEINLINE bool operator==(era_mutator* Mutator, std::string Name)
 {
