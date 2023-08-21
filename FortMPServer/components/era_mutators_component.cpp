@@ -78,6 +78,16 @@ era_mutators_component::era_mutators_component()
             }
         }
     });
+
+    new era_mutator("birthday_bus", [](LPVOID Parameters)
+    {
+        (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_BirthdayBus.BBID_BirthdayBus", true, false));
+    });
+
+    new era_mutator("winter_bus", [](LPVOID Parameters)
+    {
+        (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus", true, false));
+    });
     
     new era_mutator("siphon", [](LPVOID Parameters)
     {
