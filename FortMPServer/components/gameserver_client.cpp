@@ -217,7 +217,7 @@ void gameserver_client::Register()
             }
             catch (nlohmann::json::exception& err)
             {
-                spdlog::error(L"gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
+                spdlog::error("gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
             }
         }
         else

@@ -29,7 +29,7 @@ public:
     {
     }
 
-    static int step;
+    inline static int step;
 };
 
 // Overload operator

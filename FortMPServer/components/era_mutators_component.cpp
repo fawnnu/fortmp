@@ -29,6 +29,19 @@ era_mutators_component::era_mutators_component()
         }
     });
     
+    new era_mutator("cube", [](LPVOID)
+    {
+        if (GetCL() == 4363240)
+        {
+            TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass(*GWorld, ACUBE_C::StaticClass());
+                                
+            for (auto actor : cube_scripter)
+            {
+                static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+            }
+        }
+    });
+    
     new era_mutator("rift_s4_finale_no_cracks", [](LPVOID Parameters)
     {
         if (ABP_Athena_Event_Components_C::StaticClass(true))
@@ -61,7 +74,7 @@ era_mutators_component::era_mutators_component()
         }
     });
 
-    new cube_mutator("cube_s5", [](LPVOID Parameters)
+    new cube_mutator("cube_spawn", [](LPVOID Parameters)
     {
         if (ACUBE_C::StaticClass(true))
         {

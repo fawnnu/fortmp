@@ -507,7 +507,7 @@ void loader_component::handle_cl_specific_additions()
     // Execute the cube_s5 mutator
     if (GetCL() == 4363240)
     {
-        era_mutators_component::Execute("cube_s5", nullptr);
+        era_mutators_component::Execute("cube_spawn", nullptr);
         era_mutators_component::Execute("birthday_bus", nullptr);
     }
 
