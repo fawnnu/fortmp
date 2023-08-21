@@ -85,6 +85,15 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/RubberDuckies/Prop_QuestInteractable_RubberDuckies_Parent.Prop_QuestInteractable_RubberDuckies_Parent_C");
 };
 
+class AProp_QuestActor_FloatingLightningBolt_Parent_C : public ABuildingSMActor
+{
+public:
+    DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FloatingLightningBolts/Prop_QuestActor_FloatingLightningBolt_Parent.Prop_QuestActor_FloatingLightningBolt_Parent_C");
+};
+
 class AProp_QuestObject_Interactable_Parent_C : public ABuildingSMActor
 {
 public:
@@ -92,6 +101,19 @@ public:
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
     
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Generic/Prop_QuestObject_Interactable_Parent.Prop_QuestObject_Interactable_Parent_C");
+};
+
+class AProp_QuestInteractable_Parent_C : public ABuildingSMActor
+{
+public:
+    DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};
+
+class AProp_QuestInteractable_HiddenStar_Parent_C : public AProp_QuestInteractable_Parent_C
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/HiddenStars/Prop_QuestInteractable_HiddenStar_Parent.Prop_QuestInteractable_HiddenStar_Parent_C");
 };
 
 class ABA_QuestInteractable_DancePlatforms : public AActor
