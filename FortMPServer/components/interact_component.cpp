@@ -68,6 +68,21 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with supply drops, for challenges
         handle_supplydrop_interaction(player_controller, reinterpret_cast<AFortAthenaSupplyDrop*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestActor_FloatingLightningBolt_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interaction with lightning bolts for challenges
+        handle_lightningbolt_interaction(player_controller, reinterpret_cast<AProp_QuestActor_FloatingLightningBolt_Parent_C*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_HiddenStar_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with battle stars
+        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_HiddenStar_Parent_C*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with battle stars
+        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
+    }
     else if (receiving_actor->IsA(AProp_QuestInteractable_Letter_Parent_C::StaticClass(log_component::enable_debug_logs)))
     {
         // Handle any interactions with letters, for challenges
@@ -77,11 +92,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interactions with gnomes, for challenges
         handle_gnome_interaction(player_controller, reinterpret_cast<AProp_Quest_GniceGnomes_Parent_C*>(receiving_actor));
-    }
-    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interactions with battle stars
-        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
     }
     else if (receiving_actor->IsA(ACBGA_LowGravity_UsingJump_C::StaticClass(log_component::enable_debug_logs)))
     {
@@ -336,6 +346,20 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
     }
 }
 
+void interact_component::handle_battlestar_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_HiddenStar_Parent_C* battlestar)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_battlestar_interaction is sending battlestar interaction.");
+    }
+    
+    if (battlestar->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
+    }
+}
+
 void interact_component::handle_hoprock_interaction(AFortPlayerController* player_controller, ACBGA_LowGravity_UsingJump_C* hoprock)
 {
     if (log_component::enable_debug_logs)
@@ -380,6 +404,20 @@ void interact_component::handle_rubberduck_interaction(AFortPlayerController* pl
     {
         // Send interaction event
         challenges_component::SendRubberDuckInteraction(player_controller, rubberduck, rubberduck->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_lightningbolt_interaction(AFortPlayerController* player_controller, AProp_QuestActor_FloatingLightningBolt_Parent_C* lightningbolt)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_lightningbolt_interaction is sending lightning bolt interaction.");
+    }
+    
+    if (lightningbolt->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendLightningBoltInteraction(player_controller, lightningbolt, lightningbolt->QuestBackendObjectiveName());
     }
 }
 

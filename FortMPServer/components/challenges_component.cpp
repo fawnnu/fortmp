@@ -412,6 +412,35 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
     }   
 }
 
+void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective)
+{
+    if (InteractingController && BattleStar)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", BattleStar->K2_GetActorLocation().X},
+                {"y", BattleStar->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendPortAFortInteraction(AFortPlayerController* InteractingController)
 {
     if (InteractingController && InteractingController->Pawn())
@@ -684,6 +713,35 @@ void challenges_component::SendRubberDuckInteraction(AFortPlayerController* Inte
             };
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rubber-duck", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendLightningBoltInteraction(AFortPlayerController* InteractingController, AProp_QuestActor_FloatingLightningBolt_Parent_C* LightningBolt, FName Objective)
+{
+    if (InteractingController && LightningBolt)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", LightningBolt->K2_GetActorLocation().X},
+                {"y", LightningBolt->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:lightningbolt", parameters);
         }
         else
         {
