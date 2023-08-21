@@ -11,6 +11,7 @@
 #include "qos_component.hpp"
 #include "team_component.hpp"
 #include "../gui/renderer.hpp"
+#include "../utils/webhook_manager.hpp"
 
 void HeartbeatThread()
 {
@@ -284,6 +285,21 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         // Make sure it's a phoenix message
         if (VectorPayloadString.size() == 2)
         {
+            if (VectorPayloadString[1] == "start")
+            {
+                // Make sure we're in the server channel
+                if (VectorPayloadString[0].find(UUID) != std::string::npos)
+                {
+                    // Start the gameserver
+                    GameServer_Status.accepting_players = true;
+                    GameServer_Status.status = "online";
+                    SendUpdate();
+
+                    nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-mpfeed");
+                    webhook_manager::send_webhook(payload);
+                }
+            }
+            
             if (VectorPayloadString[1] == "event:start")
             {
                 if (JsonPayloadData.contains("type") && JsonPayloadData["type"].is_string())
