@@ -87,7 +87,7 @@ AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* Pla
 {
     if (PlayerController)
     {
-        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, nullptr));
+        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 2, PlayerController->PlayerState()));
 
         toy_instance->InitializeToyInstance(PlayerController, 0);
     

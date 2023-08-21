@@ -247,6 +247,17 @@ public:
 
     DEFINE_PROPERTY(class AFortSpecialActorReplicationInfo*, SpecialActorData);
 
+    void ChangeBattleBusCosmetic(UFortItemDefinition* BusCosmetic)
+    {
+        if (STATIC_HASPROPERTY(this, DefaultBattleBus))
+        {
+            if (UFortItemDefinition* BattleBusOverride = BusCosmetic)
+            {
+                DefaultBattleBus() = BattleBusOverride;
+            }
+        }
+    }
+    
     void OnRep_CurrentPlaylistInfo()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)

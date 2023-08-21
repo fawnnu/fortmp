@@ -183,9 +183,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Disable duplicate building foundations
         handle_duplicated_foundations();
 
-        // Handle eventual battle bus overrides (Specific per build)
-        handle_battle_bus_overrides();
-
         // Handle build specific additions
         handle_cl_specific_additions();
 
@@ -478,23 +475,6 @@ void loader_component::handle_duplicated_foundations()
     }   
 }
 
-void loader_component::handle_battle_bus_overrides()
-{
-    // 1.11, christmas bus
-    if (GetCL() == 3807424)
-    {
-        AFortGameStateAthena* GameState = (*GWorld)->GameState();
-        
-        if (STATIC_HASPROPERTY(GameState, DefaultBattleBus))
-        {
-            if (UFortItemDefinition* BattleBusOverride = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus"))
-            {
-                GameState->DefaultBattleBus() = BattleBusOverride;
-            }
-        }
-    }
-}
-
 void loader_component::handle_cl_specific_additions()
 {
     // Spawn the week 4 star, on 4.1
@@ -520,6 +500,13 @@ void loader_component::handle_cl_specific_additions()
     if (GetCL() == 4363240)
     {
         era_mutators_component::Execute("cube_s5", nullptr);
+        era_mutators_component::Execute("birthday_bus", nullptr);
+    }
+
+    // 1.11, christmas bus
+    if (GetCL() == 3807424)
+    {
+        era_mutators_component::Execute("winter_bus", nullptr);
     }
 }
 
