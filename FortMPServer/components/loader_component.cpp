@@ -241,14 +241,25 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         (*GWorld)->AuthorityGameMode()->OnServerReady();
 
 #ifdef _RELEASE
-        // Notify era services
-        gameserver_client::Client->GameServer_Status.accepting_players = true;
-        gameserver_client::Client->GameServer_Status.status = "online";
-        gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-        gameserver_client::Client->SendUpdate();
+        // Only on public servers
+        if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
+        {
+            // Notify era services
+            gameserver_client::Client->GameServer_Status.accepting_players = false;
+            gameserver_client::Client->GameServer_Status.status = "ready";
+            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+            gameserver_client::Client->SendUpdate();
 
-        nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-mpfeed");
-        webhook_manager::send_webhook(payload);
+            nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-mpfeed");
+            webhook_manager::send_webhook(payload);
+        }
+        else // Run different code on private
+        {
+            gameserver_client::Client->GameServer_Status.accepting_players = true;
+            gameserver_client::Client->GameServer_Status.status = "online";
+            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+            gameserver_client::Client->SendUpdate(); 
+        }
 #endif
 
         spdlog::info(L"Match started in world '{}' and listening for connections",
