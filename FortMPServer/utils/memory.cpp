@@ -335,6 +335,23 @@ std::vector<uintptr_t> memory_manager::get_all_stripped_calls_in_function(uintpt
 	return stripped_calls_list;
 }
 
+std::vector<uintptr_t> memory_manager::get_all_stripped_calls_in_function_wiktor(uintptr_t function_start)
+{
+	std::vector<uintptr_t> stripped_calls_list;
+	
+	auto all_calls = get_all_calls_in_function(function_start);
+
+	for (auto call : all_calls)
+	{
+		if (is_function_stripped_wiktor(call + 5 + *reinterpret_cast<int*>(call + 1)))
+		{
+			stripped_calls_list.push_back(call);
+		}
+	}
+
+	return stripped_calls_list;
+}
+
 std::vector<uintptr_t> memory_manager::get_all_stripped_leas_in_function(uintptr_t function_start)
 {
 	std::vector<uintptr_t> stripped_calls_list;

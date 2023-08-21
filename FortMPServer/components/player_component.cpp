@@ -33,8 +33,18 @@ player_component::player_component()
         INIT_POINTER(WorldMarkerDataCtr, WorldMarkerData_Addr);
     }
 
-    // PLAYER CONTROLLER IS BAD PTR, TODO: FIX
-   // REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance", player_component_hooks::SpawnToyInstance_Hook);
+    // BREAK DOWN THE REGISTER_CALL_HOOK MACRO AND USE STRIPPED FUNCTIONS GETTERS INSTEAD
+    { UFunction* function_to_hook = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance") ?
+        FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance") :
+        FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance", false, true);
+        if (function_to_hook != nullptr)
+        {
+            const auto all_calls_in_function = memory_manager::get_all_stripped_calls_in_function_wiktor(reinterpret_cast<uintptr_t>(function_to_hook->get_native_function()));
+            memory_manager::call_hook(all_calls_in_function[all_calls_in_function.size() - 1], reinterpret_cast<uintptr_t>(player_component_hooks::SpawnToyInstance_Hook));
+        } else
+        {
+            spdlog::error(L"Failed to hook '{}', invalid function object provided", L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance");
+        } };
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -77,14 +87,13 @@ AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* Pla
 {
     if (PlayerController)
     {
-        spdlog::info(PlayerController->Class->GetName().c_str());
-        FRotator spawn_rotation = UKismetMathLibrary::Quat_Rotator(SpawnPosition.Rotation);
         AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, nullptr));
 
         toy_instance->InitializeToyInstance(PlayerController, 0);
     
         return toy_instance;   
     }
+    
     return nullptr;
 }
 

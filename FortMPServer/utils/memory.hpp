@@ -33,6 +33,7 @@ public:
     static std::vector<uintptr_t> get_all_calls_in_function(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_leas_in_function(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_stripped_calls_in_function(uintptr_t function_start);
+    static std::vector<uintptr_t> get_all_stripped_calls_in_function_wiktor(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_stripped_leas_in_function(uintptr_t function_start);
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
