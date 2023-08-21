@@ -272,8 +272,12 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {
                         weapon = "trap";
                     }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"GasGrenade"))
+                    {
+                        weapon = "stink_bomb";
+                    }
                 }
-            
+
                 std::map<std::string, std::string> parameters{
                         {"x", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().X)},
                         {"y", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().Y)},
