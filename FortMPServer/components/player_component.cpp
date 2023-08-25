@@ -85,11 +85,14 @@ player_component::player_component()
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
     FTransform SpawnPosition)
 {
-    if (PlayerController)
+    if (PlayerController && !memory_manager::is_bad_read_pointer(PlayerController))
     {
-        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 2, PlayerController->PlayerState()));
+        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, PlayerController->PlayerState()));
 
-        toy_instance->InitializeToyInstance(PlayerController, 0);
+        if (toy_instance)
+        {
+            toy_instance->InitializeToyInstance(PlayerController, 0);   
+        }
     
         return toy_instance;   
     }
@@ -1076,7 +1079,7 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
 {
     GET_PARAMETER(UAthenaDanceItemDefinition*, EmoteAsset);
 
-    player_component::play_emote_item(FortPlayerController, EmoteAsset);
+    player_component::play_emote_item(FortPlayerController, EmoteAsset, false);
 }
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
