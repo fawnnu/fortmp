@@ -1079,7 +1079,7 @@ void player_component_hooks::ServerPlayEmoteItem_Hook(AFortPlayerController* For
 {
     GET_PARAMETER(UAthenaDanceItemDefinition*, EmoteAsset);
 
-    player_component::play_emote_item(FortPlayerController, EmoteAsset, false);
+    player_component::play_emote_item(FortPlayerController, EmoteAsset);
 }
 
 void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame)
