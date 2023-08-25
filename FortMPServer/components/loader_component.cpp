@@ -242,7 +242,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
 #ifdef _RELEASE
         // Only on public servers
-        if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
+        /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
         {
             // Notify era services
             gameserver_client::Client->GameServer_Status.accepting_players = false;
@@ -250,7 +250,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
             gameserver_client::Client->SendUpdate();
         }
-        else // Run different code on private
+        else*/ // Run different code on private
         {
             gameserver_client::Client->GameServer_Status.accepting_players = true;
             gameserver_client::Client->GameServer_Status.status = "online";

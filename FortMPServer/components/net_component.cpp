@@ -173,7 +173,8 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                     bool bQuestAlreadyExists = false;
                     for (FFortUpdatedObjectiveStat& ObjectiveStat : UpdatedObjectiveStats)
                     {
-                        if (ObjectiveStat.Quest() == QuestItemDefinition)
+                        if (ObjectiveStat.Quest() == QuestItemDefinition &&
+                            ObjectiveStat.BackendName() == wObjective.c_str())
                         {
                             bQuestAlreadyExists = true;
                             ObjectiveStat.StatValue() = value;
