@@ -391,6 +391,26 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                                         UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
 
+                                        // Check if the backend didn't send a literal random item definition
+                                        UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
+
+                                        if (athena_game_data)
+                                        {
+                                            if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
+                                            {
+                                                for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
+                                                {
+                                                    if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
+                                                    {
+                                                        if (Object == ShuffleTileItem)
+                                                        {
+                                                            Object = nullptr;
+                                                        }
+                                                    }
+                                                } 
+                                            }
+                                        }
+                                        
                                         if (Object)
                                         {
                                             if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
