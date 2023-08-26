@@ -462,6 +462,8 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                                         {
                                                             TArrayManager<FMcpVariantChannelInfo>(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()).Add(NewVariantInfo);
                                                         }
+
+                                                        free(NewVariantInfo);
                                                     }
                                                 }
                                             }

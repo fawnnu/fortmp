@@ -138,6 +138,9 @@ era_mutators_component::era_mutators_component()
         // Apply
         TargetPlayerController->Pawn()->SetHealth(CurrentHealth);
         TargetPlayerController->Pawn()->SetShield(CurrentShield);
+
+        // Free memory
+        delete SiphonParameters;
     });
 
     // See what mutators are enabled
