@@ -71,7 +71,7 @@ unreal_manager::unreal_manager()
     }
 
     // Instantly set GIsClient to false
-    if (GetEngineVersionEasy() > 421 && GetFortniteVersionEasy() < 10)
+    if (GetEngineVersionEasy() >= 421 && GetFortniteVersionEasy() < 10)
     {
         *GIsClient = false;
     }

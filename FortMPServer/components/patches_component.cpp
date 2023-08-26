@@ -263,6 +263,25 @@ patches_component::patches_component()
             }
         }
     }
+
+    {
+        // Ignore client/server context on SpawnActor
+        if (uintptr_t target_address = memory_manager::find_pattern("75 4E 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 46 18 48 8D 55 80 48 8D 4D 90 48 89 45 90 E8 ? ? ? ? 48 8B 05 ? ? ? ? 4C 8D 44 24 ?"))
+        {
+            DWORD new_protection, old_protection;
+
+            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, PAGE_EXECUTE_READWRITE, &old_protection);
+
+            // JNZ -> EB
+            reinterpret_cast<uint8_t*>(target_address)[0] = 0xEB;
+            
+            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, old_protection, &new_protection);
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch client/server context checks in UWorld::SpawnActor.");
+        }
+    }
     
     DetourTransactionCommit();
 }
