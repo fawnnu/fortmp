@@ -18,8 +18,11 @@ public:
     static void handle_duplicated_foundations();
     static void handle_cl_specific_additions();
 
+    static void OnMapInfoLoaded();
+    
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* ExitCraftSpawner, FFrame& StackFrame);
+    static void WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame);
     
     inline static bool bPendingShutdown;
 };

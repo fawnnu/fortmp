@@ -258,6 +258,14 @@ public:
         }
     }
     
+    // Custom event
+    void WaitForMapInfo()
+    {
+        STATIC_FINDFUNCTION(WaitForMapInfo)
+        
+        Call(Function_WaitForMapInfo);
+    }
+    
     void OnRep_CurrentPlaylistInfo()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)

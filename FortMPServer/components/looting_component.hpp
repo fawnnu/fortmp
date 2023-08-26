@@ -106,3 +106,4 @@ namespace looting_component_hooks
 }
 
 inline AFortAthenaSupplyDrop* (*SpawnSupplyDrop)(AFortAthenaMapInfo* FortAthenaMapInfo, void* UnknownParam, int UnknownParam_1, int SafezoneIndex, UFortSupplyDropInfo* FortSupplyDropInfo, FRotator* InRotation);
+inline void* (*PickSupplyDropLocation)(AFortAthenaMapInfo* MapInfo, FVector* OutLocation, FVector* Center, float Radius);

@@ -91,6 +91,7 @@ loader_component::loader_component()
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -174,9 +175,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // initialize vending machines
         initialize_vending_machines();
 
-        // initialize llamas
-        initialize_llamas();
-
         // initialize BGAs
         initialize_bga();
 
@@ -239,6 +237,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
+
+        // Implement waiter for Map Info
+        (*GWorld)->GameState()->WaitForMapInfo();
 
 #ifdef _RELEASE
         // Only on public servers
@@ -366,74 +367,58 @@ void loader_component::initialize_llamas()
     // Get gamestate
     AFortGameStateAthena* GameState = (*GWorld)->GameState();
 
-    AFortAthenaMapInfo* MapInfo = GameState->MapInfo() ? GameState->MapInfo() : SpawnDefaultActor<AFortAthenaMapInfo>(*GWorld, FindObject(L"/Game/Athena/Balance/MapInfos/DefaultMapInfo.DefaultMapInfo_C"));
+    AFortAthenaMapInfo* MapInfo = GameState->MapInfo();
     
     if (MapInfo)
     {
-        // Create a new FortSupplyDropInfo
-        UFortSupplyDropInfo* NewSupplyDropInfo = static_cast<UFortSupplyDropInfo*>(UGameplayStatics::SpawnObject(FindObject(L"/Script/FortniteGame.FortSupplyDropInfo"), *GWorld));
-
-        if (NewSupplyDropInfo == nullptr)
+        // Spawn the llamas
+        for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(MapInfo->LlamaQuantityMin().GetValueAtLevel(0, nullptr), MapInfo->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
         {
-            spdlog::error(L"loader_component::initialize_llamas: Failed, invalid NewSupplyDropInfo");
-            
-            return;
-        }
-        
-        // Set the supply drop info's class
-        if (STATIC_HASPROPERTY(MapInfo, LlamaClass))
-        {
-            NewSupplyDropInfo->SupplyDropClass() = MapInfo->LlamaClass();
-
-            // Create a new FFortSupplyDropGamePhaseData (Allocate the struct on the heap to avoid issues with garbage collection)
-            FFortSupplyDropGamePhaseData* NewGamePhaseData = static_cast<FFortSupplyDropGamePhaseData*>(malloc(FFortSupplyDropGamePhaseData::GetStructSize()));
-
-            // Initialize our struct's memory
-            ZeroMemory(NewGamePhaseData, FFortSupplyDropGamePhaseData::GetStructSize());
-
-            // Add it to the supply drop info
-            auto GamePhaseData = TArrayManager<FFortSupplyDropGamePhaseData>(&NewSupplyDropInfo->GamePhaseData(), FFortSupplyDropGamePhaseData::GetStructSize());
-
-            GamePhaseData.Add(NewGamePhaseData);
-
-            // Now create a sub phase data
-            FFortSupplyDropSubPhaseData* NewSubPhaseData = static_cast<FFortSupplyDropSubPhaseData*>(malloc(FFortSupplyDropSubPhaseData::GetStructSize()));
-
-            // Initialize our struct's memory
-            ZeroMemory(NewSubPhaseData, FFortSupplyDropSubPhaseData::GetStructSize());
-
-            auto SubPhaseData = TArrayManager<FFortSupplyDropSubPhaseData>(&GamePhaseData[0].SubPhaseData(), FFortSupplyDropSubPhaseData::GetStructSize());
-
-            // Add the sub phase data to our GamePhaseData
-            SubPhaseData.Add(NewSubPhaseData);
-
-            // Now set SupplyDropMinPlacementHeight and SupplyDropMaxPlacementHeight, copy them from the default supply drop info
-            if (UFortSupplyDropInfo* DefaultSupplyDrop = FindObject<UFortSupplyDropInfo>(L"/Game/Athena/Balance/MapInfos/DefaultSupplyDrop.DefaultSupplyDrop", true))
+            // Pick random location
+            if (PickSupplyDropLocation)
             {
-                auto DefaultGamePhaseData = TArrayManager<FFortSupplyDropGamePhaseData>(&DefaultSupplyDrop->GamePhaseData(), FFortSupplyDropGamePhaseData::GetStructSize());
-                
-                GamePhaseData[0].SupplyDropMinPlacementHeight() = DefaultGamePhaseData[0].SupplyDropMinPlacementHeight();
-                GamePhaseData[0].SupplyDropMaxPlacementHeight() = DefaultGamePhaseData[0].SupplyDropMaxPlacementHeight();
-            }
-
-            // Spawn the llamas
-            for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(MapInfo->LlamaQuantityMin().GetValueAtLevel(0, nullptr), MapInfo->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
-            {
-                // Call the function to spawn the llamas
-                if (SpawnSupplyDrop != nullptr)
+                while (true)
                 {
-                    FRotator NewRotation{};
+                    FVector SpawnLocation(0, 0, 0);
+                    FVector Center(1, 1, 10000);
+                    PickSupplyDropLocation(MapInfo, &SpawnLocation, &Center, 100000);
 
-                    // New llama
-                    AFortAthenaSupplyDrop* NewSupplyDrop = SpawnSupplyDrop(MapInfo, nullptr, 0, 0, NewSupplyDropInfo, &NewRotation);
+                    if (SpawnLocation.Z <= 0)
+                    {
+                        spdlog::error(L"loader_component::initialize_llamas Picked invalid location, retrying...");
+                        
+                        continue;
+                    }
 
                     // Log
-                    spdlog::info(L"Spawned Llama at {} {} {}", NewSupplyDrop->K2_GetActorLocation().X, NewSupplyDrop->K2_GetActorLocation().Y, NewSupplyDrop->K2_GetActorLocation().Z);
+                    spdlog::info(L"Picked LLAMA SpawnLocation [{} {} {}]", SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
+
+                    FTransform SpawnTransform;
+                    SpawnTransform.Rotation = FQuat();
+                    SpawnTransform.Translation = SpawnLocation;
+                    SpawnTransform.Scale3D = FVector(1, 1, 1);
+                    auto NewLlama = UGameplayStatics::BeginDeferredActorSpawnFromClass(*GWorld, MapInfo->LlamaClass(), SpawnTransform, 0, nullptr);
+
+                    if (NewLlama)
+                    {
+                        // Get ground location, and finish spawning
+                        SpawnTransform.Translation = reinterpret_cast<AFortAthenaSupplyDrop*>(NewLlama)->FindGroundLocationAt(SpawnTransform.Translation);
+
+                        spdlog::info(L"Finished spawning LLAMA [{} {} {}]", SpawnTransform.Translation.X, SpawnTransform.Translation.Y, SpawnTransform.Translation.Z);
+                        
+                        UGameplayStatics::FinishSpawningActor(NewLlama, SpawnTransform);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    break;
                 }
-                else
-                {
-                    spdlog::error(L"Failed to spawn llama: SpawnSupplyDrop was not found.");
-                }
+            }
+            else
+            {
+                spdlog::error(L"loader_component::initialize_llamas failed, invalid PickSupplyDropLocation");
             }
         }
     }
@@ -518,6 +503,12 @@ void loader_component::handle_cl_specific_additions()
     }
 }
 
+void loader_component::OnMapInfoLoaded()
+{
+    // Implement llamas
+    initialize_llamas();
+}
+
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
@@ -550,6 +541,20 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
                 (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
             }
         }
+    }
+}
+
+void loader_component::WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self->MapInfo())
+    {
+        OnMapInfoLoaded();
+    }
+    else
+    {
+        UKismetSystemLibrary::K2_SetTimer(Self, L"WaitForMapInfo", 1.0, false);
     }
 }
 
