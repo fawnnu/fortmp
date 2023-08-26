@@ -16,6 +16,10 @@
 player_component::player_component()
 {
     INIT_POINTER(HealthProperty, memory_manager::find_pattern("48 8B 15 ? ? ? ? 48 8D 4C 24 ? E8 ? ? ? ? 48 8B CE E8 ? ? ? ? 48 85 C0 74 11 41 0F 28 D0 48 8D 54 24 ? 48 8B C8 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8D 4E 30 E8 ? ? ? ? 44 0F 28 C0 48 8D 4E 50 F3 45 0F 5C C1 F3 44 0F 5F C7 E8 ? ? ? ? 48 8D 4E 30 44 0F 28 C8 E8 ? ? ? ?", true, 3));
+    if (!HealthProperty)
+    {
+        INIT_POINTER(HealthProperty, memory_manager::find_pattern("48 8B 15 ? ? ? ? 48 8D 4D EF E8 ? ? ? ? 48 8D 55 EF 48 8B CE E8 ? ? ? ? 84 C0 74 05 40 B7 01 EB 03 40 32 FF 41 F6 C6 01 74 12 48 8B 4D EF 41 83 E6 FE 48 85 C9 74 05 E8 ? ? ? ?", true, 3));
+    }
     
     // Initialize serverchoosepart
     if (const uintptr_t index = memory_manager::find_function_by_string(L"ServerChoosePart_Validate", {0xff, 0x90}, 2, false, false))
