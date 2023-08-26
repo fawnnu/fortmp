@@ -6,6 +6,7 @@
 #include "ability_component.hpp"
 #include "challenges_component.hpp"
 #include "function_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 
 inventory_component::inventory_component()
@@ -747,8 +748,11 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
         {
             if (UFortItem* Item = inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid))
             {
-                spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
-
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+                }
+                
                 inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
                 
                 if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())

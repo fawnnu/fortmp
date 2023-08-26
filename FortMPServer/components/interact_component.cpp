@@ -78,26 +78,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with battle stars
         handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_HiddenStar_Parent_C*>(receiving_actor));
     }
-    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interactions with battle stars
-        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
-    }
-    else if (receiving_actor->IsA(AProp_QuestInteractable_Letter_Parent_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interactions with letters, for challenges
-        handle_letter_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Letter_Parent_C*>(receiving_actor));
-    }
-    else if (receiving_actor->IsA(AProp_Quest_GniceGnomes_Parent_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interactions with gnomes, for challenges
-        handle_gnome_interaction(player_controller, reinterpret_cast<AProp_Quest_GniceGnomes_Parent_C*>(receiving_actor));
-    }
-    else if (receiving_actor->IsA(ACBGA_LowGravity_UsingJump_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interaction with hop rocks, for challenges
-        handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
-    }
     else if (receiving_actor->IsA(ACBGA_HealthSmall_C::StaticClass(log_component::enable_debug_logs)))
     {
         // Handle any interaction with apples, for challenges
@@ -107,11 +87,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         // Handle any interaction with mushrooms, for challenges
         handle_mushroom_interaction(player_controller, reinterpret_cast<ACBGA_ShieldsSmall_C*>(receiving_actor));
-    }
-    else if (receiving_actor->IsA(AProp_QuestInteractable_RubberDuckies_Parent_C::StaticClass(log_component::enable_debug_logs)))
-    {
-        // Handle any interaction with rubber duckies for challenges
-        handle_rubberduck_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_RubberDuckies_Parent_C*>(receiving_actor));
     }
 }
 

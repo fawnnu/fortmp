@@ -2,6 +2,7 @@
 #include "net_component.hpp"
 
 #include "challenges_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 #include "replication_component.hpp"
 
@@ -150,12 +151,15 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
 
         if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wAccountID))
         {
-            if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+            if (log_component::enable_debug_logs)
             {
-                TO_WSTRING(objective, wObjective);
-                TO_WSTRING(challenge, wChallenge);
+                if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+                {
+                    TO_WSTRING(objective, wObjective);
+                    TO_WSTRING(challenge, wChallenge);
                 
-                spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
+                    spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
+                }
             }
 
             // Working live progression
