@@ -38,6 +38,7 @@ shell_component::shell_component()
     freopen_s(&fDummy, "CONIN$", "r", stdin);
     console = spdlog::stdout_color_mt("console");
     console->set_pattern("%v");
+    SetConsoleTitleA("FortMP");
 
     // First log
     console->info("FortMP shell software [NULLRHI: enabled]\n");

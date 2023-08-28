@@ -195,7 +195,14 @@ void gameserver_client::Register()
                 if (server_name.length() >= 2 && server_name.length() <= 16)
                 {
                     GameServer_Status.name = server_name;
-                    SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                    if (renderer::WindowHandle)
+                    {
+                        SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                    }
+                    else
+                    {
+                        SetConsoleTitleA(std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                    }
                 }
             }
     
