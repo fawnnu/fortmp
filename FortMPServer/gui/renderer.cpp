@@ -17,13 +17,23 @@
 #include "../components/log_component.hpp"
 #include "../components/net_component.hpp"
 #include "../components/player_component.hpp"
+#include "../components/shell_component.hpp"
 #include "../utils/stb_image.h"
 
 renderer::renderer()
 {
-    bLoadedAssets = false;
+    auto config = config_manager::get_server_config();
 
-    CreateNewWindow();
+    if (!config["nullrhi"].get<bool>())
+    {
+        bLoadedAssets = false;
+
+        CreateNewWindow();
+    }
+    else
+    {
+        new shell_component();
+    }
 }
 
 void renderer::CreateNewWindow()

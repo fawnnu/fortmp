@@ -97,9 +97,14 @@ loader_component::loader_component()
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 {
     constexpr int listen_port = 7777;
+    
+    auto config = config_manager::get_server_config();
 
     // Get UI Ready
-    renderer::LoadAssets();
+    if (!config["nullrhi"].get<bool>())
+    {
+        renderer::LoadAssets();
+    }
     
     // Listen for connections
     const FURL in_url((*GWorld)->GetName().c_str(), listen_port);
@@ -110,7 +115,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         if (in_playlist == nullptr)
         {
             // See if server.json is overriding the playlist
-            auto config = config_manager::get_server_config();
             std::string sOverridePlaylist = config["override_playlist"];
             std::wstring wOverridePlaylist = std::wstring(sOverridePlaylist.begin(), sOverridePlaylist.end());
 

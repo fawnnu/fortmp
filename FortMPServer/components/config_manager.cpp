@@ -30,7 +30,8 @@ nlohmann::json config_manager::get_server_config()
                 "loaded_mutators": [],
                 "override_region": "",
                 "enable_debug_logs": false,
-                "grants": []
+                "grants": [],
+                "nullrhi": false
             }
         )"_json;
     

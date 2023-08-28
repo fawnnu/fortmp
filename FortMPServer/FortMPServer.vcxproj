@@ -238,6 +238,7 @@
     <ClInclude Include="components\reboot_component.hpp" />
     <ClInclude Include="components\replication_component.hpp" />
     <ClInclude Include="components\reviving_component.hpp" />
+    <ClInclude Include="components\shell_component.hpp" />
     <ClInclude Include="components\storm_component.hpp" />
     <ClInclude Include="components\team_component.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
@@ -367,6 +368,7 @@
     <ClCompile Include="components\reboot_component.cpp" />
     <ClCompile Include="components\replication_component.cpp" />
     <ClCompile Include="components\reviving_component.cpp" />
+    <ClCompile Include="components\shell_component.cpp" />
     <ClCompile Include="components\storm_component.cpp" />
     <ClCompile Include="components\team_component.cpp" />
     <ClCompile Include="components\trap_component.cpp" />
