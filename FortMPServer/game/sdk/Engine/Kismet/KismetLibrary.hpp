@@ -141,6 +141,16 @@ public:
         
         return Default__KismetMathLibrary->Call<FVector>(FunctionObject, A, B); 
     }
+
+    static FVector GetRightVector(FRotator InRot)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.GetRightVector")
+        
+        return Default__KismetMathLibrary->Call<FVector>(FunctionObject, InRot); 
+    }
     
     static float RandomFloatInRange(float Min, float Max)
     {

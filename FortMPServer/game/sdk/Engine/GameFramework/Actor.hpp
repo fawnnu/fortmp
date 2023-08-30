@@ -98,6 +98,20 @@ public:
         
         return Call<FVector>(Function_GetActorForwardVector);
     }
+
+    FVector GetActorRightVector()
+    {
+        STATIC_FINDFUNCTION(GetActorRightVector)
+        
+        return Call<FVector>(Function_GetActorRightVector);
+    }
+    
+    FVector GetActorUpVector()
+    {
+        STATIC_FINDFUNCTION(GetActorUpVector)
+        
+        return Call<FVector>(Function_GetActorUpVector);
+    }
     
     FRotator K2_GetActorRotation()
     {
