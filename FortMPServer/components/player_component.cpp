@@ -360,6 +360,8 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         {
                             if (elem.value().is_object())
                             {
+                                UObject* PickedAsset = nullptr;
+                                
                                 if (elem.value().contains("asset"))
                                 {
                                     nlohmann::json asset = elem.value()["asset"];
@@ -415,22 +417,27 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                         {
                                             if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
                                             {
+                                                PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
                                             }
                                             else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
                                             {
+                                                PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
                                             }
                                             else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
                                             {
+                                                PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
                                             }
                                             else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
                                             {
+                                                PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
                                             }
                                             else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
                                             {
+                                                PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
                                             }
                                         }
@@ -443,10 +450,10 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                     if (variants.is_array())
                                     {
                                         // Save variants
-                                        PendingVariantsData[NewPlayer].push_back(variants);
+                                        PendingVariantsData[NewPlayer].push_back(std::make_pair(variants, PickedAsset));
                                         
                                         // Apply variant
-                                        apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants);
+                                        apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants, PickedAsset);
                                     }
                                 }
                             }
@@ -894,7 +901,7 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
     return EDamageCauser::None;
 }
 
-void player_component::apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json variants)
+void player_component::apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json variants, UObject* ItemVariantIsUsedFor)
 {
     for (auto& elem_variant : variants.items())
     {
@@ -932,9 +939,11 @@ void player_component::apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json
                             wOwned = std::wstring(L"Cosmetics.Variant.Property.") + wOwned;
 
                             NewVariantInfo->OwnedVariantTags().GameplayTags.Add(FGameplayTag(FName(wOwned.c_str())));
-                            NewVariantInfo->ItemVariantIsUsedFor() = FindObject(L"/Game/Athena/Items/Cosmetics/Characters/CID_161_Athena_Commando_M_Drift.CID_161_Athena_Commando_M_Drift");
-                            spdlog::info(NewVariantInfo->OwnedVariantTags().GameplayTags.Num());
-                            spdlog::info(NewVariantInfo->ItemVariantIsUsedFor()->GetName().c_str());
+
+                            if (FindPropertyByName(NewVariantInfo->GetClass(), L"ItemVariantIsUsedFor"))
+                            {
+                                NewVariantInfo->ItemVariantIsUsedFor() = ItemVariantIsUsedFor;
+                            }
                         }
                     }
 

@@ -465,9 +465,9 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
         // Apply variants
         if (player_component::PendingVariantsData.contains(PlayerController))
         {
-            for (nlohmann::json variant : player_component::PendingVariantsData[PlayerController])
+            for (std::pair<nlohmann::json, UObject*> variant_data : player_component::PendingVariantsData[PlayerController])
             {
-                player_component::apply_variant(OutLoadout, variant);
+                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
             }
         }
     }
