@@ -9,6 +9,7 @@ struct era_team_info
     bool fill;
     uint8_t preferred_team;
     uint8_t preferred_main_team;
+    std::wstring TeamID;
 };
 
 class team_component

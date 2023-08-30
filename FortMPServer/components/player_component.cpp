@@ -249,14 +249,14 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
             std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
             std::string team_id;
 
-            for (auto [wteam_id, team_info] : team_component::TeamsMap)
+            if (era_team* team = team_component::find_era_team(FortPlayerController, false))
             {
-                if (std::find(team_info.TeamMembersControllers.begin(), team_info.TeamMembersControllers.end(), FortPlayerController) != team_info.TeamMembersControllers.end())
+                if (team->bound_era_team_info)
                 {
+                    std::wstring wteam_id = team->bound_era_team_info->TeamID;
                     TO_STRING(wteam_id, steam_id);
+
                     team_id = steam_id;
-                    
-                    break;
                 }
             }
             

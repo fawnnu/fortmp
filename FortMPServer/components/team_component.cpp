@@ -362,6 +362,7 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
     
     int number_of_teammates = 0;
     era_team_info* team_info = nullptr;
+    std::wstring TeamID;
 
     // Gather information about the current player's team
     for (auto& [current_team_id, team_information] : TeamsMap)
@@ -382,6 +383,7 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
                 {
                     team_info = &team_information;
                     found_team = true;
+                    TeamID = current_team_id;
                     break;
                 }
                 else
@@ -439,6 +441,9 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
                 // Claim the team for teammates
                 team_instance->status = team_info->fill ? era_team_status::available_for_fill : era_team_status::available_for_teammates;
 
+                // Common team ID
+                team_instance->bound_era_team_info->TeamID = TeamID;
+                
                 // Make all teammates join this team
                 team_info->preferred_team = team_instance->get_team_index();
 
