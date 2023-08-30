@@ -378,53 +378,56 @@ void loader_component::initialize_llamas()
     if (MapInfo)
     {
         // Spawn the llamas
-        for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(MapInfo->LlamaQuantityMin().GetValueAtLevel(0, nullptr), MapInfo->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
+        if (MapInfo->HasProperty(L"LlamaQuantityMin") && MapInfo->HasProperty(L"LlamaQuantityMax"))
         {
-            // Pick random location
-            if (PickSupplyDropLocation)
+            for (int i = 0; i < UKismetMathLibrary::RandomIntegerInRange(MapInfo->LlamaQuantityMin().GetValueAtLevel(0, nullptr), MapInfo->LlamaQuantityMax().GetValueAtLevel(0, nullptr)); i++)
             {
-                while (true)
+                // Pick random location
+                if (PickSupplyDropLocation)
                 {
-                    FVector SpawnLocation(0, 0, 0);
-                    FVector Center(1, 1, 10000);
-                    PickSupplyDropLocation(MapInfo, &SpawnLocation, &Center, 100000);
-
-                    if (SpawnLocation.Z <= 0)
+                    while (true)
                     {
-                        spdlog::error(L"loader_component::initialize_llamas Picked invalid location, retrying...");
+                        FVector SpawnLocation(0, 0, 0);
+                        FVector Center(1, 1, 10000);
+                        PickSupplyDropLocation(MapInfo, &SpawnLocation, &Center, 100000);
+
+                        if (SpawnLocation.Z <= 0)
+                        {
+                            spdlog::error(L"loader_component::initialize_llamas Picked invalid location, retrying...");
                         
-                        continue;
-                    }
+                            continue;
+                        }
 
-                    // Log
-                    spdlog::info(L"Picked LLAMA SpawnLocation [{} {} {}]", SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
+                        // Log
+                        spdlog::info(L"Picked LLAMA SpawnLocation [{} {} {}]", SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
 
-                    FTransform SpawnTransform;
-                    SpawnTransform.Rotation = FQuat();
-                    SpawnTransform.Translation = SpawnLocation;
-                    SpawnTransform.Scale3D = FVector(1, 1, 1);
-                    auto NewLlama = UGameplayStatics::BeginDeferredActorSpawnFromClass(*GWorld, MapInfo->LlamaClass(), SpawnTransform, 0, nullptr);
+                        FTransform SpawnTransform;
+                        SpawnTransform.Rotation = FQuat();
+                        SpawnTransform.Translation = SpawnLocation;
+                        SpawnTransform.Scale3D = FVector(1, 1, 1);
+                        auto NewLlama = UGameplayStatics::BeginDeferredActorSpawnFromClass(*GWorld, MapInfo->LlamaClass(), SpawnTransform, 0, nullptr);
 
-                    if (NewLlama)
-                    {
-                        // Get ground location, and finish spawning
-                        SpawnTransform.Translation = reinterpret_cast<AFortAthenaSupplyDrop*>(NewLlama)->FindGroundLocationAt(SpawnTransform.Translation);
+                        if (NewLlama)
+                        {
+                            // Get ground location, and finish spawning
+                            SpawnTransform.Translation = reinterpret_cast<AFortAthenaSupplyDrop*>(NewLlama)->FindGroundLocationAt(SpawnTransform.Translation);
 
-                        spdlog::info(L"Finished spawning LLAMA [{} {} {}]", SpawnTransform.Translation.X, SpawnTransform.Translation.Y, SpawnTransform.Translation.Z);
+                            spdlog::info(L"Finished spawning LLAMA [{} {} {}]", SpawnTransform.Translation.X, SpawnTransform.Translation.Y, SpawnTransform.Translation.Z);
                         
-                        UGameplayStatics::FinishSpawningActor(NewLlama, SpawnTransform);
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                            UGameplayStatics::FinishSpawningActor(NewLlama, SpawnTransform);
+                        }
+                        else
+                        {
+                            continue;
+                        }
 
-                    break;
+                        break;
+                    }
                 }
-            }
-            else
-            {
-                spdlog::error(L"loader_component::initialize_llamas failed, invalid PickSupplyDropLocation");
+                else
+                {
+                    spdlog::error(L"loader_component::initialize_llamas failed, invalid PickSupplyDropLocation");
+                }
             }
         }
     }
