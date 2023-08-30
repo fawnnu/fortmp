@@ -2,6 +2,7 @@
 #include "patches_component.hpp"
 
 #include "net_component.hpp"
+#include "player_component.hpp"
 
 anti_tampering_bypass::anti_tampering_bypass()
 {
@@ -448,7 +449,28 @@ void patches_component_hook::NetConnection__Close__Replacement()
 
 FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook(AFortPlayerControllerAthena* PlayerController, FFortAthenaLoadout* OutLoadout)
 {
+    // Clear
+    for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
+    {
+        CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
+        CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
+    }
+    
+    PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
+    
     memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+
+    if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
+    {
+        // Apply variants
+        if (player_component::PendingVariantsData.contains(PlayerController))
+        {
+            for (nlohmann::json variant : player_component::PendingVariantsData[PlayerController])
+            {
+                player_component::apply_variant(OutLoadout, variant);
+            }
+        }
+    }
     
     return OutLoadout;
 }

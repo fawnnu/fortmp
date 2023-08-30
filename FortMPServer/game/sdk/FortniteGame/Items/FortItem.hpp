@@ -233,6 +233,7 @@ struct FMcpVariantChannelInfo
     DEFINE_STRUCT_PROPERTY(struct FGameplayTag, VariantChannelTag);
     DEFINE_STRUCT_PROPERTY(struct FGameplayTag, ActiveVariantTag);
     DEFINE_STRUCT_PROPERTY(struct FGameplayTagContainer, OwnedVariantTags);
+    DEFINE_STRUCT_PROPERTY(UObject*, ItemVariantIsUsedFor);
 
     OVERLOAD_NEW_OPERATOR();
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.McpVariantChannelInfo");

@@ -158,4 +158,13 @@ void TArray<FGameplayTag>::Free()
     Count = 0;
     Max = 0;
     FMemory_Free(Data);
+    Data = nullptr;
+}
+
+void TArray<FMcpVariantChannelInfo>::Free()
+{
+    Count = 0;
+    Max = 0;
+    FMemory_Free(Data);
+    Data = nullptr;
 }

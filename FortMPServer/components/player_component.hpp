@@ -96,9 +96,11 @@ public:
     static void initialize_player_banner_level(AFortPlayerController* TargetPlayerController, int Level);
     static void initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor);
     static EDamageCauser get_damage_causer(FGameplayTagContainer& Tags);
+    static void apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json VariantData);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
+    static inline std::map<AFortPlayerController*, std::vector<nlohmann::json>> PendingVariantsData;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;

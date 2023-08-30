@@ -65,15 +65,7 @@ void team_component::InitializeTeams()
     // Loop through every available team
     for (uint8_t TeamIdx = get_default_first_team(); TeamIdx <= get_default_last_team(); TeamIdx++)
     {
-        for (AFortTeamInfo* TeamInfo : (*GWorld)->GameState()->Teams())
-        {
-            if (TeamInfo->Team() == TeamIdx)
-            {
-                new era_team(TeamInfo->Team(), false);
-                
-                break;
-            }
-        }
+        new era_team(TeamIdx, false);
     }
 
     // Initialize main teams

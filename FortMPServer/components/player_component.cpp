@@ -442,56 +442,11 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                                     if (variants.is_array())
                                     {
-                                        for (auto& elem_variant : variants.items())
-                                        {
-                                            if (elem_variant.value().is_object())
-                                            {
-                                                if (elem_variant.value().contains("active") &&
-                                                    elem_variant.value()["active"].is_string() &&
-                                                    elem_variant.value().contains("channel") &&
-                                                    elem_variant.value()["channel"].is_string() &&
-                                                    elem_variant.value().contains("owned") &&
-                                                    elem_variant.value()["owned"].is_array())
-                                                {
-                                                    std::string active = elem_variant.value()["active"];
-                                                    TO_WSTRING(active, wActive);
-                                                    std::string channel = elem_variant.value()["channel"];
-                                                    TO_WSTRING(channel, wChannel);
-                                                    nlohmann::json owned = elem_variant.value()["owned"];
-
-                                                    // Convert variant names
-                                                    wActive = std::wstring(L"Cosmetics.Variant.Property.") + wActive;
-                                                    wChannel = std::wstring(L"Cosmetics.Variant.Channel.") + wChannel;
-
-                                                    FMcpVariantChannelInfo* NewVariantInfo = new FMcpVariantChannelInfo;
-                                                    NewVariantInfo->ActiveVariantTag() = FName(wActive.c_str());
-                                                    NewVariantInfo->VariantChannelTag() = FName(wChannel.c_str());
-
-                                                    if (owned.is_array())
-                                                    {
-                                                        for (auto& elem_owned : owned.items())
-                                                        {
-                                                            if (elem_owned.value().is_string())
-                                                            {
-                                                                std::string sOwned = elem_owned.value();
-                                                                TO_WSTRING(sOwned, wOwned);
-                                                                wOwned = std::wstring(L"Cosmetics.Variant.Property.") + wOwned;
-
-                                                                NewVariantInfo->OwnedVariantTags().GameplayTags.Add(FGameplayTag(FName(wOwned.c_str())));
-                                                            }
-                                                        }
-
-                                                        // Add NewVariantInfo
-                                                        if (FindPropertyByName(static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
-                                                        {
-                                                            TArrayManager<FMcpVariantChannelInfo>(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()).Add(NewVariantInfo);
-                                                        }
-
-                                                        free(NewVariantInfo);
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        // Save variants
+                                        PendingVariantsData[NewPlayer].push_back(variants);
+                                        
+                                        // Apply variant
+                                        apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants);
                                     }
                                 }
                             }
@@ -937,6 +892,63 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
     }
 
     return EDamageCauser::None;
+}
+
+void player_component::apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json variants)
+{
+    for (auto& elem_variant : variants.items())
+    {
+        if (elem_variant.value().is_object())
+        {
+            if (elem_variant.value().contains("active") &&
+                elem_variant.value()["active"].is_string() &&
+                elem_variant.value().contains("channel") &&
+                elem_variant.value()["channel"].is_string() &&
+                elem_variant.value().contains("owned") &&
+                elem_variant.value()["owned"].is_array())
+            {
+                std::string active = elem_variant.value()["active"];
+                TO_WSTRING(active, wActive);
+                std::string channel = elem_variant.value()["channel"];
+                TO_WSTRING(channel, wChannel);
+                nlohmann::json owned = elem_variant.value()["owned"];
+
+                // Convert variant names
+                wActive = std::wstring(L"Cosmetics.Variant.Property.") + wActive;
+                wChannel = std::wstring(L"Cosmetics.Variant.Channel.") + wChannel;
+
+                FMcpVariantChannelInfo* NewVariantInfo = new FMcpVariantChannelInfo;
+                NewVariantInfo->ActiveVariantTag() = FName(wActive.c_str());
+                NewVariantInfo->VariantChannelTag() = FName(wChannel.c_str());
+
+                if (owned.is_array())
+                {
+                    for (auto& elem_owned : owned.items())
+                    {
+                        if (elem_owned.value().is_string())
+                        {
+                            std::string sOwned = elem_owned.value();
+                            TO_WSTRING(sOwned, wOwned);
+                            wOwned = std::wstring(L"Cosmetics.Variant.Property.") + wOwned;
+
+                            NewVariantInfo->OwnedVariantTags().GameplayTags.Add(FGameplayTag(FName(wOwned.c_str())));
+                            NewVariantInfo->ItemVariantIsUsedFor() = FindObject(L"/Game/Athena/Items/Cosmetics/Characters/CID_161_Athena_Commando_M_Drift.CID_161_Athena_Commando_M_Drift");
+                            spdlog::info(NewVariantInfo->OwnedVariantTags().GameplayTags.Num());
+                            spdlog::info(NewVariantInfo->ItemVariantIsUsedFor()->GetName().c_str());
+                        }
+                    }
+
+                    // Add NewVariantInfo
+                    if (FindPropertyByName(Loadout->GetClass(), L"CharacterVariantChannels"))
+                    {
+                        TArrayManager<FMcpVariantChannelInfo>(&Loadout->CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()).Add(NewVariantInfo);
+                    }
+
+                    free(NewVariantInfo);
+                }
+            }
+        }
+    }
 }
 
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
