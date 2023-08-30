@@ -342,10 +342,12 @@ void loader_component::spawn_floor_loot(UObject* Class, FName LootTier)
     {
         std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(LootTier);
 
+        ABuildingContainer* floor_loot_container = static_cast<ABuildingContainer*>(floor_loot_actor);
+        
         for (const auto& [ item_definition, count ] : loot_to_spawn)
         {
-            // Spawn pickup
-            pickup_component::spawn_pickup(item_definition, floor_loot_actor->K2_GetActorLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
+            // Spawn pickup with proper loot spawn location
+            pickup_component::spawn_pickup(item_definition, floor_loot_container->CalculateLootSpawnLocation(), count, looting_component::get_default_loaded_ammo(item_definition));
         }
 
         // Set as searched if needed

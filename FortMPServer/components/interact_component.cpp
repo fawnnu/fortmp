@@ -103,8 +103,7 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         STATIC_HASPROPERTY(building_container, LootSpawnLocation_Athena);
         
         // Get proper location for loot spawn
-        FVector LootSpawnLocation = building_container->K2_GetActorLocation();
-        LootSpawnLocation.Z += bExists_LootSpawnLocation_Athena ? building_container->LootSpawnLocation_Athena().Z : building_container->LootSpawnLocation().Z;
+        FVector LootSpawnLocation = building_container->CalculateLootSpawnLocation();
         
         // Generate and spawn the loot
         std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
