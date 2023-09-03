@@ -5,28 +5,31 @@
 
 vehicles_component::vehicles_component()
 {
+    if (AFortAthenaVehicleSpawner::StaticClass())
+    {
         AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
 
-    if (const uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called"))
-    {
-        int BeginPlayIndex = 0;
-    
-        for (int i = 0; i < INT_MAX; i++)
+        if (const uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called"))
         {
-            if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+            int BeginPlayIndex = 0;
+    
+            for (int i = 0; i < INT_MAX; i++)
             {
-                BeginPlayIndex = i;
+                if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+                {
+                    BeginPlayIndex = i;
             
-                break;
+                    break;
+                }
             }
-        }
 
-        // Hook begin play for the classes we need
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaVehicleSpawner>()->VTable, BeginPlayIndex, vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay);
-    }
-    else
-    {
-        spdlog::error(L"Failed to hook ABuildingContainer_BeginPlay. Invalid BeginPlayAddress");
+            // Hook begin play for the classes we need
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaVehicleSpawner>()->VTable, BeginPlayIndex, vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay);
+        }
+        else
+        {
+            spdlog::error(L"Failed to hook AFortAthenaVehicleSpawner::BeginPlay. Invalid BeginPlayAddress");
+        }
     }
     
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 55 53 56 57 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 C7 41 0F 10 00 4C 8B 7D 77 48 8B D9 48 8B 89 ? ? ? ? 45 0F B6 F1 0F 29 45 87 49 8B F8"));
