@@ -449,30 +449,38 @@ void patches_component_hook::NetConnection__Close__Replacement()
 
 FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook(AFortPlayerControllerAthena* PlayerController, FFortAthenaLoadout* OutLoadout)
 {
-    // Clear
-    for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
+    // Only execute the code when a player hasn't started playing yet
+    if (PlayerController->PlayerState()->bHasStartedPlaying() == false)
     {
-        CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
-        CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
-    }
-    
-    PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
-    
-    memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
-
-    if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
-    {
-        // Apply variants
-        if (player_component::PendingVariantsData.contains(PlayerController))
+        // Clear
+        for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
         {
-            for (std::pair<nlohmann::json, UObject*> variant_data : player_component::PendingVariantsData[PlayerController])
+            CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
+            CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
+        }
+    
+        PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
+    
+        memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+
+        if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
+        {
+            // Apply variants
+            if (player_component::PendingVariantsData.contains(PlayerController))
             {
-                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
+                for (std::pair<nlohmann::json, UObject*> variant_data : player_component::PendingVariantsData[PlayerController])
+                {
+                    player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
+                }
             }
         }
+            
+        return OutLoadout;
     }
-    
-    return OutLoadout;
+    else
+    {
+        return PRIVATE_GetAthenaLoadoutWithOverrides(PlayerController, OutLoadout);
+    }
 }
 
 APawn* patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook(AGameModeBase* Self, APlayerController* NewPlayer, FTransform& SpawnTransform)
