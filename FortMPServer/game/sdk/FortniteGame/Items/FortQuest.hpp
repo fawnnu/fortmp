@@ -142,6 +142,18 @@ public:
     DEFINE_PROPERTY(FName, BackendObjName);
 };
 
+class AB_BasketballHoopWithMinigame_C : public AActor
+{
+public:
+    AFortPlayerController*& PC_That_Scored()
+    {
+        static void* native_property = FindPropertyByName(this->Class, "PC That Scored");
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+        return *reinterpret_cast<AFortPlayerController**>(__int64(this) + native_property_offset);
+    };
+    DEFINE_PROPERTY(FName, ObjBackendName);
+};
+
 class AProp_MountainSummit_QuestInteractable_Parent : public AActor
 {
 public:

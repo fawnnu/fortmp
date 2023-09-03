@@ -12,10 +12,15 @@ challenges_component::challenges_component()
     {
         FindObject(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C", true);
     }
+    if (GetEngineVersionEasy() == 421)
+    {
+        FindObject(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C", true);
+    }
     
     REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C.Rising__FinishedFunc", challenges_component_hooks::Rising__FinishedFunc_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook);
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -957,6 +962,35 @@ void challenges_component::SendPitchGoalInteraction(AFortPlayerController* Inter
     }  
 }
 
+void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = BackendObjectiveName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:basket", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor); 
@@ -996,6 +1030,27 @@ void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEv
             if (STATIC_HASPROPERTY(SoccerGame, BackendObjName))
             {
                 challenges_component::SendPitchGoalInteraction(SoccerGame->PlayerWhoScored()->Controller(), SoccerGame->BackendObjName());
+            }
+        }
+    }
+}
+
+void challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    AB_BasketballHoopWithMinigame_C* BasketBallGame = static_cast<AB_BasketballHoopWithMinigame_C*>(Object);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook: Sending hoop interaction.");
+    }
+    
+    if (BasketBallGame)
+    {
+        if (BasketBallGame->PC_That_Scored())
+        {
+            if (STATIC_HASPROPERTY(BasketBallGame, ObjBackendName))
+            {
+                challenges_component::SendBasketBallHoopInteraction(BasketBallGame->PC_That_Scored(), BasketBallGame->ObjBackendName());
             }
         }
     }

@@ -32,6 +32,7 @@ public:
     static void SendDiscoBallInteraction(AFortPlayerController* InteractingController);
     static void SendShoppingCartInteraction(AFortPlayerController* InteractingController);
     static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
+    static void SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
@@ -49,4 +50,5 @@ namespace challenges_component_hooks
     DEFINE_FUNCTION_HOOK(void, Rising__FinishedFunc, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
 }
