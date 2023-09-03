@@ -16,6 +16,7 @@ namespace vehicles_component_hooks
     DEFINE_FUNCTION_HOOK(void, ServerOnExitVehicle, (AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerRequestSeatChange, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerFireActorInCannon, (AFortWeaponRangedForVehicle* Weapon, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, AFortAthenaVehicleSpawner_BeginPlay, (AFortAthenaVehicleSpawner* Target));
 
     // sync vehicles
     DEFINE_FUNCTION_HOOK(void, ServerUpdatePhysicsParams, (AActor* Vehicle, FFrame& StackFrame));
