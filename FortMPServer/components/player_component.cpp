@@ -524,15 +524,13 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             }
 #endif
             
-            UFortGameData* game_data = UFortGameData::get_game_data();
-            
             auto new_ability_spec = FGameplayAbilitySpec();
         
             // set the ability in the newly created struct
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
-                new_ability_spec.Ability = CreateDefaultObject<UObject>(game_data->SprayGameplayAbility().Get());
-                
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
+            
                 // Notify backend that we're dancing
                 challenges_component::SendSprayInteraction(player_controller);
             }
@@ -543,8 +541,8 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             }
             else
             {
-                new_ability_spec.Ability = CreateDefaultObject<UObject>(game_data->EmoteGameplayAbility().Get());
-                
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_emote_gameplay_ability());
+            
                 // Notify backend that we're dancing
                 challenges_component::SendDanceInteraction(player_controller);
             }

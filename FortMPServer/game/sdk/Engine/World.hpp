@@ -59,6 +59,7 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAssetManager");
     
     DEFINE_PROPERTY(class UFortGameData*, GameData);
+    DEFINE_PROPERTY(class UGameDataCosmetics*, GameDataCosmetics);
     DEFINE_PROPERTY(class UAthenaGameData*, AthenaGameData);
     DEFINE_PROPERTY(FString, AthenaGameDataName);
 };
