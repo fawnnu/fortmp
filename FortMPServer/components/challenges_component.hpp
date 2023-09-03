@@ -4,6 +4,7 @@ class challenges_component
 {
 public:
     challenges_component();
+    static void Initialize();
 
     static void SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer);
     static void SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop);

@@ -3,6 +3,7 @@
 
 #include "anticheat_component.hpp"
 #include "bots_component.hpp"
+#include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "looting_component.hpp"
 #include "net_component.hpp"
@@ -196,6 +197,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Weapon patches
         looting_component::parse_weapon_hotfixes();
+
+        // Initialize challenges hooks
+        challenges_component::Initialize();
         
         // Update gamemode for clients
         (*GWorld)->GameState()->GameModeClass() = FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C");
