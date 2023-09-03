@@ -89,6 +89,8 @@ unreal_manager::unreal_manager()
         CoreOffsets::ElementSize = 0x34;
         CoreOffsets::PropertyFlags = 0x38;
         CoreOffsets::SuperStruct = 0x30;
+        CoreOffsets::ByteOffset = 0x71;
+        CoreOffsets::FieldMask =  0x73;
     }
     else if (GetEngineVersionEasy() == 422 ||
              GetEngineVersionEasy() == 423 ||
@@ -101,6 +103,8 @@ unreal_manager::unreal_manager()
         CoreOffsets::ElementSize = 0x34;
         CoreOffsets::PropertyFlags = 0x38;
         CoreOffsets::SuperStruct = 0x40;
+        CoreOffsets::ByteOffset = 0x71;
+        CoreOffsets::FieldMask =  0x73;
     }
     else if (GetEngineVersionEasy() == 425 ||
              GetEngineVersionEasy() == 426)
@@ -112,6 +116,8 @@ unreal_manager::unreal_manager()
         CoreOffsets::ElementSize = 0x3C;
         CoreOffsets::PropertyFlags = 0x40;
         CoreOffsets::SuperStruct = 0x40;
+        CoreOffsets::ByteOffset = 121;
+        CoreOffsets::FieldMask =  123;
     }
 
     spdlog::info(L"Server successfully initialized. Module FortniteClient-Win64-Shipping.exe base address is {}",

@@ -5,6 +5,30 @@
 
 vehicles_component::vehicles_component()
 {
+        AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
+
+    if (const uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called"))
+    {
+        int BeginPlayIndex = 0;
+    
+        for (int i = 0; i < INT_MAX; i++)
+        {
+            if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+            {
+                BeginPlayIndex = i;
+            
+                break;
+            }
+        }
+
+        // Hook begin play for the classes we need
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaVehicleSpawner>()->VTable, BeginPlayIndex, vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay);
+    }
+    else
+    {
+        spdlog::error(L"Failed to hook ABuildingContainer_BeginPlay. Invalid BeginPlayAddress");
+    }
+    
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 55 53 56 57 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 C7 41 0F 10 00 4C 8B 7D 77 48 8B D9 48 8B 89 ? ? ? ? 45 0F B6 F1 0F 29 45 87 49 8B F8"));
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 53 55 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 41 0F 10 00 4C 8B B4 24 ? ? ? ?"));
     
@@ -23,6 +47,64 @@ vehicles_component::vehicles_component()
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerMove", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     
     DetourTransactionCommit();
+}
+
+void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAthenaVehicleSpawner* Target)
+{
+    AFortAthenaVehicleSpawner_BeginPlay(Target);
+
+    UObject* vehicle_class = Target->GetVehicleClass();
+    if (!vehicle_class) return;
+    
+    auto GameState = (*GWorld)->GameState();
+    if (!GameState) return;
+
+    auto MapInfo = GameState->MapInfo();
+    
+    if (MapInfo)
+    {
+        if (STATIC_HASPROPERTY(MapInfo, VehicleClassDetails))
+        {
+            for (int i = 0; i < MapInfo->VehicleClassDetails().Count; ++i)
+            {
+                FVehicleClassDetails Detail = MapInfo->VehicleClassDetails()[i];
+
+                if (Detail.VehicleClass().Get() != vehicle_class) continue;
+
+                float min_percent = Detail.VehicleMinSpawnPercent().GetValueAtLevel(0, nullptr);
+                float max_percent = Detail.VehicleMaxSpawnPercent().GetValueAtLevel(0, nullptr);
+
+                float spawn_percent = UKismetMathLibrary::RandomFloatInRange(min_percent, std::max(max_percent, min_percent));
+
+                float random_percent = UKismetMathLibrary::RandomFloatInRange(0, 100);
+
+                if (random_percent <= spawn_percent)
+                {
+                    Target->SpawnVehicle();
+                }
+            } 
+        }
+    }
+    
+    if (STATIC_HASPROPERTY(Target, FortVehicleItemDef))
+    {
+        auto vehicle_def = Target->FortVehicleItemDef().Get();
+
+        if (vehicle_def->VehicleActorClass().Get() != vehicle_class) return;
+
+        float min_percent = vehicle_def->VehicleMinSpawnPercent().GetValueAtLevel(0, nullptr);
+        float max_percent = vehicle_def->VehicleMaxSpawnPercent().GetValueAtLevel(0, nullptr);
+
+        float spawn_percent = UKismetMathLibrary::RandomFloatInRange(min_percent, std::max(max_percent, min_percent));
+
+        float random_percent = UKismetMathLibrary::RandomFloatInRange(0, 100);
+
+        if (random_percent <= spawn_percent)
+        {
+            Target->SpawnVehicle();
+        }
+    }
+    
 }
 
 void vehicles_component::equip_vehicle_weapon(AFortPlayerController* target_player_controller, UFortWeaponItemDefinition* weapon_item_definition)

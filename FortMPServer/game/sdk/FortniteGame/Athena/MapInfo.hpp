@@ -21,6 +21,15 @@ struct FFortSupplyDropGamePhaseData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortSupplyDropGamePhaseData");
 };
 
+struct FVehicleClassDetails
+{
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<class UObject>, VehicleClass);
+    DEFINE_STRUCT_PROPERTY(FScalableFloat, VehicleMinSpawnPercent);
+    DEFINE_STRUCT_PROPERTY(FScalableFloat, VehicleMaxSpawnPercent);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.VehicleClassDetails");
+};
+
 class UFortSupplyDropInfo : public UObject
 {
 public:
@@ -33,6 +42,8 @@ class AFortAthenaMapInfo : public AActor
 public:
     DEFINE_PROPERTY(TArray<UFortSupplyDropInfo*>, SupplyDropInfoList);
 
+    DEFINE_PROPERTY(TArray<struct FVehicleClassDetails>, VehicleClassDetails);
+    
     DEFINE_PROPERTY(UObject*, LlamaClass);
     DEFINE_PROPERTY(FScalableFloat, LlamaQuantityMin);
     DEFINE_PROPERTY(FScalableFloat, LlamaQuantityMax);

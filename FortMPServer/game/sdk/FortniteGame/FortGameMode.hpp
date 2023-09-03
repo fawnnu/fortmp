@@ -198,3 +198,25 @@ public:
         }
     }
 };
+
+class AFortAthenaVehicleSpawner : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaVehicleSpawner")
+
+    DEFINE_PROPERTY(TSoftObjectPtr<class UFortVehicleItemDefinition>, FortVehicleItemDef);
+    
+    void SpawnVehicle()
+    {
+        STATIC_FINDFUNCTION(SpawnVehicle)
+
+        Call(Function_SpawnVehicle);
+    }
+
+    UObject* GetVehicleClass()
+    {
+        STATIC_FINDFUNCTION(GetVehicleClass)
+
+        return Call<UObject*>(Function_GetVehicleClass);
+    }
+};

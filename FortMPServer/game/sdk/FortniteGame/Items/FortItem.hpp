@@ -131,6 +131,21 @@ public:
     DEFINE_PROPERTY(TSoftObjectPtr<UObject>, WeaponActorClass);
 };
 
+class UFortVehicleItemDefinition : public UFortWorldItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortVehicleItemDefinition")
+    
+    DEFINE_PROPERTY(struct FScalableFloat, VehicleMinSpawnPercent);
+    DEFINE_PROPERTY(FScalableFloat, VehicleMaxSpawnPercent);
+    DEFINE_PROPERTY(FScalableFloat, MaxNumberCanSpawn);
+    DEFINE_PROPERTY(FScalableFloat, MinPercentWithGas);
+    DEFINE_PROPERTY(FScalableFloat, MaxPercentWithGas);
+    DEFINE_PROPERTY(FScalableFloat, MinPercentInoperable);
+    DEFINE_PROPERTY(FScalableFloat, MaxPercentInoperable);
+    DEFINE_PROPERTY(TSoftObjectPtr<class UObject>, VehicleActorClass);
+};
+
 class UFortWeaponRangedItemDefinition : public UFortWeaponItemDefinition
 {
 public:
