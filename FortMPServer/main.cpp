@@ -33,6 +33,7 @@
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
 #include "components/era_mutators_component.hpp"
+#include "components/gui_manager.hpp"
 
 #include "gui/renderer.hpp"
 #include "utils/webhook_manager.hpp"
@@ -55,12 +56,7 @@ void Setup()
     new pak_component();
     
     // Setup renderer on another thread
-    CreateThread(nullptr, 0, [](LPVOID) -> DWORD
-    {
-        new renderer();
-            
-        return 0;    
-    }, nullptr, 0, nullptr);
+    new gui_manager();
 
 #ifdef _RELEASE
     // Initialize the QOS component

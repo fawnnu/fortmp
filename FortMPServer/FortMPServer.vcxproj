@@ -220,6 +220,7 @@
     <ClInclude Include="components\function_component.hpp" />
     <ClInclude Include="components\gamemodes_component.hpp" />
     <ClInclude Include="components\gameserver_client.hpp" />
+    <ClInclude Include="components\gui_manager.hpp" />
     <ClInclude Include="components\harvesting_component.hpp" />
     <ClInclude Include="components\interact_component.hpp" />
     <ClInclude Include="components\inventory_component.hpp" />
@@ -350,6 +351,7 @@
     <ClCompile Include="components\function_component.cpp" />
     <ClCompile Include="components\gamemodes_component.cpp" />
     <ClCompile Include="components\gameserver_client.cpp" />
+    <ClCompile Include="components\gui_manager.cpp" />
     <ClCompile Include="components\harvesting_component.cpp" />
     <ClCompile Include="components\interact_component.cpp" />
     <ClCompile Include="components\inventory_component.cpp" />

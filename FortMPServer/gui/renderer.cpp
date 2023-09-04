@@ -22,18 +22,9 @@
 
 renderer::renderer()
 {
-    auto config = config_manager::get_server_config();
+    bLoadedAssets = false;
 
-    if (!config["nullrhi"].get<bool>())
-    {
-        bLoadedAssets = false;
-
-        CreateNewWindow();
-    }
-    else
-    {
-        new shell_component();
-    }
+    CreateNewWindow();
 }
 
 void renderer::CreateNewWindow()
