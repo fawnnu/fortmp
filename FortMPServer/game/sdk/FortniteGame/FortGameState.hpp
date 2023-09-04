@@ -110,6 +110,12 @@ public:
         {
             return;
         }
+
+        // TODO: Fix the crash on s12 (levels are automatic on s13+)
+        if (GetFortniteVersionEasy() > 12)
+        {
+            return;
+        }
         
         if (STATIC_HASPROPERTY(in_playlist, AdditionalLevels))
         {

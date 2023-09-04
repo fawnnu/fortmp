@@ -271,6 +271,12 @@ public:
     }
 };
 
+class AFortPlayerControllerZone : public AFortPlayerController
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerControllerZone");
+};
+
 struct FAthenaQuickChatActiveEntry
 {
     DEFINE_STRUCT_PROPERTY(uint8_t, Index);
