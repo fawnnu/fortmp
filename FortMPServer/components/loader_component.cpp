@@ -248,6 +248,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Implement waiter for Map Info
         (*GWorld)->GameState()->WaitForMapInfo();
+        
+        // Apply an optional keychain (stored in /Binaries/Win64 of your game version), keychains are used to decrypt encrypted paks which got started using around season 8
+        // Example keychain file format (Server Only) (12.41, Travis Scott (Jerky) event): _:RELEASED:8734362B2A2A8B0FBC9EDE6160627E1D:8ZsoLeTeezxjoIxnNfUrNf61XfqMEKfnyTb3u4o/X6g=
+        // Format: _:RELEASED:{PakGuid}:{PakAesKeyToBase64}:{(if applicable) CosmeticId}
+        // Potentially could be moved to server_config on a later date.
+        UKismetSystemLibrary::ExecuteConsoleCommand(L"ApplyContentKeyChain keychain");
 
 #ifdef _RELEASE
         // Only on public servers
