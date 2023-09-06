@@ -32,6 +32,7 @@
 #include "components/playlist_component.hpp"
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
+#include "components/config_manager.hpp"
 #include "components/era_mutators_component.hpp"
 #include "components/gui_manager.hpp"
 
@@ -40,6 +41,9 @@
 
 void Setup()
 {
+    // Create config manager
+    new config_manager(); 
+    
     // Setup logging (File sinks)
     new log_component();
 

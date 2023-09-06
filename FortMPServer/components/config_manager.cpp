@@ -3,11 +3,6 @@
 
 config_manager::config_manager()
 {
-    
-}
-
-nlohmann::json config_manager::get_server_config()
-{
     const std::string config_path = std::string(dll_utils::get_current_path()) + "/Config";
 
     std::filesystem::create_directories(config_path);
@@ -45,7 +40,7 @@ nlohmann::json config_manager::get_server_config()
 
         new_file.close();
 
-        return default_config;
+        current_config = default_config;
     }
     else
     {
@@ -64,19 +59,76 @@ nlohmann::json config_manager::get_server_config()
         }
 
         // Save the config
-        save_server_config(config);
+        std::ofstream out_updated_config;
+        out_updated_config.open(config_path + "/server.json");
 
-        return config;
+        out_updated_config << std::setw(4) << config << std::endl;
+
+        out_updated_config.close();
+
+        current_config = config;
     }
+
+    // Save current_config every 60 seconds
+    CreateThread(nullptr, 0, [](LPVOID)->DWORD
+    {
+        const std::string config_path = std::string(dll_utils::get_current_path()) + "/Config";
+
+        std::filesystem::create_directories(config_path);
+    
+        nlohmann::json default_config = R"(
+            {
+                "server_admins": [],
+                "opped_players": [],
+                "server_key": "",
+                "override_playlist": "",
+                "player_cap_override": 100,
+                "banned_players": [],
+                "admin_passwords": [],
+                "scp_enabled": false,
+                "warmup_duration": 90,
+                "name": "",
+                "scheduler_port": -1,
+                "loot_pool_changes": [],
+                "weapon_hotfixes": {},
+                "loaded_mutators": [],
+                "override_region": "",
+                "enable_debug_logs": false,
+                "grants": [],
+                "nullrhi": false
+            }
+        )"_json;
+        
+        while (true)
+        {
+            Sleep(60000);
+            
+            // make sure the existing config is up-to-date, if not, update it
+            for (auto& elem : default_config.items())
+            {
+                if (!current_config.contains(elem.key()))
+                {
+                    current_config[elem.key()] = elem.value();
+                }
+            }
+
+            // Save the config
+            std::ofstream out_updated_config;
+            out_updated_config.open(config_path + "/server.json");
+
+            out_updated_config << std::setw(4) << current_config << std::endl;
+
+            out_updated_config.close();
+        }
+    }, nullptr,0 , nullptr);
+}
+
+nlohmann::json config_manager::get_server_config()
+{
+    return current_config;
 }
 
 void config_manager::save_server_config(nlohmann::json in_config)
 {
-    std::ofstream out_config;
-
-    out_config.open(std::string(dll_utils::get_current_path()) + "/Config/server.json");
-
-    out_config << std::setw(4) << in_config << std::endl;
-    
-    out_config.close();
+    current_config = in_config;
 }
