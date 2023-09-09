@@ -95,6 +95,8 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
 
         if (vehicle_def->VehicleActorClass().Get() != vehicle_class) return;
 
+        if (!vehicle_def->HasProperty(L"VehicleMinSpawnPercent") && !vehicle_def->HasProperty(L"VehicleMaxSpawnPercent")) return;
+        
         float min_percent = vehicle_def->VehicleMinSpawnPercent().GetValueAtLevel(0, nullptr);
         float max_percent = vehicle_def->VehicleMaxSpawnPercent().GetValueAtLevel(0, nullptr);
 

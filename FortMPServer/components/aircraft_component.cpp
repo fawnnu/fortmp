@@ -19,7 +19,17 @@ aircraft_component::aircraft_component()
 void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerController, FRotator ClientRotation)
 {
     (*GWorld)->AuthorityGameMode()->RestartPlayer(FortPlayerController);
-        
+
+    AFortPlayerControllerAthena* FortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(FortPlayerController);
+    
+    if (FortPlayerControllerAthena && FortPlayerControllerAthena->WorldInventory())
+    {
+        // Clear inventory
+        inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
+
+        (*GWorld)->AuthorityGameMode()->OnEnterAircraft(FortPlayerControllerAthena);
+    }
+    
     // Update rotation
     FortPlayerController->SetControlRotation(ClientRotation);
 }
@@ -44,9 +54,6 @@ void aircraft_component_hooks::EnterAircraft_Hook(UObject* _this, AFortAircraft*
 
     if (FortPlayerControllerAthena && FortPlayerControllerAthena->WorldInventory())
     {
-        // Clear inventory
-        inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
-
         (*GWorld)->AuthorityGameMode()->OnEnterAircraft(FortPlayerControllerAthena);
     }
     

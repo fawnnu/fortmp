@@ -716,7 +716,9 @@ UObject* looting_component::get_loot_tier_packages()
         STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData);
         UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
-    
+
+        if (!current_playlist) return nullptr;
+        
         if (UObject* playlist_loot_tier_packages = current_playlist->LootPackages().Get())
         {
             // Override loot tier packages from playlist
