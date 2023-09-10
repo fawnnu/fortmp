@@ -10,10 +10,23 @@ aircraft_component::aircraft_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
-    
+        REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
+        
     REGISTER_FUNCTION_DETOUR(aircraft_component_hooks::EnterAircraft, memory_manager::find_function_by_string(L"EnterAircraft: %s"), aircraft_component_hooks::EnterAircraft_Hook);
     
     DetourTransactionCommit();
+}
+
+void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerControllerAthena* PlayerController,
+    FFrame& StackFrame)
+{
+    if (PlayerController && PlayerController->WorldInventory())
+    {
+        // Clear inventory
+        inventory_component::clear_primary_inventory(PlayerController, false);
+    }
+
+    return ServerAttemptAircraftJump(PlayerController, StackFrame);
 }
 
 void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerController, FRotator ClientRotation)
@@ -26,8 +39,6 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
     {
         // Clear inventory
         inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
-
-        (*GWorld)->AuthorityGameMode()->OnEnterAircraft(FortPlayerControllerAthena);
     }
     
     // Update rotation
