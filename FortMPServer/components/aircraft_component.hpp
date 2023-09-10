@@ -12,7 +12,8 @@ namespace aircraft_component_hooks
 {
     // Called when a player tries to exit the aircraft
     DEFINE_FUNCTION_HOOK(void, UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, (UFortControllerComponent_Aircraft* AircraftComponent, FFrame& StackFrame));
-
+    DEFINE_FUNCTION_HOOK(void, ServerAttemptAircraftJump, (AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame));
+    
     // Native function called when a player enters the aircraft. Exists on any build
     DEFINE_FUNCTION_HOOK(void, EnterAircraft, (UObject*, AFortAircraft* FortAircraft));
     
