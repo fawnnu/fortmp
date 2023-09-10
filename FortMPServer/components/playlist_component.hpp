@@ -28,7 +28,9 @@ public:
 
     static void add_playlist(era_playlist playlist);
     static era_playlist* find_playlist(std::string playlist_name);
+    static bool validate_playlist_for_private(UFortPlaylist* InPlaylist);
     
 private:
     inline static std::vector<era_playlist> playlists;
+    inline static std::vector<std::wstring> WhitelistedPlaylists;
 };

@@ -10,6 +10,15 @@ playlist_component::playlist_component()
         add_playlist(era_playlist({"duo", "duos", "Playlist_DefaultDuo", "Playlist_DefaultDuos"}, 2, true, 10));
         add_playlist(era_playlist({"squad", "squads", "Playlist_DefaultSquad", "Playlist_DefaultSquads"}, 4, true, 9));
     }
+
+    // Whitelisted playlists for private servers
+    WhitelistedPlaylists = {
+        L"Playlist_DefaultSolo",
+        L"Playlist_DefaultDuo",
+        L"Playlist_DefaultSquad",
+        L"Playlist_Playground",
+        L"Playlist_PlaygroundV2"
+    };
 }
 
 void playlist_component::add_playlist(era_playlist playlist)
@@ -35,4 +44,9 @@ era_playlist* playlist_component::find_playlist(std::string playlist_name)
     }
     
     return nullptr;
+}
+
+bool playlist_component::validate_playlist_for_private(UFortPlaylist* InPlaylist)
+{
+    return std::find_if(WhitelistedPlaylists.begin(), WhitelistedPlaylists.end(), [&InPlaylist](std::wstring x) {return InPlaylist->GetName() == x;}) != WhitelistedPlaylists.end();
 }

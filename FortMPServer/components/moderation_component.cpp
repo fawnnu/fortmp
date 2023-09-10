@@ -771,10 +771,6 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
 
 void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    // Temporary: disable the playlist command until matchmaking issues are sorted
-    ExecutingPlayerController->ClientMessage(TEXT("The SetPlaylist command is temporarily unavailable. Please contact us on discord if you'd like to change your gamemode."));
-    return;
-    
     FString InPlaylistName;
 
     if (!FParse::Token(InStream, InPlaylistName, 0))
@@ -792,6 +788,16 @@ void moderation_component::HandleSetPlaylistCommand(const TCHAR*& InStream, AFor
         if (FindObject(InPlaylistName.c_str(), false, true) ||
             playlist_component::find_playlist(sInPlaylistName))
         {
+            // Playlist validation
+            if (UFortPlaylist* PlaylistObject = FindObject<UFortPlaylist>(InPlaylistName.c_str(), false, true))
+            {
+                if (!playlist_component::validate_playlist_for_private(PlaylistObject))
+                {
+                    ExecutingPlayerController->ClientMessage(TEXT("Error: The requested playlist is currently not available. Please contact a system administrator to request that this playlist be made available."));
+                    return;
+                }
+            }
+
             // Set in config
             auto config = config_manager::get_server_config();
             config["override_playlist"] = sInPlaylistName;
