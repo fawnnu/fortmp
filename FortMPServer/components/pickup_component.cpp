@@ -511,6 +511,13 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 }
             }
         }
+        else if (OtherActor->IsA(ATrap_Floor_Player_Launch_Pad_C::StaticClass()))
+        {
+            if (PlayerPawn->Controller())
+            {
+                challenges_component::SendLaunchPadInteraction(PlayerPawn->Controller(), static_cast<ATrap_Floor_Player_Launch_Pad_C*>(OtherActor));
+            }
+        }
         else if (OtherActor->IsA(AProp_MountainSummit_QuestInteractable_Parent::StaticClass()))
         {
             if (OtherActor->HasProperty(L"QuestBackendObjectiveName"))

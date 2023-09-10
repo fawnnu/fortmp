@@ -135,6 +135,12 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
 };
 
+class ATrap_Floor_Player_Launch_Pad_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Traps/Launchpad/BluePrint/Trap_Floor_Player_Launch_Pad.Trap_Floor_Player_Launch_Pad_C");
+};
+
 class AAthena_SoccerGame_C : public AActor
 {
 public:
@@ -151,6 +157,12 @@ public:
         static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
         return *reinterpret_cast<AFortPlayerController**>(__int64(this) + native_property_offset);
     };
+    DEFINE_PROPERTY(FName, ObjBackendName);
+};
+
+class AProp_Quest_ClayPidgeonLauncher_C : public AActor
+{
+public:
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
 

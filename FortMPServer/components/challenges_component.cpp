@@ -19,12 +19,14 @@ void challenges_component::Initialize()
     if (GetEngineVersionEasy() == 421)
     {
         FindObject(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C", true);
+        FindObject(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C", true);
     }
     
     REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C.Rising__FinishedFunc", challenges_component_hooks::Rising__FinishedFunc_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -633,6 +635,31 @@ void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* Int
     }  
 }
 
+void challenges_component::SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad)
+{
+    if (InteractingController && LaunchPad)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", LaunchPad->K2_GetActorLocation().X},
+                {"y", LaunchPad->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:launchpad", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
     if (InteractingController && InteractingController->Pawn())
@@ -995,6 +1022,35 @@ void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* 
     }  
 }
 
+void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = BackendObjectiveName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:pigeon", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor); 
@@ -1056,6 +1112,26 @@ void challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEve
             {
                 challenges_component::SendBasketBallHoopInteraction(BasketBallGame->PC_That_Scored(), BasketBallGame->ObjBackendName());
             }
+        }
+    }
+}
+
+void challenges_component_hooks::PidgeonShot_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);
+    
+    AProp_Quest_ClayPidgeonLauncher_C* ClayPidgeonLauncher = static_cast<AProp_Quest_ClayPidgeonLauncher_C*>(Object);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"challenges_component_hooks::PidgeonShot_Hook: Sending clay pidgeon interaction.");
+    }
+    
+    if (ClayPidgeonLauncher && InstigatedBy)
+    {
+        if (STATIC_HASPROPERTY(ClayPidgeonLauncher, ObjBackendName))
+        {
+            challenges_component::SendClayPidgeonInteraction(InstigatedBy, ClayPidgeonLauncher->ObjBackendName());
         }
     }
 }

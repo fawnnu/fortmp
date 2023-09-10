@@ -20,6 +20,7 @@ public:
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective);
     static void SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective);
     static void SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing);
+    static void SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad);
     static void SendPortAFortInteraction(AFortPlayerController* InteractingController);
     static void SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock);
     static void SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* HealthSmall);
@@ -34,6 +35,7 @@ public:
     static void SendShoppingCartInteraction(AFortPlayerController* InteractingController);
     static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
+    static void SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
@@ -52,4 +54,5 @@ namespace challenges_component_hooks
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, PidgeonShot, (UObject* Object, UObject* Function, void* Params))
 }
