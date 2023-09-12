@@ -61,6 +61,8 @@ namespace patches_component_hook
     void NetConnection__Close__Replacement();
 
     DEFINE_FUNCTION_HOOK(bool, FSocketBSD__RecvFrom, (void* Self, uint8* Data, int32 BufferSize, int32& BytesRead, void* Source, int Flags));
+
+    DEFINE_FUNCTION_HOOK(int, CurlEasy, ());
 };
 
 inline int TimesLoggedMSGSIZEExploit;

@@ -29,6 +29,9 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    // Hook cURL functions, used by attackers
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
+    
     // Prevent players from having no pawn
     REGISTER_FUNCTION_DETOUR(patches_component_hook::SpawnDefaultPawnAtTransform_Implementation, memory_manager::find_function_by_string(L"SpawnDefaultPawnAtTransform: Couldn't spawn Pawn of type %s at %s"), patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook);
     
@@ -530,4 +533,9 @@ bool patches_component_hook::FSocketBSD__RecvFrom_Hook(void* Self, uint8* Data, 
     }
 
     return ReturnValue;
+}
+
+int patches_component_hook::CurlEasy_Hook()
+{
+    return 43; // Don't process anything cURL related   
 }
