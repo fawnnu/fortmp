@@ -45,6 +45,7 @@ class AController : public AActor
 {
 public:
     DEFINE_PROPERTY(UNetConnection*, NetConnection);
+    DEFINE_PROPERTY(FName, StateName);
     
     void Possess(AFortPlayerPawn* InPawn)
     {

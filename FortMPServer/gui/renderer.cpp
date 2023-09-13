@@ -383,6 +383,14 @@ void renderer::CreateNewWindow()
                                     UKismetSystemLibrary::SetBoolPropertyByName(SelectedConnection->PlayerController()->Pawn(), L"bIsInvulnerable", !SelectedConnection->PlayerController()->Pawn()->bIsInvulnerable());
                                 }
 
+                                if (ImGui::Button("Restart Player"))
+                                {
+                                    // Log state
+                                    spdlog::warn(L"Manually restarting player. State: {}", SelectedConnection->PlayerController()->StateName().ToString().c_str());
+                                    
+                                    (*GWorld)->AuthorityGameMode()->RestartPlayer(SelectedConnection->PlayerController());
+                                }
+                                
                                 if (ImGui::Button("Kill"))
                                 {
                                     // Force suicide upon this player
