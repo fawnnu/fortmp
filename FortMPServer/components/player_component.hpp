@@ -16,6 +16,13 @@ enum class EDamageCauser : uint8_t
     Pickaxe
 };
 
+struct FSpecialDamageDealt
+{
+    FSpecialDamageDealt() = default;
+    
+    int JewelOpponent;
+};
+
 struct FDamageDealtMapValue
 {
     FDamageDealtMapValue() = default;
@@ -41,6 +48,7 @@ struct FDamageDealtMapValue
     int EnemyStructureDamage;
     int HeadshotDamage;
     int PickaxeDamage;
+    FSpecialDamageDealt SpecialDamage;
 };
 
 struct FPlayerStats

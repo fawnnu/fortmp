@@ -36,6 +36,8 @@ public:
     static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
+    static void SendJewelInteraction(AFortPlayerController* InteractingController);
+    static void HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

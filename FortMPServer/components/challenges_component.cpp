@@ -188,7 +188,10 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
             nlohmann::json parameters = {
                 {"placement", Placement},
                 {"damage", damage_enum},
-                {"headshot_damage", DamageDealt.HeadshotDamage}
+                {"headshot_damage", DamageDealt.HeadshotDamage},
+                {"special_damage", {
+                    {"jewel_opponent", DamageDealt.SpecialDamage.JewelOpponent}
+                }}
             };
 
             gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);
@@ -1049,6 +1052,49 @@ void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* Int
             }
         }
     }  
+}
+
+void challenges_component::SendJewelInteraction(AFortPlayerController* InteractingController)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:jewel", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
+{
+    if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
+    {
+        if (ItemDefinition == Athena_Bling_Pack_Definition)
+        {
+            // Log
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"challenges_component::HandleSpecialItemAdded is sending jewel interaction.");
+            }
+
+            // Send event
+            SendJewelInteraction(InteractingPlayerController);
+        }
+    }
 }
 
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)

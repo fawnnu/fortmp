@@ -193,6 +193,9 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             }
         }
     }
+
+    // Check the item type see if it's eligible for a challenge
+    challenges_component::HandleSpecialItemAdded(player_controller, world_item->ItemEntry().ItemDefinition());
     
     // Add to inventory
     replicated_entries.Add(&world_item->ItemEntry());

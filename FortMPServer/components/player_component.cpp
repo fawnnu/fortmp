@@ -681,6 +681,15 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         if (AFortPlayerController* PlayerController = HitActor->Controller())
                         {
                             PlayerStatsMap[PlayerController].DamageTaken += Damage;
+
+                            // If this player is carrying the jewel, count damage
+                            if (static UFortItemDefinition* Athena_Blind_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
+                            {
+                                if (inventory_component::get_inventory_item_by_definition(PlayerController, Athena_Blind_Pack_Definition))
+                                {
+                                    Value.SpecialDamage.JewelOpponent += Damage;
+                                }
+                            }
                         }
                     }
                 }
