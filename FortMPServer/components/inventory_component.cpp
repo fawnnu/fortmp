@@ -328,29 +328,18 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 return;
             }
 
-            // If it's an AGID, remove it accordingly
-            bool b_is_fort_gadget = item_instance->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass());
-            if (b_is_fort_gadget)
-            {
-                RemoveGadgetData(static_cast<UFortGadgetItemDefinition*>(item_instance->ItemEntry().ItemDefinition()), player_controller->GetInterfaceAddress(IFortInventoryOwnerInterface::StaticClass()), item_instance);
-            }
-            
             // Cache array classes
             static void* replicated_entries_property = FindPropertyByName(FFortItemList::GetClass(), L"ReplicatedEntries");
-            static void* item_instances_property = FindPropertyByName(FFortItemList::GetClass(), L"ItemInstances");
 
+            // Remove
             replicated_entries.Remove(i, replicated_entries_property);
-            item_instances.Remove(i, item_instances_property);
+
+            // Update
+            player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 
-            if (b_is_fort_gadget && player_controller->Pawn())
-            {
-                // If it's an AGID, remove the character parts (Has to be done after removing from inventory)
-                player_controller->PlayerState()->ApplyCharacterCustomization(player_controller->Pawn());
-            }
-            
             if (STATIC_HASPROPERTY(player_controller, QuickBars))
             {
                 player_controller->QuickBars()->ServerRemoveItemInternal(item_guid, b_is_swapping);
