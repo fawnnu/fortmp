@@ -213,8 +213,10 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
         }
     }
     
-    for (FName loot_package_name : loot_package_calls)
+    for (int i = 0; i < loot_package_calls.size(); i++)
     {
+        FName loot_package_name = loot_package_calls[i];
+    
         // Get the item definition to spawn for loot
         UFortItemDefinition* item_definition = loot_tier_packages_map[loot_package_name].Value->ItemDefinition().Get();
 
@@ -255,8 +257,15 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
             continue;
         }
 
+        // Final count calculation
+        int Count = loot_tier_packages_map[loot_package_name].Value->Count();
+        if (i < final_loot_tier_data->LootPackageCategoryMinArray().Num())
+        {
+            Count *= final_loot_tier_data->LootPackageCategoryMinArray()[i];
+        }
+        
         // Add chosen item to rolled loot
-        loot_to_spawn[item_definition] = loot_tier_packages_map[loot_package_name].Value->Count();
+        loot_to_spawn[item_definition] = Count;
     }
     
     return loot_to_spawn;

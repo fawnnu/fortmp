@@ -9,6 +9,8 @@ struct FFortLootTierData
     DEFINE_STRUCT_PROPERTY(float, NumLootPackageDrops);
 
     DEFINE_STRUCT_PROPERTY(int, LootTier);
+
+    DEFINE_STRUCT_PROPERTY(TArray<int>, LootPackageCategoryMinArray);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortLootTierData");
 };
