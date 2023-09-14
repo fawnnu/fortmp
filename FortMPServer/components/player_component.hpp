@@ -4,16 +4,20 @@ enum class EDamageCauser : uint8_t
 {
     None,
     Pistol,
+    SuppressedPistol,
     Shotgun,
     AssaultRifle,
     Sniper,
     Grenade,
     SMG,
+    SuppressedSMG,
     GrenadeLauncher,
     LMG,
     Minigun,
     RPG,
-    Pickaxe
+    Pickaxe,
+    Headshot,
+    Jewel
 };
 
 struct FSpecialDamageDealt
@@ -88,6 +92,26 @@ public:
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
     static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
+
+    // Damage timers
+    static void PistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void ShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void AssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void SniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void GrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void SMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void GrenadeLauncherDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void RPGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void SuppressedSMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void SuppressedPistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void MinigunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void LMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void EnemyStructureDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void PickaxeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HeadshotDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+
+    static void HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);

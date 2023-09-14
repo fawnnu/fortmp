@@ -84,6 +84,8 @@ player_component::player_component()
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
+
+    // Timers for each weapon type
 }
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
@@ -172,6 +174,393 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
         
         // Re-execute the same function in 1 second
         UKismetSystemLibrary::K2_SetTimer(Self, L"GatherDistanceTraveled", 1, false);
+    }
+}
+
+void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:pistol", Value.PistolDamage);
+            Value.PistolDamage = 0;
+        }
+    }
+}
+
+void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:shotgun", Value.ShotgunDamage);
+            Value.ShotgunDamage = 0;
+        }
+    }
+}
+
+void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:assault_rifle", Value.AssaultRifleDamage);
+            Value.AssaultRifleDamage = 0;
+        }
+    }
+}
+
+void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:sniper", Value.SniperDamage);
+            Value.SniperDamage = 0;
+        }
+    }
+}
+
+void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:grenade", Value.GrenadeDamage);
+            Value.GrenadeDamage = 0;
+        }
+    }
+}
+
+void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:smg", Value.SMGDamage);
+            Value.SMGDamage = 0;
+        }
+    }
+}
+
+void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:grenade_launcher", Value.GrenadeLauncherDamage);
+            Value.GrenadeLauncherDamage = 0;
+        }
+    }
+}
+
+void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:rpg", Value.RPGDamage);
+            Value.RPGDamage = 0;
+        }
+    }
+}
+
+void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:suppressed_smg", Value.SuppressedSMGDamage);
+            Value.SuppressedSMGDamage = 0;
+        }
+    }
+}
+
+void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:suppressed_pistol", Value.SuppressedPistolDamage);
+            Value.SuppressedPistolDamage = 0;
+        }
+    }
+}
+
+void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:minigun", Value.MinigunDamage);
+            Value.MinigunDamage = 0;
+        }
+    }
+}
+
+void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:lmg", Value.LMGDamage);
+            Value.LMGDamage = 0;
+        }
+    }
+}
+
+void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:enemy_building", Value.EnemyStructureDamage);
+            Value.EnemyStructureDamage = 0;
+        }
+    }
+}
+
+void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:pickaxe", Value.PickaxeDamage);
+            Value.PickaxeDamage = 0;
+        }
+    }
+}
+
+void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "headshot_damage", Value.HeadshotDamage);
+            Value.HeadshotDamage = 0;
+        }
+    }
+}
+
+void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "special_damage:jewel_opponent", Value.SpecialDamage.JewelOpponent);
+            Value.SpecialDamage.JewelOpponent = 0;
+        }
+    }
+}
+
+// This function is called whenever we have to process any kind of debounced damage
+void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser)
+{
+    switch (DamageCauser)
+    {
+    case EDamageCauser::Pistol:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PistolDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"PistolDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PistolDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::SuppressedPistol:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedPistolDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedPistolDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedPistolDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Shotgun:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"ShotgunDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"ShotgunDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"ShotgunDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::AssaultRifle:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"AssaultRifleDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"AssaultRifleDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"AssaultRifleDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Sniper:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SniperDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"SniperDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SniperDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Grenade:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"GrenadeDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"GrenadeDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::SMG:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SMGDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"SMGDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SMGDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::SuppressedSMG:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedSMGDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedSMGDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedSMGDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::GrenadeLauncher:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"GrenadeLauncherDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"GrenadeLauncherDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeLauncherDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::LMG:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"LMGDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"LMGDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"LMGDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Minigun:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"MinigunDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"MinigunDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"MinigunDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::RPG:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"RPGDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"RPGDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"RPGDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Pickaxe:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PickaxeDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"PickaxeDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PickaxeDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Headshot:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeadshotDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"HeadshotDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeadshotDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Jewel:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"JewelDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"JewelDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"JewelDamageCallback", 1.0, false);
+        break;
+    default:
+        break;
     }
 }
 
@@ -666,6 +1055,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
 
                         // Track headshot damage
                         Value.HeadshotDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Headshot);
                     }
                     else
                     {
@@ -688,6 +1078,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                                 if (inventory_component::get_inventory_item_by_definition(PlayerController, Athena_Blind_Pack_Definition))
                                 {
                                     Value.SpecialDamage.JewelOpponent += Damage;
+                                    HandleDebouncedDamage(Instigator, EDamageCauser::Jewel);
                                 }
                             }
                         }
@@ -700,54 +1091,67 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     {
                     case EDamageCauser::Pickaxe:
                         Value.PickaxeDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Pickaxe);
                         break;
                     case EDamageCauser::Sniper:
                         Value.SniperDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Sniper);
                         break;
                     case EDamageCauser::Pistol:
                         {
                             if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
                             {
                                 Value.SuppressedPistolDamage += Damage;
+                                HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedPistol);
                             }
                             else
                             {
                                 Value.PistolDamage += Damage;
+                                HandleDebouncedDamage(Instigator, EDamageCauser::Pistol);
                             }
                             break;
                         }
                     case EDamageCauser::Shotgun:
                         Value.ShotgunDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Shotgun);
                         break;
                     case EDamageCauser::AssaultRifle:
                         Value.AssaultRifleDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::AssaultRifle);
                         break;
                     case EDamageCauser::Grenade:
                         Value.GrenadeDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::GrenadeLauncher);
                         break;
                     case EDamageCauser::SMG:
                         {
                             if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
                             {
                                 Value.SuppressedSMGDamage += Damage;
+                                HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedSMG);
                             }
                             else
                             {
                                 Value.SMGDamage += Damage;
+                                HandleDebouncedDamage(Instigator, EDamageCauser::SMG);
                             }
                             break;
                         }
                     case EDamageCauser::GrenadeLauncher:
                         Value.GrenadeLauncherDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::GrenadeLauncher);
                         break;
                     case EDamageCauser::LMG:
                         Value.LMGDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::LMG);
                         break;
                     case EDamageCauser::Minigun:
                         Value.MinigunDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Minigun);
                         break;
                     case EDamageCauser::RPG:
                         Value.RPGDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::RPG);
                         break;
                     default:
                         break;
@@ -1421,3 +1825,4 @@ void AFortPawn::SetShield(float NewShieldVal)
         Call(Function_SetShield);
     }
 }
+

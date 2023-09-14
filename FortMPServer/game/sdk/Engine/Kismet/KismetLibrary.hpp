@@ -107,6 +107,43 @@ public:
 
         return params.ReturnValue;
     }
+
+    static void K2_ClearTimer(UObject* Target, FString FunctionName)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        static UFunction* K2_ClearTimer = FindObject<UFunction>(L"/Script/Engine.KismetSystemLibrary.K2_ClearTimer");
+
+        struct
+        {
+            UObject* Target;
+            FString FunctionName;
+        } params;
+
+        params.Target = Target;
+        params.FunctionName = FunctionName;
+
+        ProcessEvent(Default__KismetSystemLibrary, K2_ClearTimer, &params);
+    }
+
+    static bool K2_IsTimerActive(UObject* Target, FString FunctionName)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        static UFunction* K2_IsTimerActive = FindObject<UFunction>(L"/Script/Engine.KismetSystemLibrary.K2_IsTimerActive");
+        
+        struct
+        {
+            UObject* Target;
+            FString FunctionName;
+            bool ReturnValue;
+        } params;
+
+        params.Target = Target;
+        params.FunctionName = FunctionName;
+
+        ProcessEvent(Default__KismetSystemLibrary, K2_IsTimerActive, &params);
+
+        return params.ReturnValue;
+    }
 };
 
 class UKismetMathLibrary : public UObject

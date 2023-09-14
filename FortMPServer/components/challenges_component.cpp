@@ -168,30 +168,8 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
 
         if (account_id.size() > 0)
         {
-            nlohmann::json damage_enum = {
-                {"pistol", DamageDealt.PistolDamage},
-                {"suppressed_pistol", DamageDealt.SuppressedPistolDamage},
-                {"shotgun", DamageDealt.ShotgunDamage},
-                {"assault_rifle", DamageDealt.AssaultRifleDamage},
-                {"sniper", DamageDealt.SniperDamage},
-                {"grenade", DamageDealt.GrenadeDamage},
-                {"smg", DamageDealt.SMGDamage},
-                {"suppressed_smg", DamageDealt.SuppressedSMGDamage},
-                {"grenade_launcher", DamageDealt.GrenadeLauncherDamage},
-                {"lmg", DamageDealt.LMGDamage},
-                {"minigun", DamageDealt.MinigunDamage},
-                {"rpg", DamageDealt.RPGDamage},
-                {"pickaxe", DamageDealt.PickaxeDamage},
-                {"enemy_building", DamageDealt.EnemyStructureDamage}
-            };
-
             nlohmann::json parameters = {
-                {"placement", Placement},
-                {"damage", damage_enum},
-                {"headshot_damage", DamageDealt.HeadshotDamage},
-                {"special_damage", {
-                    {"jewel_opponent", DamageDealt.SpecialDamage.JewelOpponent}
-                }}
+                {"placement", Placement}
             };
 
             gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);

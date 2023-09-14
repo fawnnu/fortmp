@@ -154,6 +154,8 @@ class AFortInventory;
 class AFortPlayerController : public APlayerController
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerController");
+    
     DEFINE_BIT_PROPERTY(bool, bIsDisconnecting);
     DEFINE_BIT_PROPERTY(bool, bInfiniteAmmo);
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
