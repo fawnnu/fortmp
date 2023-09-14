@@ -261,7 +261,10 @@ std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_cat
         int Count = loot_tier_packages_map[loot_package_name].Value->Count();
         if (i < final_loot_tier_data->LootPackageCategoryMinArray().Num())
         {
-            Count *= final_loot_tier_data->LootPackageCategoryMinArray()[i];
+            if (int Min = final_loot_tier_data->LootPackageCategoryMinArray()[i]; Min > 0)
+            {
+                Count *= Min;
+            }
         }
         
         // Add chosen item to rolled loot
