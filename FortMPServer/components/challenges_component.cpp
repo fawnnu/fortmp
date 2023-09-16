@@ -15,18 +15,19 @@ void challenges_component::Initialize()
     if (GetEngineVersionEasy() == 420)
     {
         FindObject(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C", true);
+
+        REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C.Rising__FinishedFunc", challenges_component_hooks::Rising__FinishedFunc_Hook);
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook);
     }
     if (GetEngineVersionEasy() == 421)
     {
         FindObject(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C", true);
         FindObject(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C", true);
+
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
     }
-    
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/DancePlatforms/BA_QuestInteractable_DancePlatforms.BA_QuestInteractable_DancePlatforms_C.Rising__FinishedFunc", challenges_component_hooks::Rising__FinishedFunc_Hook);
-    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
-    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Prototype/SoccerGame/Athena_SoccerGame.Athena_SoccerGame_C.BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook);
-    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
-    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -1077,7 +1078,6 @@ void challenges_component::HandleSpecialItemAdded(AFortPlayerController* Interac
 
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor); 
     AAthena_SoccerGame_C* SoccerGame = static_cast<AAthena_SoccerGame_C*>(Object);
     
     if (log_component::enable_debug_logs)
@@ -1099,7 +1099,6 @@ void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEv
 
 void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
-    GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor); 
     AAthena_SoccerGame_C* SoccerGame = static_cast<AAthena_SoccerGame_C*>(Object);
 
     if (log_component::enable_debug_logs)
