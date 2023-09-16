@@ -203,6 +203,9 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
+    // Sync item instances counts
+    
+
     // Add to state values
     TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
 
@@ -340,6 +343,27 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             // Update
             player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
+            // Copy item instances
+            std::vector<UFortItem*> CopiedItemInstances;
+            for (UFortItem* ItemInstanceToCopy : player_controller->WorldInventory()->Inventory().ItemInstances())
+            {
+                CopiedItemInstances.push_back(ItemInstanceToCopy);
+            }
+
+            // Sync item instances counts
+            for (int j = 0; j < replicated_entries.Num(); j++)
+            {
+                FFortItemEntry& CurrentReplicatedEntry = replicated_entries[j];
+                
+                if (auto Iterator = std::find_if(CopiedItemInstances.begin(), CopiedItemInstances.end(), [&CurrentReplicatedEntry](UFortItem* CurrentItem)
+                {
+                    return CurrentReplicatedEntry.ItemGuid() == static_cast<UFortWorldItem*>(CurrentItem)->ItemEntry().ItemGuid();
+                }); Iterator != CopiedItemInstances.end())
+                {
+                    item_instances[j] = static_cast<UFortWorldItem*>(*Iterator);
+                }
+            }
+            
             // Mark for replication
             player_controller->WorldInventory()->Inventory().MarkArrayDirty();
 

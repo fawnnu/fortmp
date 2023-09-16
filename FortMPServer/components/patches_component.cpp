@@ -304,9 +304,7 @@ bool patches_component_hook::TryCollectGarbage_Hook(int KeepFlags, bool bPerform
         {
             const bool bDisableGCOnServerDuringMatch = (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch();
 
-            static FName NAME_InProgress(L"InProgress");
-            
-            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->GameState()->MatchState() == NAME_InProgress)
+            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->NetDriver())
             {
                 return false;
             }
@@ -326,9 +324,7 @@ void patches_component_hook::ConditionalCollectGarbage_Hook(UObject* Self)
         {
             const bool bDisableGCOnServerDuringMatch = (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch();
 
-            static FName NAME_InProgress(L"InProgress");
-            
-            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->GameState()->MatchState() == NAME_InProgress)
+            if (bDisableGCOnServerDuringMatch == true && (*GWorld)->NetDriver())
             {
                 return;
             }
