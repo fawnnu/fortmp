@@ -10,8 +10,9 @@ aircraft_component::aircraft_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump, L"/Script/FortniteGame.FortControllerComponent_Aircraft.ServerAttemptAircraftJump", aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook);
-        REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
-        
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::ServerAttemptAircraftJump, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerAttemptAircraftJump", aircraft_component_hooks::ServerAttemptAircraftJump_Hook);
+    REGISTER_UFUNCTION_DETOUR(aircraft_component_hooks::OnAircraftExitedDropZone, L"/Script/FortniteGame.FortGameModeAthena.OnAircraftExitedDropZone", aircraft_component_hooks::OnAircraftExitedDropZone_Hook);
+    
     REGISTER_FUNCTION_DETOUR(aircraft_component_hooks::EnterAircraft, memory_manager::find_function_by_string(L"EnterAircraft: %s"), aircraft_component_hooks::EnterAircraft_Hook);
     
     DetourTransactionCommit();
@@ -20,12 +21,13 @@ aircraft_component::aircraft_component()
 void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerControllerAthena* PlayerController,
     FFrame& StackFrame)
 {
+    // Clear inventory on bus jump on CH1
     if (PlayerController && PlayerController->WorldInventory())
     {
         // Clear inventory
         inventory_component::clear_primary_inventory(PlayerController, false);
     }
-
+    
     return ServerAttemptAircraftJump(PlayerController, StackFrame);
 }
 
@@ -34,7 +36,8 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
     (*GWorld)->AuthorityGameMode()->RestartPlayer(FortPlayerController);
 
     AFortPlayerControllerAthena* FortPlayerControllerAthena = static_cast<AFortPlayerControllerAthena*>(FortPlayerController);
-    
+
+    // Clear inventory on bus jump on ch2
     if (FortPlayerControllerAthena && FortPlayerControllerAthena->WorldInventory())
     {
         // Clear inventory
@@ -84,11 +87,15 @@ void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena
             
             continue;
         }
-        
+
+        // Clear inventory when bus exits drop zone on CH1
         if (NetConnection->PlayerController()->IsInAircraft())
         {
-            // Remove the player from the aircraft
-            aircraft_component::exit_aircraft(NetConnection->PlayerController(), FRotator{ 0, 0, 0 });
+            if (NetConnection->PlayerController()->WorldInventory())
+            {
+                // Clear inventory
+                inventory_component::clear_primary_inventory(NetConnection->PlayerController(), false);
+            }
         }
     }
     
