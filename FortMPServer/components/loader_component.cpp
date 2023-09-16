@@ -781,7 +781,7 @@ void loader_component::ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* Exi
         van->ExitCraftInfo() = spawn_info;
 
         van->CurrentState() = 1;
-        van->OnNewState(1);
+        //van->OnNewState(1);
 
         van->CraftSpecialActorID() = ExitCraftSpawner->SpawnerSpecialActorID();
   
