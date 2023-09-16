@@ -97,7 +97,9 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, BuildingResourceAmountOverride);
     
     DEFINE_PROPERTY(uint8_t, ResourceType);
-
+    
+    DEFINE_PROPERTY(int, MaxResourcesToSpawn);
+    DEFINE_PROPERTY(int, CurrentBuildingLevel);
     DEFINE_PROPERTY(TArray<ABuildingSMActor*>, AttachedBuildingActors);
     
     void SetMirrored(bool bMirrored)

@@ -218,6 +218,16 @@ public:
         
         return Default__KismetMathLibrary->Call<bool>(FunctionObject);
     }
+
+    static int Round(float A)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.Round")
+        
+        return Default__KismetMathLibrary->Call<int>(FunctionObject);
+    }
     
     static bool RandomBoolWithWeight(float Weight)
     {

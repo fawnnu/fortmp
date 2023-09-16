@@ -5,7 +5,7 @@ class harvesting_component
 public:
     harvesting_component();
 
-    static void handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage);
+    static void handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage, FVector hit_location);
 };
 
 namespace harvesting_component_hooks
