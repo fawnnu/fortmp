@@ -208,9 +208,9 @@ public:
                 offset_vector.push_back(offset);
             
                 if (*reinterpret_cast<uint64_t*>(__int64(Property) + CoreOffsets::PropertyFlags) & 0x0000000000000400) //CPF_ReturnParm
-                {
+                    {
                     return_offset = offset;
-                }
+                    }
             }
 
             char* params = static_cast<char*>(alloca(parms_size));
@@ -224,7 +224,14 @@ public:
         
             ProcessEvent(this, function_object, params);
 
-            return *reinterpret_cast<T*>(__int64(params) + return_offset);
+            if (params)
+            {
+                return *reinterpret_cast<T*>(__int64(params) + return_offset);
+            }
+            else
+            {
+                return T();
+            }
         }
 
         return {};
