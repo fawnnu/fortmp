@@ -97,6 +97,8 @@ namespace NetworkOffsets
     inline DWORD TimeSeconds;
     inline DWORD IsNetRelevantForVTableIdx;
     inline DWORD GetNetOwnerVTableIdx;
+    inline DWORD ActorReplicator;
+    inline DWORD ObjectPtr;
 }
 
 class UObject

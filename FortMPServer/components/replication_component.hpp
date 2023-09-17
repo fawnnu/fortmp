@@ -25,6 +25,8 @@ public:
     static int ServerReplicateActors_ProcessPrioritizedActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, FActorPriority** PriorityActors, int FinalSortedCount, int& OutUpdated);
     
     static int ServerReplicateActors(UNetDriver* NetDriver, float DeltaSeconds);
+
+    inline static std::vector<AActor*> BlacklistedActor;
 };;
 
 struct FNetworkObjectInfo

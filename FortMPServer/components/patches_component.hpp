@@ -19,6 +19,8 @@ public:
 
 namespace patches_component_hook
 {
+    DEFINE_FUNCTION_HOOK(uintptr_t, ReplicateActor, (UActorChannel* Self));
+    
     DEFINE_FUNCTION_HOOK(UFortClientSettingsRecord*, GetClientSettingsRecord, (UFortLocalPlayer* LocalPlayer));
 
     DEFINE_FUNCTION_HOOK(bool, SpawnPlayActor, (ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World));

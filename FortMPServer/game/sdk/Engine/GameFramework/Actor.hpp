@@ -269,6 +269,11 @@ public:
     DEFINE_PROPERTY_BY_OFFSET(UChannelBitField, BitField, 0x30);
 };
 
+struct FObjectReplicator
+{
+    DEFINE_PROPERTY_BY_OFFSET(UObject*, ObjectPtr, NetworkOffsets::ObjectPtr);
+};
+
 class UActorChannel : public UChannel
 {
 public:
@@ -276,6 +281,7 @@ public:
 
     DEFINE_PROPERTY_BY_OFFSET(double, RelevantTime, 0x78);
     DEFINE_PROPERTY_BY_OFFSET(double, LastUpdateTime, 0x80);
+    DEFINE_PROPERTY_BY_OFFSET(FObjectReplicator*, ActorReplicator, NetworkOffsets::ActorReplicator);
 };
 
 

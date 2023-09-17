@@ -70,6 +70,18 @@ unreal_manager::unreal_manager()
         CoreOffsets::LastHitch = *reinterpret_cast<DWORD*>(LastHitchSig + 8);
     }
 
+    // For now, set this offset on CL only
+    if (GetCL() == 4363240)
+    {
+        NetworkOffsets::ActorReplicator = 0x90;
+        NetworkOffsets::ObjectPtr = 0x10;
+    }
+    else
+    {
+        NetworkOffsets::ActorReplicator = 0x0;
+        NetworkOffsets::ObjectPtr = 0x0;
+    }
+    
     // Instantly set GIsClient to false
     if (GetEngineVersionEasy() >= 421 && GetFortniteVersionEasy() < 10)
     {

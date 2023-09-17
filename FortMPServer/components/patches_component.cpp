@@ -1,8 +1,10 @@
 ﻿#include "include.hpp"
 #include "patches_component.hpp"
 
+#include "log_component.hpp"
 #include "net_component.hpp"
 #include "player_component.hpp"
+#include "replication_component.hpp"
 
 anti_tampering_bypass::anti_tampering_bypass()
 {
@@ -28,6 +30,9 @@ patches_component::patches_component()
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
+
+    // Hook ReplicateActor to patch a crash
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"), patches_component_hook::ReplicateActor_Hook);
 
     // Hook cURL functions, used by attackers
     REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
@@ -534,4 +539,45 @@ bool patches_component_hook::FSocketBSD__RecvFrom_Hook(void* Self, uint8* Data, 
 int patches_component_hook::CurlEasy_Hook()
 {
     return 43; // Don't process anything cURL related   
+}
+
+uintptr_t patches_component_hook::ReplicateActor_Hook(UActorChannel* Self)
+{
+    if (NetworkOffsets::ActorReplicator != 0x0 &&
+        NetworkOffsets::ObjectPtr != 0x0)
+    {
+        // Make sure Self is valid
+        if (Self)
+        {
+            // Check if it's blacklisted
+            if (Self->Actor())
+            {
+                if (std::find(replication_component::BlacklistedActor.begin(), replication_component::BlacklistedActor.end(), Self->Actor()) != replication_component::BlacklistedActor.end())
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::error(L"Found blacklisted Actor in ReplicateActor_Hook.");
+                    }
+                    
+                    return 0;
+                }
+            }
+        
+            // Make sure both the Actor Replicator and the Object ptr are valid
+            if (!Self->ActorReplicator() ||
+                !Self->ActorReplicator()->ObjectPtr())
+            {
+                if (Self->Actor())
+                {
+                    spdlog::warn(L"Blacklisted actor: invalid Actor Replicator or Object Ptr on channel [{}]", replication_component::BlacklistedActor.size());
+                    
+                    replication_component::BlacklistedActor.push_back(Self->Actor());
+                }
+                
+                return 0;
+            }
+        }
+    }
+
+    return ReplicateActor(Self);
 }

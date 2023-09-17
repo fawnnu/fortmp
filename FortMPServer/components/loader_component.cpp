@@ -13,6 +13,7 @@
 #include "era_mutators_component.hpp"
 #include "player_component.hpp"
 #include "playlist_component.hpp"
+#include "replication_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -935,6 +936,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();
         anticheat_component::Initialize();
+        replication_component::BlacklistedActor.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
