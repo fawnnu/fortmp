@@ -1076,6 +1076,36 @@ void challenges_component::HandleSpecialItemAdded(AFortPlayerController* Interac
     }
 }
 
+void challenges_component::SendFlamingHoopInteraction(AFortPlayerController* InteractingController,
+    AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName BackendObjectiveName)
+{
+    if (InteractingController && FlamingHoop)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = BackendObjectiveName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", FlamingHoop->K2_GetActorLocation().X},
+                {"y", FlamingHoop->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:flaming-ring", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
     AAthena_SoccerGame_C* SoccerGame = static_cast<AAthena_SoccerGame_C*>(Object);

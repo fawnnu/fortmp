@@ -180,3 +180,11 @@ class AProp_SkydiveRings_QuestInteractable : public AActor
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/SkydiveRings/Prop_SkydiveRings_QuestInteractable.Prop_SkydiveRings_QuestInteractable_C");
 };
+
+class AActor_QuestObject_Touch_FlamingHoops_Parent : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FlamingHoops/Actor_QuestObject_Touch_FlamingHoops_Parent.Actor_QuestObject_Touch_FlamingHoops_Parent_C");
+
+    DEFINE_PROPERTY(FName, ObjBackendName);
+};

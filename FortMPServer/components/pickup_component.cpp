@@ -535,6 +535,13 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 challenges_component::SendSkyDiveRingInteraction(PlayerPawn->Controller(), static_cast<AProp_SkydiveRings_QuestInteractable*>(OtherActor));
             }
         }
+        else if (OtherActor->IsA(AActor_QuestObject_Touch_FlamingHoops_Parent::StaticClass()))
+        {
+            if (PlayerPawn->Controller() && PlayerPawn->IsInVehicle())
+            {
+                challenges_component::SendFlamingHoopInteraction(PlayerPawn->Controller(), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor)->ObjBackendName());
+            }
+        }
         else if (OtherActor->IsA(fort_pickup_class))
         {
             // Cast overlap capsule to FortPickup instance

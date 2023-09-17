@@ -585,14 +585,20 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = PlayerStatsMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:structure", Value.TemporaryPlacedBuilds);
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"count", Value.TemporaryPlacedBuilds}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:structure", parameters);
             Value.TemporaryPlacedBuilds = 0;
         }
     }

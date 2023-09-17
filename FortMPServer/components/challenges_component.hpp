@@ -38,6 +38,7 @@ public:
     static void SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendJewelInteraction(AFortPlayerController* InteractingController);
     static void HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
+    static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
