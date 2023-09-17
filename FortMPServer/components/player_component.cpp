@@ -102,6 +102,7 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(PickaxeDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HeadshotDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(JewelDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(BuildingPlacedCallback, AFortPlayerController::StaticClass());
 }
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
@@ -577,6 +578,23 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
         break;
     default:
         break;
+    }
+}
+
+void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    {
+        FPlayerStats& Value = PlayerStatsMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:structure", Value.TemporaryPlacedBuilds);
+            Value.TemporaryPlacedBuilds = 0;
+        }
     }
 }
 

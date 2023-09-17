@@ -3,6 +3,7 @@
 
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
+#include "player_component.hpp"
 
 building_component::building_component()
 {
@@ -109,6 +110,14 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
 
                         inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
 
+                        // Count buildings placement
+                        player_component::PlayerStatsMap[building_owner].TemporaryPlacedBuilds++;
+                        if (UKismetSystemLibrary::K2_IsTimerActive(building_owner, L"BuildingPlacedCallback"))
+                        {
+                            UKismetSystemLibrary::K2_ClearTimer(building_owner, L"BuildingPlacedCallback");
+                        }
+                        UKismetSystemLibrary::K2_SetTimer(building_owner, L"BuildingPlacedCallback", 5.0, false);
+                        
                         break;
                     }
                 }

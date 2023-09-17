@@ -70,6 +70,7 @@ struct FPlayerStats
         Hits = 0;
         HeadShots = 0;
         Placement = 0;
+        TemporaryPlacedBuilds = 0;
     }
     
     int Eliminations;
@@ -83,6 +84,7 @@ struct FPlayerStats
     int Hits;
     int HeadShots;
     int Placement;
+    int TemporaryPlacedBuilds;
 };
 
 class player_component
@@ -112,6 +114,9 @@ public:
     static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
 
     static void HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser);
+
+    // Debounced buildings tracking
+    static void BuildingPlacedCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
