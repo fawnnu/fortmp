@@ -62,7 +62,8 @@ struct FAthenaBatchedDamageGameplayCues_Shared
 {
     DEFINE_STRUCT_PROPERTY(float, Magnitude);
     DEFINE_STRUCT_PROPERTY(float, NonPlayerMagnitude);
-
+    DEFINE_STRUCT_PROPERTY(FVector, Location);
+    
     DEFINE_STRUCT_PROPERTY(bool, bIsCritical);
         
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaBatchedDamageGameplayCues_Shared");
@@ -80,7 +81,8 @@ struct FAthenaBatchedDamageGameplayCues
 {
     DEFINE_STRUCT_PROPERTY(float, Magnitude);
     DEFINE_STRUCT_PROPERTY(float, NonPlayerMagnitude);
-
+    DEFINE_STRUCT_PROPERTY(FVector, Location);
+    
     DEFINE_STRUCT_PROPERTY(bool, bIsCritical);
 
     DEFINE_STRUCT_PROPERTY(AActor*, HitActor);

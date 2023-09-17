@@ -11,7 +11,7 @@ harvesting_component::harvesting_component()
         L"/Script/FortniteGame.FortPlayerPawnAthena.NetMulticast_Athena_BatchedDamageCues" , harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook);
 }
 
-void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage)
+void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage, FVector hit_location)
 {
     if (building_actor != nullptr)
     {
@@ -66,7 +66,23 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                         OverrideResourceRates = current_playlist->ResourceRates().Get();
                     }
                 }
-            
+
+                // Make sure noone is cheating by calling the func on a far away object
+                if (AFortPlayerPawn* damage_causing_pawn = instigated_by->Pawn())
+                {
+                    FVector building_actor_location = building_actor->K2_GetActorLocation();
+                    FVector pawn_location = damage_causing_pawn->K2_GetActorLocation();
+                    
+                    float distance_from_hit_location = sqrtf((hit_location.X - pawn_location.X) * (hit_location.X - pawn_location.X) +
+                                                (hit_location.Y - pawn_location.Y) * (hit_location.Y - pawn_location.Y) +
+                                                (hit_location.Z - pawn_location.Z) * (hit_location.Z - pawn_location.Z));
+                    
+                    if (distance_from_hit_location > 1000)
+                    {
+                        return;
+                    }
+                }
+                
                 auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(OverrideResourceRates ?
                     OverrideResourceRates :
                     building_actor->BuildingResourceAmountOverride().CurveTable) + 0x30);
@@ -75,9 +91,14 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 Count = FSimpleCurve::GetClass() ?
                     static_cast<FSimpleCurve*>(CurveTable[building_actor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value() :
                     static_cast<FRichCurve*>(CurveTable[building_actor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value();
+
+                // Don't give mats for weakspot if damage > health before actor death (Weakspots give a 2x bonus so divide by 2)
+                if (damage > building_actor->GetHealth() + damage) damage = building_actor->GetHealth() + damage;
                 
                 Count = round(Count / (round(building_actor->GetMaxHealth() / damage)));
 
+                if (Count <= 0) return;
+                
                 if (Count > 0)
                 {
                     // Store ResourceType in a variable for performance purpose
@@ -115,6 +136,7 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
 {
     AActor* HitActor = nullptr;
     float Magnitude = 0.f;
+    FVector HitLocation = FVector();
     
     if (FindPropertyByName(Function, L"BatchData"))
     {
@@ -122,6 +144,7 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
 
         HitActor = BatchData.HitActor();
         Magnitude = BatchData.Magnitude();
+        HitLocation = BatchData.Location();
     }
     else
     {
@@ -130,6 +153,7 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
 
         HitActor = NonSharedData.HitActor();
         Magnitude = SharedData.Magnitude();
+        HitLocation = SharedData.Location();
     }
     
     // Get owner controller
@@ -156,7 +180,7 @@ void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObj
                     ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(HitActor);
         
                     // Handle harvesting materials if we have a building actor and weapon
-                    harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude);
+                    harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude, HitLocation);
                 }
             }
         }
