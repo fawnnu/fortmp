@@ -170,23 +170,25 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         if (!memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
         {
-            if (PlayerStatsMap[Self].LastPos.IsValid())
+            FPlayerStats& PlayerStats = PlayerStatsMap[Self];
+            
+            if (PlayerStats.LastPos.IsValid())
             {
                 const FVector CurrentLocation = Self->Pawn()->K2_GetActorLocation();
-                const FVector LastPos = PlayerStatsMap[Self].LastPos;
+                const FVector LastPos = PlayerStats.LastPos;
 
                 const float Distance = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
                                             (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y) +
                                             (CurrentLocation.Z - LastPos.Z) * (CurrentLocation.Z - LastPos.Z));
 
-                PlayerStatsMap[Self].DistanceTraveled += Distance;
+                PlayerStats.DistanceTraveled += Distance;
             }
             
-            PlayerStatsMap[Self].LastPos = Self->Pawn()->K2_GetActorLocation();
+            PlayerStats.LastPos = Self->Pawn()->K2_GetActorLocation();
         }
         
         // Re-execute the same function in 1 second
@@ -198,7 +200,7 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -215,7 +217,7 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -232,7 +234,7 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -249,7 +251,7 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -266,7 +268,7 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -283,7 +285,7 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -300,7 +302,7 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -317,7 +319,7 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -334,7 +336,7 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -351,7 +353,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -368,7 +370,7 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -385,7 +387,7 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -402,7 +404,7 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -419,7 +421,7 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -436,7 +438,7 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -453,7 +455,7 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (!memory_manager::is_bad_read_pointer(Self) && Self)
+    if (Self)
     {
         FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
@@ -1044,7 +1046,7 @@ std::string player_component::get_account_id(AFortPlayerController* target_playe
 {
     for (auto [account_id, player_controller] : Players)
     {
-        if (!memory_manager::is_bad_read_pointer(player_controller, false) && player_controller)
+        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
         {
             if (player_controller == target_player_controller)
             {

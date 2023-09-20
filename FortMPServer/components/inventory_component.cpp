@@ -203,9 +203,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
-    // Sync item instances counts
-    
-
     // Add to state values
     TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
 
@@ -488,9 +485,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     }
 
     // Get inventory item by GUID
-    UFortItem* fort_item = PlayerController->HasFunction("K2_GetInventoryItemWithGuid") ?
-        PlayerController->K2_GetInventoryItemWithGuid(ItemGuid) : PlayerController->HasFunction("BP_GetInventoryItemWithGuid") ?
-        PlayerController->BP_GetInventoryItemWithGuid(ItemGuid) : inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid);
+    UFortItem* fort_item = inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid);
 
     if (fort_item == nullptr)
     {
@@ -498,7 +493,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     }
 
     // Get item definition from inventory item
-    UFortItemDefinition* item_definition = fort_item->GetItemDefinitionBP();
+    UFortItemDefinition* item_definition = static_cast<UFortWorldItem*>(fort_item)->ItemEntry().ItemDefinition();
 
     if (item_definition == nullptr)
     {
