@@ -143,7 +143,7 @@ public:
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline std::map<AFortPlayerController*, std::vector<UAthenaDanceItemDefinition*>> OwnedEmotes;
     static inline int InvalidTokensReceived;
-    static inline int global_player_id = 0;
+    static inline int global_player_id = 1;
     static inline int starting_players = 0;
     static inline void** HealthProperty;
 };
@@ -184,7 +184,7 @@ namespace player_component_hooks
     DEFINE_FUNCTION_HOOK(void, ServerReadyToStartMatch, (AFortPlayerController* FortPlayerController));
     
     // Called when a player has been spawned
-    DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, K2_OnRestartPlayer, (AFortGameMode* GameMode, AFortPlayerController* NewPlayer));
 
     // Called when a player attempts to create a map marker
     DEFINE_FUNCTION_HOOK(void, ServerAddMapMarker, (class UAthenaMarkerComponent* MarkerComponent, FFrame& StackFrame))

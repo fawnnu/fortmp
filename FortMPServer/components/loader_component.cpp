@@ -53,7 +53,8 @@ loader_component::loader_component()
         // Hook begin play for the classes we need
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
-
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortGameModeAthena>()->VTable, BeginPlayIndex, loader_component_hooks::AFortGameModeAthena_BeginPlay);
+        
         if (const AFortAthenaExitCraftSpawner* DefaultObject = CreateDefaultObject<AFortAthenaExitCraftSpawner>())
         {
             REGISTER_VTABLE_HOOK(DefaultObject->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
@@ -94,6 +95,14 @@ loader_component::loader_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
+}
+
+void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAthena* Target)
+{
+    AFortGameModeAthena_BeginPlay(Target);
+    
+    // Mark world as ready
+    UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -240,9 +249,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch() = true;
         }
 #endif
-        
-        // Mark world as ready
-        UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
 
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();

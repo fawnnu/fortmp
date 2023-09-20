@@ -76,10 +76,11 @@ player_component::player_component()
         REGISTER_FUNCTION_DETOUR(player_component_hooks::GetHeroDefinition, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set.", { 0xE8, 0x100, 0x100, 0x100, 0xff }, 1), player_component_hooks::GetHeroDefinition_Hook);
     }
     
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::K2_OnRestartPlayer, memory_manager::find_pe_function(L"K2_OnRestartPlayer"), player_component_hooks::K2_OnRestartPlayer_Hook);
+    
     DetourTransactionCommit();
 
     // Finish spawning a player
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/Engine.GameModeBase.K2_OnRestartPlayer", player_component_hooks::K2_OnRestartPlayer_Hook);
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
@@ -1508,9 +1509,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
 #elif _TESTING
         team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
 #endif
-        
-        // Make pawn invulnerable on spawn island
-        UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
 
         // Prevent camera from shaking while spectating or when using the guided missile
         NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
@@ -1521,12 +1519,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         {
             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->OnStartedRespawn().Bind(TScriptDelegate(static_cast<AFortPlayerController*>(NewPlayer), L"OnPlayerStartedRespawn__DelegateSignature"));
         }
-
-        // Set Player ID (Sets teams on traps automatically)
-        NewPlayer->PlayerState()->WorldPlayerId() = player_component::global_player_id++;
-        
-        // Drop loading screen
-        static_cast<AFortPlayerController*>(NewPlayer)->bHasServerFinishedLoading() = true;
 
         // Update ping variable
         UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->PlayerState(), TEXT("bShouldUpdateReplicatedPing"), true);
@@ -1651,10 +1643,10 @@ void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController*
     }
 }
 
-void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* Function, void* Params)
+void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AFortPlayerController* NewPlayer)
 {
-    GET_PROCESS_EVENT_PARAMETER(AFortPlayerControllerAthena*, NewPlayer);
-
+    K2_OnRestartPlayer(GameMode, NewPlayer);
+    
     // Give abilities to newly spawned pawns
     if (NewPlayer->Pawn() != nullptr)
     {
@@ -1662,12 +1654,15 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(UObject* Object, UObject* F
             FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
-
+        
+        // Set Player ID (Sets teams on traps automatically)
+        NewPlayer->PlayerState()->WorldPlayerId() = player_component::global_player_id++;
+        
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
         
         // Apply backpack, if specified
-        player_component::ApplyBackpack(NewPlayer);
+        player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));
 
         // Equip the pickaxe on landing
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))

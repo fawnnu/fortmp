@@ -91,6 +91,10 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                 building_actor->Team() = new_team;
 
                 building_actor->SetTeam(new_team);
+
+                building_actor->OnRep_Team();
+
+                building_actor->OwnerPersistentID() = building_owner->PlayerState()->WorldPlayerId();
      
                 // Initialize building actor
                 building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
