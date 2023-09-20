@@ -122,6 +122,14 @@ public:
         
         Call(Function_OnServerReady);
     }
+    
+    // Custom event
+    void OnServerMapInfoReady()
+    {
+        STATIC_FINDFUNCTION(OnServerMapInfoReady)
+        
+        Call(Function_OnServerMapInfoReady);
+    }
 
     void OnPlayerJoined(APlayerController* NewPlayer)
     {

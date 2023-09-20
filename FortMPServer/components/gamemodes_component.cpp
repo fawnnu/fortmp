@@ -13,6 +13,7 @@ gamemodes_component::gamemodes_component()
 {
     // Register UFunctions
     REGISTER_CUSTOM_UFUNCTION(OnServerReady, AFortGameModeAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(OnServerMapInfoReady, AFortGameModeAthena::StaticClass());
 
     REGISTER_CUSTOM_UFUNCTION(OnPlayerJoined, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(OnPlayerJoined, AFortGameModeAthena::StaticClass(), 0x8);
@@ -46,6 +47,11 @@ gamemodes_component::gamemodes_component()
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+}
+
+void gamemodes_component::OnServerMapInfoReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();   
 }
 
 void gamemodes_component::OnPlayerJoined(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)

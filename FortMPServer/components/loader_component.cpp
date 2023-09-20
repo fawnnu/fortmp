@@ -574,6 +574,11 @@ void loader_component::WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackF
     if (Self->MapInfo())
     {
         OnMapInfoLoaded();
+
+        if (*GWorld && (*GWorld)->AuthorityGameMode())
+        {
+            (*GWorld)->AuthorityGameMode()->OnServerMapInfoReady();
+        }
     }
     else
     {
