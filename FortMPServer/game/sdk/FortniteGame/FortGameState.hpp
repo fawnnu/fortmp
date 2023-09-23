@@ -206,6 +206,18 @@ struct FSpecialActorRepData : public FFastArraySerializerItem
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.SpecialActorRepData");
 };
 
+struct FAircraftFlightInfo
+{
+    DEFINE_STRUCT_PROPERTY(struct FVector, FlightStartLocation);
+    DEFINE_STRUCT_PROPERTY(struct FRotator, FlightStartRotation);
+    DEFINE_STRUCT_PROPERTY(float, FlightSpeed);        
+    DEFINE_STRUCT_PROPERTY(float, TimeTillFlightEnd);  
+    DEFINE_STRUCT_PROPERTY(float, TimeTillDropStart);  
+    DEFINE_STRUCT_PROPERTY(float, TimeTillDropEnd);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AircraftFlightInfo");
+};
+
 struct FSpecialActorRepDataArray : FFastArraySerializer
 {
     DEFINE_STRUCT_PROPERTY(TArray<FSpecialActorRepData>, SpecialActorList);
@@ -230,6 +242,8 @@ public:
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortGameStateAthena>, GamePhaseChanged);
     DEFINE_PROPERTY(TArray<AActor*>, Aircrafts);
     DEFINE_PROPERTY(AActor*, Aircraft);
+    DEFINE_PROPERTY(FAircraftFlightInfo, FlightPathMidLine);
+    DEFINE_PROPERTY(FVector2D, FlightPathSelectionCenter);
     DEFINE_PROPERTY(UFortItemDefinition*, DefaultBattleBus);
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
 

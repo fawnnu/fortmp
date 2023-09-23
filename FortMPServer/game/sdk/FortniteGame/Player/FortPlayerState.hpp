@@ -21,6 +21,8 @@ public:
     DEFINE_PROPERTY(UCustomCharacterPart*, LocalCharacterParts);
 
     DEFINE_PROPERTY(int, WorldPlayerId);
+
+    DEFINE_PROPERTY(int, CachedPreviousWorldPlayerId);
     
     DEFINE_BIT_PROPERTY(bool, bHasStartedPlaying);
     
@@ -80,6 +82,9 @@ public:
     DEFINE_PROPERTY(int, KillScore);
     DEFINE_PROPERTY(bool, bShouldUpdateReplicatedPing);
     DEFINE_PROPERTY(uint8_t, Ping);
+    DEFINE_PROPERTY(FUniqueNetIdRepl, PartyOwnerUniqueId);
+    DEFINE_PROPERTY(FUniqueNetIdRepl, PlatformUniqueNetId);
+    DEFINE_PROPERTY(UFortHeroType*, HeroType);
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
     DEFINE_PROPERTY(uint8_t, ReplicatedTeamMemberState);
     DEFINE_PROPERTY(uint8_t, TeamMemberState);
@@ -94,6 +99,12 @@ public:
         {
             Call(Function_OnRep_ReplicatedTeamMemberState);
         }
+    }
+
+    void OnRep_SquadId()
+    {
+        STATIC_FINDFUNCTION(OnRep_SquadId)
+        Call(Function_OnRep_SquadId);
     }
     
     void ClientReportKill(AFortPlayerStateAthena* Player)

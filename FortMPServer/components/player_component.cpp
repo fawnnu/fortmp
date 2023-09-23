@@ -851,6 +851,13 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                             {
                                                 PickedAsset = Object;
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
+                                                if (Object->HasProperty("HeroDefinition"))
+                                                {
+                                                    if (!NewPlayer->PlayerState()->HeroType())
+                                                    {
+                                                        NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
+                                                    }
+                                                }
                                             }
                                             else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
                                             {
@@ -1444,6 +1451,12 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Call native function
     PostLogin(FortGameModeAthena, NewPlayer);
 
+#ifdef _RELEASE
+    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+#elif _TESTING
+    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
+#endif
+    
     // Kick the player if a ban record exists
     if (moderation_component::is_player_banned(static_cast<AFortPlayerController*>(NewPlayer)))
     {
@@ -1503,12 +1516,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         
             static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
         }
-
-#ifdef _RELEASE
-        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
-#elif _TESTING
-        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
-#endif
 
         // Prevent camera from shaking while spectating or when using the guided missile
         NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
@@ -1653,10 +1660,22 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         UObject* ability_set = FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") ?
             FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
         
-        ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
-        
         // Set Player ID (Sets teams on traps automatically)
-        NewPlayer->PlayerState()->WorldPlayerId() = player_component::global_player_id++;
+
+        NewPlayer->MyPlayerInfo()->PlayerID() = NewPlayer->NetConnection()->PlayerID();
+        
+        auto& WorldPlayerId = NewPlayer->PlayerState()->WorldPlayerId();
+        
+        if (WorldPlayerId <= 0)
+        {
+            static int16 GWorldPlayerID = 1;
+            WorldPlayerId = GWorldPlayerID++;
+            
+            NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
+        }
+        NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
+        
+        ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
         
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());

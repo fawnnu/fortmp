@@ -13,6 +13,9 @@ class UFortRegisteredPlayerInfo : public UObject
 {
 public:
     DEFINE_PROPERTY(FString, PlayerName);
+    DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
+    DEFINE_PROPERTY(uint8_t, TeamAssignment);
+    DEFINE_PROPERTY(int, PlayerIndex);
 };
 
 class UFortClientSettingsRecord : public UObject
