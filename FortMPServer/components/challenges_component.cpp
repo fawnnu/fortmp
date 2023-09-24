@@ -179,7 +179,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
             {
                 for (AController* TeamMember : TeamInfo->TeamMembers())
                 {
-                    if (TeamMember)
+                    if (TeamMember && TeamMember != PlayerController)
                     {
                         if (std::find_if(ClientConnections.begin(), ClientConnections.end(), [&TeamMember](const UNetConnection* x){ return TeamMember->NetConnection() == x; }) != ClientConnections.end())
                         {
