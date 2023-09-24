@@ -39,6 +39,7 @@ public:
     static void SendJewelInteraction(AFortPlayerController* InteractingController);
     static void HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);
+    static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
 
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
@@ -58,4 +59,5 @@ namespace challenges_component_hooks
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, PidgeonShot, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
 }

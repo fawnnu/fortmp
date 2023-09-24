@@ -24,7 +24,9 @@ void challenges_component::Initialize()
     {
         FindObject(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C", true);
         FindObject(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C", true);
+        FindObject(L"/Game/Abilities/Toys/Golf/Minigame/B_GolfMinigame_Hole.B_GolfMinigame_Hole_C", true);
 
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Golf/Minigame/B_GolfMinigame_Hole.B_GolfMinigame_Hole_C.BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
     }
@@ -1058,6 +1060,35 @@ void challenges_component::SendJewelInteraction(AFortPlayerController* Interacti
     }   
 }
 
+void challenges_component::SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
+{
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = BackendObjectiveName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:golf", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
@@ -1143,6 +1174,27 @@ void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEv
             if (STATIC_HASPROPERTY(SoccerGame, BackendObjName))
             {
                 challenges_component::SendPitchGoalInteraction(SoccerGame->PlayerWhoScored()->Controller(), SoccerGame->BackendObjName());
+            }
+        }
+    }
+}
+
+void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    AB_GolfMinigame_Hole* GolfGame = static_cast<AB_GolfMinigame_Hole*>(Object);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook: Sending golf interaction");
+    }
+
+    if (GolfGame)
+    {
+        if (GolfGame->PlayerWhoCompletedQuest())
+        {
+            if (STATIC_HASPROPERTY(GolfGame, ObjectiveBackendName))
+            {
+                challenges_component::SendGolfInteraction(GolfGame->PlayerWhoCompletedQuest(), GolfGame->ObjectiveBackendName());
             }
         }
     }

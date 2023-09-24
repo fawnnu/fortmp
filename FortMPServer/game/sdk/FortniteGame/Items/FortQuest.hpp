@@ -160,6 +160,13 @@ public:
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
 
+class AB_GolfMinigame_Hole : public AActor
+{
+public:
+    DEFINE_PROPERTY(AFortPlayerController*, PlayerWhoCompletedQuest);
+    DEFINE_PROPERTY(FName, ObjectiveBackendName);
+};
+
 class AProp_Quest_ClayPidgeonLauncher_C : public AActor
 {
 public:
