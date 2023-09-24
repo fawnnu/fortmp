@@ -11,6 +11,7 @@
 #include "team_component.hpp"
 #include "config_manager.hpp"
 #include "era_mutators_component.hpp"
+#include "fort_mutators_component.hpp"
 #include "player_component.hpp"
 #include "playlist_component.hpp"
 #include "replication_component.hpp"
@@ -54,36 +55,10 @@ loader_component::loader_component()
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortGameModeAthena>()->VTable, BeginPlayIndex, loader_component_hooks::AFortGameModeAthena_BeginPlay);
-
-        // Hook begin play for athena mutators
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaMutator_Barrier>()->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaMutator_Barrier_BeginPlay);
-        
-        if (const AFortAthenaExitCraftSpawner* DefaultObject = CreateDefaultObject<AFortAthenaExitCraftSpawner>())
-        {
-            REGISTER_VTABLE_HOOK(DefaultObject->VTable, BeginPlayIndex, loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay);
-
-            static UFunction* FunctionObject = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaExitCraftSpawner.StartExitCraftSpawnTimer");
-
-            if(FunctionObject)
-            {
-                auto start = memory_manager::scan_for(reinterpret_cast<uintptr_t>(FunctionObject->get_native_function()), {0xE9}, 0, false);
-                
-                auto result = (((uintptr_t)start + 5) + *(int32_t*)((uintptr_t)start + 1));
-                
-                auto stripped_leas = memory_manager::get_all_stripped_leas_in_function(result);
-
-                for (int i = 0; i < stripped_leas.size(); ++i)
-                {
-                    uintptr_t func = stripped_leas[i];
-                    
-                    memory_manager::lea_hook(func, reinterpret_cast<uintptr_t>(ExitCraftOnTimerFinished));
-                }
-            }
-        }
     }
     else
     {
-        spdlog::error(L"Failed to hook ABuildingContainer_BeginPlay. Invalid BeginPlayAddress");
+       spdlog::error(L"Failed to hook loader_component BeginPlay. Invalid BeginPlayAddress");
     }
     
     DetourTransactionBegin();
@@ -98,27 +73,6 @@ loader_component::loader_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
-}
-
-void loader_component_hooks::AFortAthenaMutator_Barrier_BeginPlay_Hook(AFortAthenaMutator_Barrier* Target)
-{
-    // Spawn the barrier big base wall
-    FActorSpawnParameters spawn_parameters = {};
-    FVector SpawnLocation = FVector((*GWorld)->GameState()->FlightPathSelectionCenter().X, (*GWorld)->GameState()->FlightPathSelectionCenter().Y, -4000);
-    FRotator SpawnRotation = (*GWorld)->GameState()->FlightPathMidLine().FlightStartRotation();
-    Target->BigBaseWall() = static_cast<AAthenaBigBaseWall*>(SpawnActor(*GWorld, Target->BigBaseWallClass(), &SpawnLocation, &SpawnRotation, spawn_parameters));
-
-    Target->BigBaseWall()->FlushNetDormancy();
-    Target->BigBaseWall()->ForceNetUpdate();
-    AFortAthenaMutator_Barrier_BeginPlay(Target);
-}
-
-void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAthena* Target)
-{
-    // Mark world as ready
-    UKismetSystemLibrary::SetBoolPropertyByName(Target, L"bWorldIsReady", true);
-
-    AFortGameModeAthena_BeginPlay(Target);
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -573,6 +527,8 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 
     if (ServerPlaylist)
     {
+        fort_mutators_component::on_game_phase_updated(Self->GamePhase());
+        
         // Can't use STATIC_HASPROPERTY as the playlist can change
         if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
         {
@@ -704,6 +660,14 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
     }
 }
 
+void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAthena* Target)
+{
+    // Mark world as ready
+    UKismetSystemLibrary::SetBoolPropertyByName(Target, L"bWorldIsReady", true);
+
+    AFortGameModeAthena_BeginPlay(Target);
+}
+
 void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContainer* Target)
 {
     ABuildingContainer_BeginPlay(Target);
@@ -734,178 +698,6 @@ void loader_component_hooks::ABuildingFoundation_BeginPlay_Hook(ABuildingFoundat
         {
             UKismetSystemLibrary::SetBoolPropertyByName(Target, TEXT("bServerStreamedInLevel"), true);
         }
-    }
-}
-
-void loader_component_hooks::AFortAthenaExitCraftSpawner_BeginPlay_Hook(AFortAthenaExitCraftSpawner* Target)
-{
-    AFortAthenaExitCraftSpawner_BeginPlay(Target);
-
-    if (Target)
-    {
-        // Start the timer to spawn ExitCrafts
-        Target->StartExitCraftSpawnTimer();
-        
-        spdlog::info(L"ExitCraft {} has just started a spawn timer.", Target->GetName().c_str());
-    }
-}
-
-void loader_component::ExitCraftOnTimerFinished(AFortAthenaExitCraftSpawner* ExitCraftSpawner, FFrame& StackFrame)
-{
-    if (ExitCraftSpawner)
-    {
-        spdlog::info(L"Exit Craft Spawner timer finished, spawning!");
-        
-        AFortGameModeAthena* game_mode = (*GWorld)->AuthorityGameMode();
-        AFortGameStateAthena* game_state = (*GWorld)->GameState();
-        
-	    if (!game_mode) return;
-	    if (!game_state) return;
-
-        AFortAthenaMutator_Heist* heist_mutator = nullptr;
-
-        TArray<AActor*> out_actors = UGameplayStatics::GetAllActorsOfClass(*GWorld, AFortAthenaMutator_Heist::StaticClass());
-
-        for (AActor* out_actor : out_actors)
-        {
-            heist_mutator = static_cast<AFortAthenaMutator_Heist*>(out_actor);
-        }
-
-        if (!heist_mutator)
-        {
-            spdlog::error(L"Couldn't find Heist mutator!");
-            return;
-        }
-
-        FHeistExitCraftData* CraftData = heist_mutator->FindCraftData(ExitCraftSpawner);
-        if (!CraftData)
-        {
-            spdlog::error(L"CraftData was not found!");
-            return;
-        }
-  
-        heist_mutator->NumSpawnedExitCrafts()++;
-        heist_mutator->NumUnspawnedExitCrafts()--;
-  
-        UFortAthenaExitCraftInfo* spawn_info = ExitCraftSpawner->ExitCraftInfo();
-  
-        UObject* van_class = ExitCraftSpawner->ExitCraftInfo()->ExitCaftClass();
-  
-        FVector location = ExitCraftSpawner->K2_GetActorLocation();
-  
-        FVector start_location = location;
-        start_location.Z += spawn_info->ExitCraftInfo().ExitCraftZOffset().GetValueAtLevel(0, nullptr);
-	  
-        FRotator rotation = ExitCraftSpawner->K2_GetActorRotation();
-        
-        FActorSpawnParameters spawn_parameters = {};
-
-        AFortAthenaExitCraft* van = static_cast<AFortAthenaExitCraft*>(SpawnActor(*GWorld, van_class, &start_location, &rotation, spawn_parameters));
-        if (!van) return;
-
-        van->ExitCraftInfo() = spawn_info;
-
-        van->CurrentState() = 1;
-        //van->OnNewState(1);
-
-        van->CraftSpecialActorID() = ExitCraftSpawner->SpawnerSpecialActorID();
-  
-        CraftData->SpawnedExitCraft() = van;
-        CraftData->ExitCraftState() = 2;
-        CraftData->SpawnTime() = (*GWorld)->TimeSeconds();
-        CraftData->bIsUsed() = false;
-        CraftData->bHasDeparted() = false;
-  
-        heist_mutator->OnExitCraftSpawned(van, ExitCraftSpawner);
-  
-        FVector TargetLocation = location;
-        TargetLocation.Z += spawn_info->ExitCraftInfo().ExitCraftTargetZOffset().GetValueAtLevel(0, nullptr);
-  
-        van->LocationLerpData().PositionLerp_Start() = start_location;
-        van->LocationLerpData().PositionLerp_End() = TargetLocation;
-        van->LocationLerpData().PositionLerp_Target() = TargetLocation;
-        van->LocationLerpData().TotalLerpTime() = spawn_info->ExitCraftInfo().ExitCraftTimeToHoverLocation().GetValueAtLevel(0, nullptr);
-  
-        van->OnRep_LocationLerpData();
-        
-        auto SpecialActorData = game_state->SpecialActorData();
-        FSpecialActorRepDataArray* actorRepList = &SpecialActorData->SpecialActorRepList();
-        auto SpecialActorList = TArrayManager<FSpecialActorRepData>(&actorRepList->SpecialActorList(), FSpecialActorRepData::GetStructSize());
-
-	    int SpawnerIndex = -1;
-	    FSpecialActorRepData* SpawnerRepData = nullptr;
-
-        for (int i = 0; i < SpecialActorList.Num(); ++i)
-        {
-            FSpecialActorRepData* RepData = &SpecialActorList[i];
-            if (!RepData) continue;
-    
-            if (RepData->SpecialActor() != ExitCraftSpawner) continue;
-    
-            SpawnerIndex = i;
-            SpawnerRepData = RepData;
-            break;
-        }
-        
-	    FSpecialActorRepData* VanRepData = (FSpecialActorRepData*)FMemory_Realloc(0,FSpecialActorRepData::GetStructSize(),0);
-	    memcpy(VanRepData,SpawnerRepData,FSpecialActorRepData::GetStructSize());
-    
-	    VanRepData->MostRecentArrayReplicationKey = -1;
-	    VanRepData->ReplicationID = -1;
-	    VanRepData->ReplicationKey = -1;
-    
-	    VanRepData->SpecialActorID() = van->CraftSpecialActorID();
-	    VanRepData->CategoryTag() = heist_mutator->ExitCraftTag();
-	    VanRepData->SpecialActor() = van;
-    
-	    memcpy(&VanRepData->MainIconBrush(), &spawn_info->CraftMinimapIconBrush(),FSlateBrush::GetStructSize());
-	    VanRepData->MinimapScale() = spawn_info->CraftMinimapIconScale();
-    
-	    memcpy(&VanRepData->CompassIconBrush(),&spawn_info->CraftCompassIconBrush(),FSlateBrush::GetStructSize());
-	    VanRepData->CompassScale() = spawn_info->CraftCompassIconScale();
-    
-	    VanRepData->AddedToClientTime() = reinterpret_cast<UWorld*>(GWorld)->TimeSeconds();
-    
-	    VanRepData->LastLocationReplicationTime() = 0.0f;
-	    VanRepData->PrevLocationReplicatedTime() = 0.0f;
-    
-	    VanRepData->LastYawReplicationTime() = 0.0f;
-	    VanRepData->PrevYawReplicatedTime() = 0.0f;
-    
-	    VanRepData->LastRepLocation() = FVector{0,0,0};
-	    VanRepData->PrevRepLocation() = FVector{0,0,0};
-	    VanRepData->LerpStartLocation() = start_location;
-    
-	    VanRepData->bActorIsRelevant() = true;
-    
-	    SpecialActorList.Add(VanRepData);
-    
-	    FSpecialActorRepData* RefoundVanData = nullptr;
-	    for (int i = 0; i < SpecialActorList.Num(); ++i)
-	    {
-	    	FSpecialActorRepData* RepData = &SpecialActorList[i];
-    
-	    	if (RepData->SpecialActor() == van)
-	    	{
-	    		RefoundVanData = RepData;
-	    		break;
-	    	}
-	    }
-
-        actorRepList->MarkItemDirty(*RefoundVanData);
-        
-	    memcpy(VanRepData,RefoundVanData,FSpecialActorRepData::GetStructSize());
-    
-	    heist_mutator->OnSpecialActorAdded(*SpawnerRepData);
-        heist_mutator->OnSpecialActorRemoved(*SpawnerRepData);
-    
-        static void* special_actor_list = FindPropertyByName(FSpecialActorRepDataArray::GetClass(), L"SpecialActorList");
-            
-	    SpecialActorList.Remove(SpawnerIndex, special_actor_list);
-        
-	    actorRepList->MarkArrayDirty();
-    
-	    FMemory_Free(VanRepData);
     }
 }
 

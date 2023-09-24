@@ -34,6 +34,7 @@
 #include "components/challenges_component.hpp"
 #include "components/config_manager.hpp"
 #include "components/era_mutators_component.hpp"
+#include "components/fort_mutators_component.hpp"
 #include "components/gui_manager.hpp"
 
 #include "gui/renderer.hpp"
@@ -115,6 +116,7 @@ void Setup()
                 new hook_manager();
                 new net_component();
                 new loader_component();
+                new fort_mutators_component();
                 new patches_component();
                 new player_component();
                 new aircraft_component();

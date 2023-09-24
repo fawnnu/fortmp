@@ -143,7 +143,7 @@ public:
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline std::map<AFortPlayerController*, std::vector<UAthenaDanceItemDefinition*>> OwnedEmotes;
     static inline int InvalidTokensReceived;
-    static inline int global_player_id = 1;
+    static inline int16 global_player_id = 1;
     static inline int starting_players = 0;
     static inline void** HealthProperty;
 };

@@ -1533,6 +1533,8 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Notify gamemode
         (*GWorld)->AuthorityGameMode()->OnPlayerJoined(NewPlayer);
 
+        UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(NewPlayer)->Pawn(), L"bIsInvulnerable", true);
+
 #ifdef _RELEASE
         // Notify era services
         gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
@@ -1661,15 +1663,13 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
         
         // Set Player ID (Sets teams on traps automatically)
-
         NewPlayer->MyPlayerInfo()->PlayerID() = NewPlayer->NetConnection()->PlayerID();
         
         auto& WorldPlayerId = NewPlayer->PlayerState()->WorldPlayerId();
         
         if (WorldPlayerId <= 0)
         {
-            static int16 GWorldPlayerID = 1;
-            WorldPlayerId = GWorldPlayerID++;
+            WorldPlayerId = player_component::global_player_id++;
             
             NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
         }

@@ -95,6 +95,13 @@ public:
     }
 };
 
+class AAthenaBarrierObjective : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBarrierObjective")
+    
+};
+
 class AAthenaBigBaseWall : public AActor
 {
 public:
@@ -146,10 +153,12 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaMutator_Barrier")
 
     DEFINE_PROPERTY(UObject*, BigBaseWallClass);
-
+    DEFINE_PROPERTY(UObject*, ObjectiveFlag);
+    
     DEFINE_PROPERTY(AAthenaBigBaseWall*, BigBaseWall);
 
     DEFINE_PROPERTY(FScalableFloat, TimeToBringDownWall);
+    DEFINE_PROPERTY(FScalableFloat, ObjectiveDistanceFromWall);
 };
 
 class AFortAthenaMutator_Heist : public AFortAthenaMutator
