@@ -284,8 +284,4 @@ void fort_mutators_component::on_game_phase_updated(uint8_t GamePhase)
 			barrier_mutator->SpawnBarrierObjective(1);
 		}
 	}
-	else
-	{
-		spdlog::error(L"No barrier mutator");
-	}
 }
