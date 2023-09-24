@@ -24,7 +24,7 @@ looting_component::looting_component()
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnPickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnPickup_Hook);
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaSupplyDrop.SpawnGameModePickup", looting_component_hooks::AFortAthenaSupplyDrop_SpawnGameModePickup_Hook);
     
-    blacklisted_item_definitions = {FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SmokeBomb_Athena/Athena_SmokeBomb.Athena_SmokeBomb")};
+    blacklisted_item_definitions = {};
     blacklisted_classes = {};
 
     // Parse loot_pool_changes
