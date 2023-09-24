@@ -335,7 +335,8 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
                 nlohmann::json parameters{
                     {"x", ExecutingPlayerController->Pawn()->K2_GetActorLocation().X},
                     {"y", ExecutingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                    {"victim", victim_account_id}
+                    {"victim", victim_account_id},
+                    {"knocked_by_opponent", VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() != VictimPlayerController->PlayerState() && VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() != nullptr}
                 };
             
                 gameserver_client::Client->SendEventToChannel("player:" + executing_account_id, "event:revive", parameters);
