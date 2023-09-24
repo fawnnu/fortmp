@@ -749,6 +749,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::global_player_id = 0;
         player_component::starting_players = 0;
         player_component::PendingVariantsData.clear();
+        player_component::HeadshotKillMap.clear();
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();
         anticheat_component::Initialize();

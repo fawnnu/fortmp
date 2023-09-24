@@ -1106,6 +1106,17 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         // Track headshot damage
                         Value.HeadshotDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Headshot);
+
+                        if (HitActor)
+                        {
+                            if (HitActor->IsA(APlayerPawn_Athena_C::StaticClass()))
+                            {
+                                if (HitActor->GetHealth() - Damage <= 0.0)
+                                {
+                                    HeadshotKillMap[Instigator] = true;
+                                }
+                            }
+                        }
                     }
                     else
                     {

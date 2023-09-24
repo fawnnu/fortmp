@@ -142,6 +142,7 @@ public:
     static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline std::map<AFortPlayerController*, std::vector<UAthenaDanceItemDefinition*>> OwnedEmotes;
+    static inline std::map<AFortPlayerController*, bool> HeadshotKillMap;
     static inline int InvalidTokensReceived;
     static inline int16 global_player_id = 1;
     static inline int starting_players = 0;

@@ -2,6 +2,7 @@
 #include "challenges_component.hpp"
 
 #include "log_component.hpp"
+#include "looting_component.hpp"
 #include "player_component.hpp"
 #include "team_component.hpp"
 
@@ -294,12 +295,17 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     }
                 }
 
-                std::map<std::string, std::string> parameters{
-                        {"x", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().X)},
-                        {"y", std::to_string(VictimPlayerController->Pawn()->K2_GetActorLocation().Y)},
-                        {"weapon", weapon},
-                        {"victim", victim_account_id}
+                nlohmann::json parameters {
+                    {"x", VictimPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", VictimPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"weapon", weapon},
+                    {"victim", victim_account_id},
+                    {"in_vehicle", KillerPlayerController->Pawn()->HasFunction(L"IsInVehicle") ? KillerPlayerController->Pawn()->IsInVehicle() : false},
+                    {"headshot", player_component::HeadshotKillMap[KillerPlayerController]}
                 };
+
+                // Invalidate headshot kill map record
+                player_component::HeadshotKillMap[KillerPlayerController] = false;
             
                 gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
             }
