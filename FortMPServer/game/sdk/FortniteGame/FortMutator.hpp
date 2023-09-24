@@ -1,5 +1,7 @@
 #pragma once
 #include "FortGameState.hpp"
+#include "sdk/Engine/GameplayAbilities/AbilitySystemComponent.hpp"
+#include "sdk/Engine/World.hpp"
 #include "Pawns/FortPlayerPawn.hpp"
 
 struct FLocationLerpData
@@ -12,12 +14,23 @@ struct FLocationLerpData
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.LocationLerpData");
 };
 
+struct FBarrierTeamState
+{
+   DEFINE_STRUCT_PROPERTY(uint8, TeamNum);         
+   DEFINE_STRUCT_PROPERTY(uint8_t, FoodTeam);
+   DEFINE_STRUCT_PROPERTY(class AAthenaBarrierFlag*, ObjectiveFlag);
+   DEFINE_STRUCT_PROPERTY(class AAthenaBarrierObjective*, ObjectiveObject);   
+   DEFINE_STRUCT_PROPERTY(bool, bRespawnEnabled);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.BarrierTeamState");
+};
+
 struct FHeistExitCraftData
 {
     DEFINE_STRUCT_PROPERTY(class AFortAthenaExitCraftSpawner*, ExitCraftSpawner);
     DEFINE_STRUCT_PROPERTY(class AFortAthenaExitCraft*, SpawnedExitCraft);
     DEFINE_STRUCT_PROPERTY(uint8, ExitCraftState);
-    DEFINE_STRUCT_PROPERTY(TArray<AFortPlayerPawnAthena*>, DepartedPawns);
+    DEFINE_STRUCT_PROPERTY(TArray<class AFortPlayerPawnAthena*>, DepartedPawns);
     DEFINE_STRUCT_PROPERTY(float, SpawnTime);
     DEFINE_STRUCT_PROPERTY(bool, bIsUsed);
     DEFINE_STRUCT_PROPERTY(bool, bHasDeparted);
@@ -99,6 +112,29 @@ class AAthenaBarrierObjective : public AActor
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBarrierObjective")
+
+    DEFINE_PROPERTY(uint8_t, FoodTeam);
+
+    void OnRep_FoodTeam()
+    {
+        STATIC_FINDFUNCTION(OnRep_FoodTeam)
+        Call(Function_OnRep_FoodTeam);
+    }
+
+    void UpdateInGameHealth(float NewHealthPercent)
+    {
+        STATIC_FINDFUNCTION(UpdateInGameHealth)
+        Call(Function_UpdateInGameHealth, NewHealthPercent);
+    }
+};
+
+class AAthenaBarrierFlag : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBarrierFlag")
+
+    DEFINE_PROPERTY(uint8_t, FoodTeam);
+    DEFINE_PROPERTY(uint8_t, CurrentState);
     
 };
 
@@ -157,8 +193,56 @@ public:
     
     DEFINE_PROPERTY(AAthenaBigBaseWall*, BigBaseWall);
 
+    DEFINE_PROPERTY(FBarrierTeamState, Team_0_State);
+    DEFINE_PROPERTY(FBarrierTeamState, Team_1_State);
+    
     DEFINE_PROPERTY(FScalableFloat, TimeToBringDownWall);
     DEFINE_PROPERTY(FScalableFloat, ObjectiveDistanceFromWall);
+
+    AAthenaBarrierFlag* SpawnBarrierObjective(uint8_t team)
+    {
+        // Spawn the barrier objective for both teams
+        FActorSpawnParameters spawn_parameters = {};
+	
+        FVector objective_spawn_location = FVector((*GWorld)->GameState()->FlightPathSelectionCenter().X, (*GWorld)->GameState()->FlightPathSelectionCenter().Y, 5000);
+        FRotator objective_spawn_rotation = FRotator();
+
+        FVector right_barrier_vector = this->BigBaseWall()->GetActorRightVector();
+        float objective_distance_from_barrier = ObjectiveDistanceFromWall().GetValueAtLevel(0, nullptr);
+
+        // Make the tomato team objective spawn on the other side than the burger objective
+        if (team == 1) objective_distance_from_barrier *=  -1;
+        
+        right_barrier_vector.X *= objective_distance_from_barrier*2;
+        right_barrier_vector.Y *= objective_distance_from_barrier*2;
+        right_barrier_vector.Z *= objective_distance_from_barrier*2;
+ 
+        objective_spawn_location = UKismetMathLibrary::Add_VectorVector(right_barrier_vector, objective_spawn_location);
+
+        // Match to the grid
+        objective_spawn_location.X /= 512;
+        objective_spawn_location.Y /= 512;
+        objective_spawn_location.X = round(objective_spawn_location.X);
+        objective_spawn_location.Y = round(objective_spawn_location.Y);
+        objective_spawn_location.X *= 512;
+        objective_spawn_location.Y *= 512;
+
+        auto objective_flag = static_cast<AAthenaBarrierFlag*>(SpawnActor(*GWorld, this->ObjectiveFlag(), &objective_spawn_location, &objective_spawn_rotation, spawn_parameters));
+        
+        if (team == 0)
+        {
+            Team_0_State().TeamNum() = 0;
+            Team_0_State().FoodTeam() = 0;
+            Team_0_State().ObjectiveFlag() = objective_flag;
+        }
+        else
+        {
+            Team_1_State().TeamNum() = 1;
+            Team_1_State().FoodTeam() = 1;
+            Team_1_State().ObjectiveFlag() = objective_flag;
+        }
+        return objective_flag;
+    }
 };
 
 class AFortAthenaMutator_Heist : public AFortAthenaMutator

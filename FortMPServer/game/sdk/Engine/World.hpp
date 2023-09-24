@@ -38,7 +38,7 @@ class UGameInstance : public UObject
 public:
     DEFINE_STATIC_CLASS(L"/Script/Engine.GameInstance");
     
-    DEFINE_PROPERTY(TArray<ULocalPlayer*>, LocalPlayers);
+    DEFINE_PROPERTY(TArray<class ULocalPlayer*>, LocalPlayers);
 };
 
 class UFortGameInstance : public UGameInstance
@@ -74,7 +74,7 @@ class UWorld : public UObject
 {
 public:
     DEFINE_PROPERTY(AFortGameStateAthena*, GameState);
-    DEFINE_PROPERTY(AFortGameModeAthena*, AuthorityGameMode);
+    DEFINE_PROPERTY(class AFortGameModeAthena*, AuthorityGameMode);
 
     DEFINE_PROPERTY(UNetDriver*, NetDriver);
 
