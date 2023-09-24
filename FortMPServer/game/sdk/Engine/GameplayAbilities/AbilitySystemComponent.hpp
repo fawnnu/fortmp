@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "sdk/Engine/CurveTable.hpp"
 
 class UGameplayAbility;
 

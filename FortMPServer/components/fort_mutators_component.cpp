@@ -280,21 +280,8 @@ void fort_mutators_component::on_game_phase_updated(uint8_t GamePhase)
 		{
 			spdlog::info(L"Aircraft Phase on AFortAthenaMutator_Barrier, spawning Objective Flags");
 
-			// Spawn the barrier objective for both teams
-			FActorSpawnParameters spawn_parameters = {};
-	
-			FVector spawn_location = FVector((*GWorld)->GameState()->FlightPathSelectionCenter().X, (*GWorld)->GameState()->FlightPathSelectionCenter().Y, 5000);
-			FRotator spawn_rotation = (*GWorld)->GameState()->FlightPathMidLine().FlightStartRotation();
-
-			FVector right_barrier_vector = barrier_mutator->GetActorRightVector();
-			float objective_distance_from_barrier = barrier_mutator->ObjectiveDistanceFromWall().GetValueAtLevel(0, nullptr);
-			right_barrier_vector.X *= objective_distance_from_barrier;
-			right_barrier_vector.X *= objective_distance_from_barrier;
-			
-			spdlog::info(L"ObjectiveDistanceFromWall: {}", barrier_mutator->ObjectiveDistanceFromWall().GetValueAtLevel(0, nullptr));
-	
-			static_cast<AAthenaBarrierObjective*>(SpawnActor(*GWorld, barrier_mutator->ObjectiveFlag(), &spawn_location, &spawn_rotation, spawn_parameters));
-			
+			barrier_mutator->SpawnBarrierObjective(0);
+			barrier_mutator->SpawnBarrierObjective(1);
 		}
 	}
 	else
