@@ -135,6 +135,13 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/StormCenter/BA_QuestInteractable_StormCenter_Single.BA_QuestInteractable_StormCenter_Single_C");    
 };
 
+class ABGA_RiftPortal_Athena : public AActor
+{
+public:
+    DEFINE_PROPERTY(UObject*, OverlapCapsule);
+    DEFINE_CLASS(L"/Game/Athena/Items/ForagedItems/Rift/BGA_RiftPortal_Athena.BGA_RiftPortal_Athena_C");
+};
+
 class ATrap_Floor_Player_Launch_Pad_C : public AActor
 {
 public:

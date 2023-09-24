@@ -1089,6 +1089,31 @@ void challenges_component::SendGolfInteraction(AFortPlayerController* Interactin
     }   
 }
 
+void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal)
+{
+    if (InteractingController && RiftPortal)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", RiftPortal->K2_GetActorLocation().X},
+                {"y", RiftPortal->K2_GetActorLocation().Y}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rift", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
@@ -1181,6 +1206,8 @@ void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEv
 
 void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor);
+
     AB_GolfMinigame_Hole* GolfGame = static_cast<AB_GolfMinigame_Hole*>(Object);
 
     if (log_component::enable_debug_logs)
@@ -1190,11 +1217,14 @@ void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEven
 
     if (GolfGame)
     {
-        if (GolfGame->PlayerWhoCompletedQuest())
+        if (OtherActor && OtherActor->Owner() && OtherActor->Owner()->IsA(AFortPlayerStateAthena::StaticClass()))
         {
-            if (STATIC_HASPROPERTY(GolfGame, ObjectiveBackendName))
+            if (OtherActor->Owner()->Owner()->IsA(AFortPlayerControllerAthena::StaticClass()))
             {
-                challenges_component::SendGolfInteraction(GolfGame->PlayerWhoCompletedQuest(), GolfGame->ObjectiveBackendName());
+                if (STATIC_HASPROPERTY(GolfGame, ObjectiveBackendName))
+                {
+                    challenges_component::SendGolfInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), GolfGame->ObjectiveBackendName());
+                }
             }
         }
     }

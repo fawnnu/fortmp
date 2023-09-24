@@ -489,6 +489,7 @@ void pickup_component_hooks::ServerHandlePickupInfo_Hook(AFortPlayerPawn* Player
 void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor);
+    GET_PROCESS_EVENT_PARAMETER(UObject*, OtherComp);
 
     // Cast to pawn
     AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(Object);
@@ -498,7 +499,17 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
 
     if (OtherActor)
     {
-        if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
+        if (OtherActor->IsA(ABGA_RiftPortal_Athena::StaticClass()))
+        {
+            if (OtherComp == static_cast<ABGA_RiftPortal_Athena*>(OtherActor)->OverlapCapsule())
+            {
+                if (PlayerPawn->Controller())
+                {
+                    challenges_component::SendRiftInteraction(PlayerPawn->Controller(), static_cast<ABGA_RiftPortal_Athena*>(OtherActor));
+                }
+            }
+        }
+        else if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
         {
             if (OtherActor->HasProperty(L"PlayersWhoHaveTouchedThisCenter"))
             {
