@@ -36,8 +36,10 @@ namespace loader_component_hooks
     
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
     DEFINE_FUNCTION_HOOK(void, ABuildingFoundation_BeginPlay, (ABuildingFoundation* Target));
+    DEFINE_FUNCTION_HOOK(void, AFortGameModeAthena_BeginPlay, (AFortGameModeAthena* Target));
     DEFINE_FUNCTION_HOOK(void, AFortAthenaExitCraftSpawner_BeginPlay, (AFortAthenaExitCraftSpawner* Target));
-
+    DEFINE_FUNCTION_HOOK(void, AFortAthenaMutator_Barrier_BeginPlay, (AFortAthenaMutator_Barrier* Target));
+    
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
 
     // Steal the function

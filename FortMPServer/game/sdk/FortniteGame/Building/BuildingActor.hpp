@@ -67,6 +67,34 @@ public:
             Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController, true) : Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController);
     }
 
+    void OnRep_Team()
+    {
+        STATIC_FINDFUNCTION(OnRep_Team)
+        
+        Call(Function_OnRep_Team);
+    }
+
+    void PlacedByPlacementTool()
+    {
+        STATIC_FINDFUNCTION(PlacedByPlacementTool)
+        
+        Call(Function_PlacedByPlacementTool);
+    }
+
+    void OnWorldReady()
+    {
+        STATIC_FINDFUNCTION(OnWorldReady)
+        
+        Call(Function_OnWorldReady);
+    }
+
+    void PlacedByPlayer(AFortPlayerState* PlayerState)
+    {
+        STATIC_FINDFUNCTION(PlacedByPlayer)
+        
+        Call(Function_PlacedByPlayer, PlayerState);
+    }
+
     float GetHealth()
     {
         STATIC_FINDFUNCTION(GetHealth)
@@ -93,6 +121,8 @@ class ABuildingSMActor : public ABuildingActor
 {
 public:
     DEFINE_PROPERTY(uint8_t, AttributeInitLevelSource);
+
+    DEFINE_PROPERTY(int, OwnerPersistentID);
     
     DEFINE_PROPERTY(struct FCurveTableRowHandle, BuildingResourceAmountOverride);
     

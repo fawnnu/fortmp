@@ -38,6 +38,8 @@ public:
     static bool is_valid_function(uintptr_t function);
     static bool is_stripped_function(uintptr_t function);
     static bool is_function_stripped_wiktor(uintptr_t function);
+    static uintptr_t find_pe_function(const wchar_t* FunctionString);
+    static uintptr_t scan_for_wiktor(uintptr_t begin, const char* signature, int skip = 0, int scanSize = 2048, bool Backwards = false);
     static void call_hook(uintptr_t call_instruction_address, uintptr_t hook_address);
     static void lea_hook(uintptr_t lea_instruction_address, uintptr_t hook_address);
     static uintptr_t scan_for(uintptr_t start_address, std::vector<DWORD> Opcodes, uintptr_t optional_end_address = 0, bool Backwards = false);

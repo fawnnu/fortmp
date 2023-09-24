@@ -407,6 +407,155 @@ bool memory_manager::is_function_stripped_wiktor(uintptr_t function)
 	return false;
 }
 
+uintptr_t memory_manager::find_pe_function(const wchar_t* FunctionString)
+{
+	__int64 BaseAddress = (__int64)GetModuleHandle(NULL);
+
+	bool bFound = false;
+		
+	PIMAGE_NT_HEADERS64 Headers = ImageNtHeader(HINSTANCE(BaseAddress));
+
+	//The first section is always .text, the second is always .rdata
+	PIMAGE_SECTION_HEADER TextSection = IMAGE_FIRST_SECTION(Headers); 
+	PIMAGE_SECTION_HEADER DataSection = IMAGE_FIRST_SECTION(Headers) + 1; 
+	
+	auto Bytes = reinterpret_cast<uint8_t*>(BaseAddress + TextSection->VirtualAddress);
+
+	for (DWORD i = 0; i < TextSection->Misc.VirtualSize; i++)
+	{
+		if ((Bytes[i] == 0x4C && Bytes[i+1] == 0x8D) ||
+			(Bytes[i] == 0x48 && Bytes[i+1] == 0x8D)) //Opcodes for a string reference (lea)
+		{
+			//now get the actual address of the string
+			auto StringAddress = (__int64(&Bytes[i]) + 7) + *(__int32*)(__int64(&Bytes[i]) + 3);
+			
+			if ((StringAddress < BaseAddress + DataSection->VirtualAddress) ||
+				(StringAddress > BaseAddress + DataSection->VirtualAddress + DataSection->Misc.VirtualSize))
+			{
+				continue;
+			}
+
+			if (wcsstr((const wchar_t*)(StringAddress), FunctionString))
+			{
+				Bytes = &Bytes[i];
+				bFound = true;
+				break;
+			}
+		}
+	}
+
+	if (!bFound) return 0;
+
+	uintptr_t Function = (uintptr_t)Bytes;
+	Function = memory_manager::scan_for_wiktor(Function, "48 8D 0D");
+	Function = Function + 7 + *(__int32*)(Function + 3);
+
+	uintptr_t FNameAddress = Function;
+	bFound = false;
+
+	Bytes = reinterpret_cast<uint8_t*>(BaseAddress + TextSection->VirtualAddress);
+	for (DWORD i = 0x0; i < TextSection->Misc.VirtualSize; i++)
+	{
+		if ((Bytes[i] == 0x48 && Bytes[i + 1] == 0x8B && Bytes[i + 2] == 0x15))
+		{
+			void* stringAdd = &Bytes[i];
+
+			stringAdd = (void*)(__int64(stringAdd) + 7 + *(__int32*)(__int64(stringAdd) + 3));
+
+			// Check if the string is in the .rdata section
+			if (!memory_manager::is_bad_read_pointer(stringAdd))
+			{
+				if ((uintptr_t)stringAdd == FNameAddress)
+				{
+					auto funcAdd = &Bytes[i];
+					Function = (uintptr_t)funcAdd;
+
+					DWORD64 ImgBase = 0;
+					PRUNTIME_FUNCTION pFunction = nullptr;
+					for (auto Func = RtlLookupFunctionEntry(__int64(Function), &ImgBase, NULL); Func; Func = RtlLookupFunctionEntry(BaseAddress + (Func->BeginAddress-1), &ImgBase, NULL))
+					{
+						pFunction = Func;
+					}
+
+					return pFunction ? BaseAddress + pFunction->BeginAddress : 0;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+uintptr_t memory_manager::scan_for_wiktor(uintptr_t begin, const char* signature, int skip, int scanSize, bool Backwards)
+{
+	static auto patternToByte = [](const char* pattern)
+	{
+		auto bytes = std::vector<int>{};
+		const auto start = const_cast<char*>(pattern);
+		const auto end = const_cast<char*>(pattern) + strlen(pattern);
+
+		for (auto current = start; current < end; ++current)
+		{
+			if (*current == '?')
+			{
+				++current;
+				if (*current == '?')
+					++current;
+				bytes.push_back(-1);
+			}
+			else { bytes.push_back(strtoul(current, &current, 16)); }
+		}
+		return bytes;
+	};
+
+	std::vector<int> opcodesToFind = patternToByte(signature);
+	uint8_t* scanBytes = (uint8_t*)begin;
+	int skipped = 0;
+	int numfound = 0;
+
+	int ignored = 0;
+
+	bool found = false;
+
+	bool forward = !Backwards;
+
+	void* track = 0;
+
+	for (auto i = 0; forward ? (i < scanSize) : (i > -scanSize); forward ? i++ : i--)
+	{
+		for (auto op : opcodesToFind)
+		{
+			if ((op != -1) && scanBytes[i + numfound] != op)
+			{
+				numfound = 0;
+				break;
+			}
+
+			track = &scanBytes[i];
+			numfound++;
+			if (numfound == (opcodesToFind.size()))
+			{
+				if (skip != skipped)
+				{
+					skipped++;
+					numfound = 0;
+					break;
+				}
+
+				found = true;
+				goto end;
+			}
+		}
+	}
+
+	end:
+
+		if (!found)
+			return 0;
+
+	return (uintptr_t)track;
+}
+
 void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)
 {
 	uintptr_t new_page_address = allocate_page_near_address(call_instruction_address, ENewPageLocation::HIGH);

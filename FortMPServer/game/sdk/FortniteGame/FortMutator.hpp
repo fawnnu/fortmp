@@ -95,6 +95,63 @@ public:
     }
 };
 
+class AAthenaBigBaseWall : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBigBaseWall")
+
+    DEFINE_PROPERTY(uint8_t, BarrierState);
+    DEFINE_PROPERTY(float, TimeUntilWallComesDown);
+
+    void OnNewBarrierState(uint8_t NewState)
+    {
+        STATIC_FINDFUNCTION(OnNewBarrierState)
+        Call(Function_OnNewBarrierState, NewState);
+    }
+
+    void WallStartingToComeDown(bool bIsOnBurgerSide)
+    {
+        STATIC_FINDFUNCTION(WallStartingToComeDown)
+        Call(Function_WallStartingToComeDown, bIsOnBurgerSide);
+    }
+    
+    void UpdateWallTime(float Digit_0, float Digit_1, float Digit_2, float Digit_3)
+    {
+        STATIC_FINDFUNCTION(UpdateWallTime)
+        Call(Function_UpdateWallTime, Digit_0, Digit_1, Digit_2, Digit_3);
+    }
+    
+    void ShowOrHideTimer(bool bNewVisibleState)
+    {
+        STATIC_FINDFUNCTION(ShowOrHideTimer)
+        Call(Function_ShowOrHideTimer, bNewVisibleState);
+    }
+
+    void OnRep_BarrierState()
+    {
+        STATIC_FINDFUNCTION(OnRep_BarrierState)
+        Call(Function_OnRep_BarrierState);
+    }
+
+    void OnRep_TimeUntilWallComesDown()
+    {
+        STATIC_FINDFUNCTION(OnRep_TimeUntilWallComesDown)
+        Call(Function_OnRep_TimeUntilWallComesDown);
+    }
+};
+
+class AFortAthenaMutator_Barrier : public AFortAthenaMutator
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaMutator_Barrier")
+
+    DEFINE_PROPERTY(UObject*, BigBaseWallClass);
+
+    DEFINE_PROPERTY(AAthenaBigBaseWall*, BigBaseWall);
+
+    DEFINE_PROPERTY(FScalableFloat, TimeToBringDownWall);
+};
+
 class AFortAthenaMutator_Heist : public AFortAthenaMutator
 {
 public:

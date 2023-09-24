@@ -162,6 +162,13 @@ public:
         return Call<float>(Function_GetDistanceTo, OtherActor);
     }
 
+    void FlushNetDormancy()
+    {
+        STATIC_FINDFUNCTION(FlushNetDormancy)
+        
+        Call(Function_FlushNetDormancy);
+    }
+    
     void ForceNetUpdate()
     {
         STATIC_FINDFUNCTION(ForceNetUpdate)
