@@ -453,8 +453,12 @@ void patches_component_hook::NetConnection__Close__Replacement()
 
 FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook(AFortPlayerControllerAthena* PlayerController, FFortAthenaLoadout* OutLoadout)
 {
-    // Only execute the code when a player hasn't started playing yet
-    if (PlayerController->PlayerState()->bHasStartedPlaying() == false)
+    // Get aircraft index in enum
+    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+    
+    // Only execute the code on prelobby
+    if ((*GWorld)->GameState()->GamePhase() < Aircraft)
     {
         // Clear
         for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
