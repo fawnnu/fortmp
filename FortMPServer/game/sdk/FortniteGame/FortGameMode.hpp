@@ -192,6 +192,21 @@ public:
         }
     }
     
+    void OnExitAircraft(APlayerController* TargetPlayer)
+    {
+        if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnExitAircraft", 1)))
+        {
+            struct
+            {
+                APlayerController* NewPlayer;
+            } Params;
+
+            Params.NewPlayer = TargetPlayer;
+
+            ProcessEvent(this, TargetFunction, &Params);
+        }
+    }
+    
     void OnPawnFinishedSpawning(class AFortPawn* TargetPawn)
     {
         if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnPawnFinishedSpawning", 1)))

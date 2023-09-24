@@ -14,6 +14,8 @@ public:
     static void OnSetPlaylist(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue);
 
     static void OnEnterAircraft(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
+
+    static void OnExitAircraft(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
     
     static void SetSafeZoneStartDelay_Value(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 

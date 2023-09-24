@@ -26,6 +26,9 @@ void aircraft_component_hooks::ServerAttemptAircraftJump_Hook(AFortPlayerControl
     {
         // Clear inventory
         inventory_component::clear_primary_inventory(PlayerController, false);
+
+        // Send event
+        (*GWorld)->AuthorityGameMode()->OnExitAircraft(PlayerController);
     }
     
     return ServerAttemptAircraftJump(PlayerController, StackFrame);
@@ -46,6 +49,9 @@ void aircraft_component::exit_aircraft(AFortPlayerController* FortPlayerControll
     
     // Update rotation
     FortPlayerController->SetControlRotation(ClientRotation);
+
+    // Send event
+    (*GWorld)->AuthorityGameMode()->OnExitAircraft(FortPlayerController);
 }
 
 void aircraft_component_hooks::UFortControllerComponent_Aircraft_ServerAttemptAircraftJump_Hook(UFortControllerComponent_Aircraft* AircraftComponent, FFrame& StackFrame)
@@ -95,6 +101,9 @@ void aircraft_component_hooks::OnAircraftExitedDropZone_Hook(AFortGameModeAthena
             {
                 // Clear inventory
                 inventory_component::clear_primary_inventory(NetConnection->PlayerController(), false);
+
+                // Send event
+                GameMode->OnExitAircraft(NetConnection->PlayerController());
             }
         }
     }

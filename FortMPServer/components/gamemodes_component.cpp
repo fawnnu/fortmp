@@ -42,6 +42,9 @@ gamemodes_component::gamemodes_component()
 
     REGISTER_CUSTOM_UFUNCTION(SetShield, AFortGameModeAthena::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(SetShield, AFortGameModeAthena::StaticClass(), 0x10);
+
+    REGISTER_CUSTOM_UFUNCTION(OnExitAircraft, AFortGameModeAthena::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(OnExitAircraft, AFortGameModeAthena::StaticClass(), 0x8);
 }
 
 void gamemodes_component::OnServerReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
@@ -78,6 +81,11 @@ void gamemodes_component::OnSetPlaylist(AFortGameModeAthena* FortGameModeAthena,
 void gamemodes_component::OnEnterAircraft(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();   
+}
+
+void gamemodes_component::OnExitAircraft(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
 }
 
 void gamemodes_component::SetSafeZoneStartDelay_Value(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame)
