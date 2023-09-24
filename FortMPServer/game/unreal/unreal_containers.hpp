@@ -84,6 +84,14 @@ struct TArray
 		++Count;
 	}
 
+	std::vector<T> ToVector()
+	{
+		std::vector<T> VectorizedTArray;
+		VectorizedTArray.assign(Data, Data + Count);
+
+		return VectorizedTArray;
+	}
+
 	void Free();
     
 	// Pointer to array data

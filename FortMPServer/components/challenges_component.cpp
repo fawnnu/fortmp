@@ -171,8 +171,29 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
 
         if (account_id.size() > 0)
         {
+            // Get account ids of alive team members
+            std::vector<UNetConnection*> ClientConnections = (*GWorld)->NetDriver()->ClientConnections().ToVector();
+            std::vector<std::string> team_users;
+            if (AFortTeamInfo* TeamInfo = team_component::find_team(PlayerController))
+            {
+                for (AController* TeamMember : TeamInfo->TeamMembers())
+                {
+                    if (TeamMember)
+                    {
+                        if (std::find_if(ClientConnections.begin(), ClientConnections.end(), [&TeamMember](const UNetConnection* x){ return TeamMember->NetConnection() == x; }) != ClientConnections.end())
+                        {
+                            if (std::string team_user_account_id = player_component::get_account_id(static_cast<AFortPlayerController*>(TeamMember)); account_id.length() > 0)
+                            {
+                                team_users.push_back(team_user_account_id);
+                            }
+                        }
+                    }
+                }
+            }
+            
             nlohmann::json parameters = {
-                {"placement", Placement}
+                {"placement", Placement},
+                {"team_users", team_users}
             };
 
             gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);
