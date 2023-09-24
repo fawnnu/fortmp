@@ -246,7 +246,8 @@ public:
     DEFINE_PROPERTY(FVector2D, FlightPathSelectionCenter);
     DEFINE_PROPERTY(UFortItemDefinition*, DefaultBattleBus);
     DEFINE_PROPERTY(AFortWorldManager*, WorldManager);
-
+    DEFINE_PROPERTY(class AFortSafeZoneIndicator*, SafeZoneIndicator);
+    
     DEFINE_PROPERTY(uint8_t, GamePhase);
     DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
     DEFINE_PROPERTY(bool, bIsLargeTeamGame);

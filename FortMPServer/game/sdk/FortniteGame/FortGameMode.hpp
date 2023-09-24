@@ -25,7 +25,7 @@ public:
     DEFINE_PROPERTY(UObject*, GameSessionClass);
     DEFINE_PROPERTY(UObject*, PlayerControllerClass);
     
-    AFortPlayerPawn* SpawnDefaultPawnAtTransform(APlayerController* NewPlayer, FTransform SpawnTransform)
+    class AFortPlayerPawn* SpawnDefaultPawnAtTransform(class APlayerController* NewPlayer, FTransform SpawnTransform)
     {
         STATIC_FINDFUNCTION(SpawnDefaultPawnAtTransform)
         
@@ -39,7 +39,7 @@ public:
         return Call<AActor*>(Function_ChoosePlayerStart, NewPlayer);
     }
 
-    void RestartPlayer(AController* NewPlayer)
+    void RestartPlayer(class AController* NewPlayer)
     {
         STATIC_FINDFUNCTION(RestartPlayer)
         
@@ -93,8 +93,9 @@ public:
     DEFINE_PROPERTY(int, SafeZonePhase);
     
     DEFINE_PROPERTY(bool, bMapInfoInitialized);
-    DEFINE_PROPERTY(AFortSafeZoneIndicator*, SafeZoneIndicator);
-
+    DEFINE_PROPERTY(class AFortSafeZoneIndicator*, SafeZoneIndicator);
+    DEFINE_PROPERTY(TArray<FVector>, SafeZoneLocations);
+    
     DEFINE_PROPERTY(class UFortServerBotManagerAthena*, ServerBotManager);
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, AlivePlayers);
@@ -109,7 +110,7 @@ public:
         return *reinterpret_cast<bool*>(__int64(this) + native_property_offset - 4);                                        
     }
 
-    AFortGameplayMutator* GetMutatorByClass(AActor* ContextActor, UObject* MutatorClass)
+    class AFortGameplayMutator* GetMutatorByClass(AActor* ContextActor, UObject* MutatorClass)
     {
         STATIC_FINDFUNCTION(GetMutatorByClass)
 
@@ -191,7 +192,7 @@ public:
         }
     }
     
-    void OnPawnFinishedSpawning(AFortPawn* TargetPawn)
+    void OnPawnFinishedSpawning(class AFortPawn* TargetPawn)
     {
         if (UFunction* TargetFunction = static_cast<UFunction*>(FindFunctionByName(this->Class, L"OnPawnFinishedSpawning", 1)))
         {

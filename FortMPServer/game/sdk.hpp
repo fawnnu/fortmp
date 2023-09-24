@@ -144,8 +144,6 @@
 #include "sdk/Engine/Net/NetConnection.hpp"
 #include "sdk/Engine/EngineSettings.hpp"
 
-#include "sdk/FortniteGame/FortMutator.hpp"
-#include "sdk/FortniteGame/Player/FortPlayerState.hpp"
 #include "sdk/FortniteGame/Pawns/FortPlayerPawn.hpp"
 #include "sdk/FortniteGame/Player/FortPlayerController.hpp"
 #include "sdk/FortniteGame/Athena/FortSafezone.hpp"
@@ -161,8 +159,9 @@
 #include "sdk/Engine/Net/NetDriver.hpp"
 #include "sdk/Engine/World.hpp"
 #include "sdk/Engine/DataTable.hpp"
-#include "sdk/Engine/GameplayAbilities/AbilitySystemComponent.hpp"
 #include "sdk/Engine/CurveTable.hpp"
+#include "sdk/Engine/GameplayAbilities/AbilitySystemComponent.hpp"
+#include "sdk/FortniteGame/Player/FortPlayerState.hpp"
 #include "sdk/FortniteGame/Athena/GameData.hpp"
 #include "sdk/Engine/Kismet/KismetLibrary.hpp"
 #include "sdk/FortniteGame/Athena/MapInfo.hpp"
@@ -181,5 +180,6 @@
 #include "sdk/Engine/Components/ActorComponent.hpp"
 #include "sdk/FortniteGame/Athena/FortCreative.hpp"
 #include "sdk/FortniteGame/Items/FortQuest.hpp"
+#include "sdk/FortniteGame/FortMutator.hpp"
 
 #include "sdk/Engine/Net/Qos.hpp"

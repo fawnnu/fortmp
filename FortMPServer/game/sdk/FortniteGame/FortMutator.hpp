@@ -1,8 +1,4 @@
 #pragma once
-#include "FortGameState.hpp"
-#include "sdk/Engine/GameplayAbilities/AbilitySystemComponent.hpp"
-#include "sdk/Engine/World.hpp"
-#include "Pawns/FortPlayerPawn.hpp"
 
 struct FLocationLerpData
 {
@@ -114,17 +110,37 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaBarrierObjective")
 
     DEFINE_PROPERTY(uint8_t, FoodTeam);
-
+    DEFINE_PROPERTY(bool, bAllowDamage);
+    DEFINE_PROPERTY(float, HeadRotationYaw);
+    
     void OnRep_FoodTeam()
     {
         STATIC_FINDFUNCTION(OnRep_FoodTeam)
         Call(Function_OnRep_FoodTeam);
     }
 
+    void OnRep_HeadRotationYaw()
+    {
+        STATIC_FINDFUNCTION(OnRep_HeadRotationYaw)
+        Call(Function_OnRep_HeadRotationYaw);
+    }
+
+    void OnRep_ObjectiveDamageState()
+    {
+        STATIC_FINDFUNCTION(OnRep_ObjectiveDamageState)
+        Call(Function_OnRep_ObjectiveDamageState);
+    }
+    
     void UpdateInGameHealth(float NewHealthPercent)
     {
         STATIC_FINDFUNCTION(UpdateInGameHealth)
         Call(Function_UpdateInGameHealth, NewHealthPercent);
+    }
+
+    void OnHeadRotationSet(float NewYaw)
+    {
+        STATIC_FINDFUNCTION(OnHeadRotationSet)
+        Call(Function_OnHeadRotationSet, NewYaw);
     }
 };
 
@@ -135,7 +151,18 @@ public:
 
     DEFINE_PROPERTY(uint8_t, FoodTeam);
     DEFINE_PROPERTY(uint8_t, CurrentState);
-    
+
+    void OnRep_FoodTeam()
+    {
+        STATIC_FINDFUNCTION(OnRep_FoodTeam)
+        Call(Function_OnRep_FoodTeam);
+    }
+
+    AAthenaBarrierObjective* GetObjectiveActor()
+    {
+        STATIC_FINDFUNCTION(GetObjectiveActor)
+        return Call<AAthenaBarrierObjective*>(Function_GetObjectiveActor);
+    }
 };
 
 class AAthenaBigBaseWall : public AActor
@@ -204,7 +231,7 @@ public:
         // Spawn the barrier objective for both teams
         FActorSpawnParameters spawn_parameters = {};
 	
-        FVector objective_spawn_location = FVector((*GWorld)->GameState()->FlightPathSelectionCenter().X, (*GWorld)->GameState()->FlightPathSelectionCenter().Y, 5000);
+        FVector objective_spawn_location = FVector((*GWorld)->AuthorityGameMode()->SafeZoneLocations()[1].X, (*GWorld)->AuthorityGameMode()->SafeZoneLocations()[1].Y, 5000);
         FRotator objective_spawn_rotation = FRotator();
 
         FVector right_barrier_vector = this->BigBaseWall()->GetActorRightVector();
@@ -213,9 +240,9 @@ public:
         // Make the tomato team objective spawn on the other side than the burger objective
         if (team == 1) objective_distance_from_barrier *=  -1;
         
-        right_barrier_vector.X *= objective_distance_from_barrier*2;
-        right_barrier_vector.Y *= objective_distance_from_barrier*2;
-        right_barrier_vector.Z *= objective_distance_from_barrier*2;
+        right_barrier_vector.X *= objective_distance_from_barrier;
+        right_barrier_vector.Y *= objective_distance_from_barrier;
+        right_barrier_vector.Z *= objective_distance_from_barrier;
  
         objective_spawn_location = UKismetMathLibrary::Add_VectorVector(right_barrier_vector, objective_spawn_location);
 
@@ -228,19 +255,37 @@ public:
         objective_spawn_location.Y *= 512;
 
         auto objective_flag = static_cast<AAthenaBarrierFlag*>(SpawnActor(*GWorld, this->ObjectiveFlag(), &objective_spawn_location, &objective_spawn_rotation, spawn_parameters));
+
+        objective_flag->CurrentState() = 0;
+        auto objective_object = objective_flag->GetObjectiveActor();
+
+        if (objective_object == nullptr)
+        {
+            return nullptr;
+        }
         
         if (team == 0)
         {
             Team_0_State().TeamNum() = 0;
             Team_0_State().FoodTeam() = 0;
             Team_0_State().ObjectiveFlag() = objective_flag;
+            objective_flag->FoodTeam() = 0;
+            objective_object->FoodTeam() = 0;
         }
         else
         {
             Team_1_State().TeamNum() = 1;
             Team_1_State().FoodTeam() = 1;
             Team_1_State().ObjectiveFlag() = objective_flag;
+            objective_flag->FoodTeam() = 1;
+            objective_object->FoodTeam() = 1;
         }
+        objective_object->bAllowDamage() = true;
+        objective_object->OnRep_ObjectiveDamageState();
+        objective_flag->OnRep_FoodTeam();
+        objective_object->OnRep_FoodTeam();
+        objective_object->UpdateInGameHealth(100);
+        
         return objective_flag;
     }
 };
