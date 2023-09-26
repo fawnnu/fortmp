@@ -729,7 +729,7 @@ UObject* looting_component::get_loot_tier_packages()
         UFortPlaylistAthena* current_playlist = bExists_CurrentPlaylistData ?
             (*GWorld)->GameState()->CurrentPlaylistData() : (*GWorld)->GameState()->CurrentPlaylistInfo().BasePlaylist();
 
-        if (!current_playlist) return nullptr;
+        if (!current_playlist) return loot_tier_packages;
         
         if (UObject* playlist_loot_tier_packages = current_playlist->LootPackages().Get())
         {

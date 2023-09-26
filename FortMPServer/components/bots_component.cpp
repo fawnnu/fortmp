@@ -66,7 +66,7 @@ AFortPlayerPawnAthena* bots_component::spawn_agent(UFortAthenaAIBotCustomization
         // Inventory
         if(controller->Inventory() == nullptr)
         {
-            controller->Inventory() = SpawnDefaultActor<AFortInventory>(*GWorld, FindObject(L"/Script/FortniteGame.FortInventory"));   
+            controller->Inventory() = SpawnDefaultActor<AFortInventory>(*GWorld, AFortInventory::StaticClass());   
         }
         
         controller->StartupInventory() = customization_data->StartupInventory();

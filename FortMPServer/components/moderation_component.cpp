@@ -710,8 +710,8 @@ void moderation_component::HandleGiveItemCommand(const TCHAR*& InStream, AFortPl
     FString InCount;
     if (!FParse::Token(InStream, InCount, 0))
     {
-        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
-        return;
+        ExecutingPlayerController->ClientMessage(TEXT("Warning: Missing Count parameter. Default count: 1"));
+        InCount = L"1";
     }
     
     if (AFortPlayerController* target_player = get_player_by_name(InPlayerName))
@@ -1519,8 +1519,8 @@ void moderation_component::HandleSpawnPickupCommand(const TCHAR*& InStream,
     FString InCount;
     if (!FParse::Token(InStream, InCount, 0))
     {
-        ExecutingPlayerController->ClientMessage(TEXT("Syntax error: Missing Count parameter."));
-        return;
+        ExecutingPlayerController->ClientMessage(TEXT("Warning: Missing Count parameter. Default count: 1"));
+        InCount = L"1";
     }
     
     target_players.Add(ExecutingPlayerController);

@@ -32,6 +32,8 @@ struct FQuickBar
 class AFortQuickBars : public AActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortQuickBars");
+    
     DEFINE_PROPERTY(FQuickBar, PrimaryQuickBar);
     DEFINE_PROPERTY(FQuickBar, SecondaryQuickBar);
     DEFINE_PROPERTY(FQuickBar, CreativeQuickBar);

@@ -189,8 +189,22 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
     GET_PARAMETER(FHitResult, Hit);
 
     // Get the player controller
-    AFortPlayerController* Controller = static_cast<AFortPlayerPawn*>(Self->GetOwner()->GetOwner())->Controller();
-
+    AFortPlayerController* Controller = nullptr;
+    
+    if(Self)
+    {
+        if(Self->GetOwner())
+        {
+            if(Self->GetOwner()->GetOwner())
+            {
+                if(auto pawn = static_cast<AFortPlayerPawn*>(Self->GetOwner()->GetOwner()))
+                {
+                    Controller = pawn->Controller();
+                }
+            }
+        }
+    }
+    
     if (Controller)
     {
         if (Hit.Actor().Get() && Hit.Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))

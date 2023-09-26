@@ -1509,7 +1509,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         }
             
         // Spawn QuickBars
-        AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, FindObject(L"/Script/FortniteGame.FortQuickBars"));
+        AFortQuickBars* new_quickbars = SpawnDefaultActor<AFortQuickBars>(*GWorld, AFortQuickBars::StaticClass());
             
         AFortQuickBars*& player_quickbars = NewPlayer->HasProperty(L"QuickBars") ?
             static_cast<AFortPlayerController*>(NewPlayer)->QuickBars() : static_cast<AFortPlayerController*>(NewPlayer)->ClientQuickBars();

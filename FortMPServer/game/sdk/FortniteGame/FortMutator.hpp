@@ -125,6 +125,18 @@ public:
         Call(Function_OnRep_HeadRotationYaw);
     }
 
+    void OnNewDamageState(uint8_t NewState)
+    {
+        STATIC_FINDFUNCTION(OnNewDamageState)
+        Call(Function_OnNewDamageState, NewState);
+    }
+
+    void ApplyTimerGE(float TimerLength)
+    {
+        STATIC_FINDFUNCTION(ApplyTimerGE)
+        Call(Function_ApplyTimerGE, TimerLength);
+    }
+
     void OnRep_ObjectiveDamageState()
     {
         STATIC_FINDFUNCTION(OnRep_ObjectiveDamageState)
@@ -225,7 +237,13 @@ public:
     
     DEFINE_PROPERTY(FScalableFloat, TimeToBringDownWall);
     DEFINE_PROPERTY(FScalableFloat, ObjectiveDistanceFromWall);
-
+    
+    void CheckHealthThreshold(uint8 TeamNum)
+    {
+        STATIC_FINDFUNCTION(CheckHealthThreshold)
+        Call(Function_CheckHealthThreshold, TeamNum);
+    }
+    
     AAthenaBarrierFlag* SpawnBarrierObjective(uint8_t team)
     {
         // Spawn the barrier objective for both teams
@@ -269,22 +287,31 @@ public:
             Team_0_State().TeamNum() = 0;
             Team_0_State().FoodTeam() = 0;
             Team_0_State().ObjectiveFlag() = objective_flag;
-            objective_flag->FoodTeam() = 0;
+            Team_0_State().ObjectiveObject() = objective_object;
             objective_object->FoodTeam() = 0;
+            objective_flag->FoodTeam() = 0;
         }
         else
         {
             Team_1_State().TeamNum() = 1;
             Team_1_State().FoodTeam() = 1;
             Team_1_State().ObjectiveFlag() = objective_flag;
-            objective_flag->FoodTeam() = 1;
+            Team_0_State().ObjectiveObject() = objective_object;
             objective_object->FoodTeam() = 1;
+            objective_flag->FoodTeam() = 1;
         }
         objective_object->bAllowDamage() = true;
         objective_object->OnRep_ObjectiveDamageState();
+        objective_object->OnNewDamageState(9);
         objective_flag->OnRep_FoodTeam();
         objective_object->OnRep_FoodTeam();
         objective_object->UpdateInGameHealth(100);
+        objective_object->ApplyTimerGE(TimeToBringDownWall().GetValueAtLevel(0, nullptr));
+        objective_object->FlushNetDormancy();
+        objective_object->ForceNetUpdate();
+        objective_flag->FlushNetDormancy();
+        objective_flag->ForceNetUpdate();
+        CheckHealthThreshold(team);
         
         return objective_flag;
     }

@@ -105,6 +105,12 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         return nullptr;
     }
 
+    // Don't spawn pickups with count 0
+    if (count <= 0) return nullptr;
+    
+    // Don't spawn pickups with a bigger count than the max stack size.
+    if (count > item_definition->GetMaxStackSize()) count = item_definition->GetMaxStackSize();
+    
     // Finish basic initialization
     initialize_pickup(fort_pickup, item_definition, count);
 

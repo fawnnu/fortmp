@@ -281,6 +281,8 @@ struct FFortItemList : public FFastArraySerializer
 class AFortInventory : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortInventory")
+    
     DEFINE_PROPERTY(FFortItemList, Inventory);
 
     void HandleInventoryLocalUpdate()
