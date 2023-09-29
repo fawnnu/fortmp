@@ -20,7 +20,7 @@ interact_component::interact_component()
     DetourTransactionCommit();
 }
 
-void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor)
+void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type)
 {
     static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
     static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
@@ -39,8 +39,12 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     }
     else if (receiving_actor->IsA(player_pawn_class))
     {
-        // Handle any interactions with player pawns
-        handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
+        // 2 = LongInteraction, might stop insta-revive cheats considering they probably call AttemptInteract with interaction type as 0 (NoInteraction).
+        if (interaction_type == 2)
+        {
+            // Handle any interactions with player pawns
+            handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
+        }
     }
     else if (receiving_actor->IsA(vending_machine_class))
     {
@@ -413,6 +417,10 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
     
     GET_PARAMETER(AActor*, ReceivingActor);
     AActor* CopiedReceivingActor = ReceivingActor;
+
+    GET_PARAMETER(UPrimitiveComponent*, InteractComponent);
+    
+    GET_PARAMETER(uint8_t, InteractType);
     
     // Call native function first
     PlayerController_ServerAttemptInteract(PlayerController, StackFrame);
@@ -427,7 +435,7 @@ void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFort
     }
 
     // Interact with actor
-    interact_component::handle_interaction(PlayerController, CopiedReceivingActor);
+    interact_component::handle_interaction(PlayerController, CopiedReceivingActor, InteractComponent, InteractType);
 }
 
 void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(UActorComponent* InteractionComponent, FFrame& StackFrame)
@@ -437,6 +445,10 @@ void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(U
     
     GET_PARAMETER(AActor*, ReceivingActor);
 
+    GET_PARAMETER(UPrimitiveComponent*, InteractComponent);
+    
+    GET_PARAMETER(uint8_t, InteractType);
+    
     if (ReceivingActor == nullptr)
     {
         // No actor to interact with provided
@@ -452,5 +464,5 @@ void interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook(U
     }
 
     // Interact with actor
-    interact_component::handle_interaction(player_controller, ReceivingActor);
+    interact_component::handle_interaction(player_controller, ReceivingActor, InteractComponent, InteractType);
 }

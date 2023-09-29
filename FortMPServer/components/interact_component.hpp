@@ -5,7 +5,7 @@ class interact_component
 public:
     interact_component();
 
-    static void handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor);
+    static void handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type);
 
     static void handle_container_interaction(AFortPlayerController* player_controller, ABuildingContainer* building_container);
     static void handle_player_pawn_interaction(AFortPlayerController* player_controller, AFortPlayerPawn* player_pawn);
