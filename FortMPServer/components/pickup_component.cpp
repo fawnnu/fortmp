@@ -211,6 +211,15 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         return;
     }
 
+    // Validation
+    if (PlayerPawn->GetDistanceTo(Pickup) > 1000)
+    {
+        // Kick the player
+        PlayerPawn->Controller()->ClientReturnToMainMenu(L"[AC] You have been kicked for exploiting.");
+        
+        spdlog::error(L"pickup_component::handle_pickup validation failed, {} attempted to pickup an item from further than 1 meter. Kicking.", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str());
+    }
+        
     // Prevent duplication
     if (Pickup->bPickedUp())
     {
