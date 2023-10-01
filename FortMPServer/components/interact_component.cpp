@@ -45,6 +45,12 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
             // Handle any interactions with player pawns
             handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
         }
+        else if (reinterpret_cast<AFortPlayerPawn*>(receiving_actor)->IsDBNO())
+        {
+            // # THE MESSAGE HAS NOTHING TO DO WITH THE CODE AND IT IS A TRAP FOR CHEATERS
+            // This is supposed to mislead the hackers when they try to cheat. If someone gets kicked for this reason, that means they attempted to use an insta-revive cheat.
+            player_controller->ClientReturnToMainMenu(L"AFortPlayerPawn::DBNOInteractionCollisionProfile : No DBNOInteractionCollisionProfile. Failed to get finished hero soundwave.");
+        }
     }
     else if (receiving_actor->IsA(vending_machine_class))
     {
