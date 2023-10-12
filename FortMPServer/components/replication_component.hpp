@@ -1,5 +1,20 @@
 ﻿#pragma once
 
+#define OVERRIDE_PROPERTY_REPLICATION(PropertyName, value)\
+    static void* PropertyName##_property = FindPropertyByName(Self->Class, #PropertyName);\
+    if (PropertyName##_property)\
+    {\
+        if (NetworkOffsets::RepIndex && NetworkOffsets::ArrayDim)\
+        {\
+            int PropertyName##_repindex = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(PropertyName##_property) + NetworkOffsets::RepIndex);\
+            int PropertyName##_arraydim = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(PropertyName##_property) + NetworkOffsets::ArrayDim);\
+            for (int i = 0; i < PropertyName##_arraydim; i++)\
+            {\
+               reinterpret_cast<void (*)(void***, uint16_t, bool)>(**ChangedPropertyTracker)(ChangedPropertyTracker, PropertyName##_repindex + i, value);\
+            }\
+        }\
+    }
+
 struct FNetworkObjectInfo;
 struct FActorPriority;
 struct FActorDestructionInfo;
