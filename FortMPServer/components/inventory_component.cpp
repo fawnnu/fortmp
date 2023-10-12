@@ -430,11 +430,14 @@ UFortItem* inventory_component::get_inventory_item_by_guid(AFortPlayerController
 
 UFortItem* inventory_component::get_inventory_item_by_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
 {
-    for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
+    if (player_controller->WorldInventory())
     {
-        if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition() == item_definition)
+        for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
         {
-            return ItemInstance;
+            if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition() == item_definition)
+            {
+                return ItemInstance;
+            }
         }
     }
     

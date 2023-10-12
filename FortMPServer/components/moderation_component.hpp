@@ -22,6 +22,9 @@ public:
     static void unban_player(std::string InPlayerName);
     static bool is_player_banned(AFortPlayerController* Target);
 
+    // Get inserted player parameter (use in correct order, i suggest using it only for commands that require player parameter only)
+    static TArray<AFortPlayerController*> parse_command_target_players(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+
     // Commands
     static void HandleAdminLoginCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleKickPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
@@ -56,13 +59,15 @@ public:
     static void HandleGiveStoneCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveMetalCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveResourcesCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleBadassCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSimulateBusJumpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSpawnPickupCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSpawnChestCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleChangeScaleCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSummonCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
-    
+    static void HandleSpawnDefaultBotCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+        
     // Password that admins will use to log-in 
     inline static std::vector<std::wstring> passwords;
 };

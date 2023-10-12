@@ -12,6 +12,8 @@ struct FViewTargetTransitionParams
 class UFortRegisteredPlayerInfo : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortRegisteredPlayerInfo")
+    
     DEFINE_PROPERTY(FString, PlayerName);
     DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
     DEFINE_PROPERTY(uint8_t, TeamAssignment);
