@@ -11,6 +11,7 @@
 #include "loader_component.hpp"
 #include "moderation_component.hpp"
 #include "net_component.hpp"
+#include "replication_component.hpp"
 #include "team_component.hpp"
 
 player_component::player_component()
@@ -1891,5 +1892,13 @@ void AFortPawn::SetShield(float NewShieldVal)
     {
         Call(Function_SetShield);
     }
+}
+
+void player_component_hooks::AFortPlayerStateAthena_PreReplication_Hook(AFortPlayerStateAthena* Self, void*** ChangedPropertyTracker)
+{
+    // Just a test
+    //OVERRIDE_PROPERTY_REPLICATION(CharacterParts, false)
+    
+    AFortPlayerStateAthena_PreReplication(Self, ChangedPropertyTracker);
 }
 

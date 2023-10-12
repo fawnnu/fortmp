@@ -198,6 +198,9 @@ namespace player_component_hooks
     
     // OnDamageServer
     DEFINE_FUNCTION_HOOK(void, OnDamageServer, (UObject* Self, UObject* Function, void* Params));
+
+    // Custom replication handling
+    DEFINE_FUNCTION_HOOK(void, AFortPlayerStateAthena_PreReplication, (AFortPlayerStateAthena* Self, void*** ChangedPropertyTracker));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

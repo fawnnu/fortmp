@@ -99,6 +99,10 @@ namespace NetworkOffsets
     inline DWORD GetNetOwnerVTableIdx;
     inline DWORD ActorReplicator;
     inline DWORD ObjectPtr;
+    inline DWORD PreReplication;
+    inline DWORD ComponentPreReplication;
+    inline DWORD ArrayDim;
+    inline DWORD RepIndex;
 }
 
 class UObject

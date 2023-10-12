@@ -10,6 +10,7 @@ public:
 class AFortPlayerState : public APlayerState
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerState")
     DEFINE_PROPERTY(class UFortHeroType*, HeroType);
 
     DEFINE_PROPERTY(FVector, PawnDeathLocation);

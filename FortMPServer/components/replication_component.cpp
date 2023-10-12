@@ -1,5 +1,6 @@
 ﻿#include "include.hpp"
 #include "replication_component.hpp"
+#include "player_component.hpp"
 
 replication_component::replication_component()
 {
@@ -55,6 +56,14 @@ replication_component::replication_component()
     {
         NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(time_seconds_address + 2);
     }
+    if (const uintptr_t array_dim_address = memory_manager::find_pattern("39 59 30 7E 39 0F 1F 40 00 0F 1F 84 00 ? ? ? ? 0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01"))
+    {
+        NetworkOffsets::ArrayDim = *reinterpret_cast<uint8_t*>(array_dim_address + 2);
+    }
+    if (const uintptr_t rep_index_address = memory_manager::find_pattern("0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01 FF 10"))
+    {
+        NetworkOffsets::RepIndex = *reinterpret_cast<uint8_t*>(rep_index_address + 3);
+    }
     
     // Retrieve the VTable index of IsNetRelevantFor dynamically
     for (int TableIdx = 0; TableIdx < INT_MAX; TableIdx++)
@@ -77,6 +86,34 @@ replication_component::replication_component()
         {
             break;
         }
+    }
+
+    // Retrieve VTable index of PreReplication
+    for (int TableIdx = 0; TableIdx < INT_MAX; TableIdx++)
+    {
+        static auto ActorTable = FindObject(L"/Script/Engine.Default__Actor")->VTable;
+
+        static uintptr_t PreReplication = memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 20 48 8B 01 33 FF 4C 8B F2 48 89 B9 ? ? ? ? 48 8B F1 FF 90 ? ? ? ? 65 48 8B 04 25 ? ? ? ? 44 8B 05 ? ? ? ? B9 ? ? ?");
+
+        if (auto Function = ActorTable[TableIdx])
+        {
+            if (reinterpret_cast<uintptr_t>(Function) == PreReplication)
+            {
+                NetworkOffsets::PreReplication = TableIdx;
+                
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    // Custom replication handling
+    if (NetworkOffsets::PreReplication)
+    {
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortPlayerStateAthena>()->VTable, NetworkOffsets::PreReplication, player_component_hooks::AFortPlayerStateAthena_PreReplication);
     }
 }
 
