@@ -65,6 +65,13 @@ public:
 
         Call(Function_Show);
     }
+    
+    void SetupLake()
+    {
+        STATIC_FINDFUNCTION(SetupLake)
+
+        Call(Function_SetupLake);
+    }
 
     void SpawnCube()
     {

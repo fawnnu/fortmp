@@ -163,7 +163,7 @@ void gameserver_client::Register()
     };
     nlohmann::json PostPayload = {
         {"region", ""},
-        {"build", 4352937},
+        {"build", std::to_string(GetCL())},
         {"max_players", std::to_string(GameServer_Status.max_players)},
         {"key", GameServer_Status.private_matchmaking_key}
     };

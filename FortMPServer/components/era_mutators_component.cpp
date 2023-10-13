@@ -37,7 +37,10 @@ era_mutators_component::era_mutators_component()
                                 
             for (auto actor : cube_scripter)
             {
-                static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+                if (cube_mutator::step < 563)
+                {
+                    static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+                }
             }
         }
     });
@@ -83,10 +86,18 @@ era_mutators_component::era_mutators_component()
         
             for (auto actor : cube_scripter)
             {
-                // Spawn the cube at a specific step
                 auto cube = static_cast<ACUBE_C*>(actor);
-                cube->New(cube_mutator::step-1);
-                cube->Next(cube_mutator::step);
+                
+                // Spawn the cube at a specific step
+                if (cube_mutator::step < 563)
+                {
+                    cube->New(cube_mutator::step-1);
+                    cube->Next(cube_mutator::step);
+                }
+                else 
+                {
+                    cube->SetupLake();
+                }
             }
         }
     });
