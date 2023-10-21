@@ -3,6 +3,7 @@
 
 #include "ability_component.hpp"
 #include "building_component.hpp"
+#include "challenges_component.hpp"
 #include "inventory_component.hpp"
 
 trap_component::trap_component()
@@ -28,6 +29,28 @@ trap_component::trap_component()
             }
         }
     }
+
+    // C++ hook ServerSpawnDeco (Makes hook work with C++ virtual calls too)
+    if (uintptr_t target_instruction = memory_manager::scan_for(memory_manager::get_function_end(memory_manager::find_function_by_string(L"ServerSpawnDeco_Validate")), {0xFF, WILDCARD, WILDCARD, WILDCARD, 0x0}, memory_manager::find_function_by_string(L"ServerSpawnDeco_Validate"), true))
+    {
+        int index = *reinterpret_cast<int*>(target_instruction + 2) / 8;
+
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
+
+        REGISTER_FUNCTION_DETOUR(trap_component_hooks::ServerSpawnDeco, CreateDefaultObject<AFortTrapTool>()->VTable[index], trap_component_hooks::ServerSpawnDeco_Hook);
+    
+        DetourTransactionCommit();
+    }
+}
+
+void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FVector* Location, FRotator* Rotation, ABuildingSMActor* AttachedActor, uint8_t InBuildingAttachmentType)
+{
+    ServerSpawnDeco(FortDecoTool, Location, Rotation, AttachedActor, InBuildingAttachmentType);
+    
+    AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
+
+    challenges_component::SendTrapInteraction(player_controller);
 }
 
 ABuildingActor* trap_component::CreateBuilding(AFortPlayerController* BuildingOwner, UObject** Class, FVector* Location, FRotator* Rotation)

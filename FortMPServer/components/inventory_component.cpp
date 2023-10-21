@@ -632,6 +632,12 @@ void inventory_component::safe_update_materials_gathered(AFortPlayerController* 
             item_definition == MetalItemData)
         {
             player_component::PlayerStatsMap[player_controller].MaterialsGathered += item_count;
+            player_component::PlayerStatsMap[player_controller].TemporaryMaterialsGathered += item_count;
+            if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"HarvestResourcesCallback"))
+            {
+                UKismetSystemLibrary::K2_ClearTimer(player_controller, L"HarvestResourcesCallback");
+            }
+            UKismetSystemLibrary::K2_SetTimer(player_controller, L"HarvestResourcesCallback", 5.0, false);
         }
     }
 }

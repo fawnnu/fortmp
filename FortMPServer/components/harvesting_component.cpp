@@ -18,6 +18,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
         static UObject* BuildingSMActor_Class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
         static UObject* FortWeapon_Class = FindObject(L"/Script/FortniteGame.FortWeapon");
         static UObject* FortWeaponMeleeItemDefinition_Class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
+        static UFortItemDefinition* Athena_C4 = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/C4/Athena_C4.Athena_C4");
     
         if (building_actor->IsA(BuildingSMActor_Class))
         {
@@ -125,6 +126,20 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
 
                         // update gathered materials
                         inventory_component::safe_update_materials_gathered(instigated_by, ResourceItemDefinition, Count);
+                    }
+                }
+            }
+            else if (building_actor->AttributeInitLevelSource() != 1 &&
+                damage_causer->IsA(FortWeapon_Class) &&
+                static_cast<AFortWeapon*>(damage_causer)->WeaponData() == Athena_C4)
+            {
+                if (instigated_by->PlayerState())
+                {
+                    // Check team
+                    if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
+                    {
+                        player_component::DamageDealtMap[instigated_by].SpecialDamage.C4BuildingDamage += damage;
+                        player_component::HandleDebouncedDamage(instigated_by, EDamageCauser::C4);
                     }
                 }
             }

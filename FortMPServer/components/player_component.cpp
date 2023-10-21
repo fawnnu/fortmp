@@ -104,7 +104,9 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(PickaxeDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HeadshotDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(JewelDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(C4BuildingDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(BuildingPlacedCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(HarvestResourcesCallback, AFortPlayerController::StaticClass());
 }
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
@@ -470,6 +472,23 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
     }
 }
 
+void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        FDamageDealtMapValue& Value = DamageDealtMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "special_damage:c4_enemy_building", Value.SpecialDamage.C4BuildingDamage);
+            Value.SpecialDamage.C4BuildingDamage = 0;
+        }
+    }
+}
+
 // This function is called whenever we have to process any kind of debounced damage
 void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser)
 {
@@ -580,6 +599,13 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"JewelDamageCallback", 1.0, false);
         break;
+    case EDamageCauser::C4:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"C4BuildingDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"C4BuildingDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"C4BuildingDamageCallback", 1.0, false);
+        break;
     default:
         break;
     }
@@ -604,6 +630,29 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:structure", parameters);
             Value.TemporaryPlacedBuilds = 0;
+        }
+    }
+}
+
+void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = PlayerStatsMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", Self->Pawn()->K2_GetActorLocation().X},
+                    {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                    {"count", Value.TemporaryMaterialsGathered}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:building-resource", parameters);
+            Value.TemporaryMaterialsGathered = 0;
         }
     }
 }

@@ -17,7 +17,8 @@ enum class EDamageCauser : uint8_t
     RPG,
     Pickaxe,
     Headshot,
-    Jewel
+    Jewel,
+    C4
 };
 
 struct FSpecialDamageDealt
@@ -25,6 +26,7 @@ struct FSpecialDamageDealt
     FSpecialDamageDealt() = default;
     
     int JewelOpponent;
+    int C4BuildingDamage;
 };
 
 struct FDamageDealtMapValue
@@ -71,6 +73,7 @@ struct FPlayerStats
         HeadShots = 0;
         Placement = 0;
         TemporaryPlacedBuilds = 0;
+        TemporaryMaterialsGathered = 0;
     }
     
     int Eliminations;
@@ -85,6 +88,7 @@ struct FPlayerStats
     int HeadShots;
     int Placement;
     int TemporaryPlacedBuilds;
+    int TemporaryMaterialsGathered;
 };
 
 class player_component
@@ -112,11 +116,15 @@ public:
     static void PickaxeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void HeadshotDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void C4BuildingDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
 
     static void HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser);
 
     // Debounced buildings tracking
     static void BuildingPlacedCallback(AFortPlayerController* Self, FFrame& StackFrame);
+
+    // Debounced harvesting tracking
+    static void HarvestResourcesCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
