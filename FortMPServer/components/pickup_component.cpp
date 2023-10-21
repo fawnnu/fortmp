@@ -211,8 +211,15 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         return;
     }
 
+
+    FVector pickup_location = Pickup->K2_GetActorLocation();
+    FVector pawn_location = PlayerPawn->K2_GetActorLocation();
+                
+    float XY_distance_from_pickup_location = sqrtf((pickup_location.X - pawn_location.X) * (pickup_location.X - pawn_location.X) +
+                                (pickup_location.Y - pawn_location.Y) * (pickup_location.Y - pawn_location.Y));
+    
     // Validation
-    if (PlayerPawn->GetDistanceTo(Pickup) > 1000)
+    if (XY_distance_from_pickup_location > 1000)
     {
         // Kick the player
         PlayerPawn->Controller()->ClientReturnToMainMenu(L"[AC] You have been kicked for exploiting.");

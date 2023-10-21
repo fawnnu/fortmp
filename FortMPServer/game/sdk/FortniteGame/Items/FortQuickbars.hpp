@@ -115,3 +115,9 @@ public:
         }
     }
 };
+
+class AFortQuickBarsAthena : public AFortQuickBars
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortQuickBarsAthena");
+};
