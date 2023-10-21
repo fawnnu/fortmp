@@ -129,20 +129,6 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     }
                 }
             }
-            else if (building_actor->AttributeInitLevelSource() != 1 &&
-                damage_causer->IsA(FortWeapon_Class) &&
-                static_cast<AFortWeapon*>(damage_causer)->WeaponData() == Athena_C4)
-            {
-                if (instigated_by->PlayerState())
-                {
-                    // Check team
-                    if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
-                    {
-                        player_component::DamageDealtMap[instigated_by].SpecialDamage.C4BuildingDamage += damage;
-                        player_component::HandleDebouncedDamage(instigated_by, EDamageCauser::C4);
-                    }
-                }
-            }
         }
     }
 }

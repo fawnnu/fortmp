@@ -120,6 +120,7 @@ public:
 class ABuildingSMActor : public ABuildingActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingSMActor")
     DEFINE_PROPERTY(uint8_t, AttributeInitLevelSource);
 
     DEFINE_PROPERTY(int, OwnerPersistentID);
