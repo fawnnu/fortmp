@@ -41,7 +41,7 @@ public:
     static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
-    static void SendTrapInteraction(AFortPlayerController* InteractingController)
+    static void SendTrapInteraction(AFortPlayerController* InteractingController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
