@@ -8,6 +8,10 @@ public:
     static bool listen(FURL in_url);
     
     static void FlushActorDormancy(UNetDriver* net_driver, AActor* Actor);
+
+    static void BlockPropertyReplicationPerConnection(UNetConnection* Connection, UObject* Class, std::wstring PropertyName);
+
+    inline static std::map<UNetConnection*, std::pair<UObject*, void*>> ReplicationBlacklistPerConnection;
 };
 
 namespace net_component_hooks
@@ -20,6 +24,8 @@ namespace net_component_hooks
     DEFINE_FUNCTION_HOOK(void, GetBool, (void* Self, const wchar_t* Section, const wchar_t* Key, bool* Value, void* File));
 
     DEFINE_FUNCTION_HOOK(void, NetConnection__Close, (UNetConnection* Self));
+
+    DEFINE_FUNCTION_HOOK(bool, ReplicateProperties, (void* RepLayout, void* RepState, void* RepChangelistState, const uint8* Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags))
 };
 
 // Create a net driver from name

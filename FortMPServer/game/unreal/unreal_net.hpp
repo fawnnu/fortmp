@@ -77,3 +77,72 @@ struct FNetworkGUID
         return Value == cmp.Value;
     }
 };
+
+struct FReplicationFlags
+{
+    union
+    {
+        struct
+        {
+            /** True if replicating actor is owned by the player controller on the target machine. */
+            uint32_t bNetOwner:1;
+            /** True if this is the initial network update for the replicating actor. */
+            uint32_t bNetInitial:1;
+            /** True if this is actor is RemoteRole simulated. */
+            uint32_t bNetSimulated:1;
+            /** True if this is actor's ReplicatedMovement.bRepPhysics flag is true. */
+            uint32_t bRepPhysics:1;
+            /** True if this actor is replicating on a replay connection. */
+            uint32_t bReplay:1;
+            /** True if this actor's RPCs should be ignored. */
+            uint32_t bIgnoreRPCs:1;
+        };
+
+        uint32_t	Value;
+    };
+    FReplicationFlags()
+    {
+        Value = 0;
+    }
+};
+
+struct FRepRecord
+{
+    class UProperty* Property;
+    int32_t Index;
+    FRepRecord(UProperty* InProperty,int32_t InIndex)
+    : Property(InProperty), Index(InIndex)
+    {}
+};
+
+enum ELifetimeCondition
+{
+	COND_None = 0,
+	COND_InitialOnly = 1,
+	COND_OwnerOnly = 2,				
+	COND_SkipOwner = 3,				
+	COND_SimulatedOnly = 4,			
+	COND_AutonomousOnly = 5,			
+	COND_SimulatedOrPhysics = 6,		
+	COND_InitialOrOwner = 7,			
+	COND_Custom = 8,					
+	COND_ReplayOrOwner = 9,			
+	COND_ReplayOnly = 10,			
+	COND_SimulatedOnlyNoReplay = 11,	
+	COND_SimulatedOrPhysicsNoReplay = 12, 
+	COND_SkipReplay = 13,
+	COND_Max = 14					
+};
+
+class FRepParentCmd
+{
+public:
+    UProperty*	Property;
+    int	ArrayIndex;
+    uint16_t CmdStart;
+    uint16_t CmdEnd;
+    int	RoleSwapIndex;
+    ELifetimeCondition Condition;
+    int	RepNotifyCondition;
+    int	Flags;
+};

@@ -28,6 +28,12 @@ net_component::net_component()
     REGISTER_FUNCTION_DETOUR(net_component_hooks::TickFlush, memory_manager::find_function_by_string(L"UDemoNetDriver::TickFlush: ReplayStreamer ERROR: %s", {0xe8, 0x100, 0x100, 0x100, 0x0}, 1), net_component_hooks::TickFlush_Hook);
     REGISTER_FUNCTION_DETOUR(net_component_hooks::GetBool, memory_manager::find_function_by_string(L"UseAudioThread", {0xe8}, 1, false), net_component_hooks::GetBool_Hook);
 
+    // Only individual CLs
+    if (GetCL() == 4363240)
+    {
+        REGISTER_FUNCTION_DETOUR(net_component_hooks::ReplicateProperties, memory_manager::find_function_by_string(L"FRepLayout::ReplicatePropertiesUsingChangelistState: Entire history sent for: %s"), net_component_hooks::ReplicateProperties_Hook);
+    }
+    
     // Only legacy replication builds
     if (UFortReplicationGraph::StaticClass() == nullptr)
     {
@@ -109,6 +115,17 @@ void net_component::FlushActorDormancy(UNetDriver* net_driver, AActor* Actor)
         {
             FlushDormancy(NetConnection, Actor);
         }
+    }
+}
+
+void net_component::BlockPropertyReplicationPerConnection(UNetConnection* Connection, UObject* Class, std::wstring PropertyName)
+{
+    if (Connection && Class && PropertyName.length() > 0)
+    {
+        ReplicationBlacklistPerConnection[Connection] = std::make_pair(Class, FindPropertyByName(Class, PropertyName.c_str()));
+
+        // Log
+        spdlog::info(L"Blocked property '{}' [{}] from replicating in '{}'", PropertyName.c_str(), Class->GetName().c_str(), Connection->GetName().c_str());
     }
 }
 
@@ -314,4 +331,73 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
     }
     
     return NetConnection__Close(Self);
+}
+
+bool net_component_hooks::ReplicateProperties_Hook(void* RepLayout, void* RepState, void* RepChangelistState, const uint8* Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags)
+{
+    // Iterate through the blacklisted properties
+    for (auto [key, val] : net_component::ReplicationBlacklistPerConnection)
+    {
+        UNetConnection* BlacklistedConnection = key;
+        UObject* BlacklistedClass = val.first;
+        void* BlacklistedProperty = val.second;
+
+        // Check if we're replicating the blacklisted class on the blacklisted connection
+        if (OwningChannel)
+        {
+            // If they match, proceed
+            if (OwningChannel->Connection() == BlacklistedConnection &&
+                ObjectClass == BlacklistedClass)
+            {
+                // Look through the 'Parents' cmd array in RepLayout for this specific property
+                TArray<FRepParentCmd>& Parents = *reinterpret_cast<TArray<FRepParentCmd>*>(reinterpret_cast<uintptr_t>(RepLayout) + 0x10);
+
+                for (auto& Parent : Parents)
+                {
+                    // Found property
+                    if (Parent.Property == BlacklistedProperty)
+                    {
+                        // Save the old condition
+                        ELifetimeCondition OldCondition = Parent.Condition;
+                        
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"--- DEBUG --- Found BlacklistedProperty ['{}'] while replicating in net_component_hooks::ReplicateProperties_Hook.", Parent.Property->GetName().c_str());
+                        }
+
+                        // Change the condition before calling ReplicateProperties
+                        if (RepFlags.bNetOwner)
+                        {
+                            Parent.Condition = COND_SkipOwner;
+
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"--- DEBUG --- BlacklistedProperty is replicating to its owner. New condition: COND_SkipOwner.");
+                            }
+                        }
+                        else
+                        {
+                            Parent.Condition = COND_OwnerOnly;
+
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"--- DEBUG --- BlacklistedProperty is NOT replicating to its owner. New condition: COND_OwnerOnly.");
+                            }
+                        }
+                        
+                        bool ReturnValue = ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);
+
+                        // Go back to the old condition
+                        Parent.Condition = OldCondition;
+                        
+                        return ReturnValue;
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+    
+    return ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);   
 }
