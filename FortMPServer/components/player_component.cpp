@@ -1617,10 +1617,13 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Handle custom replication
         if (player_component::PlayersPlatforms.contains(static_cast<AFortPlayerController*>(NewPlayer)))
         {
-            // If on iOS, do NOT replicate CharacterParts
-            if (player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)] == TEXT("IOS"))
+            // If on iOS (5.41), do NOT replicate CharacterParts
+            if (GetCL() == 4363240)
             {
-                net_component::BlockPropertyReplicationPerConnection(NewPlayer->NetConnection(), AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+                if (player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)] == TEXT("IOS"))
+                {
+                    net_component::BlockPropertyReplicationPerConnection(NewPlayer->NetConnection(), AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+                }
             }
 
             // Log
