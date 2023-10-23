@@ -771,6 +771,17 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
 
 void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options)
 {
+    // Setup platform
+    if (UGameplayStatics::HasOption(Options, TEXT("Platform")))
+    {
+        FString Platform = UGameplayStatics::ParseOption(Options, TEXT("Platform"));
+
+        if (Platform.IsValid())
+        {
+            PlayersPlatforms[NewPlayer] = Platform.c_str();
+        }
+    }
+    
     if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
     {
         FString Token = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
@@ -1603,6 +1614,19 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         gameserver_client::Client->SendUpdate();
 #endif
 
+        // Handle custom replication
+        if (player_component::PlayersPlatforms.contains(static_cast<AFortPlayerController*>(NewPlayer)))
+        {
+            // If on iOS, do NOT replicate CharacterParts
+            if (player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)] == TEXT("IOS"))
+            {
+                net_component::BlockPropertyReplicationPerConnection(NewPlayer->NetConnection(), AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+            }
+
+            // Log
+            spdlog::info(L"Player's ['{}'] platform: {}", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str(), player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)].c_str());
+        }
+        
         // Notify backend
         player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));
 

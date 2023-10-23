@@ -91,6 +91,14 @@ struct FPlayerStats
     int TemporaryMaterialsGathered;
 };
 
+enum EEraPlatform
+{
+    PC,
+    Android,
+    iOS,
+    Switch
+};
+
 class player_component
 {
 public:
@@ -146,6 +154,7 @@ public:
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::wstring, nlohmann::json> Profiles;
     static inline std::map<AFortPlayerController*, std::vector<std::pair<nlohmann::json, UObject*>>> PendingVariantsData;
+    static inline std::map<AFortPlayerController*, std::wstring> PlayersPlatforms;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
