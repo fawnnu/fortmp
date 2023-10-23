@@ -755,6 +755,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         anticheat_component::IllegalSniperActionsCount.clear();
         anticheat_component::Initialize();
         replication_component::BlacklistedActor.clear();
+        net_component::ReplicationBlacklistPerConnection.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
