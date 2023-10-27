@@ -113,7 +113,7 @@ replication_component::replication_component()
     // Custom replication handling
     if (NetworkOffsets::PreReplication)
     {
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortPlayerStateAthena>()->VTable, NetworkOffsets::PreReplication, player_component_hooks::AFortPlayerStateAthena_PreReplication);
+        //REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortPlayerStateAthena>()->VTable, NetworkOffsets::PreReplication, player_component_hooks::AFortPlayerStateAthena_PreReplication);
     }
 }
 

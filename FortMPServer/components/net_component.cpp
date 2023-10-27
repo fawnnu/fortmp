@@ -122,7 +122,7 @@ void net_component::BlockPropertyReplicationPerConnection(UNetConnection* Connec
 {
     if (Connection && Class && PropertyName.length() > 0)
     {
-        ReplicationBlacklistPerConnection[Connection] = std::make_pair(Class, FindPropertyByName(Class, PropertyName.c_str()));
+        ReplicationBlacklistPerConnection[Connection].push_back(std::make_pair(Class, FindPropertyByName(Class, PropertyName.c_str())));
 
         // Log
         spdlog::info(L"Blocked property '{}' [{}] from replicating in '{}'", PropertyName.c_str(), Class->GetName().c_str(), Connection->GetName().c_str());
@@ -338,38 +338,40 @@ bool net_component_hooks::ReplicateProperties_Hook(void* RepLayout, void* RepSta
     // Iterate through the blacklisted properties
     if (net_component::ReplicationBlacklistPerConnection.contains(OwningChannel->Connection()))
     {
-        std::pair<UObject*, void*> val = net_component::ReplicationBlacklistPerConnection[OwningChannel->Connection()];
-        UObject* BlacklistedClass = val.first;
-        void* BlacklistedProperty = val.second;
-
-        // Check if we're replicating the blacklisted class
-        if (ObjectClass == BlacklistedClass)
+        for (std::pair<UObject*, void*> val : net_component::ReplicationBlacklistPerConnection[OwningChannel->Connection()])
         {
-            // Look through the 'Parents' cmd array in RepLayout for this specific property
-            for (auto& Parent : *reinterpret_cast<TArray<FRepParentCmd>*>(reinterpret_cast<uintptr_t>(RepLayout) + 0x10))
+            UObject* BlacklistedClass = val.first;
+            void* BlacklistedProperty = val.second;
+
+            // Check if we're replicating the blacklisted class
+            if (ObjectClass == BlacklistedClass)
             {
-                // Found property
-                if (Parent.Property == BlacklistedProperty)
+                // Look through the 'Parents' cmd array in RepLayout for this specific property
+                for (auto& Parent : *reinterpret_cast<TArray<FRepParentCmd>*>(reinterpret_cast<uintptr_t>(RepLayout) + 0x10))
                 {
-                    // Save the old condition
-                    ELifetimeCondition OldCondition = Parent.Condition;
-
-                    // Change the condition before calling ReplicateProperties
-                    if (RepFlags.bNetOwner)
+                    // Found property
+                    if (Parent.Property == BlacklistedProperty)
                     {
-                        Parent.Condition = COND_SkipOwner;
-                    }
-                    else
-                    {
-                        Parent.Condition = COND_OwnerOnly;
-                    }
-                        
-                    bool ReturnValue = ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);
+                        // Save the old condition
+                        ELifetimeCondition OldCondition = Parent.Condition;
 
-                    // Go back to the old condition
-                    Parent.Condition = OldCondition;
+                        // Change the condition before calling ReplicateProperties
+                        if (RepFlags.bNetOwner)
+                        {
+                            Parent.Condition = COND_SkipOwner;
+                        }
+                        else
+                        {
+                            Parent.Condition = COND_OwnerOnly;
+                        }
                         
-                    return ReturnValue;
+                        bool ReturnValue = ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);
+
+                        // Go back to the old condition
+                        Parent.Condition = OldCondition;
+                        
+                        return ReturnValue;
+                    }
                 }
             }
         }

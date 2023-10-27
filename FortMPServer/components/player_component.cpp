@@ -1617,7 +1617,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Handle custom replication
         if (player_component::PlayersPlatforms.contains(static_cast<AFortPlayerController*>(NewPlayer)))
         {
-            // If on iOS (5.41), do NOT replicate CharacterParts
+            // If on iOS (5.41), do NOT replicate the following properties
             if (GetCL() == 4363240)
             {
                 if (player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)] == TEXT("IOS"))

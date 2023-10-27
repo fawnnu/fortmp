@@ -11,7 +11,7 @@ public:
 
     static void BlockPropertyReplicationPerConnection(UNetConnection* Connection, UObject* Class, std::wstring PropertyName);
 
-    inline static std::map<UNetConnection*, std::pair<UObject*, void*>> ReplicationBlacklistPerConnection;
+    inline static std::map<UNetConnection*, std::vector<std::pair<UObject*, void*>>> ReplicationBlacklistPerConnection;
 };
 
 namespace net_component_hooks
