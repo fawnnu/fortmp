@@ -769,7 +769,7 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
     }
 }
 
-void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options)
+void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options, UNetConnection* Connection)
 {
     // Setup platform
     if (UGameplayStatics::HasOption(Options, TEXT("Platform")))
@@ -799,6 +799,27 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             {
                 if (token == wToken)
                 {
+                    // Handle custom replication
+                    if (PlayersPlatforms.contains(NewPlayer))
+                    {
+                        // If on iOS (5.41), do NOT replicate the following properties
+                        if (GetCL() == 4363240)
+                        {
+                            if (PlayersPlatforms[NewPlayer] == TEXT("IOS"))
+                            {
+                                net_component::BlockPropertyReplicationPerConnection(Connection, AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+                            }
+                        }
+
+                        // Log
+                        std::wstring PlayerPlatform = PlayersPlatforms[NewPlayer];
+                        TO_STRING(PlayerPlatform, sPlayerPlatform)
+                        if (data.contains("display_name"))
+                        {
+                            spdlog::info("Player's ['{}'] platform: {}", std::string(data["display_name"]), sPlayerPlatform.c_str());
+                        }
+                    }
+                    
                     if (data.contains("admin"))
                     {
                         if (static_cast<bool>(data["admin"]))
@@ -1613,22 +1634,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         gameserver_client::Client->GameServer_Status.number_of_players = FortGameModeAthena->AlivePlayers().Num();
         gameserver_client::Client->SendUpdate();
 #endif
-
-        // Handle custom replication
-        if (player_component::PlayersPlatforms.contains(static_cast<AFortPlayerController*>(NewPlayer)))
-        {
-            // If on iOS (5.41), do NOT replicate the following properties
-            if (GetCL() == 4363240)
-            {
-                if (player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)] == TEXT("IOS"))
-                {
-                    net_component::BlockPropertyReplicationPerConnection(NewPlayer->NetConnection(), AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
-                }
-            }
-
-            // Log
-            spdlog::info(L"Player's ['{}'] platform: {}", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str(), player_component::PlayersPlatforms[static_cast<AFortPlayerController*>(NewPlayer)].c_str());
-        }
         
         // Notify backend
         player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));

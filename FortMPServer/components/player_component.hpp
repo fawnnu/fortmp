@@ -136,7 +136,7 @@ public:
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
-    static void Setup(AFortPlayerController* NewPlayer, const FString& Options);
+    static void Setup(AFortPlayerController* NewPlayer, const FString& Options, UNetConnection* Connection);
     static bool is_live_spectator(APlayerController* player_controller);
     static void ApplyBackpack(AFortPlayerControllerAthena* NewPlayer);
     static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset, bool b_requires_validation = true);

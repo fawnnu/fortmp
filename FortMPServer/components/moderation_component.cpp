@@ -1406,7 +1406,7 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
 #ifdef _RELEASE
         if (NewPlayerController)
         {
-           player_component::Setup(NewPlayerController, Options);
+           player_component::Setup(NewPlayerController, Options, static_cast<UNetConnection*>(NewPlayer));
            team_component::Login(NewPlayerController, Options);
         }
 #endif
