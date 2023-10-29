@@ -8,6 +8,8 @@
 
 net_component::net_component()
 {
+    ReplicationBlacklistPerConnection = {};
+    
     INIT_POINTER(CreateNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d", { 0xe8, 0x100, 0x100, 0x100 , 0x0 }, 1));
     INIT_POINTER(FindNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d",{0xe8, 0x100, 0x100, 0x100 , 0x0}, 1, false));
     INIT_POINTER(InitListen, memory_manager::find_function_by_string(L"Failed to init net driver ListenURL: %s: %s"));
@@ -333,7 +335,7 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
     return NetConnection__Close(Self);
 }
 
-bool net_component_hooks::ReplicateProperties_Hook(void* RepLayout, void* RepState, void* RepChangelistState, const uint8* Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags)
+bool net_component_hooks::ReplicateProperties_Hook(void* RepLayout, void* __restrict RepState, void* __restrict RepChangelistState, const uint8* __restrict Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags)
 {
     // Iterate through the blacklisted properties
     if (net_component::ReplicationBlacklistPerConnection.contains(OwningChannel->Connection()))

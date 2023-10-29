@@ -25,7 +25,7 @@ namespace net_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, NetConnection__Close, (UNetConnection* Self));
 
-    DEFINE_FUNCTION_HOOK(bool, ReplicateProperties, (void* RepLayout, void* RepState, void* RepChangelistState, const uint8* Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags))
+    DEFINE_FUNCTION_HOOK(bool, ReplicateProperties, (void* RepLayout, void* __restrict RepState, void* __restrict RepChangelistState, const uint8* __restrict Data, UObject* ObjectClass, UActorChannel* OwningChannel, void* Writer, const FReplicationFlags& RepFlags))
 };
 
 // Create a net driver from name
