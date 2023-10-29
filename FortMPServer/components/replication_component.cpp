@@ -4,68 +4,10 @@
 
 replication_component::replication_component()
 {
-    INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
-
-    if (GetFortniteVersionEasy() < 3.5)
-    {
-        INIT_POINTER(SendClientAdjustment, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 99 ? ? ? ? 48 39 99 ? ? ? ? 74 0A 48 83 B9 ? ? ? ? ?"));
-        INIT_POINTER(CallPreReplication, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 53 78 45 33 C9 4C 8B 83 ? ? ? ? 49 8B CE 48 8B 12 E8 ? ? ? ?", true, 1));
-        INIT_POINTER(CallPreReplication, memory_manager::find_pattern("49 8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8", true, 8));
-        INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
-        INIT_POINTER(SetChannelActor, memory_manager::find_pattern("4C 8B DC 55 53 57 41 54 49 8D AB ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4"));
-        INIT_POINTER(CreateChannel, memory_manager::find_function_by_string(L"AsyncLoadWorldOverride=", {0xe8}, 1));
-        INIT_POINTER(ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"));
-        INIT_POINTER(IsLevelInitializedForActor, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 81 ? ? ? ? 49 8B D8 48 8B FA"));
-        INIT_POINTER(IsPendingKillPending, memory_manager::find_function_by_string(L"AFortAIController::Possess is missing a", {0xe8}, 1));
-        INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 17 48 8B 07 48 8B CF 48 8B 74 24 ? 48 83 C4 50", true, 1));
-        INIT_POINTER(Close, memory_manager::find_function_by_string(L"UActorChannel::Close: ChIndex: %d, Actor: %s"));
-        INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("E8 ? ? ? ? 49 8B 07 4C 8D 8C 24 ? ? ? ? 4C 8B 84 24 ? ? ? ? 49 8B CF", true, 1));
-        INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
-        INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
-        INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
-        INIT_POINTER(WriteObject, memory_manager::find_function_by_string(L"WroteObject %s NetGUID <%s>"));
-        INIT_POINTER(SendBunch, memory_manager::find_function_by_string(L"SendBunch: Reliable"));
-        INIT_POINTER(StartBecomingDormant, memory_manager::find_function_by_string(L"StartBecomingDormant: %s"));
-        INIT_POINTER(::SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s>"))
-    }
-    
     // make sure the address is valid to prevent crashes
     if (const uintptr_t is_net_ready_address = memory_manager::find_pattern("33 D2 ? 8B ? FF 90 ? ? ? ? 85 C0 0F 84 ? ? ? ? ? 8B"))
     {
         INIT_POINTER(IsNetReady, FindObject(L"/Script/OnlineSubsystemUtils.Default__IpConnection")->VTable[*reinterpret_cast<int*>(is_net_ready_address + 7) / 8]);
-    }
-
-    if (const uintptr_t replication_frame_address = memory_manager::find_pattern("8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8 ? ? ? ?"))
-    {
-        NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(replication_frame_address - 5);
-    }
-    if (const uintptr_t replication_frame_address = memory_manager::find_pattern("41 FF 84 24 ? ? ? ? 48 8B CE E8 ? ? ? ?"))
-    {
-        NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(replication_frame_address + 4);
-    }
-    if (const uintptr_t network_objects_address = memory_manager::find_pattern("48 8B 8B ? ? ? ? 33 C0 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? E8 ? ? ? ? 48 85 FF"))
-    {
-        NetworkOffsets::NetworkObjects = *reinterpret_cast<int*>(network_objects_address + 3);
-    }
-    if (const uintptr_t destroyed_startup_or_dormant_actors_address = memory_manager::find_pattern("48 8D ? ? ? ? ? 45 33 C9 48 8D 55 ? 4C 8B E8 4C 8D 40 1C E8 ? ? ? ? 48 8B 55 6F 48 8D 4D ? E8 ? ? ? ?"))
-    {
-        NetworkOffsets::DestroyedStartupOrDormantActors = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_address + 3);
-    }
-    if (const uintptr_t destroyed_startup_or_dormant_actors_netdriver_address = memory_manager::find_pattern("48 ? ? ? ? ? ? 8B 43 08 3B 43 34 74 69 8B 43 48 4C 8D 4B 38"))
-    {
-        NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_netdriver_address + 3);
-    }
-    if (const uintptr_t time_seconds_address = memory_manager::find_pattern("8B 88 ? ? ? ? 48 8B 03 89 8B ? ? ? ? 48 8B CB FF 90 ? ? ? ? 80 3D ? ? ? ? ?"))
-    {
-        NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(time_seconds_address + 2);
-    }
-    if (const uintptr_t array_dim_address = memory_manager::find_pattern("39 59 30 7E 39 0F 1F 40 00 0F 1F 84 00 ? ? ? ? 0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01"))
-    {
-        NetworkOffsets::ArrayDim = *reinterpret_cast<uint8_t*>(array_dim_address + 2);
-    }
-    if (const uintptr_t rep_index_address = memory_manager::find_pattern("0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01 FF 10"))
-    {
-        NetworkOffsets::RepIndex = *reinterpret_cast<uint8_t*>(rep_index_address + 3);
     }
     
     // Retrieve the VTable index of IsNetRelevantFor dynamically
@@ -117,6 +59,64 @@ replication_component::replication_component()
     if (NetworkOffsets::PreReplication)
     {
         //REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortPlayerStateAthena>()->VTable, NetworkOffsets::PreReplication, player_component_hooks::AFortPlayerStateAthena_PreReplication);
+    }
+}
+
+void replication_component::pre_init()
+{
+    INIT_POINTER(ReplicationGraph_ServerReplicateActors, memory_manager::find_function_by_string(L"No Replication Lists were returned for connection"));
+
+    INIT_POINTER(SendClientAdjustment, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 99 ? ? ? ? 48 39 99 ? ? ? ? 74 0A 48 83 B9 ? ? ? ? ?"));
+    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 53 78 45 33 C9 4C 8B 83 ? ? ? ? 49 8B CE 48 8B 12 E8 ? ? ? ?", true, 1));
+    INIT_POINTER(CallPreReplication, memory_manager::find_pattern("49 8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8", true, 8));
+    INIT_POINTER(SetChannelActor, memory_manager::find_function_by_string(L"UActorChannel::SetChannelActor: actor %s"));
+    INIT_POINTER(SetChannelActor, memory_manager::find_pattern("4C 8B DC 55 53 57 41 54 49 8D AB ? ? ? ? 48 81 EC ? ? ? ? 45 33 E4"));
+    INIT_POINTER(CreateChannel, memory_manager::find_function_by_string(L"AsyncLoadWorldOverride=", {0xe8}, 1));
+    INIT_POINTER(ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"));
+    INIT_POINTER(IsLevelInitializedForActor, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B 81 ? ? ? ? 49 8B D8 48 8B FA"));
+    INIT_POINTER(IsPendingKillPending, memory_manager::find_function_by_string(L"AFortAIController::Possess is missing a", {0xe8}, 1));
+    INIT_POINTER(IsPendingKillPending, memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 17 48 8B 07 48 8B CF 48 8B 74 24 ? 48 83 C4 50", true, 1));
+    INIT_POINTER(Close, memory_manager::find_function_by_string(L"UActorChannel::Close: ChIndex: %d, Actor: %s"));
+    INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("E8 ? ? ? ? 49 8B 07 4C 8D 8C 24 ? ? ? ? 4C 8B 84 24 ? ? ? ? 49 8B CF", true, 1));
+    INIT_POINTER(FNetViewer__FNetViewer, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 40 48 89 11 48 8B D9 48 8B 42 30 48 85 C0"));
+    INIT_POINTER(Remove, memory_manager::find_pattern("48 85 D2 0F 84 ? ? ? ? 55 56 41 56 48 8D 6C 24 ? 48 81 EC ? ? ? ? 4C 8B F2 4C 8B C2 48 8D 55 6F"));
+    INIT_POINTER(FOutBunch__FOutBunch, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B DA 41 0F B6 F8 48 8B 52 28 48 8B F1 8B 82 ? ? ? ?"));
+    INIT_POINTER(WriteObject, memory_manager::find_function_by_string(L"WroteObject %s NetGUID <%s>"));
+    INIT_POINTER(SendBunch, memory_manager::find_function_by_string(L"SendBunch: Reliable"));
+    INIT_POINTER(StartBecomingDormant, memory_manager::find_function_by_string(L"StartBecomingDormant: %s"));
+    INIT_POINTER(::SetChannelActorForDestroy, memory_manager::find_function_by_string(L"SetChannelActorForDestroy: Channel %d. NetGUID <%s>"))
+
+    if (const uintptr_t replication_frame_address = memory_manager::find_pattern("8B ? ? 8B ? 68 E8 ? ? ? ? ? 8B ? E8 ? ? ? ?"))
+    {
+        NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(replication_frame_address - 5);
+    }
+    if (const uintptr_t replication_frame_address = memory_manager::find_pattern("41 FF 84 24 ? ? ? ? 48 8B CE E8 ? ? ? ?"))
+    {
+        NetworkOffsets::ReplicationFrame = *reinterpret_cast<int*>(replication_frame_address + 4);
+    }
+    if (const uintptr_t network_objects_address = memory_manager::find_pattern("48 8B 8B ? ? ? ? 33 C0 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? 48 89 83 ? ? ? ? E8 ? ? ? ? 48 85 FF"))
+    {
+        NetworkOffsets::NetworkObjects = *reinterpret_cast<int*>(network_objects_address + 3);
+    }
+    if (const uintptr_t destroyed_startup_or_dormant_actors_address = memory_manager::find_pattern("48 8D ? ? ? ? ? 45 33 C9 48 8D 55 ? 4C 8B E8 4C 8D 40 1C E8 ? ? ? ? 48 8B 55 6F 48 8D 4D ? E8 ? ? ? ?"))
+    {
+        NetworkOffsets::DestroyedStartupOrDormantActors = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_address + 3);
+    }
+    if (const uintptr_t destroyed_startup_or_dormant_actors_netdriver_address = memory_manager::find_pattern("48 ? ? ? ? ? ? 8B 43 08 3B 43 34 74 69 8B 43 48 4C 8D 4B 38"))
+    {
+        NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver = *reinterpret_cast<int*>(destroyed_startup_or_dormant_actors_netdriver_address + 3);
+    }
+    if (const uintptr_t time_seconds_address = memory_manager::find_pattern("8B 88 ? ? ? ? 48 8B 03 89 8B ? ? ? ? 48 8B CB FF 90 ? ? ? ? 80 3D ? ? ? ? ?"))
+    {
+        NetworkOffsets::TimeSeconds = *reinterpret_cast<int*>(time_seconds_address + 2);
+    }
+    if (const uintptr_t array_dim_address = memory_manager::find_pattern("39 59 30 7E 39 0F 1F 40 00 0F 1F 84 00 ? ? ? ? 0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01"))
+    {
+        NetworkOffsets::ArrayDim = *reinterpret_cast<uint8_t*>(array_dim_address + 2);
+    }
+    if (const uintptr_t rep_index_address = memory_manager::find_pattern("0F B7 51 40 49 8B CE 44 0F B6 86 ? ? ? ? 66 03 D3 49 8B 06 41 C0 E8 05 41 80 E0 01 FF 10"))
+    {
+        NetworkOffsets::RepIndex = *reinterpret_cast<uint8_t*>(rep_index_address + 3);
     }
 }
 

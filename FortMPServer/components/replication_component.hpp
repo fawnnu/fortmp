@@ -23,6 +23,7 @@ class replication_component
 {
 public:
     replication_component();
+    static void pre_init();
 
     static UChannel* FindChannelByActor(UNetConnection* Connection, AActor* InActor);
 

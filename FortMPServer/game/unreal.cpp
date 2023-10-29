@@ -1,6 +1,9 @@
 ﻿#include "include.hpp"
 #include "unreal.hpp"
 
+#include "../components/net_component.hpp"
+#include "../components/replication_component.hpp"
+
 unreal_manager::unreal_manager()
 {
     
@@ -131,7 +134,11 @@ unreal_manager::unreal_manager()
         CoreOffsets::ByteOffset = 121;
         CoreOffsets::FieldMask =  123;
     }
-
+    
+    // Components pre-init
+    net_component::pre_init();
+    replication_component::pre_init();
+    
     spdlog::info(L"Server successfully initialized. Module FortniteClient-Win64-Shipping.exe base address is {}",
         reinterpret_cast<void*>(GetModuleHandle(nullptr)));
     spdlog::info(L"Running version: {}", GetEngineVersion().c_str());

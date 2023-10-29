@@ -4,6 +4,7 @@ class net_component
 {
 public:
     net_component();
+    static void pre_init();
     
     static bool listen(FURL in_url);
     
