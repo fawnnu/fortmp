@@ -344,33 +344,36 @@ bool net_component_hooks::ReplicateProperties_Hook(void* RepLayout, void* RepSta
             void* BlacklistedProperty = val.second;
 
             // Check if we're replicating the blacklisted class
-            if (ObjectClass == BlacklistedClass)
+            if (BlacklistedProperty)
             {
-                // Look through the 'Parents' cmd array in RepLayout for this specific property
-                for (auto& Parent : *reinterpret_cast<TArray<FRepParentCmd>*>(reinterpret_cast<uintptr_t>(RepLayout) + 0x10))
+                if (ObjectClass == BlacklistedClass)
                 {
-                    // Found property
-                    if (Parent.Property == BlacklistedProperty)
+                    // Look through the 'Parents' cmd array in RepLayout for this specific property
+                    for (auto& Parent : *reinterpret_cast<TArray<FRepParentCmd>*>(reinterpret_cast<uintptr_t>(RepLayout) + 0x10))
                     {
-                        // Save the old condition
-                        ELifetimeCondition OldCondition = Parent.Condition;
-
-                        // Change the condition before calling ReplicateProperties
-                        if (RepFlags.bNetOwner)
+                        // Found property
+                        if (Parent.Property == BlacklistedProperty)
                         {
-                            Parent.Condition = COND_SkipOwner;
-                        }
-                        else
-                        {
-                            Parent.Condition = COND_OwnerOnly;
-                        }
-                        
-                        bool ReturnValue = ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);
+                            // Save the old condition
+                            ELifetimeCondition OldCondition = Parent.Condition;
 
-                        // Go back to the old condition
-                        Parent.Condition = OldCondition;
+                            // Change the condition before calling ReplicateProperties
+                            if (RepFlags.bNetOwner)
+                            {
+                                Parent.Condition = COND_SkipOwner;
+                            }
+                            else
+                            {
+                                Parent.Condition = COND_OwnerOnly;
+                            }
                         
-                        return ReturnValue;
+                            bool ReturnValue = ReplicateProperties(RepLayout, RepState, RepChangelistState, Data, ObjectClass, OwningChannel, Writer, RepFlags);
+
+                            // Go back to the old condition
+                            Parent.Condition = OldCondition;
+                        
+                            return ReturnValue;
+                        }
                     }
                 }
             }
