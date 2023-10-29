@@ -202,3 +202,11 @@ public:
 
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
+
+class AProp_QuestInteractable_Jigsaw_Parent : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Llama_Puzzle/Prop_QuestInteractable_Jigsaw_Parent.Prop_QuestInteractable_Jigsaw_Parent_C");
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};

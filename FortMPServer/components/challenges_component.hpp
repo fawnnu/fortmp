@@ -42,6 +42,7 @@ public:
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
     static void SendTrapInteraction(AFortPlayerController* InteractingController);
+    static void SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

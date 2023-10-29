@@ -98,6 +98,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with mushrooms, for challenges
         handle_mushroom_interaction(player_controller, reinterpret_cast<ACBGA_ShieldsSmall_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_Jigsaw_Parent::StaticClass()))
+    {
+        // Handle any interaction with jigsaw puzzle
+        handle_jigsaw_puzzle_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Jigsaw_Parent*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -403,6 +408,20 @@ void interact_component::handle_lightningbolt_interaction(AFortPlayerController*
         // Send interaction event
         challenges_component::SendLightningBoltInteraction(player_controller, lightningbolt, lightningbolt->QuestBackendObjectiveName());
     }
+}
+
+void interact_component::handle_jigsaw_puzzle_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Jigsaw_Parent* jigsawpuzzle)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_jigsaw_puzzle_interaction is sending jigsaw puzzle interaction.");
+    }
+    
+    if (jigsawpuzzle->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendJigsawPuzzleInteraction(player_controller, jigsawpuzzle, jigsawpuzzle->QuestBackendObjectiveName());
+    } 
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)
