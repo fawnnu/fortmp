@@ -89,6 +89,7 @@ struct FPlayerStats
     int Placement;
     int TemporaryPlacedBuilds;
     int TemporaryMaterialsGathered;
+    int TemporaryTrickPoints;
 };
 
 enum EEraPlatform
@@ -133,6 +134,9 @@ public:
 
     // Debounced harvesting tracking
     static void HarvestResourcesCallback(AFortPlayerController* Self, FFrame& StackFrame);
+
+    // Debounced trick points tracking
+    static void TrickPointsCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
@@ -218,6 +222,9 @@ namespace player_component_hooks
 
     // Custom replication handling
     DEFINE_FUNCTION_HOOK(void, AFortPlayerStateAthena_PreReplication, (AFortPlayerStateAthena* Self, void*** ChangedPropertyTracker));
+
+    // Track trick points
+    DEFINE_FUNCTION_HOOK(void, ServerAwardVehicleTrickPoints, (AFortPlayerController* Self, FFrame& StackFrame))
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

@@ -9,6 +9,7 @@
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
+#include "log_component.hpp"
 #include "moderation_component.hpp"
 #include "net_component.hpp"
 #include "replication_component.hpp"
@@ -68,7 +69,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
-
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
+    
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     
     if (GetEngineVersionEasy() < 420)
@@ -108,6 +110,7 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(C4BuildingDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(BuildingPlacedCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HarvestResourcesCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(TrickPointsCallback, AFortPlayerController::StaticClass());
 }
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
@@ -654,6 +657,29 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
             
             gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:building-resource", parameters);
             Value.TemporaryMaterialsGathered = 0;
+        }
+    }
+}
+
+void player_component::TrickPointsCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = PlayerStatsMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"amount", Value.TemporaryTrickPoints}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:trick-points", parameters);
+            Value.TemporaryTrickPoints = 0;
         }
     }
 }
@@ -2004,3 +2030,24 @@ void player_component_hooks::AFortPlayerStateAthena_PreReplication_Hook(AFortPla
     AFortPlayerStateAthena_PreReplication(Self, ChangedPropertyTracker);
 }
 
+void player_component_hooks::ServerAwardVehicleTrickPoints_Hook(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(int, InPoints)
+
+    if (player_component::PlayerStatsMap.contains(Self))
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"Player {} has been awarded {} trick points", Self->GetName().c_str(), InPoints);
+        }
+        
+        player_component::PlayerStatsMap[Self].TemporaryTrickPoints += InPoints;
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"TrickPointsCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"TrickPointsCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"TrickPointsCallback", 5.0, false);
+    }
+    
+    ServerAwardVehicleTrickPoints(Self, StackFrame);   
+}
