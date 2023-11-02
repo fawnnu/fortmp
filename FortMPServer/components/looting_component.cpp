@@ -402,7 +402,7 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
         {
             auto CurrentLoot = PickedLootTierData[i];
 
-            if (CurrentLoot == nullptr)
+            if (CurrentLoot == nullptr || memory_manager::is_bad_read_pointer(CurrentLoot))
             {
                 continue;
             }

@@ -288,6 +288,54 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingFoundation");
 
     DEFINE_PROPERTY(uint8_t, DynamicFoundationType);
+    DEFINE_PROPERTY(uint8_t, FoundationEnabledState);
+    DEFINE_PROPERTY(uint8, bConditionalFoundation);
+    
+    void OnRep_ServerStreamedInLevel()
+    {
+        STATIC_FINDFUNCTION(OnRep_ServerStreamedInLevel)
+
+        Call(Function_OnRep_ServerStreamedInLevel);
+    }
+    
+    void OnRep_LevelToStream()
+    {
+        STATIC_FINDFUNCTION(OnRep_LevelToStream)
+
+        Call(Function_OnRep_LevelToStream);
+    }
+    
+    void OnLevelStreamedIn()
+    {
+        STATIC_FINDFUNCTION(OnLevelStreamedIn)
+
+        Call(Function_OnLevelStreamedIn);
+    }
+    void OnLevelShown()
+    {
+        STATIC_FINDFUNCTION(OnLevelShown)
+
+        Call(Function_OnLevelShown);
+    }
+    void SetDynamicFoundationEnabled(bool bEnabled)
+    {
+        STATIC_FINDFUNCTION(SetDynamicFoundationEnabled)
+
+        Call(Function_SetDynamicFoundationEnabled, bEnabled);
+    }
+
+    void OnRep_FoundationEnabled(bool bEnabled)
+    {
+        STATIC_FINDFUNCTION(OnRep_FoundationEnabled)
+
+        Call(Function_OnRep_FoundationEnabled, bEnabled);
+    }
+    void OnRep_DynamicFoundationTransform()
+    {
+        STATIC_FINDFUNCTION(OnRep_DynamicFoundationTransform)
+
+        Call(Function_OnRep_DynamicFoundationTransform);
+    }
 };
 
 struct FRebootCardReplicatedState

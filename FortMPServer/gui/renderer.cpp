@@ -259,6 +259,16 @@ void renderer::CreateNewWindow()
                                     static_cast<ACUBE_C*>(actor)->NextStepDynamic();
                                 }
                             }
+
+                            if (ImGui::Button("Cube Drip", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                if(auto scripter = ABP_IslandScripting_C::get_island_scripting())
+                                {
+                                    scripter->CubecrackLeadup();
+                                    scripter->CubeBP()->BigDrip(false);
+                                    spdlog::info(L"Drain amount: {}", scripter->CubeBP()->DrainAmount());
+                                }
+                            }
                             
                             ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Miscellaneous");
 

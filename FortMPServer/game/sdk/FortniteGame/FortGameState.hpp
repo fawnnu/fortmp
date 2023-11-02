@@ -262,6 +262,8 @@ public:
     DEFINE_PROPERTY(int, PlayersLeft);
     DEFINE_PROPERTY(int, TeamsLeft);
 
+    DEFINE_PROPERTY(FVector, FloatingIslandPosition);
+    
     DEFINE_PROPERTY(class AFortAthenaMapInfo*, MapInfo);
 
     DEFINE_PROPERTY(class AFortVolumeManager*, VolumeManager);
@@ -301,6 +303,14 @@ public:
         return Call<FActiveGameplayModifierHandle>(Function_RegisterGameplayModifier, InModifierToRegister, Expiration);
     }
 
+    
+    void SetFloatingIslandInformation(struct FVector& WorldPosition, bool bActivated)
+    {
+        STATIC_FINDFUNCTION(SetFloatingIslandInformation)
+        
+        Call(Function_SetFloatingIslandInformation, WorldPosition, bActivated);
+    }
+    
     void OnRep_CurrentPlaylistData()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistData)

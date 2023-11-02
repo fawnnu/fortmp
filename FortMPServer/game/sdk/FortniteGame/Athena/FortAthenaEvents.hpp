@@ -38,6 +38,108 @@ public:
     }
 };
 
+class ACUBE_Simple_C : public AActor
+{
+public:
+    DEFINE_PROPERTY(float, CrackProgress);
+    DEFINE_PROPERTY(float, DrainAmount); // Default = 0. Goes from 0.0 to 1.0f;
+    DEFINE_PROPERTY(float, SnappedDrainAmount);
+    DEFINE_PROPERTY(bool, DrainActive);
+
+    DEFINE_PROPERTY(float, StartingDrainAmount);
+
+    void BigDrip(bool Is_last_drip)
+    {
+        STATIC_FINDFUNCTION(BigDrip)
+
+        Call(Function_BigDrip, Is_last_drip);
+    }
+    
+    void OnRep_SpinStarted(bool a1, bool a2, bool a3)
+    {
+        STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
+
+        Call(Function_OnRep_CubeletGrowthstage, a1, a2, a3);
+    }
+    void OnRep_DrainAmount(float a1, int32 a1b, float a2, float a3, float a4, float a5)
+    {
+        STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
+
+        Call(Function_OnRep_CubeletGrowthstage, a1, a1b, a2, a3, a4, a5);
+    }
+    void OnRep_DrainActive(bool a1, class UObject* a2, bool a3, bool a4)
+    {
+        STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
+
+        Call(Function_OnRep_CubeletGrowthstage, a1, a2, a3, a4);
+    }
+    void OnRep_CrackProgress(bool a1, class UObject* a2)
+    {
+        STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
+
+        Call(Function_OnRep_CubeletGrowthstage, a1, a2);
+    }
+};
+class ABP_IslandScripting_C : public AActor
+{
+public:
+    // Default Island Position
+    DEFINE_PROPERTY(FVector, IslandPosition);
+    DEFINE_PROPERTY(bool, IsDeimosActive);
+    DEFINE_PROPERTY(bool, UpdateMap);
+    DEFINE_PROPERTY(bool, HasCubeTriggered);
+    DEFINE_PROPERTY(float, CrackProgress);
+    DEFINE_PROPERTY(ACUBE_Simple_C*, CubeBP);
+    
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Island/BP_IslandScripting.BP_IslandScripting_C")
+
+    void OnRep_CubeletGrowthstage()
+    {
+        STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
+
+        Call(Function_OnRep_CubeletGrowthstage);
+    }
+    
+    void CubecrackLeadup()
+    {
+        STATIC_FINDFUNCTION(CubecrackLeadup)
+
+        Call(Function_CubecrackLeadup);
+    }
+    
+    void LoadDynamicLevels()
+    {
+        STATIC_FINDFUNCTION(LoadDynamicLevels)
+
+        Call(Function_LoadDynamicLevels);
+    }
+
+    void TrySetIslandLocation()
+    {
+        STATIC_FINDFUNCTION(TrySetIslandLocation)
+
+        Call(Function_TrySetIslandLocation);
+    }
+
+    void OnRep_UpdateMap()
+    {
+        STATIC_FINDFUNCTION(OnRep_UpdateMap)
+
+        Call(Function_OnRep_UpdateMap, true);
+    }
+    
+    static ABP_IslandScripting_C* get_island_scripting()
+    {
+        TArray<AActor*> island_scripter = UGameplayStatics::GetAllActorsOfClass(*GWorld, StaticClass());
+                                
+        for (auto actor : island_scripter)
+        {
+            return static_cast<ABP_IslandScripting_C*>(actor);
+        }
+        return nullptr;
+    }
+};
+
 class ACUBE_C : public AActor
 {
 public:
