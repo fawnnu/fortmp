@@ -93,6 +93,20 @@ public:
     
     DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Island/BP_IslandScripting.BP_IslandScripting_C")
 
+    void ButterflyStart()
+    {
+        STATIC_FINDFUNCTION(ButterflyStart)
+
+        Call(Function_ButterflyStart);
+    }
+    
+    void CubeEvent()
+    {
+        STATIC_FINDFUNCTION(CubeEvent)
+
+        Call(Function_CubeEvent);
+    }
+    
     void OnRep_CubeletGrowthstage()
     {
         STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)

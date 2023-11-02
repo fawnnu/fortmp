@@ -322,11 +322,12 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
                     // Once CrackProgress reaches 1.0f on backend, set DrainActive to true and start progressing up the DrainAmount from 0.0f to 1.0f.
 
-                    // Activate the drain process (TODO: Backend implementation)
+                    // Activate the drain process (TODO: Backend implementation) (Needed to start the event)
                     cube->DrainActive() = false;
                     if(cube->DrainActive())
                     {
                         // Goes from 0.0 to 1.0f.
+                        // One cube drip is +0.045(45)f
                         cube->DrainAmount() = 0;
                     }   
                 }

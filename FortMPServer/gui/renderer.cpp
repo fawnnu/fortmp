@@ -264,9 +264,23 @@ void renderer::CreateNewWindow()
                             {
                                 if(auto scripter = ABP_IslandScripting_C::get_island_scripting())
                                 {
-                                    scripter->CubecrackLeadup();
-                                    scripter->CubeBP()->BigDrip(false);
-                                    spdlog::info(L"Drain amount: {}", scripter->CubeBP()->DrainAmount());
+                                    if (scripter->CubeBP()->DrainAmount() >= 0.99f)
+                                    {
+                                        scripter->CubecrackLeadup();
+                                        scripter->CubeBP()->DrainAmount() = 1;
+                                        scripter->CubeBP()->BigDrip(true);
+                                        spdlog::info(L"Last drip");
+
+                                        scripter->ButterflyStart();
+                                    }
+                                    else
+                                    {
+                                        scripter->CubecrackLeadup();
+                                        scripter->CubeBP()->BigDrip(false);
+                                        scripter->CubeBP()->DrainAmount() = scripter->CubeBP()->DrainAmount() + 0.045f;
+                                    
+                                        spdlog::info(L"Drain amount: {}", scripter->CubeBP()->DrainAmount());   
+                                    }
                                 }
                             }
                             
