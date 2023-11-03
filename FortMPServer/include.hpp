@@ -48,6 +48,8 @@
 #include "websocketpp/config/asio_client.hpp"
 #include "websocketpp/client.hpp"
 #include "components/gameserver_client.hpp"
+#include "components/thread_manager.hpp"
+#include "components/eudp_component.hpp"
 
 #include "fstream"
 #include "utils/memory.hpp"

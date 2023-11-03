@@ -215,8 +215,10 @@
     <ClInclude Include="components\challenges_component.hpp" />
     <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
+    <ClInclude Include="components\director_client.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
     <ClInclude Include="components\era_mutators_component.hpp" />
+    <ClInclude Include="components\eudp_component.hpp" />
     <ClInclude Include="components\fort_mutators_component.hpp" />
     <ClInclude Include="components\function_component.hpp" />
     <ClInclude Include="components\gamemodes_component.hpp" />
@@ -243,6 +245,7 @@
     <ClInclude Include="components\shell_component.hpp" />
     <ClInclude Include="components\storm_component.hpp" />
     <ClInclude Include="components\team_component.hpp" />
+    <ClInclude Include="components\thread_manager.hpp" />
     <ClInclude Include="components\trap_component.hpp" />
     <ClInclude Include="components\vehicles_component.hpp" />
     <ClInclude Include="game\sdk.hpp" />
@@ -347,8 +350,10 @@
     <ClCompile Include="components\challenges_component.cpp" />
     <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />
+    <ClCompile Include="components\director_client.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />
     <ClCompile Include="components\era_mutators_component.cpp" />
+    <ClCompile Include="components\eudp_component.cpp" />
     <ClCompile Include="components\fort_mutators_component.cpp" />
     <ClCompile Include="components\function_component.cpp" />
     <ClCompile Include="components\gamemodes_component.cpp" />
@@ -375,6 +380,7 @@
     <ClCompile Include="components\shell_component.cpp" />
     <ClCompile Include="components\storm_component.cpp" />
     <ClCompile Include="components\team_component.cpp" />
+    <ClCompile Include="components\thread_manager.cpp" />
     <ClCompile Include="components\trap_component.cpp" />
     <ClCompile Include="components\vehicles_component.cpp" />
     <ClCompile Include="game\unreal.cpp" />

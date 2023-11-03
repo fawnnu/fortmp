@@ -33,6 +33,7 @@
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
 #include "components/config_manager.hpp"
+#include "components/director_client.hpp"
 #include "components/era_mutators_component.hpp"
 #include "components/fort_mutators_component.hpp"
 #include "components/gui_manager.hpp"
@@ -42,8 +43,8 @@
 
 void Setup()
 {
-    // Create config manager
-    new config_manager(); 
+    // Create director_client
+    new director_client();
     
     // Setup logging (File sinks)
     new log_component();
