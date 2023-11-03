@@ -34,11 +34,12 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
     
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
-    DEFINE_FUNCTION_HOOK(void, ABuildingFoundation_BeginPlay, (ABuildingFoundation* Target));
     DEFINE_FUNCTION_HOOK(void, AFortGameModeAthena_BeginPlay, (AFortGameModeAthena* Target));
     
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
 
+    DEFINE_FUNCTION_HOOK(void, BuildingFoundation_PostUpdate, (ABuildingFoundation* BuildingFoundation, uint8_t State, void* ReservedValues));
+    
     // Steal the function
     DEFINE_FUNCTION_HOOK(void, SetCurrentPlaylistId, (AFortGameStateAthena* Self, int PlaylistId));
 }

@@ -53,7 +53,6 @@ loader_component::loader_component()
 
         // Hook begin play for the classes we need
         REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingContainer>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingContainer_BeginPlay);
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<ABuildingFoundation>()->VTable, BeginPlayIndex, loader_component_hooks::ABuildingFoundation_BeginPlay);
         REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortGameModeAthena>()->VTable, BeginPlayIndex, loader_component_hooks::AFortGameModeAthena_BeginPlay);
     }
     else
@@ -67,12 +66,56 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? 00 00 00 F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
     
     DetourTransactionCommit();
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
+}
+
+void loader_component_hooks::BuildingFoundation_PostUpdate_Hook(ABuildingFoundation* BuildingFoundation, uint8_t State,
+    void* ReservedValues)
+{
+    // CL specific fix due to offset use on property
+    if (GetCL() == 4526925)
+    {
+        // Disable before-event lake on 6.21
+        if (UKismetSystemLibrary::GetPathName(BuildingFoundation) == L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations:PersistentLevel.LF_Lake2")
+        {
+            spdlog::warn(L"BuildingFoundation_PostUpdate: Disabling LF_Lake2 on 6.21");
+        
+            BuildingFoundation->K2_DestroyActor();
+            return;
+        }   
+    
+        if(BuildingFoundation->DynamicFoundationType() == 2)
+        {
+            // Enable the foundation (DynamicFoundationType is originally StartDisabled so we gotta set this)
+            UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bFoundationEnabled"), true);
+            BuildingFoundation->OnRep_FoundationEnabled(true);
+        
+            BuildingFoundation->DynamicFoundationType() = 1;
+
+            BuildingFoundation->OnRep_DynamicFoundationTransform();
+            
+            spdlog::warn(L"BuildingFoundation_PostUpdate: Enabling {}", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
+        }
+
+        if(BuildingFoundation->DynamicFoundationType() == 1)
+        {
+            // credit: Callum/darkblade/callumboynton for property setting and offset
+            uint8* ByteValue = reinterpret_cast<uint8*>(__int64(BuildingFoundation) + 0xC69);
+            uint8 Mask = 0x8;
+            *ByteValue = ((*ByteValue) & ~Mask) | (Mask);
+        }
+    }
+    
+    BuildingFoundation_PostUpdate(BuildingFoundation, State, ReservedValues);
+    
+    BuildingFoundation->OnRep_LevelToStream();
+    
 }
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
@@ -163,9 +206,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // initialize BGAs
         initialize_bga();
 
-        // Disable duplicate building foundations
-        handle_duplicated_foundations();
-
         // Handle build specific additions
         handle_cl_specific_additions();
 
@@ -202,7 +242,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         {
             (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 30.f;   
         }
-
+        
         // Bind delegate for gamephase updates
         (*GWorld)->GameState()->GamePhaseChanged().Bind(TScriptDelegate((*GWorld)->GameState(), TEXT("OnGamePhaseUpdated")));
         
@@ -251,8 +291,52 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
 #endif
 
-        spdlog::info(L"Match started in world '{}' and listening for connections",
-            (*GWorld)->GetName().c_str());
+        // Set default floating island location on season 6
+        if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
+        {
+            ABP_IslandScripting_C* island_scripting = ABP_IslandScripting_C::get_island_scripting();
+
+            if (island_scripting)
+            {
+                FVector default_floating_island_position = island_scripting->IslandPosition();
+
+                // Activate the beam in the sky for fortnitemares
+                if (island_scripting->HasProperty(L"IsDeimosActive"))
+                {
+                    island_scripting->IsDeimosActive() = true;
+                }
+
+                // Update the minimap on 6.21
+                if (island_scripting->HasProperty(L"UpdateMap"))
+                {
+                    island_scripting->UpdateMap() = true;
+                    island_scripting->OnRep_UpdateMap();
+                }
+
+                ACUBE_Simple_C* cube = island_scripting->CubeBP();
+
+                if (cube)
+                {
+                    // Crack progress. Make it 0.01 by default because 0.0 makes it scuffed (TODO: Backend implementation)
+                    cube->CrackProgress() = 0.01;
+
+                    // Once CrackProgress reaches 1.0f on backend, set DrainActive to true and start progressing up the DrainAmount from 0.0f to 1.0f.
+
+                    // Activate the drain process (TODO: Backend implementation) (Needed to start the event)
+                    cube->DrainActive() = false;
+                    if(cube->DrainActive())
+                    {
+                        // Goes from 0.0 to 1.0f.
+                        // One cube drip is +0.045(45)f
+                        cube->DrainAmount() = 0;
+                    }   
+                }
+
+                spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);
+            }
+        }
+        
+        spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
     }
 }
 
@@ -436,6 +520,7 @@ void loader_component::initialize_bga()
 
 void loader_component::handle_duplicated_foundations()
 {
+    // DEPRECATED
     std::vector<FVector> FoundationLocationsList;
 
     for (ABuildingFoundation* BuildingFoundation : UGameplayStatics::GetAllActorsOfClass<ABuildingFoundation>(*GWorld, ABuildingFoundation::StaticClass()))
@@ -664,7 +749,7 @@ void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAth
 {
     // Mark world as ready
     UKismetSystemLibrary::SetBoolPropertyByName(Target, L"bWorldIsReady", true);
-
+    
     AFortGameModeAthena_BeginPlay(Target);
 }
 
@@ -678,26 +763,6 @@ void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContaine
         
         // Actor might be dormant
         Target->ForceNetUpdate();
-    }
-}
-
-void loader_component_hooks::ABuildingFoundation_BeginPlay_Hook(ABuildingFoundation* Target)
-{
-    ABuildingFoundation_BeginPlay(Target);
-
-    if (Target)
-    {
-        // Set the foundation type
-        if (STATIC_HASPROPERTY(Target, DynamicFoundationType))
-        {
-            Target->DynamicFoundationType() = 0;
-        }
-
-        // Mark the level as streamed in
-        if (STATIC_HASPROPERTY(Target, bServerStreamedInLevel))
-        {
-            UKismetSystemLibrary::SetBoolPropertyByName(Target, TEXT("bServerStreamedInLevel"), true);
-        }
     }
 }
 
