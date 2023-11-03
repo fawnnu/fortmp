@@ -10,6 +10,7 @@
 #include "pickup_component.hpp"
 #include "team_component.hpp"
 #include "config_manager.hpp"
+#include "director_client.hpp"
 #include "era_mutators_component.hpp"
 #include "fort_mutators_component.hpp"
 #include "player_component.hpp"
@@ -289,6 +290,16 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
             gameserver_client::Client->SendUpdate(); 
         }
+
+        /*
+         * Tell the director the gameserver is ready
+         */
+        director_client::client->Send(eudp_packet({
+            {"type", "ready"},
+            {"payload", {
+                {"port", gameserver_client::Client->GameServer_Status.port}
+            }}
+        }));
 #endif
 
         // Set default floating island location on season 6
@@ -604,6 +615,14 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         gameserver_client::Client->SendUpdate();
 
         player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+        /*
+         * Send a match_started event to director
+         */
+        director_client::client->Send(eudp_packet({
+            {"type", "match_started"},
+            {"payload", nlohmann::json()}
+        }));
     }
 #endif
 
@@ -779,6 +798,14 @@ bool loader_component_hooks::SetGameMode_Hook()
             gameserver_client::Client->GameServer_Status.number_of_players = 0;
             gameserver_client::Client->GameServer_Status.mode = "";
             gameserver_client::Client->SendUpdate();
+
+            /*
+             * Notify director
+             */
+            director_client::client->Send(eudp_packet({
+                {"type", "offline"},
+                {"payload", nlohmann::json()}
+            }));
 
             // Leave channel
             gameserver_client::Client->SendLeave();

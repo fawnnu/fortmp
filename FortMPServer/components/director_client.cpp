@@ -2,6 +2,7 @@
 #include "director_client.hpp"
 
 #include "config_manager.hpp"
+#include "loader_component.hpp"
 
 director_client::director_client()
 {
@@ -27,6 +28,20 @@ director_client::director_client()
             {
                 // Set config
                 config_manager::config = payload;
+            });
+
+            client->On("power_change", [](eudp_client*, nlohmann::json payload)
+            {
+                try
+                {
+                    if (payload["status"] == "off_graceful")
+                    {
+                        loader_component::bPendingShutdown = true;
+                    }
+                }
+                catch (nlohmann::json& exception)
+                {
+                }
             });
         });
     }

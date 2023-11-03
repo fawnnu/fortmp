@@ -2,6 +2,7 @@
 #include "net_component.hpp"
 
 #include "challenges_component.hpp"
+#include "director_client.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
 #include "replication_component.hpp"
@@ -322,6 +323,22 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                 };
                 gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_leave", parameters);
 
+                /*
+                 * If we're in Warmup, notify director of an available player
+                 */
+                if (*GWorld && (*GWorld)->GameState())
+                {
+                    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+                    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+                    if ((*GWorld)->GameState()->GamePhase() == Aircraft)
+                    {
+                        director_client::client->Send(eudp_packet({
+                            {"type", "player_left"},
+                            {"payload", nlohmann::json()}
+                        }));
+                    }
+                }
+                
                 // Log
                 if (!memory_manager::is_bad_read_pointer(FortPlayerController->MyPlayerInfo()) && FortPlayerController->MyPlayerInfo())
                 {
@@ -331,6 +348,10 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                     
                     spdlog::info("Player '{}' left its channel [ACCOUNT_ID: {}]", player_name.c_str(), account_id.c_str());
                 }
+
+                // Remove from players map
+                TO_WSTRING(account_id, wAccount_id)
+                player_component::Players.erase(player_component::Players.find(wAccount_id));
             }
         }
     }
