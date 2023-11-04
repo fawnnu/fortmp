@@ -294,12 +294,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         /*
          * Tell the director the gameserver is ready
          */
-        director_client::client->Send(eudp_packet({
-            {"type", "ready"},
-            {"payload", {
-                {"port", gameserver_client::Client->GameServer_Status.port}
-            }}
-        }));
+        director_client::send_ready_event();
 #endif
 
         // Set default floating island location on season 6
