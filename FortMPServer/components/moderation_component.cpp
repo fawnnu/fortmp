@@ -290,18 +290,6 @@ void moderation_component::HandleAdminLoginCommand(const TCHAR*& InStream, AFort
                 config["server_admins"].push_back(sAdminIPAddress);
                 config_manager::save_server_config(config);
                         
-                // Format message
-                char Body[1024];
-                sprintf_s(Body, "Player '%s' [%s] logged in as administrator [SERVER: %s]", sAdminPlayerName.c_str(), sAdminIPAddress.c_str(), sServerName.c_str());
-                std::string sBody(Body);
-
-                // Get webhook
-                nlohmann::json payload = webhook_manager::get_webhook_by_name("webhook-adminlogin");
-                payload["body"] = Body;
-
-                // Send webhook
-                webhook_manager::send_webhook(payload);
-
                 // Notify player
                 ExecutingPlayerController->ClientMessage(TEXT("Successfully logged in!"));
                         
@@ -354,21 +342,6 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
             if (auto Client = gameserver_client::Client)
             {
                 sServerName = Client->GameServer_Status.name.length() >= 2 && Client->GameServer_Status.name.length() <= 16 ? Client->GameServer_Status.name : qos_component::best_region;
-            }
-
-            // Format message
-            char Body[1024];
-            sprintf_s(Body, "Player '%s' kicked '%s' [SERVER: %s]", sAdminPlayerName.c_str(), sVictimPlayerName.c_str(), sServerName.c_str());
-            std::string sBody(Body);
-
-            // Get webhooks
-            std::vector<nlohmann::json> payloads = webhook_manager::get_webhooks_by_name("webhook-kick");
-
-            // Send webhooks
-            for (auto payload : payloads)
-            {
-                payload["body"] = Body;
-                webhook_manager::send_webhook(payload);
             }
             
             ExecutingPlayerController->ClientMessage(TEXT("Player successfully kicked!"));
@@ -842,21 +815,6 @@ void moderation_component::HandleBanCommand(const TCHAR*& InStream, AFortPlayerC
                 if (auto Client = gameserver_client::Client)
                 {
                     sServerName = Client->GameServer_Status.name.length() >= 2 && Client->GameServer_Status.name.length() <= 16 ? Client->GameServer_Status.name : qos_component::best_region;
-                }
-                
-                // Format message
-                char Body[1024];
-                sprintf_s(Body, "Player '%s' banned '%s' [SERVER: %s]", sAdminPlayerName.c_str(), sVictimPlayerName.c_str(), sServerName.c_str());
-                std::string sBody(Body);
-
-                // Get webhooks
-                std::vector<nlohmann::json> payloads = webhook_manager::get_webhooks_by_name("webhook-ban");
-
-                // Send webhooks
-                for (auto payload : payloads)
-                {
-                    payload["body"] = Body;
-                    webhook_manager::send_webhook(payload);
                 }
                 
                 // Log
