@@ -152,96 +152,115 @@ void gameserver_client::Initialize()
 
 void gameserver_client::Register()
 {
-    nlohmann::json server_config = config_manager::get_server_config();
-    GameServer_Status.max_players = static_cast<int>(server_config["player_cap_override"]);
+    bool bSucceeded = false;
+    while (!bSucceeded)
+    {
+        nlohmann::json server_config = config_manager::get_server_config();
+        GameServer_Status.max_players = static_cast<int>(server_config["player_cap_override"]);
     
-    if (server_config.contains("server_key"))
-    {
-        std::string server_key = server_config["server_key"];
-        if (server_key.length() >= 4)
+        if (server_config.contains("server_key"))
         {
-            GameServer_Status.private_matchmaking_key = server_key;
-        }
-    }
-
-    httplib::Client client(API_URL);
-    httplib::Headers headers = {
-        { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-    };
-    nlohmann::json PostPayload = {
-        {"region", ""},
-        {"build", std::to_string(GetCL())},
-        {"max_players", std::to_string(GameServer_Status.max_players)},
-        {"key", GameServer_Status.private_matchmaking_key}
-    };
-
-    // Get grants from config
-    if (server_config.contains("grants") && server_config["grants"].is_array())
-    {
-        nlohmann::json grants_array = server_config["grants"];
-        for (auto& elem : grants_array.items())
-        {
-            PostPayload["grants"].push_back(elem.value());
-        }
-    }
-    
-    PostPayload["region"] = qos_component::best_region;
-    auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
-
-    try
-    {
-        nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
-
-        if (JsonResult.contains("data"))
-        {
-            UUID = std::string(JsonResult["data"]["uuid"]);
-
-            if (server_config.contains("name"))
+            std::string server_key = server_config["server_key"];
+            if (server_key.length() >= 4)
             {
-                std::string server_name = server_config["name"];
-                if (server_name.length() >= 2 && server_name.length() <= 16)
-                {
-                    GameServer_Status.name = server_name;
-                    if (renderer::WindowHandle)
-                    {
-                        SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
-                    }
-                    else
-                    {
-                        SetConsoleTitleA(std::string("FortMP - " + Client->GameServer_Status.name).c_str());
-                    }
-                }
+                GameServer_Status.private_matchmaking_key = server_key;
             }
-    
-            SendJoin();
-            SendUpdate();
+        }
 
-            // Get cube info
+        httplib::Client client(API_URL);
+        httplib::Headers headers = {
+            { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+        };
+        nlohmann::json PostPayload = {
+            {"region", ""},
+            {"build", std::to_string(GetCL())},
+            {"max_players", std::to_string(GameServer_Status.max_players)},
+            {"key", GameServer_Status.private_matchmaking_key}
+        };
+
+        // Get grants from config
+        if (server_config.contains("grants") && server_config["grants"].is_array())
+        {
+            nlohmann::json grants_array = server_config["grants"];
+            for (auto& elem : grants_array.items())
+            {
+                PostPayload["grants"].push_back(elem.value());
+            }
+        }
+    
+        PostPayload["region"] = qos_component::best_region;
+        auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
+    
+        if (Result && Result->status == 200)
+        {
             try
             {
-                for (auto& item : JsonResult["data"]["event_states"].items())
+                nlohmann::json JsonResult = nlohmann::json::parse(Result->body);
+
+                if (JsonResult.contains("data"))
                 {
-                    std::string type = item.value()["type"];
-                    if (type == "cube")
+                    bSucceeded = true;
+                    UUID = std::string(JsonResult["data"]["uuid"]);
+
+                    if (server_config.contains("name"))
                     {
-                        int tracking = item.value()["state"]["tracking"];
-                        cube_mutator::step = tracking;
+                        std::string server_name = server_config["name"];
+                        if (server_name.length() >= 2 && server_name.length() <= 16)
+                        {
+                            GameServer_Status.name = server_name;
+                            if (renderer::WindowHandle)
+                            {
+                                SetWindowTextA(renderer::WindowHandle, std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                            }
+                            else
+                            {
+                                SetConsoleTitleA(std::string("FortMP - " + Client->GameServer_Status.name).c_str());
+                            }
+                        }
                     }
+    
+                    SendJoin();
+                    SendUpdate();
+
+                    // Get cube info
+                    try
+                    {
+                        for (auto& item : JsonResult["data"]["event_states"].items())
+                        {
+                            std::string type = item.value()["type"];
+                            if (type == "cube")
+                            {
+                                int tracking = item.value()["state"]["tracking"];
+                                cube_mutator::step = tracking;
+                            }
+                        }
+                    }
+                    catch (nlohmann::json::exception& err)
+                    {
+                        spdlog::error("gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
+                    }
+
+                    break;
+                }
+                else
+                {
+                    spdlog::error("POST /api/internal/game/servers returned {}. Body: {}", Result->status, Result->body.c_str());
                 }
             }
-            catch (nlohmann::json::exception& err)
+            catch (nlohmann::json::parse_error& ex)
             {
-                spdlog::error("gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
+        
             }
         }
         else
         {
-            spdlog::error("POST /api/internal/game/servers returned {}. Body: {}", Result->status, Result->body.c_str());
+            spdlog::info("/api/internal/game/servers failed. Retrying in 100ms");
+            if (Result)
+            {
+                spdlog::info("Error code for /api/internal/game/servers: '{}'", Result->status);
+            }
+            Sleep(100);
         }
-    }
-    catch (nlohmann::json::parse_error& ex)
-    {
-        
     }
 }
 
@@ -353,7 +372,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 
                     if (ChannelName.find("player:v2:") != std::string::npos)
                     {
-                        std::string AccountID = ChannelName.substr(ChannelName.find(":") + 1);
+                        std::string AccountID = ChannelName.substr(ChannelName.find(":v2:") + 4);
 
                         progression_entry* new_entry = new progression_entry;
                         new_entry->challenge = challenge;
