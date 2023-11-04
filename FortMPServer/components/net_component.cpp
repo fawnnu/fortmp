@@ -321,7 +321,7 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
             {
                 std::map<std::string, std::string> parameters{
                 };
-                gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_leave", parameters);
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_leave", parameters);
 
                 /*
                  * If we're in Warmup, notify director of an available player

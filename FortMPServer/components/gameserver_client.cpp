@@ -359,7 +359,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
 
                     std::string ChannelName = VectorPayloadString[0];
 
-                    if (ChannelName.find("player:") != std::string::npos)
+                    if (ChannelName.find("player:v2:") != std::string::npos)
                     {
                         std::string AccountID = ChannelName.substr(ChannelName.find(":") + 1);
 

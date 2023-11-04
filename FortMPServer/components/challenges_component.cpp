@@ -46,7 +46,7 @@ void challenges_component::SendChestEvent(AFortPlayerController* InteractingCont
                 {"y", std::to_string(TargetContainer->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:chest", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:chest", parameters);
         }
         else
         {
@@ -71,7 +71,7 @@ void challenges_component::SendSupplyDropEvent(AFortPlayerController* Interactin
                 {"y", std::to_string(SupplyDrop->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:supply", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:supply", parameters);
         }
         else
         {
@@ -96,7 +96,7 @@ void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingContr
                 {"y", std::to_string(TargetContainer->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:ammo", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:ammo", parameters);
         }
         else
         {
@@ -121,7 +121,7 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
                 {"y", std::to_string(Self->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:landing", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:landing", parameters);
         }
         else
         {
@@ -146,7 +146,7 @@ void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingCont
                 {"y", std::to_string(Llama->K2_GetActorLocation().Y)}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "event:llama", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:llama", parameters);
         }
         else
         {
@@ -197,7 +197,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
                 {"team_users", team_users}
             };
 
-            gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:" + account_id, "summary", parameters), HandleSummaryReply);
+            gameserver_client::WaitForReply(gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "summary", parameters), HandleSummaryReply);
 
             // Log
             if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
@@ -307,7 +307,7 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                 // Invalidate headshot kill map record
                 player_component::HeadshotKillMap[KillerPlayerController] = false;
             
-                gameserver_client::Client->SendEventToChannel("player:" + killer_account_id, "event:elimination", parameters);
+                gameserver_client::Client->SendEventToChannel("player:v2:" + killer_account_id, "event:elimination", parameters);
             }
             else
             {
@@ -339,7 +339,7 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
                     {"knocked_by_opponent", VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() != VictimPlayerController->PlayerState() && VictimPlayerController->PlayerState()->DeathInfo().FinisherOrDowner() != nullptr}
                 };
             
-                gameserver_client::Client->SendEventToChannel("player:" + executing_account_id, "event:revive", parameters);
+                gameserver_client::Client->SendEventToChannel("player:v2:" + executing_account_id, "event:revive", parameters);
             }
         }
         else
@@ -369,7 +369,7 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:letter", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:letter", parameters);
         }
         else
         {
@@ -398,7 +398,7 @@ void challenges_component::SendGnomeInteraction(AFortPlayerController* Interacti
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:gnome", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:gnome", parameters);
         }
         else
         {
@@ -427,7 +427,7 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:star", parameters);
         }
         else
         {
@@ -456,7 +456,7 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:star", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:star", parameters);
         }
         else
         {
@@ -481,7 +481,7 @@ void challenges_component::SendPortAFortInteraction(AFortPlayerController* Inter
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:port-a-fort", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:port-a-fort", parameters);
         }
         else
         {
@@ -506,7 +506,7 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
                     {"y", HopRock->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:hop-rock", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:hop-rock", parameters);
         }
         else
         {
@@ -531,7 +531,7 @@ void challenges_component::SendAppleInteraction(AFortPlayerController* Interacti
                     {"y", Apple->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:apple", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:apple", parameters);
         }
         else
         {
@@ -556,7 +556,7 @@ void challenges_component::SendMushroomInteraction(AFortPlayerController* Intera
                     {"y", Mushroom->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:mushroom", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:mushroom", parameters);
         }
         else
         {
@@ -581,7 +581,7 @@ void challenges_component::SendStormCenterInteraction(AFortPlayerController* Int
                 {"y", StormCenter->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:storm-center", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:storm-center", parameters);
         }
         else
         {
@@ -610,7 +610,7 @@ void challenges_component::SendLocationInteraction(AFortPlayerController* Intera
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:location", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:location", parameters);
         }
         else
         {
@@ -635,7 +635,7 @@ void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* Int
                 {"y", SkydiveRing->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:ring", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:ring", parameters);
         }
         else
         {
@@ -660,7 +660,7 @@ void challenges_component::SendLaunchPadInteraction(AFortPlayerController* Inter
                 {"y", LaunchPad->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:launchpad", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:launchpad", parameters);
         }
         else
         {
@@ -685,7 +685,7 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:dance", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:dance", parameters);
         }
         else
         {
@@ -710,7 +710,7 @@ void challenges_component::SendSprayInteraction(AFortPlayerController* Interacti
                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:spray", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:spray", parameters);
         }
         else
         {
@@ -735,7 +735,7 @@ void challenges_component::SendVendingMachineInteraction(AFortPlayerController* 
                 {"y", VendingMachine->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:vending", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:vending", parameters);
         }
         else
         {
@@ -764,7 +764,7 @@ void challenges_component::SendRubberDuckInteraction(AFortPlayerController* Inte
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rubber-duck", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:rubber-duck", parameters);
         }
         else
         {
@@ -793,7 +793,7 @@ void challenges_component::SendLightningBoltInteraction(AFortPlayerController* I
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:lightningbolt", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:lightningbolt", parameters);
         }
         else
         {
@@ -807,7 +807,7 @@ void challenges_component::SendLightningBoltInteraction(AFortPlayerController* I
 
 void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::json Payload)
 {
-    if (Channel.find("player:") != std::string::npos)
+    if (Channel.find("player:v2:") != std::string::npos)
     {
         Channel = Channel.substr(Channel.find(":") + 1);
         TO_WSTRING(Channel, wChannel);
@@ -939,7 +939,7 @@ void challenges_component::SendDiscoBallInteraction(AFortPlayerController* Inter
                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:disco-ball", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:disco-ball", parameters);
         }
         else
         {
@@ -964,7 +964,7 @@ void challenges_component::SendShoppingCartInteraction(AFortPlayerController* In
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:cart", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:cart", parameters);
         }
         else
         {
@@ -993,7 +993,7 @@ void challenges_component::SendPitchGoalInteraction(AFortPlayerController* Inter
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:goal", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:goal", parameters);
         }
         else
         {
@@ -1022,7 +1022,7 @@ void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* 
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:basket", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:basket", parameters);
         }
         else
         {
@@ -1051,7 +1051,7 @@ void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* Int
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:pigeon", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pigeon", parameters);
         }
         else
         {
@@ -1076,7 +1076,7 @@ void challenges_component::SendJewelInteraction(AFortPlayerController* Interacti
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:jewel", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:jewel", parameters);
         }
         else
         {
@@ -1105,7 +1105,7 @@ void challenges_component::SendGolfInteraction(AFortPlayerController* Interactin
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:golf", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:golf", parameters);
         }
         else
         {
@@ -1130,7 +1130,7 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
                 {"y", RiftPortal->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:rift", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:rift", parameters);
         }
         else
         {
@@ -1155,7 +1155,7 @@ void challenges_component::SendTrapInteraction(AFortPlayerController* Interactin
                         {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:placed-trap", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:placed-trap", parameters);
         }
         else
         {
@@ -1185,7 +1185,7 @@ void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* In
                     {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:jigsaw-puzzle", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:jigsaw-puzzle", parameters);
         }
         else
         {
@@ -1233,7 +1233,7 @@ void challenges_component::SendFlamingHoopInteraction(AFortPlayerController* Int
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:flaming-ring", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:flaming-ring", parameters);
         }
         else
         {

@@ -215,7 +215,7 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:pistol", Value.PistolDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pistol", Value.PistolDamage);
             Value.PistolDamage = 0;
         }
     }
@@ -232,7 +232,7 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:shotgun", Value.ShotgunDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:shotgun", Value.ShotgunDamage);
             Value.ShotgunDamage = 0;
         }
     }
@@ -249,7 +249,7 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:assault_rifle", Value.AssaultRifleDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:assault_rifle", Value.AssaultRifleDamage);
             Value.AssaultRifleDamage = 0;
         }
     }
@@ -266,7 +266,7 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:sniper", Value.SniperDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:sniper", Value.SniperDamage);
             Value.SniperDamage = 0;
         }
     }
@@ -283,7 +283,7 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:grenade", Value.GrenadeDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade", Value.GrenadeDamage);
             Value.GrenadeDamage = 0;
         }
     }
@@ -300,7 +300,7 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:smg", Value.SMGDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:smg", Value.SMGDamage);
             Value.SMGDamage = 0;
         }
     }
@@ -317,7 +317,7 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:grenade_launcher", Value.GrenadeLauncherDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade_launcher", Value.GrenadeLauncherDamage);
             Value.GrenadeLauncherDamage = 0;
         }
     }
@@ -334,7 +334,7 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:rpg", Value.RPGDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:rpg", Value.RPGDamage);
             Value.RPGDamage = 0;
         }
     }
@@ -351,7 +351,7 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:suppressed_smg", Value.SuppressedSMGDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_smg", Value.SuppressedSMGDamage);
             Value.SuppressedSMGDamage = 0;
         }
     }
@@ -368,7 +368,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:suppressed_pistol", Value.SuppressedPistolDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_pistol", Value.SuppressedPistolDamage);
             Value.SuppressedPistolDamage = 0;
         }
     }
@@ -385,7 +385,7 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:minigun", Value.MinigunDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:minigun", Value.MinigunDamage);
             Value.MinigunDamage = 0;
         }
     }
@@ -402,7 +402,7 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:lmg", Value.LMGDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:lmg", Value.LMGDamage);
             Value.LMGDamage = 0;
         }
     }
@@ -419,7 +419,7 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:enemy_building", Value.EnemyStructureDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:enemy_building", Value.EnemyStructureDamage);
             Value.EnemyStructureDamage = 0;
         }
     }
@@ -436,7 +436,7 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "damage:pickaxe", Value.PickaxeDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pickaxe", Value.PickaxeDamage);
             Value.PickaxeDamage = 0;
         }
     }
@@ -453,7 +453,7 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "headshot_damage", Value.HeadshotDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "headshot_damage", Value.HeadshotDamage);
             Value.HeadshotDamage = 0;
         }
     }
@@ -470,7 +470,7 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "special_damage:jewel_opponent", Value.SpecialDamage.JewelOpponent);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:jewel_opponent", Value.SpecialDamage.JewelOpponent);
             Value.SpecialDamage.JewelOpponent = 0;
         }
     }
@@ -487,7 +487,7 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "special_damage:c4_enemy_building", Value.SpecialDamage.C4BuildingDamage);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:c4_enemy_building", Value.SpecialDamage.C4BuildingDamage);
             Value.SpecialDamage.C4BuildingDamage = 0;
         }
     }
@@ -632,7 +632,7 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
                 {"count", Value.TemporaryPlacedBuilds}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:structure", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:structure", parameters);
             Value.TemporaryPlacedBuilds = 0;
         }
     }
@@ -655,7 +655,7 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
                     {"amount", Value.TemporaryMaterialsGathered}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:building-resource", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:building-resource", parameters);
             Value.TemporaryMaterialsGathered = 0;
         }
     }
@@ -678,7 +678,7 @@ void player_component::TrickPointsCallback(AFortPlayerController* Self, FFrame& 
                 {"amount", Value.TemporaryTrickPoints}
             };
 
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "interaction:trick-points", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:trick-points", parameters);
             Value.TemporaryTrickPoints = 0;
         }
     }
@@ -779,7 +779,7 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
                     {"team", team_id}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:" + account_id, "phx_join", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_join", parameters);
 
             // Initialize stats
             PlayerStatsMap[FortPlayerController] = FPlayerStats();
