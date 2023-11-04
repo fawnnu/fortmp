@@ -3,6 +3,8 @@
 
 #include "config_manager.hpp"
 #include "loader_component.hpp"
+#include "player_component.hpp"
+#include "team_component.hpp"
 
 director_client::director_client()
 {
@@ -37,6 +39,43 @@ director_client::director_client()
                     if (payload["status"] == "off_graceful")
                     {
                         loader_component::bPendingShutdown = true;
+                    }
+                }
+                catch (nlohmann::json& exception)
+                {
+                }
+            });
+
+            client->On("entity", [](eudp_client*, nlohmann::json payload)
+            {
+                try
+                {
+                    std::string ticket = payload["ticket"];
+                    bool fill = payload["fill"];
+                    std::string backfill = payload["backfill"];
+                    std::string match = payload["match"];
+
+                    for (auto& player : payload["players"].items())
+                    {
+                        // Get account id
+                        std::string account_id = player.value();
+
+                        // Create encryption token
+                        std::string sEncryptionToken = std::string(account_id) + ":" + std::string(backfill);
+                        std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
+
+                        // Add to the valid EncryptionToken list
+                        player_component::EncryptionTokenList.push_back(wEncryptionToken);
+
+                        // Properly handle incoming fill and ticket
+                        if (ticket.length() > 0)
+                        {
+                            const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
+                        
+                            auto& new_team_instance = team_component::TeamsMap[wTicket];
+                            new_team_instance.TeamMembers.push_back(wEncryptionToken);
+                            new_team_instance.fill = fill;
+                        }
                     }
                 }
                 catch (nlohmann::json& exception)
