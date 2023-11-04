@@ -821,6 +821,34 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
             Players[wAccountID] = NewPlayer;
 
+            // Convert string
+            TO_STRING(wAccountID, sAccountID);
+            
+            // Query profile
+            httplib::Client ClientReq(API_URL);
+            httplib::Headers headers = {
+                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+            };
+            auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
+            if (Response->status == 200)
+            {
+                try
+                {
+                    nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
+
+                    try
+                    {
+                        Profiles[wToken] = parsed_response;   
+                    }
+                    catch (nlohmann::json::exception& err)
+                    {
+                    }
+                }
+                catch (nlohmann::json::parse_error& err)
+                {
+                }
+            }
+            
             for (auto& [token, data] : Profiles)
             {
                 if (token == wToken)
