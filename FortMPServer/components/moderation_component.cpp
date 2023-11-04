@@ -2,6 +2,7 @@
 #include "moderation_component.hpp"
 
 #include "config_manager.hpp"
+#include "director_client.hpp"
 #include "elimination_component.hpp"
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
@@ -423,6 +424,9 @@ void moderation_component::HandleResetServerCommand(const TCHAR*& InStream, AFor
     
     // Unregister the server
     gameserver_client::Client->SendLeave();
+    
+    // Close director connection
+    director_client::client->Close();
     
     // Quit
     RequestExitWithStatus(true, 0);

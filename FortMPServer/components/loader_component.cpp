@@ -824,6 +824,9 @@ bool loader_component_hooks::SetGameMode_Hook()
             // Unregister the server
             gameserver_client::Client->SendLeave();
             
+            // Close director connection
+            director_client::client->Close();
+            
             // Quit
             RequestExitWithStatus(true, 0);
         }

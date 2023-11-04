@@ -18,6 +18,7 @@
 #include "../components/net_component.hpp"
 #include "../components/player_component.hpp"
 #include "../components/shell_component.hpp"
+#include "../components/director_client.hpp"
 #include "../utils/stb_image.h"
 
 renderer::renderer()
@@ -490,6 +491,9 @@ void renderer::CreateNewWindow()
     }
     
     spdlog::info(L"Closed GUI, terminating server...");
+    
+    // Close director connection
+    director_client::client->Close();
     
     // Terminate program
     RequestExitWithStatus(true, 0);

@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
+#include "director_client.hpp"
 #include "era_mutators_component.hpp"
 #include "loader_component.hpp"
 #include "log_component.hpp"
@@ -26,6 +27,9 @@ void HeartbeatThread()
             
             // Unregister the server
             gameserver_client::Client->SendLeave();
+
+            // Close director connection
+            director_client::client->Close();
             
             // Request exit if the server has not been responsive for more than 3 minutes
             RequestExitWithStatus(true, 0);
@@ -37,6 +41,9 @@ void HeartbeatThread()
             
             // Unregister the server
             gameserver_client::Client->SendLeave();
+            
+            // Close director connection
+            director_client::client->Close();
             
             // Request exit if the server has not been responsive for more than 5 minutes
             RequestExitWithStatus(true, 0);

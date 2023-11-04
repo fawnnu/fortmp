@@ -6,6 +6,7 @@
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
+#include "director_client.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
@@ -731,7 +732,10 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
         {
             // Leave Era Services
             gameserver_client::Client->SendLeave();
-
+            
+            // Close director connection
+            director_client::client->Close();
+            
             // Close
             RequestExitWithStatus(true, 0);
         }
