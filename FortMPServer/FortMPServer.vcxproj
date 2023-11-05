@@ -215,6 +215,7 @@
     <ClInclude Include="components\challenges_component.hpp" />
     <ClInclude Include="components\config_manager.hpp" />
     <ClInclude Include="components\creative_component.hpp" />
+    <ClInclude Include="components\customproperties_component.hpp" />
     <ClInclude Include="components\director_client.hpp" />
     <ClInclude Include="components\elimination_component.hpp" />
     <ClInclude Include="components\era_mutators_component.hpp" />
@@ -350,6 +351,7 @@
     <ClCompile Include="components\challenges_component.cpp" />
     <ClCompile Include="components\config_manager.cpp" />
     <ClCompile Include="components\creative_component.cpp" />
+    <ClCompile Include="components\customproperties_component.cpp" />
     <ClCompile Include="components\director_client.cpp" />
     <ClCompile Include="components\elimination_component.cpp" />
     <ClCompile Include="components\era_mutators_component.cpp" />

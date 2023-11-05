@@ -86,8 +86,6 @@ director_client::director_client()
             });
         });
     }
-    
-    wait_for_config();
 }
 
 void director_client::send_ready_event()

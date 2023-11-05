@@ -33,6 +33,7 @@
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
 #include "components/config_manager.hpp"
+#include "components/customproperties_component.hpp"
 #include "components/director_client.hpp"
 #include "components/era_mutators_component.hpp"
 #include "components/fort_mutators_component.hpp"
@@ -43,12 +44,21 @@
 
 void Setup()
 {
+    // Pre init UE functions
+    unreal_manager::pre_init();
+    
     // Create director_client
     new director_client();
+
+    // Wait for config to be ready
+    director_client::wait_for_config();
     
     // Setup logging (File sinks)
     new log_component();
-
+    
+    // Create custom properties component
+    new customproperties_component();
+    
     // Setup Unreal Engine
     new unreal_manager();
 

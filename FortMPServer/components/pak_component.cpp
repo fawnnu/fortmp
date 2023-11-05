@@ -3,6 +3,8 @@
 
 pak_component::pak_component()
 {
+    spdlog::warn(L"pak_component is temporarily deprecated. It will be reimplemented as part of EraDirector.");
+    return;
     INIT_POINTER(FPlatformFileManager__Get, memory_manager::find_pattern("E8 ? ? ? ? 48 8B C8 48 8D 15 ? ? ? ? E8 ? ? ? ? 48 85 C0", true, 1));
 
     INIT_POINTER(FPlatformFileManager__FindPlatformFile, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 56 57 41 56 48 83 EC 20 48 8B 31"));

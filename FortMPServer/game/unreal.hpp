@@ -11,6 +11,7 @@ class unreal_manager
 {
 public:
     unreal_manager();
+    static void pre_init();
 };
 
 class UWorld;

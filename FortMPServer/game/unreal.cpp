@@ -4,13 +4,15 @@
 #include "../components/net_component.hpp"
 #include "../components/replication_component.hpp"
 
-unreal_manager::unreal_manager()
+void unreal_manager::pre_init()
 {
-    
     INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
     INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
     INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
+}
 
+unreal_manager::unreal_manager()
+{
     INIT_POINTER(FindFunctionByName, memory_manager::find_function_by_string(L"CallFunctionByNameWithArguments: Name not found", { 0xE8 }, 1, false));
     INIT_POINTER(FindPropertyByName, memory_manager::find_pattern("E8 ? ? ? ? 49 89 ? ? ? ? ? 49 8B ? ? ? ? ? 48 85 C9 74 33 48 85 DB 74 2E 48 8B 01 48 8B D3 ? 8B ? 30 FF 90 ? ? ? ? 49 8B ? ? ? ? ? 49 8B ? ? ? ? ? 48 8B ? 10", true, 1));
     
