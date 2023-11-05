@@ -9,6 +9,8 @@ void unreal_manager::pre_init()
     INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
     INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
     INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
+    INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
+    INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
 }
 
 unreal_manager::unreal_manager()
@@ -30,7 +32,6 @@ unreal_manager::unreal_manager()
 
     INIT_POINTER(ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 B0 ? ? ?"));
 
-    INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
     INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", { 0xE8 }, 1, false));
     INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_pattern("E8 ? ? ? ? 8B 45 48 85 C0 7E 3F 4C 8D 55 38 45 33 C9 ", true, 1));
     

@@ -2,13 +2,15 @@
 
 struct FCustomPropertyData
 {
-    FCustomPropertyData(std::wstring InClassName, void* InConstructData)
+    FCustomPropertyData(std::wstring InClassName, std::wstring InPropertyName, void* InConstructData)
     {
         ClassName = InClassName;
+        PropertyName = InPropertyName;
         ConstructData = InConstructData;
     }
     
     std::wstring ClassName;
+    std::wstring PropertyName;
     void* ConstructData;
 };
 
@@ -22,5 +24,5 @@ public:
 
 namespace customproperties_component_hooks
 {
-    DEFINE_FUNCTION_HOOK(void, ConstructUProperty, (UObject* NewClass, void** PropertyArray, int& PropertyNum))
+    DEFINE_FUNCTION_HOOK(void, ConstructUProperty, (UObject* NewClass, void*** PropertyArray, int& PropertyNum))
 }

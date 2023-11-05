@@ -3,23 +3,19 @@
 
 customproperties_component::customproperties_component()
 {
-    // Register custom properties
-    PendingCustomProperties.push_back(FCustomPropertyData(L"FortPlayerControllerAthena", nullptr));
-    
-    INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
-    INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
-    INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
+    if (FMemory_Malloc)
+    {
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
 
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    REGISTER_FUNCTION_DETOUR(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("40 55 53 57 41 54 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85"), customproperties_component_hooks::ConstructUProperty_Hook);
+        REGISTER_FUNCTION_DETOUR(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("40 55 53 57 41 54 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85"), customproperties_component_hooks::ConstructUProperty_Hook);
     
-    DetourTransactionCommit();
+        DetourTransactionCommit();
+    }
 }
 
-void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass, void** PropertyArray, int& PropertyNum)
-{
+void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass, void*** PropertyArray, int& PropertyNum)
+{   
     // Get class name and apply any pending custom property
     if (NewClass)
     {
@@ -35,14 +31,28 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
                 customproperties_component::PendingCustomProperties.erase(customproperties_component::PendingCustomProperties.begin() + i);
             }
         }
+
+        // Create a new PropertyArray
+        if (CustomPropertiesToApply.size() > 0)
+        {
+            void** NewPropertyArray = static_cast<void**>(FMemory_Malloc((PropertyNum + CustomPropertiesToApply.size()) * 8, 8));
+            ZeroMemory(NewPropertyArray, (PropertyNum + CustomPropertiesToApply.size()) * 8);
+            memcpy(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(NewPropertyArray) + CustomPropertiesToApply.size() * 8), *PropertyArray, PropertyNum * 8);
+            *PropertyArray = NewPropertyArray;
+        }
         
         // Apply properties
+        int LocalPropertyIndex = 0;
         for (auto CustomPropertyData : CustomPropertiesToApply)
         {
-            spdlog::info(L"Applied property to {}. PropertyNum: {}", CustomPropertyData.ClassName.c_str(), PropertyNum);
+            PropertyNum++;
+
+            (*PropertyArray)[LocalPropertyIndex++] = CustomPropertyData.ConstructData;
+            
+            spdlog::info(L"Applied property [{}] to {}. PropertyNum: {}", CustomPropertyData.PropertyName.c_str(), CustomPropertyData.ClassName.c_str(), PropertyNum);
         }
     }
-
+    
     // Remove hook
     if (customproperties_component::PendingCustomProperties.size() == 0)
     {
