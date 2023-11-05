@@ -254,13 +254,14 @@ void gameserver_client::Register()
         }
         else
         {
-            spdlog::info("/api/internal/game/servers failed. Retrying in 100ms");
+            spdlog::error("/api/internal/game/servers failed. Retrying in 100ms");
             if (Result)
             {
-                spdlog::info("Error code for /api/internal/game/servers: '{}'", Result->status);
+                spdlog::error("Error code for /api/internal/game/servers: '{}'", Result->status);
             }
-            Sleep(100);
         }
+        
+        Sleep(100);
     }
 }
 

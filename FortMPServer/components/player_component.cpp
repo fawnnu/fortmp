@@ -827,30 +827,44 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
             // Convert string
             TO_STRING(wAccountID, sAccountID);
-            
-            // Query profile
-            httplib::Client ClientReq(API_URL);
-            httplib::Headers headers = {
-                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-            };
-            auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
-            if (Response->status == 200)
-            {
-                try
-                {
-                    nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
 
+            // Query profile
+            while (true)
+            {
+                httplib::Client ClientReq(API_URL);
+                httplib::Headers headers = {
+                    { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+                };
+                auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
+                if (Response && Response->status == 200)
+                {
                     try
                     {
-                        Profiles[wToken] = parsed_response;   
+                        nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
+
+                        try
+                        {
+                            Profiles[wToken] = parsed_response;
+                            break;
+                        }
+                        catch (nlohmann::json::exception& err)
+                        {
+                        }
                     }
-                    catch (nlohmann::json::exception& err)
+                    catch (nlohmann::json::parse_error& err)
                     {
                     }
                 }
-                catch (nlohmann::json::parse_error& err)
+                else
                 {
+                    spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 100ms...", "/api/internal/users/" + sAccountID + "/profile");
+                    if (Response)
+                    {
+                        spdlog::error("Query profile failure error code: {}", Response->status);
+                    }
                 }
+
+                Sleep(100);
             }
             
             for (auto& [token, data] : Profiles)
