@@ -38,6 +38,7 @@ director_client::director_client()
                 {
                     if (payload["status"] == "off_graceful")
                     {
+                        spdlog::warn("Received power_change [off_graceful] from director. bPendingShutdown = true.");
                         loader_component::bPendingShutdown = true;
                     }
                 }
