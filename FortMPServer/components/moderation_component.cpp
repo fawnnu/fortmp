@@ -426,7 +426,10 @@ void moderation_component::HandleResetServerCommand(const TCHAR*& InStream, AFor
     gameserver_client::Client->SendLeave();
     
     // Close director connection
-    director_client::client->Close();
+    if (director_client::client)
+    {
+        director_client::client->Close();
+    }
     
     // Quit
     RequestExitWithStatus(true, 0);

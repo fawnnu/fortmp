@@ -329,13 +329,16 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                 if (*GWorld && (*GWorld)->GameState())
                 {
                     static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
-                    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
-                    if ((*GWorld)->GameState()->GamePhase() == Aircraft)
+                    uint8_t Warmup = GamePhaseEnum->GetEnumIndex(TEXT("Warmup"));
+                    if ((*GWorld)->GameState()->GamePhase() == Warmup)
                     {
-                        director_client::client->Send(eudp_packet({
-                            {"type", "player_left"},
-                            {"payload", nlohmann::json()}
-                        }));
+                        if (director_client::client)
+                        {
+                            director_client::client->Send(eudp_packet({
+                                {"type", "player_left"},
+                                {"payload", nlohmann::json()}
+                            }));
+                        }
                     }
                 }
                 

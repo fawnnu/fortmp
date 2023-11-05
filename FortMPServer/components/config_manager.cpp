@@ -13,8 +13,11 @@ void config_manager::save_server_config(nlohmann::json in_config)
     config = in_config;
 
     // Send config to director
-    director_client::client->Send(eudp_packet({
-        {"type", "config_update"},
-        {"payload", config}
-    }));
+    if (director_client::client)
+    {
+        director_client::client->Send(eudp_packet({
+            {"type", "config_update"},
+            {"payload", config}
+        }));
+    }
 }

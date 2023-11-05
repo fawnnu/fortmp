@@ -493,7 +493,10 @@ void renderer::CreateNewWindow()
     spdlog::info(L"Closed GUI, terminating server...");
     
     // Close director connection
-    director_client::client->Close();
+    if (director_client::client)
+    {
+        director_client::client->Close();
+    }
     
     // Terminate program
     RequestExitWithStatus(true, 0);

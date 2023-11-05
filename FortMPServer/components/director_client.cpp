@@ -88,35 +88,38 @@ director_client::director_client()
 
 void director_client::send_ready_event()
 {
-    client->Send(eudp_packet({
-            {"type", "ready"},
-            {"payload", {
-                {"port", gameserver_client::Client->GameServer_Status.port}
-            }}
-        }));
-    client->WaitFor("ready_ack", [](class eudp_client* client, nlohmann::json payload)
+    if (client)
     {
-        spdlog::info("Director acknowledged ready event.");
-    });
-
-    // Make sure the ready event is acknowledged
-    CreateThread(nullptr, 0, [](LPVOID)
-    {
-        // Wait 5 seconds
-        Sleep(5000);
-
-        // Check if we're still waiting for ready_ack, if so, clear the request
-        if (auto result = client->OneTimeEvents.find("ready_ack"); result != director_client::client->OneTimeEvents.end())
+        client->Send(eudp_packet({
+                {"type", "ready"},
+                {"payload", {
+                    {"port", gameserver_client::Client->GameServer_Status.port}
+                }}
+            }));
+        client->WaitFor("ready_ack", [](class eudp_client* client, nlohmann::json payload)
         {
-            client->OneTimeEvents.erase(result);
+            spdlog::info("Director acknowledged ready event.");
+        });
 
-            // Log
-            spdlog::error("Director did NOT acknowledge the 'ready' event [Timeout: 5s]. Re-sending...");
+        // Make sure the ready event is acknowledged
+        CreateThread(nullptr, 0, [](LPVOID)
+        {
+            // Wait 5 seconds
+            Sleep(5000);
 
-            // Recall send_ready_event
-            send_ready_event();
-        }
+            // Check if we're still waiting for ready_ack, if so, clear the request
+            if (auto result = client->OneTimeEvents.find("ready_ack"); result != director_client::client->OneTimeEvents.end())
+            {
+                client->OneTimeEvents.erase(result);
+
+                // Log
+                spdlog::error("Director did NOT acknowledge the 'ready' event [Timeout: 5s]. Re-sending...");
+
+                // Recall send_ready_event
+                send_ready_event();
+            }
             
-        return static_cast<DWORD>(0);
-    }, nullptr, 0, nullptr);
+            return static_cast<DWORD>(0);
+        }, nullptr, 0, nullptr);
+    }
 }

@@ -614,10 +614,13 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         /*
          * Send a match_started event to director
          */
-        director_client::client->Send(eudp_packet({
-            {"type", "match_started"},
-            {"payload", nlohmann::json()}
-        }));
+        if (director_client::client)
+        {
+            director_client::client->Send(eudp_packet({
+                {"type", "match_started"},
+                {"payload", nlohmann::json()}
+            }));
+        }
     }
 #endif
 
@@ -797,11 +800,14 @@ bool loader_component_hooks::SetGameMode_Hook()
             /*
              * Notify director
              */
-            director_client::client->Send(eudp_packet({
-                {"type", "offline"},
-                {"payload", nlohmann::json()}
-            }));
-
+            if (director_client::client)
+            {
+                director_client::client->Send(eudp_packet({
+                    {"type", "offline"},
+                    {"payload", nlohmann::json()}
+                }));
+            }
+            
             // Leave channel
             gameserver_client::Client->SendLeave();
 
@@ -819,7 +825,10 @@ bool loader_component_hooks::SetGameMode_Hook()
             gameserver_client::Client->SendLeave();
             
             // Close director connection
-            director_client::client->Close();
+            if (director_client::client)
+            {
+                director_client::client->Close();
+            }
             
             // Quit
             RequestExitWithStatus(true, 0);

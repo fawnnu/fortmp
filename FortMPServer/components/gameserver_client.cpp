@@ -29,7 +29,10 @@ void HeartbeatThread()
             gameserver_client::Client->SendLeave();
 
             // Close director connection
-            director_client::client->Close();
+            if (director_client::client)
+            {
+                director_client::client->Close();
+            }
             
             // Request exit if the server has not been responsive for more than 3 minutes
             RequestExitWithStatus(true, 0);
@@ -43,7 +46,10 @@ void HeartbeatThread()
             gameserver_client::Client->SendLeave();
             
             // Close director connection
-            director_client::client->Close();
+            if (director_client::client)
+            {
+                director_client::client->Close();
+            }
             
             // Request exit if the server has not been responsive for more than 5 minutes
             RequestExitWithStatus(true, 0);

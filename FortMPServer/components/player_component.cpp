@@ -734,7 +734,10 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
             gameserver_client::Client->SendLeave();
             
             // Close director connection
-            director_client::client->Close();
+            if (director_client::client)
+            {
+                director_client::client->Close();
+            }
             
             // Close
             RequestExitWithStatus(true, 0);
