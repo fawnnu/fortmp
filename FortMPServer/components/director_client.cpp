@@ -29,6 +29,7 @@ director_client::director_client()
             client->On("config", [](eudp_client* client, nlohmann::json payload)
             {
                 // Set config
+                config_manager::bReceivedConfig = true;
                 config_manager::config = payload;
             });
 
@@ -85,6 +86,8 @@ director_client::director_client()
             });
         });
     }
+    
+    wait_for_config();
 }
 
 void director_client::send_ready_event()
@@ -122,5 +125,14 @@ void director_client::send_ready_event()
             
             return static_cast<DWORD>(0);
         }, nullptr, 0, nullptr);
+    }
+}
+
+void director_client::wait_for_config()
+{
+    while (!config_manager::bReceivedConfig)
+    {
+        spdlog::error("director_client did not receive 'config' event from director. Retrying in 100ms...");
+        Sleep(100);
     }
 }

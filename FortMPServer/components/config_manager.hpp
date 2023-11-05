@@ -7,4 +7,5 @@ public:
     static void save_server_config(nlohmann::json in_config);
 
     static inline nlohmann::json config;
+    static inline bool bReceivedConfig = false;
 };
