@@ -68,7 +68,10 @@ director_client::director_client()
 
                         // Add to the valid EncryptionToken list
                         player_component::EncryptionTokenList.push_back(wEncryptionToken);
-
+                        
+                        // set match id for player
+                        player_component::Matches[account_id] = match;
+                        
                         // Properly handle incoming fill and ticket
                         if (ticket.length() > 0)
                         {

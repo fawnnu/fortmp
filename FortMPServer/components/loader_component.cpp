@@ -618,7 +618,9 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         {
             director_client::client->Send(eudp_packet({
                 {"type", "match_started"},
-                {"payload", nlohmann::json()}
+                {"payload", {
+                    {"starting_players", player_component::starting_players}
+                }}
             }));
         }
     }
@@ -849,6 +851,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::starting_players = 0;
         player_component::PendingVariantsData.clear();
         player_component::HeadshotKillMap.clear();
+        player_component::Matches.clear();
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();
         anticheat_component::Initialize();

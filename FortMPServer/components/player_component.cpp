@@ -782,8 +782,8 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
             }
             
             std::map<std::string, std::string> parameters{
-                    {"server", gameserver_client::Client->UUID},
-                    {"team", team_id}
+                {"match", Matches[account_id]},
+                {"team", team_id}
             };
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_join", parameters);
