@@ -1120,6 +1120,23 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                 }
             }
 #endif
+
+            // Check if our pawn is overlapping anything
+            TArray<UPrimitiveComponent*> OverlappedComponents;
+            player_controller->Pawn()->GetOverlappingComponents(&OverlappedComponents);
+            for (UPrimitiveComponent* Component : OverlappedComponents)
+            {
+                if (AActor* Owner = Component->GetOwner())
+                {
+                    if (Owner->IsA(AStreet_Light_Spotlight_AthenaQuest_C::StaticClass()))
+                    {
+                        if (Owner->HasProperty(TEXT("ObjectiveBackendName")))
+                        {
+                            challenges_component::SendSpotlightDanceInteraction(player_controller, static_cast<AStreet_Light_Spotlight_AthenaQuest_C*>(Owner), static_cast<AStreet_Light_Spotlight_AthenaQuest_C*>(Owner)->ObjectiveBackendName());
+                        }
+                    }
+                }
+            }
             
             auto new_ability_spec = FGameplayAbilitySpec();
         

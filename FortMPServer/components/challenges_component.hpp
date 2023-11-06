@@ -43,6 +43,8 @@ public:
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
     static void SendTrapInteraction(AFortPlayerController* InteractingController);
     static void SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective);
+    static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);
+    static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

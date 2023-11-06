@@ -436,6 +436,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
         
             UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo(), GenericAttributeValues);
 
+            // Send pickup interaction
+            challenges_component::SendPickupInteraction(PlayerController, Pickup);
+            
             if (inventory_component::is_inventory_full(PlayerController))
             {
                 if (!memory_manager::is_bad_read_pointer(PickupTarget->CurrentWeapon()) && PickupTarget->CurrentWeapon())

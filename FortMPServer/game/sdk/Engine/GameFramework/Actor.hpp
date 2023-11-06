@@ -71,6 +71,18 @@ public:
         return Call<FTransform>(Function_GetTransform);
     }
 
+    void GetOverlappingComponents(TArray<class UPrimitiveComponent*>* OutOverlappedComponents)
+    {
+        STATIC_FINDFUNCTION(GetOverlappingComponents)
+
+        if (Function_GetOverlappingComponents)
+        {
+            TArray<class UPrimitiveComponent*> OverlappedComponents;
+            ProcessEvent(this, Function_GetOverlappingComponents, &OverlappedComponents);
+            *OutOverlappedComponents = OverlappedComponents;
+        }
+    }
+
     void SetActorScale3D(FVector& NewScale3D)
     {
         STATIC_FINDFUNCTION(SetActorScale3D)

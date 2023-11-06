@@ -210,3 +210,11 @@ public:
 
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 };
+
+class AStreet_Light_Spotlight_AthenaQuest_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/StreetlightSpotlight/Street_Light_Spotlight_AthenaQuest.Street_Light_Spotlight_AthenaQuest_C");
+
+    DEFINE_PROPERTY(FName, ObjectiveBackendName);
+};

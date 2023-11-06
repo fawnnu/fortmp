@@ -49,6 +49,7 @@ public:
     DEFINE_PROPERTY(uint8_t, ItemType);
     DEFINE_PROPERTY(uint8_t, FilterOverride);
     DEFINE_PROPERTY(uint8_t, Rarity);
+    DEFINE_PROPERTY(uint8_t, Tier);
     DEFINE_PROPERTY(struct FGameplayTagContainer, GameplayTags);
     
     UFortItem* CreateTemporaryItemInstanceBP(int Count, int Level)

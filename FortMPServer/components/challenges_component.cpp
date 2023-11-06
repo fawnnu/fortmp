@@ -1197,6 +1197,99 @@ void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* In
     }   
 }
 
+void challenges_component::SendSpotlightDanceInteraction(AFortPlayerController* InteractingController,
+    AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective)
+{
+    if (InteractingController && StreetLight)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", StreetLight->K2_GetActorLocation().X},
+                {"y", StreetLight->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:streetlight-dance", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendPickupInteraction(AFortPlayerController* InteractingPlayerController,
+                                                 AFortPickup* Pickup)
+{
+    if (InteractingPlayerController && InteractingPlayerController->Pawn() && Pickup)
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        // Convert tier to rarity enum
+        std::string rarity;
+
+        if (Pickup && Pickup->PrimaryPickupItemEntry().ItemDefinition())
+        {
+            if (STATIC_HASPROPERTY(Pickup->PrimaryPickupItemEntry().ItemDefinition(), Tier))
+            {
+                static UEnum* EFortItemTier = FindObject<UEnum>(L"/Script/FortniteGame.EFortItemTier");
+                static uint8_t I = EFortItemTier->GetEnumIndex(TEXT("I"));
+                static uint8_t II = EFortItemTier->GetEnumIndex(TEXT("II"));
+                static uint8_t III = EFortItemTier->GetEnumIndex(TEXT("III"));
+                static uint8_t IV = EFortItemTier->GetEnumIndex(TEXT("IV"));
+                static uint8_t V = EFortItemTier->GetEnumIndex(TEXT("V"));
+                if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == I)
+                {
+                    rarity = "common";
+                }
+                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == II)
+                {
+                    rarity = "uncommon";
+                }
+                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == III)
+                {
+                    rarity = "rare";
+                }
+                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == IV)
+                {
+                    rarity = "epic";
+                }
+                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == V)
+                {
+                    rarity = "legendary";
+                }
+            }
+        }
+
+        if (account_id.size() > 0 && rarity.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                {"rarity", rarity}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pickup", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id or rarity while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
