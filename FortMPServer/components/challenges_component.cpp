@@ -116,9 +116,9 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
 
         if (account_id.size() > 0)
         {
-            std::map<std::string, std::string> parameters{
-                {"x", std::to_string(Self->K2_GetActorLocation().X)},
-                {"y", std::to_string(Self->K2_GetActorLocation().Y)}
+            nlohmann::json parameters {
+                {"x", Self->K2_GetActorLocation().X},
+                {"y", Self->K2_GetActorLocation().Y}
             };
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:landing", parameters);
