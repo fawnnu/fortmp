@@ -835,6 +835,8 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             while (true)
             {
                 httplib::Client ClientReq(API_URL);
+                ClientReq.set_read_timeout(15, 0); // 15 seconds
+                ClientReq.set_write_timeout(15, 0); // 15 seconds
                 httplib::Headers headers = {
                     { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
                 };
