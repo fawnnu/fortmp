@@ -90,6 +90,8 @@ struct FPlayerStats
     int TemporaryPlacedBuilds;
     int TemporaryMaterialsGathered;
     int TemporaryTrickPoints;
+    int TemporaryObtainedShield;
+    int TemporaryCampfireHealth;
 };
 
 enum EEraPlatform
@@ -137,6 +139,10 @@ public:
 
     // Debounced trick points tracking
     static void TrickPointsCallback(AFortPlayerController* Self, FFrame& StackFrame);
+
+    // Health debounced events
+    static void ShieldCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void CampfireHealthCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
@@ -226,6 +232,9 @@ namespace player_component_hooks
 
     // Track trick points
     DEFINE_FUNCTION_HOOK(void, ServerAwardVehicleTrickPoints, (AFortPlayerController* Self, FFrame& StackFrame))
+
+    DEFINE_FUNCTION_HOOK(void, GameplayCue_Shield_PotionConsumed, (UObject* Self, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, GameplayCue, (UObject* Self, UObject* Function, void* Params));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

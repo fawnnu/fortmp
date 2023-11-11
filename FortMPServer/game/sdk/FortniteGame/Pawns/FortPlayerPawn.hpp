@@ -317,7 +317,7 @@ public:
 class APlayerPawn_Athena_C : public AFortPlayerPawnAthena
 {
 public:
-    DEFINE_STATIC_CLASS(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C")
+    DEFINE_CLASS(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C")
 };
 
 class AFortAthenaSKPushCannon : public AFortAthenaVehicle

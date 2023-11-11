@@ -76,3 +76,17 @@ public:
     
     DEFINE_PROPERTY(AFortWeapon*, CurrentWeapon);
 };
+
+struct FGameplayCueParameters
+{
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayCueParameters")
+    DEFINE_STRUCT_PROPERTY(float, NormalizedMagnitude);
+    DEFINE_STRUCT_PROPERTY(float, RawMagnitude);
+    DEFINE_STRUCT_PROPERTY(FGameplayTag, MatchedTagName);
+    DEFINE_STRUCT_PROPERTY(FGameplayTag, OriginalTag);
+    DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, AggregatedSourceTags);
+    DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, AggregatedTargetTags);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, Instigator);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, EffectCauser);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, SourceObject);
+};

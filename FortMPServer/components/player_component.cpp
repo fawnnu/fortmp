@@ -87,6 +87,7 @@ player_component::player_component()
     // Finish spawning a player
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.BuildingActor.OnDamageServer", player_component_hooks::OnDamageServer_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortPawn.GameplayCue", player_component_hooks::GameplayCue_Hook);
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
@@ -112,6 +113,8 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(BuildingPlacedCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HarvestResourcesCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(TrickPointsCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
 }
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
@@ -685,6 +688,63 @@ void player_component::TrickPointsCallback(AFortPlayerController* Self, FFrame& 
     }
 }
 
+void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = PlayerStatsMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"count", Value.TemporaryObtainedShield}
+            };
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"player_component::ShieldCallback is sending TemporaryObtainedShield: {}", Value.TemporaryObtainedShield);
+            }
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shield", parameters);
+            Value.TemporaryObtainedShield = 0;
+        }
+    }
+}
+
+void player_component::CampfireHealthCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = PlayerStatsMap[Self];
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"source", "campfire"},
+                {"count", Value.TemporaryCampfireHealth}
+            };
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"player_component::CampfireHealthCallback is sending TemporaryCampfireHealth: {}", Value.TemporaryCampfireHealth);
+            }
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:heal", parameters);
+            Value.TemporaryCampfireHealth = 0;
+        }
+    }
+}
+
 bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Options)
 {
     // Only let people with a valid encryption token join
@@ -834,6 +894,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Query profile
             while (true)
             {
+                break;
                 httplib::Client ClientReq(API_URL);
                 ClientReq.set_read_timeout(15, 0); // 15 seconds
                 ClientReq.set_write_timeout(15, 0); // 15 seconds
@@ -2118,4 +2179,58 @@ void player_component_hooks::ServerAwardVehicleTrickPoints_Hook(AFortPlayerContr
     }
     
     ServerAwardVehicleTrickPoints(Self, StackFrame);   
+}
+
+void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(FGameplayCueParameters, Parameters)
+
+    if (Self)
+    {
+        AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller();
+        FPlayerStats& PlayerStats = player_component::PlayerStatsMap[PlayerController];
+
+        if (PlayerController)
+        {
+            if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Trap.CozyCampfire")))
+            {
+                PlayerStats.TemporaryCampfireHealth += 2;
+                if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"CampfireHealthCallback"))
+                {
+                    UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"CampfireHealthCallback");
+                }
+                UKismetSystemLibrary::K2_SetTimer(PlayerController, L"CampfireHealthCallback", 5.0, false);
+            }
+            else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Trait.Restoration.Shields")))
+            {
+                if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.SmallShieldPotion")))
+                {
+                    PlayerStats.TemporaryObtainedShield += 25;
+                    if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ShieldCallback"))
+                    {
+                        UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ShieldCallback");
+                    }
+                    UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
+                }
+                else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.ShieldPotion")))
+                {
+                    PlayerStats.TemporaryObtainedShield += 50;
+                    if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ShieldCallback"))
+                    {
+                        UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ShieldCallback");
+                    }
+                    UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
+                }
+                else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.SlurpJuice")))
+                {
+                    PlayerStats.TemporaryObtainedShield += 1;
+                    if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ShieldCallback"))
+                    {
+                        UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ShieldCallback");
+                    }
+                    UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
+                }
+            }
+        }
+    }
 }

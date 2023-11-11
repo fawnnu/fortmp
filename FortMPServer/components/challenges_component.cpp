@@ -31,6 +31,13 @@ void challenges_component::Initialize()
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
     }
+
+    {
+        if (auto Function = FindFunctionByName(FindObject(L"/Game/Athena/PlayerPawn_Athena_Generic.PlayerPawn_Athena_Generic_C"), L"GameplayCue.Shield.PotionConsumed", 1))
+        {
+            hook_manager::hooked_functions[Function] = std::function(&player_component_hooks::GameplayCue_Hook);
+        };
+    }
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
