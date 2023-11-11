@@ -48,6 +48,28 @@
         }\
     }
 
+#define REGISTER_CALL_DETOUR_UNSAFE(FunctionObject, FunctionDetour) \
+    { \
+        UFunction* function_to_hook = FindObject<UFunction>(FunctionObject) ? \
+        FindObject<UFunction>(FunctionObject) : FindObject<UFunction>(FunctionObject, false, true); \
+        \
+        if (function_to_hook != nullptr) \
+        {\
+            const auto all_calls_in_function = memory_manager::get_all_calls_in_function_unsafe(reinterpret_cast<uintptr_t>(function_to_hook->get_native_function())); \
+            \
+            if (log_component::enable_debug_logs)\
+            {\
+            spdlog::info((void*)all_calls_in_function[all_calls_in_function.size() - 1]);\
+            }\
+            \
+            memory_manager::call_hook(all_calls_in_function[all_calls_in_function.size() - 1], reinterpret_cast<uintptr_t>(FunctionDetour));\
+        }\
+        else \
+        {\
+            spdlog::error(L"Failed to hook '{}', invalid function object provided", FunctionObject);\
+        }\
+    }
+
 #define REGISTER_CALL_DETOUR_WITH_ADDRESS(CallAddress, FunctionDetour) \
     {\
         if (CallAddress != 0)\

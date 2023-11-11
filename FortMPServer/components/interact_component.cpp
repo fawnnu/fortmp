@@ -103,6 +103,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with jigsaw puzzle
         handle_jigsaw_puzzle_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Jigsaw_Parent*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(ACBGA_SpookyMist_C::StaticClass()))
+    {
+        // Handle any interaction with shadow stones
+        handle_shadowstone_interaction(player_controller, reinterpret_cast<ACBGA_SpookyMist_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -422,6 +427,12 @@ void interact_component::handle_jigsaw_puzzle_interaction(AFortPlayerController*
         // Send interaction event
         challenges_component::SendJigsawPuzzleInteraction(player_controller, jigsawpuzzle, jigsawpuzzle->QuestBackendObjectiveName());
     } 
+}
+
+void interact_component::handle_shadowstone_interaction(AFortPlayerController* player_controller,
+    ACBGA_SpookyMist_C* spookymist)
+{
+    inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist"), 1);
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

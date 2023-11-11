@@ -2181,6 +2181,21 @@ void player_component_hooks::ServerAwardVehicleTrickPoints_Hook(AFortPlayerContr
     ServerAwardVehicleTrickPoints(Self, StackFrame);   
 }
 
+void player_component_hooks::OnRemoval_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AActor*, MyTarget)
+
+    if (MyTarget)
+    {
+        auto Controller = static_cast<AFortPawn*>(MyTarget)->Controller();
+
+        if (Controller)
+        {
+            inventory_component::remove_item(Controller, inventory_component::get_inventory_item_by_definition(Controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist"))->GetItemGuid(), -1, false);
+        }
+    }
+}
+
 void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(FGameplayCueParameters, Parameters)

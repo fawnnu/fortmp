@@ -295,6 +295,29 @@ std::vector<uintptr_t> memory_manager::get_all_calls_in_function(uintptr_t funct
 	return calls_list;
 }
 
+std::vector<uintptr_t> memory_manager::get_all_calls_in_function_unsafe(uintptr_t function_start)
+{
+	std::vector<uintptr_t> calls_list;
+
+	uintptr_t function_end = get_function_end(function_start);
+	uintptr_t instruction_address = function_start;
+
+	for (; instruction_address <= function_end; instruction_address++)
+	{
+		if (*reinterpret_cast<uint8_t*>(instruction_address) == 0xE8) // Call
+		{
+			uintptr_t called_function = instruction_address + 5 + *reinterpret_cast<int*>(instruction_address + 1);
+
+			/*if (is_valid_function(called_function))*/
+			{
+				calls_list.push_back(instruction_address);
+			}
+		}
+	}
+
+	return calls_list;
+}
+
 std::vector<uintptr_t> memory_manager::get_all_leas_in_function(uintptr_t function_start)
 {
 	std::vector<uintptr_t> calls_list;

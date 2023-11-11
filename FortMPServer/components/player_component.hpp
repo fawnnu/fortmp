@@ -235,6 +235,7 @@ namespace player_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, GameplayCue_Shield_PotionConsumed, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, GameplayCue, (UObject* Self, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, OnRemoval, (UObject* Self, UObject* Function, void* Params));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

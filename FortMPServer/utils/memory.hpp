@@ -31,6 +31,7 @@ public:
     static uintptr_t allocate_page_near_address(uintptr_t address, ENewPageLocation location = ENewPageLocation::LOW);
     static uintptr_t get_function_end(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_calls_in_function(uintptr_t function_start);
+    static std::vector<uintptr_t> get_all_calls_in_function_unsafe(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_leas_in_function(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_stripped_calls_in_function(uintptr_t function_start);
     static std::vector<uintptr_t> get_all_stripped_calls_in_function_wiktor(uintptr_t function_start);
