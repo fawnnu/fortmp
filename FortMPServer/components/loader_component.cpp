@@ -588,6 +588,11 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("winter_bus", nullptr);
     }
+
+    if (GetCL() == 4526925)
+    {
+        era_mutators_component::Execute("halloween_bus", nullptr);
+    }
 }
 
 void loader_component::OnMapInfoLoaded()
