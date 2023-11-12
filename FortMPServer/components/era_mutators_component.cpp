@@ -111,6 +111,11 @@ era_mutators_component::era_mutators_component()
     {
         (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus", true, false));
     });
+
+    new era_mutator("halloween_bus", [](LPVOID Parameters)
+    {
+        (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_HalloweenBus.BBID_HalloweenBus", true, false));
+    });
     
     new era_mutator("siphon", [](LPVOID Parameters)
     {
