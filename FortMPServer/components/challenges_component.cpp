@@ -50,6 +50,8 @@ void challenges_component::Initialize()
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && TargetContainer)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -75,6 +77,8 @@ void challenges_component::SendChestEvent(AFortPlayerController* InteractingCont
 
 void challenges_component::SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && SupplyDrop)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -100,6 +104,8 @@ void challenges_component::SendSupplyDropEvent(AFortPlayerController* Interactin
 
 void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && TargetContainer)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -125,6 +131,8 @@ void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingContr
 
 void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self)
 {
+    CHECK_PAST_WARMUP()
+    
     if (OwnerPC && Self)
     {
         std::string account_id = player_component::get_account_id(OwnerPC);
@@ -150,6 +158,8 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
 
 void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && Llama)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -175,6 +185,8 @@ void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingCont
 
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
 {
+    CHECK_PAST_WARMUP()
+    
     if (PlayerController)
     {
         std::string account_id = player_component::get_account_id(PlayerController);
@@ -235,6 +247,8 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
 
 void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags)
 {
+    CHECK_PAST_WARMUP()
+    
     if (KillerPlayerController && VictimPlayerController)
     {
         if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
@@ -337,6 +351,8 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
 
 void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (ExecutingPlayerController && VictimPlayerController)
     {
         const std::string executing_account_id = player_component::get_account_id(ExecutingPlayerController);
@@ -369,6 +385,8 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
 
 void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && Letter)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -398,6 +416,8 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
 
 void challenges_component::SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && Gnome)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -427,6 +447,8 @@ void challenges_component::SendGnomeInteraction(AFortPlayerController* Interacti
 
 void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && BattleStar)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -456,6 +478,8 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
 
 void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && BattleStar)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -485,6 +509,8 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
 
 void challenges_component::SendPortAFortInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -510,6 +536,8 @@ void challenges_component::SendPortAFortInteraction(AFortPlayerController* Inter
 
 void challenges_component::SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && HopRock)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -535,6 +563,8 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
 
 void challenges_component::SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* Apple)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && Apple)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -560,6 +590,8 @@ void challenges_component::SendAppleInteraction(AFortPlayerController* Interacti
 
 void challenges_component::SendMushroomInteraction(AFortPlayerController* InteractingController, ACBGA_ShieldsSmall_C* Mushroom)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && Mushroom)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -585,6 +617,8 @@ void challenges_component::SendMushroomInteraction(AFortPlayerController* Intera
 
 void challenges_component::SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && StormCenter)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -610,6 +644,8 @@ void challenges_component::SendStormCenterInteraction(AFortPlayerController* Int
 
 void challenges_component::SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && LocationProp)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -639,6 +675,8 @@ void challenges_component::SendLocationInteraction(AFortPlayerController* Intera
 
 void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && SkydiveRing)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -664,6 +702,8 @@ void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* Int
 
 void challenges_component::SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && LaunchPad)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -689,6 +729,8 @@ void challenges_component::SendLaunchPadInteraction(AFortPlayerController* Inter
 
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -714,6 +756,8 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
 
 void challenges_component::SendSprayInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -739,6 +783,8 @@ void challenges_component::SendSprayInteraction(AFortPlayerController* Interacti
 
 void challenges_component::SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && VendingMachine)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -764,6 +810,8 @@ void challenges_component::SendVendingMachineInteraction(AFortPlayerController* 
 
 void challenges_component::SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && RubberDuck)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -793,6 +841,8 @@ void challenges_component::SendRubberDuckInteraction(AFortPlayerController* Inte
 
 void challenges_component::SendLightningBoltInteraction(AFortPlayerController* InteractingController, AProp_QuestActor_FloatingLightningBolt_Parent_C* LightningBolt, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && LightningBolt)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -943,6 +993,8 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
 
 void challenges_component::SendDiscoBallInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -968,6 +1020,8 @@ void challenges_component::SendDiscoBallInteraction(AFortPlayerController* Inter
 
 void challenges_component::SendShoppingCartInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -993,6 +1047,8 @@ void challenges_component::SendShoppingCartInteraction(AFortPlayerController* In
 
 void challenges_component::SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1022,6 +1078,8 @@ void challenges_component::SendPitchGoalInteraction(AFortPlayerController* Inter
 
 void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1051,6 +1109,8 @@ void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* 
 
 void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1080,6 +1140,8 @@ void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* Int
 
 void challenges_component::SendJewelInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1105,6 +1167,8 @@ void challenges_component::SendJewelInteraction(AFortPlayerController* Interacti
 
 void challenges_component::SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1134,6 +1198,8 @@ void challenges_component::SendGolfInteraction(AFortPlayerController* Interactin
 
 void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && RiftPortal)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1159,6 +1225,8 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
 
 void challenges_component::SendTrapInteraction(AFortPlayerController* InteractingController)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1185,6 +1253,8 @@ void challenges_component::SendTrapInteraction(AFortPlayerController* Interactin
 void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController,
     AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && JigsawPuzzle)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1215,6 +1285,8 @@ void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* In
 void challenges_component::SendSpotlightDanceInteraction(AFortPlayerController* InteractingController,
     AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && StreetLight)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -1245,6 +1317,8 @@ void challenges_component::SendSpotlightDanceInteraction(AFortPlayerController* 
 void challenges_component::SendPickupInteraction(AFortPlayerController* InteractingPlayerController,
                                                  AFortPickup* Pickup)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingPlayerController && InteractingPlayerController->Pawn() && Pickup)
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -1307,6 +1381,8 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
 
 void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
+    CHECK_PAST_WARMUP()
+    
     if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
     {
         if (ItemDefinition == Athena_Bling_Pack_Definition)
@@ -1326,6 +1402,8 @@ void challenges_component::HandleSpecialItemAdded(AFortPlayerController* Interac
 void challenges_component::SendFlamingHoopInteraction(AFortPlayerController* InteractingController,
     AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName BackendObjectiveName)
 {
+    CHECK_PAST_WARMUP()
+    
     if (InteractingController && FlamingHoop)
     {
         std::string account_id = player_component::get_account_id(InteractingController);

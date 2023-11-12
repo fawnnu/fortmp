@@ -1,5 +1,21 @@
 ﻿#pragma once
 
+#define CHECK_PAST_WARMUP()\
+    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));\
+    static uint8_t Warmup = GamePhaseEnum->GetEnumIndex(TEXT("Warmup"));\
+    \
+    if (*GWorld)\
+    {\
+    if ((*GWorld)->GameState())\
+    {\
+    if ((*GWorld)->GameState()->GamePhase() == Warmup)\
+    {\
+    return;\
+    }\
+    }\
+    }\
+    
+
 class challenges_component
 {
 public:
