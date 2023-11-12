@@ -894,7 +894,6 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Query profile
             while (true)
             {
-                break;
                 httplib::Client ClientReq(API_URL);
                 ClientReq.set_read_timeout(15, 0); // 15 seconds
                 ClientReq.set_write_timeout(15, 0); // 15 seconds
