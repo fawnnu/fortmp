@@ -891,237 +891,269 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Convert string
             TO_STRING(wAccountID, sAccountID);
 
-            // Query profile
-            while (true)
+            struct ProfileParsingParameters
             {
-                httplib::Client ClientReq(API_URL);
-                ClientReq.set_read_timeout(15, 0); // 15 seconds
-                ClientReq.set_write_timeout(15, 0); // 15 seconds
-                httplib::Headers headers = {
-                    { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-                };
-                auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
-                if (Response && Response->status == 200)
+                ProfileParsingParameters(AFortPlayerController* InNewPlayer, FString InOptions, UNetConnection* InConnection, std::wstring InAccountID)
                 {
-                    try
+                    NewPlayer = InNewPlayer;
+                    Options = InOptions;
+                    Connection = InConnection;
+                    AccountID = InAccountID;
+                }
+                
+                AFortPlayerController* NewPlayer;
+                FString Options;
+                UNetConnection* Connection;
+                std::wstring AccountID;
+            };
+            ProfileParsingParameters* NewProfileParsingParameters = new ProfileParsingParameters(NewPlayer, Options, Connection, wAccountID);
+            
+            // Query profile
+            CreateThread(nullptr, 0, [](LPVOID INParams) -> DWORD
+            {
+                ProfileParsingParameters* NewProfileParsingParameters = static_cast<ProfileParsingParameters*>(INParams);
+                AFortPlayerController* NewPlayer = NewProfileParsingParameters->NewPlayer;
+                FString Options = NewProfileParsingParameters->Options;
+                UNetConnection* Connection = NewProfileParsingParameters->Connection;
+                std::wstring AccountID = NewProfileParsingParameters->AccountID;
+                TO_STRING(AccountID, sAccountID)
+                
+                while (true)
+                {
+                    httplib::Client ClientReq(API_URL);
+                    ClientReq.set_read_timeout(15, 0); // 15 seconds
+                    ClientReq.set_write_timeout(15, 0); // 15 seconds
+                    httplib::Headers headers = {
+                        { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+                    };
+                    auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
+                    if (Response && Response->status == 200)
                     {
-                        nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
-
                         try
                         {
-                            Profiles[wToken] = parsed_response;
-                            break;
-                        }
-                        catch (nlohmann::json::exception& err)
-                        {
-                        }
-                    }
-                    catch (nlohmann::json::parse_error& err)
-                    {
-                    }
-                }
-                else
-                {
-                    spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 100ms...", "/api/internal/users/" + sAccountID + "/profile");
-                    if (Response)
-                    {
-                        spdlog::error("Query profile failure error code: {}", Response->status);
-                    }
-                }
+                            nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
 
-                Sleep(100);
-            }
-            
-            for (auto& [token, data] : Profiles)
-            {
-                if (token == wToken)
-                {
-                    // Handle custom replication
-                    if (PlayersPlatforms.contains(NewPlayer))
-                    {
-                        // If on iOS (5.41), do NOT replicate the following properties
-                        if (GetCL() == 4363240)
-                        {
-                            if (PlayersPlatforms[NewPlayer] == TEXT("IOS"))
+                            try
                             {
-                                net_component::BlockPropertyReplicationPerConnection(Connection, AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+                                Profiles[NewPlayer] = parsed_response;
+                                break;
+                            }
+                            catch (nlohmann::json::exception& err)
+                            {
                             }
                         }
-
-                        // Log
-                        std::wstring PlayerPlatform = PlayersPlatforms[NewPlayer];
-                        TO_STRING(PlayerPlatform, sPlayerPlatform)
-                        if (data.contains("display_name"))
+                        catch (nlohmann::json::parse_error& err)
                         {
-                            spdlog::info("Player's ['{}'] platform: {}", std::string(data["display_name"]), sPlayerPlatform.c_str());
                         }
                     }
-                    
-                    if (data.contains("admin"))
+                    else
                     {
-                        if (static_cast<bool>(data["admin"]))
+                        spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 100ms...", "/api/internal/users/" + sAccountID + "/profile");
+                        if (Response)
                         {
-                            // Give admin permission
-                            NewPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayer));
+                            spdlog::error("Query profile failure error code: {}", Response->status);
+                        }
+                    }
 
+                    Sleep(100);
+                }
+            
+                for (auto& [player, data] : Profiles)
+                {
+                    if (player == NewPlayer)
+                    {
+                        // Handle custom replication
+                        if (PlayersPlatforms.contains(NewPlayer))
+                        {
+                            // If on iOS (5.41), do NOT replicate the following properties
+                            if (GetCL() == 4363240)
+                            {
+                                if (PlayersPlatforms[NewPlayer] == TEXT("IOS"))
+                                {
+                                    net_component::BlockPropertyReplicationPerConnection(Connection, AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
+                                }
+                            }
+
+                            // Log
+                            std::wstring PlayerPlatform = PlayersPlatforms[NewPlayer];
+                            TO_STRING(PlayerPlatform, sPlayerPlatform)
                             if (data.contains("display_name"))
                             {
-                                spdlog::info("Player '{}' joined as an admin [AUTHORIZED BY ERA SERVICES].", std::string(data["display_name"]));
+                                spdlog::info("Player's ['{}'] platform: {}", std::string(data["display_name"]), sPlayerPlatform.c_str());
                             }
                         }
-                    }
-
-                    if (data.contains("level"))
-                    {
-                        if (static_cast<int>(data["level"]) > 0)
+                    
+                        if (data.contains("admin"))
                         {
-                            initialize_player_banner_level(NewPlayer, data["level"]);
-                        }
-                    }
-            
-                    if (data.contains("locker"))
-                    {
-                        nlohmann::json locker = data["locker"];
-
-                        if (locker.contains("emotes"))
-                        {
-                            nlohmann::json emotes = locker["emotes"];
-
-                            // Emote ownership
-                            if (emotes.is_array())
+                            if (static_cast<bool>(data["admin"]))
                             {
-                                for (auto& elem : emotes.items())
+                                // Give admin permission
+                                NewPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayer));
+
+                                if (data.contains("display_name"))
                                 {
-                                    std::string emote = elem.value();
-
-                                    if (emote.find(":") != std::string::npos)
-                                    {
-                                        emote = emote.substr(emote.find(":") + 1);
-                                        TO_WSTRING(emote, wEmote);
-
-                                        if (UAthenaDanceItemDefinition* EmoteAsset = FindObject<UAthenaDanceItemDefinition>(wEmote.c_str(), false, true))
-                                        {
-                                            OwnedEmotes[NewPlayer].push_back(EmoteAsset);
-                                        }
-                                    }
+                                    spdlog::info("Player '{}' joined as an admin [AUTHORIZED BY ERA SERVICES].", std::string(data["display_name"]));
                                 }
                             }
                         }
 
-                        for (auto& elem : locker.items())
+                        if (data.contains("level"))
                         {
-                            if (elem.value().is_object())
+                            if (static_cast<int>(data["level"]) > 0)
                             {
-                                UObject* PickedAsset = nullptr;
-                                
-                                if (elem.value().contains("asset"))
+                                initialize_player_banner_level(NewPlayer, data["level"]);
+                            }
+                        }
+            
+                        if (data.contains("locker"))
+                        {
+                            nlohmann::json locker = data["locker"];
+
+                            if (locker.contains("emotes"))
+                            {
+                                nlohmann::json emotes = locker["emotes"];
+
+                                // Emote ownership
+                                if (emotes.is_array())
                                 {
-                                    nlohmann::json asset = elem.value()["asset"];
-                                    
-                                    // If it's a valid string
-                                    if (asset.is_string() && std::string(asset).find(":") != std::string::npos)
+                                    for (auto& elem : emotes.items())
                                     {
-                                        // Banners
-                                        if (locker.contains("banner") &&
-                                            locker["banner"].contains("asset") &&
-                                            locker.contains("banner_color") &&
-                                            locker["banner_color"].contains("asset"))
+                                        std::string emote = elem.value();
+
+                                        if (emote.find(":") != std::string::npos)
                                         {
-                                            if (asset == locker["banner"]["asset"])
+                                            emote = emote.substr(emote.find(":") + 1);
+                                            TO_WSTRING(emote, wEmote);
+
+                                            if (UAthenaDanceItemDefinition* EmoteAsset = FindObject<UAthenaDanceItemDefinition>(wEmote.c_str(), false, true))
                                             {
-                                                initialize_player_banner_icon(NewPlayer, asset);
-                                        
-                                                continue;
-                                            }
-                                            if (asset == locker["banner_color"]["asset"])
-                                            {
-                                                initialize_player_banner_color(NewPlayer, asset);
-                                        
-                                                continue;
+                                                OwnedEmotes[NewPlayer].push_back(EmoteAsset);
                                             }
                                         }
+                                    }
+                                }
+                            }
+
+                            for (auto& elem : locker.items())
+                            {
+                                if (elem.value().is_object())
+                                {
+                                    UObject* PickedAsset = nullptr;
                                 
-                                        std::string value = std::string(asset).substr(std::string(asset).find(":")+1);
-
-                                        UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
-
-                                        // Check if the backend didn't send a literal random item definition
-                                        UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
-
-                                        if (athena_game_data)
+                                    if (elem.value().contains("asset"))
+                                    {
+                                        nlohmann::json asset = elem.value()["asset"];
+                                    
+                                        // If it's a valid string
+                                        if (asset.is_string() && std::string(asset).find(":") != std::string::npos)
                                         {
-                                            if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
+                                            // Banners
+                                            if (locker.contains("banner") &&
+                                                locker["banner"].contains("asset") &&
+                                                locker.contains("banner_color") &&
+                                                locker["banner_color"].contains("asset"))
                                             {
-                                                for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
+                                                if (asset == locker["banner"]["asset"])
                                                 {
-                                                    if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
-                                                    {
-                                                        if (Object == ShuffleTileItem)
-                                                        {
-                                                            Object = nullptr;
-                                                        }
-                                                    }
-                                                } 
-                                            }
-                                        }
+                                                    initialize_player_banner_icon(NewPlayer, asset);
                                         
-                                        if (Object)
-                                        {
-                                            if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
-                                                if (Object->HasProperty("HeroDefinition"))
+                                                    continue;
+                                                }
+                                                if (asset == locker["banner_color"]["asset"])
                                                 {
-                                                    if (!NewPlayer->PlayerState()->HeroType())
-                                                    {
-                                                        NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
-                                                    }
+                                                    initialize_player_banner_color(NewPlayer, asset);
+                                        
+                                                    continue;
                                                 }
                                             }
-                                            else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
+                                
+                                            std::string value = std::string(asset).substr(std::string(asset).find(":")+1);
+
+                                            UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
+
+                                            // Check if the backend didn't send a literal random item definition
+                                            UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
+
+                                            if (athena_game_data)
                                             {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
+                                                if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
+                                                {
+                                                    for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
+                                                    {
+                                                        if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
+                                                        {
+                                                            if (Object == ShuffleTileItem)
+                                                            {
+                                                                Object = nullptr;
+                                                            }
+                                                        }
+                                                    } 
+                                                }
                                             }
-                                            else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
+                                        
+                                            if (Object)
                                             {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
-                                            }
-                                            else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
-                                            }
-                                            else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
+                                                if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
+                                                {
+                                                    PickedAsset = Object;
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
+                                                    if (Object->HasProperty("HeroDefinition"))
+                                                    {
+                                                        if (!NewPlayer->PlayerState()->HeroType())
+                                                        {
+                                                            NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
+                                                        }
+                                                    }
+                                                }
+                                                else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
+                                                {
+                                                    PickedAsset = Object;
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
+                                                }
+                                                else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
+                                                {
+                                                    PickedAsset = Object;
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
+                                                }
+                                                else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
+                                                {
+                                                    PickedAsset = Object;
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
+                                                }
+                                                else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
+                                                {
+                                                    PickedAsset = Object;
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                if (elem.value().contains("variants"))
-                                {
-                                    nlohmann::json variants = elem.value()["variants"];
-
-                                    if (variants.is_array())
+                                    if (elem.value().contains("variants"))
                                     {
-                                        // Save variants
-                                        PendingVariantsData[NewPlayer].push_back(std::make_pair(variants, PickedAsset));
+                                        nlohmann::json variants = elem.value()["variants"];
+
+                                        if (variants.is_array())
+                                        {
+                                            // Save variants
+                                            PendingVariantsData[NewPlayer].push_back(std::make_pair(variants, PickedAsset));
                                         
-                                        // Apply variant
-                                        apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants, PickedAsset);
+                                            // Apply variant
+                                            apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants, PickedAsset);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
 
-                    break;
+                            bProfileReady[NewPlayer] = true;
+                            
+                        }
+
+                        break;
+                    }
                 }
-            }
+                
+                return 0;
+            }, NewProfileParsingParameters, 0, nullptr);
         }
     }
 }
@@ -1924,6 +1956,20 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
+
+        // Make sure profile is there
+        while (true)
+        {
+            if (auto it = player_component::bProfileReady.find(NewPlayer); it != player_component::bProfileReady.end())
+            {
+                if ((*it).second)
+                {
+                    break;
+                }
+            }
+            
+            Sleep(1000 / 30);
+        }
         
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());

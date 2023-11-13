@@ -436,7 +436,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                 {
                     if (JsonPayloadData["profile"].is_object())
                     {
-                        player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
+                        //&/player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
                     }
                 }
             }

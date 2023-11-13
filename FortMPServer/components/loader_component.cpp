@@ -847,6 +847,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         team_component::MainTeamsList.clear();
         player_component::EncryptionTokenList.clear();
         player_component::Profiles.clear();
+        player_component::bProfileReady.clear();
         player_component::Players.clear();
         player_component::PlayersPlatforms.clear();
         player_component::DamageDealtMap.clear();

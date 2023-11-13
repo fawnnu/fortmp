@@ -163,7 +163,8 @@ public:
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;
-    static inline std::map<std::wstring, nlohmann::json> Profiles;
+    static inline std::map<AFortPlayerController*, nlohmann::json> Profiles;
+    static inline std::map<AFortPlayerController*, bool> bProfileReady;
     static inline std::map<AFortPlayerController*, std::vector<std::pair<nlohmann::json, UObject*>>> PendingVariantsData;
     static inline std::map<AFortPlayerController*, std::wstring> PlayersPlatforms;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
