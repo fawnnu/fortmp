@@ -2230,13 +2230,16 @@ void player_component_hooks::OnRemoval_Hook(UObject* Self, UObject* Function, vo
 {
     GET_PROCESS_EVENT_PARAMETER(AActor*, MyTarget)
 
-    if (MyTarget)
+    if (!memory_manager::is_bad_read_pointer(MyTarget) && MyTarget)
     {
         auto Controller = static_cast<AFortPawn*>(MyTarget)->Controller();
 
-        if (Controller)
+        if (!memory_manager::is_bad_read_pointer(Controller) && Controller)
         {
-            inventory_component::remove_item(Controller, inventory_component::get_inventory_item_by_definition(Controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist"))->GetItemGuid(), -1, false);
+            if (UFortItem* Item = inventory_component::get_inventory_item_by_definition(Controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist")))
+            {
+                inventory_component::remove_item(Controller, static_cast<UFortWorldItem*>(Item)->ItemEntry().ItemGuid(), -1, false);
+            }
         }
     }
 }
