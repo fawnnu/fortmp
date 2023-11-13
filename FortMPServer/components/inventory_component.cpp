@@ -241,6 +241,11 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
 
 void inventory_component::remove_item(AFortPlayerController* player_controller, FGuid item_guid, int item_count, bool should_drop_item, bool b_is_swapping)
 {
+    if (!player_controller)
+    {
+        return;
+    }
+    
     if (!player_controller->Pawn() && should_drop_item)
     {
         // No pawn to spawn item at
