@@ -2203,7 +2203,7 @@ void AFortPawn::SetShield(float NewShieldVal)
     }
     else
     {
-        Call(Function_SetShield);
+        Call(Function_SetShield, NewShieldVal);
     }
 }
 
