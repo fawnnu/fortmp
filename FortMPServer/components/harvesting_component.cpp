@@ -23,7 +23,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
         if (building_actor->IsA(BuildingSMActor_Class))
         {
             // Track damage inflicted to building actors
-            player_component::DamageDealtMap[instigated_by].StructureDamage += damage;
+            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
 
             // If the building is player built & owned by another team, count EnemyStructureDamage
             if (building_actor->AttributeInitLevelSource() == 1)
@@ -34,7 +34,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     // Check team
                     if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
                     {
-                        player_component::DamageDealtMap[instigated_by].EnemyStructureDamage += damage;
+                        static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage += damage;
                     }
                 }
             }

@@ -379,7 +379,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
 
                     // Set placement
-                    player_component::PlayerStatsMap[static_cast<AFortPlayerController*>(TeamMember)].Placement = placement;
+                    static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
                 }
             }
         }
@@ -487,37 +487,34 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
         FAthenaMatchStats* NewMatchStats = new FAthenaMatchStats;
 
         // Stats
-        if (player_component::PlayerStatsMap.contains(Self))
+        if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("Stats")))
         {
-            if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("Stats")))
+            if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
             {
-                if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
-                {
-                    NewMatchStats->Stats()[3] = Self->PlayerState()->KillScore();
-                }
-                NewMatchStats->Stats()[7] = player_component::PlayerStatsMap[Self].Revives;
-                NewMatchStats->Stats()[8] = player_component::PlayerStatsMap[Self].DamageTaken;
-                NewMatchStats->Stats()[9] = player_component::PlayerStatsMap[Self].DistanceTraveled;
-                NewMatchStats->Stats()[11] = player_component::PlayerStatsMap[Self].MaterialsGathered;
-                NewMatchStats->Stats()[13] = player_component::PlayerStatsMap[Self].MaterialsUsed;
+                NewMatchStats->Stats()[3] = Self->PlayerState()->KillScore();
             }
+            NewMatchStats->Stats()[7] = Self->EraPlayerInfo().PlayerStatsTracker.Revives;
+            NewMatchStats->Stats()[8] = Self->EraPlayerInfo().PlayerStatsTracker.DamageTaken;
+            NewMatchStats->Stats()[9] = Self->EraPlayerInfo().PlayerStatsTracker.DistanceTraveled;
+            NewMatchStats->Stats()[11] = Self->EraPlayerInfo().PlayerStatsTracker.MaterialsGathered;
+            NewMatchStats->Stats()[13] = Self->EraPlayerInfo().PlayerStatsTracker.MaterialsUsed;
+        }
             
-            // Weapon stats
-            if (FAthenaWeaponStats::GetClass())
+        // Weapon stats
+        if (FAthenaWeaponStats::GetClass())
+        {
+            FAthenaWeaponStats* NewWeaponStats = new FAthenaWeaponStats;
+            if (FindPropertyByName(FAthenaWeaponStats::GetClass(), TEXT("Stats")))
             {
-                FAthenaWeaponStats* NewWeaponStats = new FAthenaWeaponStats;
-                if (FindPropertyByName(FAthenaWeaponStats::GetClass(), TEXT("Stats")))
+                NewWeaponStats->Stats()[3] = Self->EraPlayerInfo().DamageDealtTracker.GetPlayerDamage();
+                NewWeaponStats->Stats()[5] = Self->EraPlayerInfo().DamageDealtTracker.StructureDamage;
+                NewWeaponStats->Stats()[8] = Self->EraPlayerInfo().PlayerStatsTracker.Hits;
+                NewWeaponStats->Stats()[11] = Self->EraPlayerInfo().PlayerStatsTracker.HeadShots;
+                if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("WeaponStats")))
                 {
-                    NewWeaponStats->Stats()[3] = player_component::DamageDealtMap[Self].GetPlayerDamage();
-                    NewWeaponStats->Stats()[5] = player_component::DamageDealtMap[Self].StructureDamage;
-                    NewWeaponStats->Stats()[8] = player_component::PlayerStatsMap[Self].Hits;
-                    NewWeaponStats->Stats()[11] = player_component::PlayerStatsMap[Self].HeadShots;
-                    if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("WeaponStats")))
-                    {
-                        TArrayManager<FAthenaWeaponStats>(&NewMatchStats->WeaponStats(), FAthenaWeaponStats::GetStructSize()).Add(NewWeaponStats);
-                    }
-                    free(NewWeaponStats);
+                    TArrayManager<FAthenaWeaponStats>(&NewMatchStats->WeaponStats(), FAthenaWeaponStats::GetStructSize()).Add(NewWeaponStats);
                 }
+                free(NewWeaponStats);
             }
         }
         Self->ClientSendMatchStatsForPlayer(NewMatchStats);

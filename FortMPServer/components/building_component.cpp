@@ -115,7 +115,7 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                         inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
 
                         // Count buildings placement
-                        player_component::PlayerStatsMap[building_owner].TemporaryPlacedBuilds++;
+                        static_cast<AFortPlayerControllerAthena*>(building_owner)->EraPlayerInfo().PlayerStatsTracker.TemporaryPlacedBuilds++;
                         if (UKismetSystemLibrary::K2_IsTimerActive(building_owner, L"BuildingPlacedCallback"))
                         {
                             UKismetSystemLibrary::K2_ClearTimer(building_owner, L"BuildingPlacedCallback");

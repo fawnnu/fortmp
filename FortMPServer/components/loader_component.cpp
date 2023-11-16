@@ -846,12 +846,8 @@ bool loader_component_hooks::SetGameMode_Hook()
         team_component::TeamsList.clear();
         team_component::MainTeamsList.clear();
         player_component::EncryptionTokenList.clear();
-        player_component::DamageDealtMap.clear();
-        player_component::PlayerStatsMap.clear();
-        player_component::OwnedEmotes.clear();
         player_component::global_player_id = 0;
         player_component::starting_players = 0;
-        player_component::HeadshotKillMap.clear();
         player_component::Matches.clear();
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();

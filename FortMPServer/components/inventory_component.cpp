@@ -636,8 +636,8 @@ void inventory_component::safe_update_materials_gathered(AFortPlayerController* 
             item_definition == StoneItemData ||
             item_definition == MetalItemData)
         {
-            player_component::PlayerStatsMap[player_controller].MaterialsGathered += item_count;
-            player_component::PlayerStatsMap[player_controller].TemporaryMaterialsGathered += item_count;
+            static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.MaterialsGathered += item_count;
+            static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.TemporaryMaterialsGathered += item_count;
             if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"HarvestResourcesCallback"))
             {
                 UKismetSystemLibrary::K2_ClearTimer(player_controller, L"HarvestResourcesCallback");
@@ -659,7 +659,7 @@ void inventory_component::safe_update_materials_used(AFortPlayerController* play
             item_definition == StoneItemData ||
             item_definition == MetalItemData)
         {
-            player_component::PlayerStatsMap[player_controller].MaterialsUsed += item_count;
+            static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.MaterialsUsed += item_count;
         }
     }
 }

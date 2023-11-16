@@ -97,7 +97,7 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
         player_to_revive->SetHealth(30.0f);
 
         // Bump revives in player stats
-        player_component::PlayerStatsMap[player_controller].Revives++;
+        static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.Revives++;
 
         if (FindPropertyByName(FDeathInfo::GetClass(), TEXT("DeathTags")))
         {

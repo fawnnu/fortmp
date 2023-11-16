@@ -186,7 +186,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
     {
         if (!memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
         {
-            FPlayerStats& PlayerStats = PlayerStatsMap[Self];
+            FPlayerStats& PlayerStats = Self->EraPlayerInfo().PlayerStatsTracker;
             
             if (PlayerStats.LastPos.IsValid())
             {
@@ -214,13 +214,12 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pistol", Value.PistolDamage);
-            Value.PistolDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pistol", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
         }
     }
 }
@@ -231,13 +230,12 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:shotgun", Value.ShotgunDamage);
-            Value.ShotgunDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:shotgun", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage = 0;
         }
     }
 }
@@ -248,13 +246,12 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:assault_rifle", Value.AssaultRifleDamage);
-            Value.AssaultRifleDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:assault_rifle", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
         }
     }
 }
@@ -265,13 +262,12 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:sniper", Value.SniperDamage);
-            Value.SniperDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:sniper", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
         }
     }
 }
@@ -282,13 +278,12 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade", Value.GrenadeDamage);
-            Value.GrenadeDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
         }
     }
 }
@@ -299,13 +294,12 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:smg", Value.SMGDamage);
-            Value.SMGDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:smg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage = 0;
         }
     }
 }
@@ -316,13 +310,12 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade_launcher", Value.GrenadeLauncherDamage);
-            Value.GrenadeLauncherDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade_launcher", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage = 0;
         }
     }
 }
@@ -333,13 +326,12 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:rpg", Value.RPGDamage);
-            Value.RPGDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:rpg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage = 0;
         }
     }
 }
@@ -350,13 +342,12 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_smg", Value.SuppressedSMGDamage);
-            Value.SuppressedSMGDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_smg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage = 0;
         }
     }
 }
@@ -367,13 +358,12 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_pistol", Value.SuppressedPistolDamage);
-            Value.SuppressedPistolDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_pistol", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage = 0;
         }
     }
 }
@@ -384,13 +374,12 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:minigun", Value.MinigunDamage);
-            Value.MinigunDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:minigun", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage = 0;
         }
     }
 }
@@ -401,13 +390,12 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:lmg", Value.LMGDamage);
-            Value.LMGDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:lmg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage = 0;
         }
     }
 }
@@ -418,13 +406,12 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:enemy_building", Value.EnemyStructureDamage);
-            Value.EnemyStructureDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:enemy_building", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
         }
     }
 }
@@ -435,13 +422,12 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pickaxe", Value.PickaxeDamage);
-            Value.PickaxeDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pickaxe", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage = 0;
         }
     }
 }
@@ -452,13 +438,12 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "headshot_damage", Value.HeadshotDamage);
-            Value.HeadshotDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "headshot_damage", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage = 0;
         }
     }
 }
@@ -469,13 +454,12 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:jewel_opponent", Value.SpecialDamage.JewelOpponent);
-            Value.SpecialDamage.JewelOpponent = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:jewel_opponent", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent = 0;
         }
     }
 }
@@ -486,13 +470,12 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
 
     if (Self)
     {
-        FDamageDealtMapValue& Value = DamageDealtMap[Self];
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:c4_enemy_building", Value.SpecialDamage.C4BuildingDamage);
-            Value.SpecialDamage.C4BuildingDamage = 0;
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:c4_enemy_building", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage = 0;
         }
     }
 }
@@ -625,7 +608,7 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
-        FPlayerStats& Value = PlayerStatsMap[Self];
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
@@ -648,7 +631,7 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
-        FPlayerStats& Value = PlayerStatsMap[Self];
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
@@ -671,7 +654,7 @@ void player_component::TrickPointsCallback(AFortPlayerController* Self, FFrame& 
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
-        FPlayerStats& Value = PlayerStatsMap[Self];
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
@@ -694,7 +677,7 @@ void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& Stack
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
-        FPlayerStats& Value = PlayerStatsMap[Self];
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
@@ -722,7 +705,7 @@ void player_component::CampfireHealthCallback(AFortPlayerController* Self, FFram
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
-        FPlayerStats& Value = PlayerStatsMap[Self];
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
         std::string account_id = get_account_id(Self);
 
         if (account_id.size() > 0)
@@ -849,7 +832,6 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_join", parameters);
 
             // Initialize stats
-            PlayerStatsMap[FortPlayerController] = FPlayerStats();
             static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->GatherDistanceTraveled();
             
             // Log
@@ -1028,7 +1010,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                                         if (UAthenaDanceItemDefinition* EmoteAsset = FindObject<UAthenaDanceItemDefinition>(wEmote.c_str(), false, true))
                                         {
-                                            OwnedEmotes[NewPlayer].push_back(EmoteAsset);
+                                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().OwnedEmotes.push_back(EmoteAsset);
                                         }
                                     }
                                 }
@@ -1210,7 +1192,9 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             if (b_requires_validation)
             {
                 // Make sure the player owns the asset
-                if (std::find(OwnedEmotes[player_controller].begin(), OwnedEmotes[player_controller].end(), dance_asset) == OwnedEmotes[player_controller].end())
+                if (std::find(static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.begin(),
+                              static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end(),
+                              dance_asset) == static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end())
                 {
                     // Log
                     spdlog::error(L"Received attempt to play non-owned emote item.");
@@ -1364,8 +1348,8 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
     {
         if (DamageCauser->IsA(AFortWeapon::StaticClass()))
         {
-            FDamageDealtMapValue& Value = DamageDealtMap[Instigator];
-            FPlayerStats& PlayerStats = PlayerStatsMap[Instigator];
+            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(Instigator)->EraPlayerInfo().DamageDealtTracker;
+            FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(Instigator)->EraPlayerInfo().PlayerStatsTracker;
 
             if (UFortItemDefinition* ItemDefinition = static_cast<AFortWeapon*>(DamageCauser)->WeaponData())
             {
@@ -1387,7 +1371,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                             {
                                 if (HitActor->GetHealth() - Damage <= 0.0)
                                 {
-                                    HeadshotKillMap[Instigator] = true;
+                                    static_cast<AFortPlayerControllerAthena*>(Instigator)->EraPlayerInfo().bLastKillHeadshot = true;
                                 }
                             }
                         }
@@ -1405,7 +1389,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     {
                         if (AFortPlayerController* PlayerController = HitActor->Controller())
                         {
-                            PlayerStatsMap[PlayerController].DamageTaken += Damage;
+                            static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker.DamageTaken += Damage;
 
                             // If this player is carrying the jewel, count damage
                             if (static UFortItemDefinition* Athena_Blind_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
@@ -2169,7 +2153,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                     // Check team
                     if (building_actor->Team() != InstigatedBy->PlayerState()->TeamIndex())
                     {
-                        player_component::DamageDealtMap[InstigatedBy].SpecialDamage.C4BuildingDamage += Damage;
+                        static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage += Damage;
                         player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::C4);
                     }
                 }
@@ -2210,22 +2194,19 @@ void player_component_hooks::ServerAwardVehicleTrickPoints_Hook(AFortPlayerContr
 {
     GET_PARAMETER(int, InPoints)
 
-    if (player_component::PlayerStatsMap.contains(Self))
+    if (log_component::enable_debug_logs)
     {
-        if (log_component::enable_debug_logs)
-        {
-            spdlog::info(L"Player {} has been awarded {} trick points", Self->GetName().c_str(), InPoints);
-        }
-        
-        player_component::PlayerStatsMap[Self].TemporaryTrickPoints += InPoints;
-        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"TrickPointsCallback"))
-        {
-            UKismetSystemLibrary::K2_ClearTimer(Self, L"TrickPointsCallback");
-        }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"TrickPointsCallback", 5.0, false);
+        spdlog::info(L"Player {} has been awarded {} trick points", Self->GetName().c_str(), InPoints);
     }
+        
+    static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker.TemporaryTrickPoints += InPoints;
+    if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"TrickPointsCallback"))
+    {
+        UKismetSystemLibrary::K2_ClearTimer(Self, L"TrickPointsCallback");
+    }
+    UKismetSystemLibrary::K2_SetTimer(Self, L"TrickPointsCallback", 5.0, false);
     
-    ServerAwardVehicleTrickPoints(Self, StackFrame);   
+    ServerAwardVehicleTrickPoints(Self, StackFrame);
 }
 
 void player_component_hooks::OnRemoval_Hook(UObject* Self, UObject* Function, void* Params)
@@ -2253,7 +2234,7 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
     if (Self)
     {
         AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller();
-        FPlayerStats& PlayerStats = player_component::PlayerStatsMap[PlayerController];
+        FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker;
 
         if (PlayerController)
         {

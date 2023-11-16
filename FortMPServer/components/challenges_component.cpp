@@ -190,12 +190,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
     if (PlayerController)
     {
         std::string account_id = player_component::get_account_id(PlayerController);
-        FDamageDealtMapValue DamageDealt = FDamageDealtMapValue();
-
-        if (player_component::DamageDealtMap.contains(PlayerController))
-        {
-            DamageDealt = player_component::DamageDealtMap[PlayerController];
-        }
+        FDamageDealtMapValue DamageDealt = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().DamageDealtTracker;
 
         if (account_id.size() > 0)
         {
@@ -330,11 +325,11 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {"weapon", weapon},
                     {"victim", victim_account_id},
                     {"in_vehicle", KillerPlayerController->Pawn()->HasFunction(L"IsInVehicle") ? KillerPlayerController->Pawn()->IsInVehicle() : false},
-                    {"headshot", player_component::HeadshotKillMap[KillerPlayerController]}
+                    {"headshot", static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().bLastKillHeadshot}
                 };
 
-                // Invalidate headshot kill map record
-                player_component::HeadshotKillMap[KillerPlayerController] = false;
+                // Invalidate headshot kill record
+                static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().bLastKillHeadshot = false;
             
                 gameserver_client::Client->SendEventToChannel("player:v2:" + killer_account_id, "event:elimination", parameters);
             }
@@ -915,10 +910,7 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
                                             NewReward->AntiAddictionMultiplier() = 1.f;
                                         }
                                         
-                                        if (player_component::PlayerStatsMap.contains(PlayerController))
-                                        {
-                                            static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(player_component::PlayerStatsMap[PlayerController].Placement, player_component::starting_players));
-                                        }
+                                        static_cast<AFortPlayerControllerAthena*>(PlayerController)->ClientSendTeamStatsForPlayer(new FAthenaMatchTeamStats(static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker.Placement, player_component::starting_players));
                                     }
                         
                                     if (response.contains("log") && response["log"].is_array())
