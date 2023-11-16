@@ -383,6 +383,7 @@ public:
         return *reinterpret_cast<FFortAthenaLoadout*>(__int64(this) + native_property_offset);                
     }
     
+    DEFINE_PROPERTY(struct FEraPlayerInfo, EraPlayerInfo);
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
 
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);

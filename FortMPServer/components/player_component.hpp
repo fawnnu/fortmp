@@ -102,6 +102,20 @@ enum EEraPlatform
     Switch
 };
 
+// Struct that keeps the player's data Era needs in PlayerController
+struct FEraPlayerInfo
+{
+    nlohmann::json Profile;
+    bool bProfileReady;
+    std::vector<std::pair<nlohmann::json, UObject*>> PendingVariantsData;
+    std::wstring PlayerPlatform;
+    std::wstring AccountId;
+    FDamageDealtMapValue DamageDealtTracker;
+    FPlayerStats PlayerStatsTracker;
+    std::vector<UAthenaDanceItemDefinition*> OwnedEmotes;
+    bool bLastKillHeadshot;
+};
+
 class player_component
 {
 public:
@@ -163,10 +177,6 @@ public:
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;
-    static inline std::map<AFortPlayerController*, nlohmann::json> Profiles;
-    static inline std::map<AFortPlayerController*, bool> bProfileReady;
-    static inline std::map<AFortPlayerController*, std::vector<std::pair<nlohmann::json, UObject*>>> PendingVariantsData;
-    static inline std::map<AFortPlayerController*, std::wstring> PlayersPlatforms;
     static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;

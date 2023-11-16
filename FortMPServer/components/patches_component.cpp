@@ -474,9 +474,9 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
         if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
         {
             // Apply variants
-            if (player_component::PendingVariantsData.contains(PlayerController))
+            if (STATIC_HASPROPERTY(PlayerController, EraPlayerInfo))
             {
-                for (std::pair<nlohmann::json, UObject*> variant_data : player_component::PendingVariantsData[PlayerController])
+                for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
                 {
                     player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
                 }
