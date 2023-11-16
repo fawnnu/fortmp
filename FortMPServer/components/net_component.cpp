@@ -244,21 +244,18 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
 
                 if (wAccountID.size())
                 {
-                    for (auto [account_id, player] : player_component::Players)
+                    if (auto player = player_component::get_player_by_account_id(wAccountID))
                     {
-                        if (account_id == wAccountID)
+                        if (!memory_manager::is_bad_read_pointer(player) && player)
                         {
-                            if (!memory_manager::is_bad_read_pointer(player) && player)
+                            if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
                             {
-                                if (!memory_manager::is_bad_read_pointer(player->MyPlayerInfo()) && player->MyPlayerInfo())
-                                {
-                                    spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
-                                }
-                                
-                                player->ClientReturnToMainMenu(TEXT(""));
-                                        
-                                break;
+                                spdlog::info(L"Kicked '{}' [account_id: {}] [KICK EVENT]", player->MyPlayerInfo()->PlayerName().c_str(), wAccountID.c_str());
                             }
+                        
+                            player->ClientReturnToMainMenu(TEXT(""));
+                                
+                            break;
                         }
                     }
                 }
@@ -319,6 +316,9 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
 
             if (account_id.size() > 0)
             {
+                // Mark as disconnecting
+                static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().bIsDisconneting = true;
+                
                 std::map<std::string, std::string> parameters{
                 };
                 gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_leave", parameters);
@@ -351,10 +351,6 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                     
                     spdlog::info("Player '{}' left its channel [ACCOUNT_ID: {}]", player_name.c_str(), account_id.c_str());
                 }
-
-                // Remove from players map
-                TO_WSTRING(account_id, wAccount_id)
-                player_component::Players.erase(player_component::Players.find(wAccount_id));
             }
         }
     }

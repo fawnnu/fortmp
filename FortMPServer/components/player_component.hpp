@@ -114,6 +114,7 @@ struct FEraPlayerInfo
     FPlayerStats PlayerStatsTracker;
     std::vector<UAthenaDanceItemDefinition*> OwnedEmotes;
     bool bLastKillHeadshot;
+    bool bIsDisconneting;
 };
 
 class player_component
@@ -177,7 +178,6 @@ public:
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;
-    static inline std::map<std::wstring, AFortPlayerController*> Players;
     static inline std::map<AFortPlayerController*, FDamageDealtMapValue> DamageDealtMap;
     static inline std::map<AFortPlayerController*, FPlayerStats> PlayerStatsMap;
     static inline std::map<AFortPlayerController*, std::vector<UAthenaDanceItemDefinition*>> OwnedEmotes;

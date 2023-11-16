@@ -871,7 +871,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
         if (Platform.IsValid())
         {
-            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform = Platform.c_str();
+            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform = std::wstring(Platform.c_str());
         }
     }
     
@@ -886,7 +886,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
             // Register this player in the local Players map
             std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
-            Players[wAccountID] = NewPlayer;
+            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().AccountId = wAccountID;
 
             // Convert string
             TO_STRING(wAccountID, sAccountID);
@@ -1326,31 +1326,31 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
 
 std::string player_component::get_account_id(AFortPlayerController* target_player_controller)
 {
-    for (auto [account_id, player_controller] : Players)
+    if (!memory_manager::is_bad_read_pointer(target_player_controller) && target_player_controller && !static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().bIsDisconneting)
     {
-        if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
-        {
-            if (player_controller == target_player_controller)
-            {
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                 
-                return converter.to_bytes(account_id);
-            }
-        }
+        return converter.to_bytes(static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().AccountId);
     }
-
+    
     return "";
 }
 
 AFortPlayerController* player_component::get_player_by_account_id(std::wstring in_account_id)
 {
-    for (auto [account_id, player_controller] : Players)
+    if (*GWorld && (*GWorld)->NetDriver())
     {
-        if (account_id == in_account_id)
+        for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
         {
-            if (!memory_manager::is_bad_read_pointer(player_controller) && player_controller)
+            if (Connection)
             {
-                return player_controller;
+                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                {
+                    if (static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().AccountId == in_account_id)
+                    {
+                        return Connection->PlayerController();
+                    }
+                }
             }
         }
     }
