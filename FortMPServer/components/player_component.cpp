@@ -1835,7 +1835,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
                     spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
                 }
             }
-            else if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
+            if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
             {
                 // Update the countdown to 10 seconds 
                 FortGameModeAthena->WarmupCountdownDuration() = 10.f;
