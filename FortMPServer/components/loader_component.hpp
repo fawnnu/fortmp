@@ -24,6 +24,10 @@ public:
     static void WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame);
     
     inline static bool bPendingShutdown;
+
+    // Log
+    inline static bool bLogged85Percent;
+    inline static bool bLogged95Percent;
 };
 
 namespace loader_component_hooks

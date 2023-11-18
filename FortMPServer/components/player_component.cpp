@@ -1829,7 +1829,11 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
                 FortGameModeAthena->WarmupEarlyCountdownDuration() = 20.f;
 
                 // Log
-                spdlog::info(L"Starting Aircraft in 15 seconds, 85 percent of the players joined.");
+                if (!loader_component::bLogged85Percent)
+                {
+                    loader_component::bLogged85Percent = true;
+                    spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
+                }
             }
             else if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
             {
@@ -1838,7 +1842,11 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
                 FortGameModeAthena->WarmupEarlyCountdownDuration() = 10.f;
 
                 // Log
-                spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                if (!loader_component::bLogged95Percent)
+                {
+                    loader_component::bLogged95Percent = true;
+                    spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                }
             }
         }
         catch (nlohmann::json::exception& err)
