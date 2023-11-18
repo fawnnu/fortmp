@@ -33,6 +33,12 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
     
     if (player_to_revive->IsDBNO())
     {
+        // Above Season 6, completely clear deathinfo
+        if (GetFortniteVersionEasy() >= 6)
+        {
+            ZeroMemory(&player_to_revive->PlayerState()->DeathInfo(), FDeathInfo::GetStructSize());
+        }
+    
         // Using SetBoolPropertyByName as property changes from boolean -> bit
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(player_to_revive, L"bIsDBNO", false);
