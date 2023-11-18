@@ -1820,7 +1820,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             const int player_cap_override = config["player_cap_override"].get<int>();
 
             // Get 80%
-            const int player_cap_override_80percent = player_cap_override / 100 * 80;
+            const int player_cap_override_80percent = player_cap_override / 100 * 85;
             if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_80percent)
             {
                 // Update the countdown to 15 seconds 
@@ -1828,7 +1828,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
                 FortGameModeAthena->WarmupEarlyCountdownDuration() = 15.f;
 
                 // Log
-                spdlog::info(L"Starting Aircraft in 15 seconds, 80% of the players joined.");
+                spdlog::info(L"Starting Aircraft in 15 seconds, 80 percent of the players joined.");
             }
         }
         catch (nlohmann::json::exception& err)
