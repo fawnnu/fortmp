@@ -1813,6 +1813,28 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Notify backend
         player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));
 
+        // Above 80% of capacity, start the match in 10 seconds
+        try
+        {
+            auto config = config_manager::get_server_config();
+            const int player_cap_override = config["player_cap_override"].get<int>();
+
+            // Get 80%
+            const int player_cap_override_80percent = player_cap_override / 100 * 80;
+            if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_80percent)
+            {
+                // Update the countdown to 15 seconds 
+                FortGameModeAthena->WarmupCountdownDuration() = 15.f;
+                FortGameModeAthena->WarmupEarlyCountdownDuration() = 15.f;
+
+                // Log
+                spdlog::info(L"Starting Aircraft in 15 seconds, 80% of the players joined.");
+            }
+        }
+        catch (nlohmann::json::exception& err)
+        {
+        }
+
         spdlog::info(L"Player '{}' joined and spawned", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
     }
 }
