@@ -195,6 +195,8 @@ void gameserver_client::Register()
         }
     
         PostPayload["region"] = qos_component::best_region;
+        client.set_read_timeout(15, 0); // 15 seconds
+        client.set_write_timeout(15, 0); // 15 seconds
         auto Result = client.Post("/api/internal/game/servers", headers, PostPayload.dump(), "application/json");
     
         if (Result && Result->status == 200)

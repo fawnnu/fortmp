@@ -1471,7 +1471,7 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
     static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack");
     static UFortItemDefinition* AGID_SpookyMist = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist");
     
-    if (Athena_Bling_Pack_Definition && AGID_SpookyMist)
+    if (Athena_Bling_Pack_Definition)
     { 
         if (ItemDefinition == Athena_Bling_Pack_Definition)
         {
@@ -1484,7 +1484,10 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
             // Send event
             SendJewelInteraction(InteractingPlayerController);
         }
+    }
 
+    if (AGID_SpookyMist)
+    {
         if (ItemDefinition == AGID_SpookyMist)
         {
             // Log

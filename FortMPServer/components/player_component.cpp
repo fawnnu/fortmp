@@ -793,6 +793,27 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"SniperDamageCallback", 1.0, false);
         break;
+    case EDamageCauser::HeavySniper:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeavySniperDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"HeavySniperDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavySniperDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::HuntingSniper:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HuntingSniperDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"HuntingSniperDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HuntingSniperDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::BoltSniper:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"BoltSniperDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"BoltSniperDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"BoltSniperDamageCallback", 1.0, false);
+        break;
     case EDamageCauser::Grenade:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"GrenadeDamageCallback"))
         {
@@ -1901,6 +1922,7 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
         { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
         { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
+        { L"Weapon.Ranged.Pistol.Standard", EDamageCauser::Pistol },
         { L"weapon.ranged.sniper.bolt", EDamageCauser::BoltSniper },
         { L"Weapon.Ranged.Sniper.Hunting", EDamageCauser::HuntingSniper },
         { L"Weapon.Ranged.Sniper.Heavy", EDamageCauser::HeavySniper },
