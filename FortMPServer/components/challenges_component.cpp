@@ -347,7 +347,8 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {"weapon", weapon},
                     {"victim", victim_account_id},
                     {"in_vehicle", KillerPlayerController->Pawn()->HasFunction(L"IsInVehicle") ? KillerPlayerController->Pawn()->IsInVehicle() : false},
-                    {"headshot", static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().bLastKillHeadshot}
+                    {"headshot", static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().bLastKillHeadshot},
+                    {"distance", (VictimPlayerController->Pawn()->GetDistanceTo(KillerPlayerController->Pawn()) / 100)}
                 };
 
                 // Invalidate headshot kill record
