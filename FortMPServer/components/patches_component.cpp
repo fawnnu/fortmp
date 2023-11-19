@@ -275,7 +275,12 @@ patches_component::patches_component()
 
     {
         // Ignore client/server context on SpawnActor
-        if (uintptr_t target_address = memory_manager::find_pattern("75 4E 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 46 18 48 8D 55 80 48 8D 4D 90 48 89 45 90 E8 ? ? ? ? 48 8B 05 ? ? ? ? 4C 8D 44 24 ?"))
+        uintptr_t target_address = memory_manager::find_pattern("75 4E 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 46 18 48 8D 55 80 48 8D 4D 90 48 89 45 90 E8 ? ? ? ? 48 8B 05 ? ? ? ? 4C 8D 44 24 ?");
+        if (!target_address)
+        {
+            target_address = memory_manager::find_pattern("75 4F 80 3D ? ? ? ? ? 0F 82 ? ? ? ? 48 8B 46 18 48 8D 54 24 ? 48 8D 4D C0 48 89 45 C0 E8 ? ? ? ? 48 8B 05 ? ? ? ? 4C 8D");
+        }
+        if (target_address)
         {
             DWORD new_protection, old_protection;
 
