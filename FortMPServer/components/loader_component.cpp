@@ -592,7 +592,10 @@ void loader_component::handle_cl_specific_additions()
     }
     
     // Load dynamic builder class
-    StaticLoadObject(nullptr, nullptr, L"/Script/FortniteGame.FortDynamicBuilder", nullptr, 0, nullptr, true);
+    if (GetCL() >= 4363240)
+    {
+        StaticLoadObject(nullptr, nullptr, L"/Script/FortniteGame.FortDynamicBuilder", nullptr, 0, nullptr, true);
+    }
 }
 
 void loader_component::OnMapInfoLoaded()
