@@ -402,7 +402,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="resources\pakchunk0_Era621-WindowsClient.pak" />
+    <Content Include="resources\pakchunkEra621-WindowsClient.pak" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
