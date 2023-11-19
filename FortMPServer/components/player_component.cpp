@@ -209,41 +209,44 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
             PlayerStats.LastPos = Self->Pawn()->K2_GetActorLocation();
 
             // Get the POI we're currently in
-            FGameplayTagContainer Container;
-            ZeroMemory(&Container, sizeof FGameplayTagContainer);
-            GetPoiGridTagsForPawn((*GWorld)->AuthorityGameMode(), Self->Pawn(), Container);
-
-            // Align the CurrentPOIList list to the Container
-            for (int i = Self->EraPlayerInfo().CurrentPOIList.size() - 1; i >= 0; i--)
+            if (GetPoiGridTagsForPawn)
             {
-                FGameplayTag POI = Self->EraPlayerInfo().CurrentPOIList[i];
-                if (!Container.GameplayTags.Find(Self->EraPlayerInfo().CurrentPOIList[i]))
-                {
-                    std::erase(Self->EraPlayerInfo().CurrentPOIList, Self->EraPlayerInfo().CurrentPOIList[i]);
+                FGameplayTagContainer Container;
+                ZeroMemory(&Container, sizeof FGameplayTagContainer);
+                GetPoiGridTagsForPawn((*GWorld)->AuthorityGameMode(), Self->Pawn(), Container);
 
-                    // Log
-                    if (log_component::enable_debug_logs)
+                // Align the CurrentPOIList list to the Container
+                for (int i = Self->EraPlayerInfo().CurrentPOIList.size() - 1; i >= 0; i--)
+                {
+                    FGameplayTag POI = Self->EraPlayerInfo().CurrentPOIList[i];
+                    if (!Container.GameplayTags.Find(Self->EraPlayerInfo().CurrentPOIList[i]))
                     {
-                        spdlog::info(L"Player '{}' left POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), POI.TagName.ToString().c_str());
+                        std::erase(Self->EraPlayerInfo().CurrentPOIList, Self->EraPlayerInfo().CurrentPOIList[i]);
+
+                        // Log
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"Player '{}' left POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), POI.TagName.ToString().c_str());
+                        }
                     }
                 }
-            }
 
-            // Now add any tag from the container that isn't already in the CurrentPOIList
-            for (FGameplayTag& Tag : Container.GameplayTags)
-            {
-                if (std::find(Self->EraPlayerInfo().CurrentPOIList.begin(), Self->EraPlayerInfo().CurrentPOIList.end(), Tag) == Self->EraPlayerInfo().CurrentPOIList.end())
+                // Now add any tag from the container that isn't already in the CurrentPOIList
+                for (FGameplayTag& Tag : Container.GameplayTags)
                 {
-                    Self->EraPlayerInfo().CurrentPOIList.push_back(Tag);
-
-                    // Log
-                    if (log_component::enable_debug_logs)
+                    if (std::find(Self->EraPlayerInfo().CurrentPOIList.begin(), Self->EraPlayerInfo().CurrentPOIList.end(), Tag) == Self->EraPlayerInfo().CurrentPOIList.end())
                     {
-                        spdlog::info(L"Player '{}' entered POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), Tag.TagName.ToString().c_str());
-                    }
+                        Self->EraPlayerInfo().CurrentPOIList.push_back(Tag);
+
+                        // Log
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"Player '{}' entered POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), Tag.TagName.ToString().c_str());
+                        }
                     
-                    // Notify backend
-                    challenges_component::SendCorruptedAreaInteraction(Self, Tag);
+                        // Notify backend
+                        challenges_component::SendCorruptedAreaInteraction(Self, Tag);
+                    }
                 }
             }
         }
