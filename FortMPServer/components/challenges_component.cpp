@@ -1436,22 +1436,64 @@ void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* I
     } 
 }
 
-void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
+void challenges_component::SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController)
 {
     CHECK_PAST_WARMUP()
     
-    if (static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack"))
-    {
+   if (InteractingPlayerController && InteractingPlayerController->Pawn())
+   {
+       std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        
+       if (account_id.size() > 0)
+       {
+           nlohmann::json parameters{
+               {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+               {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+           };
+            
+           gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shadow-stone", parameters);
+       }
+       else
+       {
+           if (log_component::enable_debug_logs)
+           {
+               spdlog::error(L"Invalid account_id while sending event.");
+           }
+       }
+   }   
+}
+
+void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
+{
+    CHECK_PAST_WARMUP()
+
+    static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack");
+    static UFortItemDefinition* AGID_SpookyMist = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist");
+    
+    if (Athena_Bling_Pack_Definition && AGID_SpookyMist)
+    { 
         if (ItemDefinition == Athena_Bling_Pack_Definition)
         {
             // Log
             if (log_component::enable_debug_logs)
             {
-                spdlog::info(L"challenges_component::HandleSpecialItemAdded is sending jewel interaction.");
+                spdlog::info(L"challenges_component::HandleItemAdded is sending jewel interaction.");
             }
 
             // Send event
             SendJewelInteraction(InteractingPlayerController);
+        }
+
+        if (ItemDefinition == AGID_SpookyMist)
+        {
+            // Log
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"challenges_component::HandleItemAdded is sending spooky mist interaction.");
+            }
+
+            // Send event
+            SendSpookyMistInteraction(InteractingPlayerController);
         }
     }
 }

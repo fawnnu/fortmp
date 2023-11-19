@@ -53,7 +53,7 @@ public:
     static void SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendJewelInteraction(AFortPlayerController* InteractingController);
-    static void HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
+    static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
@@ -62,6 +62,7 @@ public:
     static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
+    static void SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };
