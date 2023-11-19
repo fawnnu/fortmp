@@ -61,6 +61,7 @@ public:
     static void SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective);
     static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
+    static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

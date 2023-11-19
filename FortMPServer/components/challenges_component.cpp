@@ -1371,6 +1371,49 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
     }  
 }
 
+void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController,
+    FGameplayTag POI)
+{
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        
+        // Convert FName to std::string
+        std::string sObjective = POI.TagName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            static std::map<std::string, std::string> ObjectivesMap = {
+                {"Athena.Location.Meta.SevenSeals.01", "battlepass_visit_athena_location_seal_01"},
+                {"Athena.Location.Meta.SevenSeals.02", "battlepass_visit_athena_location_seal_02"},
+                {"Athena.Location.Meta.SevenSeals.03", "battlepass_visit_athena_location_seal_03"},
+                {"Athena.Location.Meta.SevenSeals.04", "battlepass_visit_athena_location_seal_04"},
+                {"Athena.Location.Meta.SevenSeals.05", "battlepass_visit_athena_location_seal_05"},
+                {"Athena.Location.Meta.SevenSeals.06", "battlepass_visit_athena_location_seal_06"},
+                {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"}
+            };
+
+            if (ObjectivesMap.contains(sObjective))
+            {
+                nlohmann::json parameters{
+                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", ObjectivesMap[sObjective]}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:corrupted-area", parameters);
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    } 
+}
+
 void challenges_component::HandleSpecialItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     CHECK_PAST_WARMUP()

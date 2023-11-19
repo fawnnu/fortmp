@@ -238,6 +238,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                     }
                     
                     // Notify backend
+                    challenges_component::SendCorruptedAreaInteraction(Self, Tag);
                 }
             }
         }
