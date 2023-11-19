@@ -578,9 +578,6 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("cube_spawn", nullptr);
         era_mutators_component::Execute("birthday_bus", nullptr);
-
-        // Load dynamic builder class
-        StaticLoadObject(nullptr, nullptr, L"/Script/FortniteGame.FortDynamicBuilder", nullptr, 0, nullptr, true);
     }
 
     // 1.11, christmas bus
@@ -593,6 +590,9 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("halloween_bus", nullptr);
     }
+    
+    // Load dynamic builder class
+    StaticLoadObject(nullptr, nullptr, L"/Script/FortniteGame.FortDynamicBuilder", nullptr, 0, nullptr, true);
 }
 
 void loader_component::OnMapInfoLoaded()
