@@ -100,6 +100,9 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(BurstAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SuppressedAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SniperDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(HeavySniperDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(BoltSniperDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(HuntingSniperDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(GrenadeDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SMGDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(GrenadeLauncherDamageCallback, AFortPlayerController::StaticClass());
@@ -378,6 +381,72 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
+        }
+    }
+}
+
+void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "heavy_sniper_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage = 0;
+        }
+    }
+}
+
+void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "bolt_action_sniper_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage = 0;
+        }
+    }
+}
+
+void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "hunting_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage = 0;
         }
     }
 }
@@ -1617,6 +1686,18 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.SniperDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Sniper);
                         break;
+                    case EDamageCauser::HeavySniper:
+                        Value.HeavySniperDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::HeavySniper);
+                        break;
+                    case EDamageCauser::BoltSniper:
+                        Value.BoltSniperDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::BoltSniper);
+                        break;
+                    case EDamageCauser::HuntingSniper:
+                        Value.HuntingSniperDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::HuntingSniper);
+                        break;
                     case EDamageCauser::Pistol:
                         {
                             if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
@@ -1817,8 +1898,10 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
         { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
         { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
+        { L"weapon.ranged.sniper.bolt", EDamageCauser::BoltSniper },
+        { L"Weapon.Ranged.Sniper.Hunting", EDamageCauser::HuntingSniper },
+        { L"Weapon.Ranged.Sniper.Heavy", EDamageCauser::HeavySniper },
         { L"Weapon.Ranged.Sniper", EDamageCauser::Sniper },
-        { L"weapon.ranged.sniper.bolt", EDamageCauser::Sniper },
         { L"Weapon.Ranged.SMG", EDamageCauser::SMG },
         { L"Weapon.Ranged.Crossbow", EDamageCauser::Sniper },
         { L"Weapon.Ranged.Minigun", EDamageCauser::Minigun },

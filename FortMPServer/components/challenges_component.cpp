@@ -288,6 +288,19 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                              DeathCause == death_cause_enum->GetEnumIndex(L"SniperNoScope") )
                     {
                         weapon = "sniper";
+
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Sniper.Hunting")))
+                        {
+                            weapon = "hunting_rifle";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Sniper.Bolt")))
+                        {
+                            weapon = "bolt_action_sniper_rifle";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Sniper.Heavy")))
+                        {
+                            weapon = "heavy_sniper_rifle";
+                        }
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Grenade"))
                     {

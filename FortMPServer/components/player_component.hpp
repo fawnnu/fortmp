@@ -10,6 +10,9 @@ enum class EDamageCauser : uint8_t
     SuppressedAssaultRifle,
     BurstAssaultRifle,
     Sniper,
+    HuntingSniper,
+    HeavySniper,
+    BoltSniper,
     Grenade,
     SMG,
     SuppressedSMG,
@@ -46,6 +49,9 @@ struct FDamageDealtMapValue
     int BurstAssaultRifleDamage;
     int SuppressedAssaultRifleDamage;
     int SniperDamage;
+    int BoltSniperDamage;
+    int HeavySniperDamage;
+    int HuntingSniperDamage;
     int GrenadeDamage;
     int SMGDamage;
     int GrenadeLauncherDamage;
@@ -137,6 +143,9 @@ public:
     static void BurstAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void SuppressedAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void SniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HuntingSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HeavySniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void BoltSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void GrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void SMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void GrenadeLauncherDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
