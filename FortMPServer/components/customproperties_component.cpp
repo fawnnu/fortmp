@@ -15,6 +15,8 @@ customproperties_component::customproperties_component()
         DetourUpdateThread(GetCurrentThread());
 
         INIT_POINTER(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("40 55 53 57 41 54 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85")); if (customproperties_component_hooks::ConstructUProperty)
+
+        if (customproperties_component_hooks::ConstructUProperty)
         {
             DetourAttach(&reinterpret_cast<PVOID&>(customproperties_component_hooks::ConstructUProperty), customproperties_component_hooks::ConstructUProperty_Hook);
         }
