@@ -31,6 +31,7 @@ player_component::player_component()
     }
 
     INIT_POINTER(UpdateZiplineState, memory_manager::find_function_by_string(L"AFortPlayerPawn::OnRep_ZiplineState"));
+    INIT_POINTER(GetPoiGridTagsForPawn, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B 99 ? ? ? ? 49 8B F0 48 8B FA 48 85 DB 0F 84 ? ? ? ? E8 ? ? ? ? 48 8B 53 10 4C 8D 88 ? ? ? ? 49 63 41 08 3B 82 ? ? ? ? 7F 14 48 8B C8 48 8B 82 ? ? ? ? 4C 39 0C C8 75 04"))
 
     if (UFunction* ClientAddMarker = FindObject<UFunction>(L"/Script/FortniteGame.AthenaMarkerComponent.ClientAddMarker"))
     {
@@ -201,6 +202,44 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
             }
             
             PlayerStats.LastPos = Self->Pawn()->K2_GetActorLocation();
+
+            // Get the POI we're currently in
+            FGameplayTagContainer Container;
+            ZeroMemory(&Container, sizeof FGameplayTagContainer);
+            GetPoiGridTagsForPawn((*GWorld)->AuthorityGameMode(), Self->Pawn(), Container);
+
+            // Align the CurrentPOIList list to the Container
+            for (int i = Self->EraPlayerInfo().CurrentPOIList.size() - 1; i >= 0; i--)
+            {
+                FGameplayTag POI = Self->EraPlayerInfo().CurrentPOIList[i];
+                if (!Container.GameplayTags.Find(Self->EraPlayerInfo().CurrentPOIList[i]))
+                {
+                    std::erase(Self->EraPlayerInfo().CurrentPOIList, Self->EraPlayerInfo().CurrentPOIList[i]);
+
+                    // Log
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"Player '{}' left POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), POI.TagName.ToString().c_str());
+                    }
+                }
+            }
+
+            // Now add any tag from the container that isn't already in the CurrentPOIList
+            for (FGameplayTag& Tag : Container.GameplayTags)
+            {
+                if (std::find(Self->EraPlayerInfo().CurrentPOIList.begin(), Self->EraPlayerInfo().CurrentPOIList.end(), Tag) == Self->EraPlayerInfo().CurrentPOIList.end())
+                {
+                    Self->EraPlayerInfo().CurrentPOIList.push_back(Tag);
+
+                    // Log
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"Player '{}' entered POI '{}'", Self->MyPlayerInfo()->PlayerName().c_str(), Tag.TagName.ToString().c_str());
+                    }
+                    
+                    // Notify backend
+                }
+            }
         }
         
         // Re-execute the same function in 1 second

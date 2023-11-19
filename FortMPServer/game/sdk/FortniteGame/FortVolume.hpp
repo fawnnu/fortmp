@@ -53,8 +53,20 @@ public:
     }
 };
 
+struct FEraPoiInfo
+{
+    bool bLoggedInvalidBrushComponent;
+};
+
 class AFortPoiVolume : public UObject
 {
 public:
     DEFINE_PROPERTY(UObject*, BrushComponent);
+    DEFINE_PROPERTY(FEraPoiInfo, EraPoiInfo);
+};
+
+class AFortPoiManager : public AActor
+{
+public:
+    
 };

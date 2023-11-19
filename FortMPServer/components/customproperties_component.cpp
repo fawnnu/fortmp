@@ -8,47 +8,8 @@ customproperties_component::customproperties_component()
 {
     if (FMemory_Malloc && ConstructUScriptStruct)
     {
-        auto ConstructEraPlayerInfo = []() -> UObject*
-        {
-            static UObject* EraPlayerInfo = nullptr;
-            if (!EraPlayerInfo)
-            {
-                // Construct...
-                FStructParams StructParams;
-                ZeroMemory(&StructParams, sizeof FStructParams);
-                StructParams.OuterFunc = []
-                {
-                    return FindObject(TEXT("/Script/FortniteGame"));  
-                };
-                StructParams.SuperFunc = []() -> UObject*
-                {
-                    return nullptr;
-                };
-                StructParams.StructOpsFunc = nullptr;
-                StructParams.NameUTF8 = "EraPlayerInfo";
-                StructParams.ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;
-                StructParams.StructFlags = 0;
-                StructParams.SizeOf = sizeof FEraPlayerInfo;
-                StructParams.AlignOf = 0x8;
-                StructParams.PropertyArray = nullptr;
-                StructParams.NumProperties = 0;
-                
-                // Call ctor
-                ConstructUScriptStruct(&EraPlayerInfo, &StructParams);
-            }
-            
-            return EraPlayerInfo;  
-        };
-        
-        FStructPropertyParams* NewStructProperty = new FStructPropertyParams;
-        ZeroMemory(NewStructProperty, sizeof FStructPropertyParams);
-        NewStructProperty->Type = EPropertyClass::Struct;
-        NewStructProperty->NameUTF8 = "EraPlayerInfo";
-        NewStructProperty->ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;
-        NewStructProperty->PropertyFlags = CPF_Edit | CPF_IsPlainOldData;
-        NewStructProperty->ArrayDim = 1;
-        NewStructProperty->ScriptStructFunc = ConstructEraPlayerInfo;
-        PendingCustomProperties.push_back(FCustomPropertyData(TEXT("FortPlayerControllerAthena"), TEXT("/Script/FortniteGame.FortPlayerControllerAthena"), TEXT("EraPlayerInfo"), NewStructProperty, sizeof FEraPlayerInfo));
+        CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo);
+        CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo);
         
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());

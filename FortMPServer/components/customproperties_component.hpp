@@ -1,5 +1,47 @@
 ﻿#pragma once
 
+#define CREATE_CUSTOM_PROPERTY_CONTAINER(Class, FullClassPath, ContainerName)\
+auto Construct##ContainerName = []() -> UObject*\
+        {\
+            static UObject* ContainerName = nullptr;\
+            if (!ContainerName)\
+            {\
+                FStructParams StructParams;\
+                ZeroMemory(&StructParams, sizeof FStructParams);\
+                StructParams.OuterFunc = []\
+                {\
+                    return FindObject(TEXT("/Script/FortniteGame"));  \
+                };\
+                StructParams.SuperFunc = []() -> UObject*\
+                {\
+                    return nullptr;\
+                };\
+                StructParams.StructOpsFunc = nullptr;\
+                StructParams.NameUTF8 = #ContainerName;\
+                StructParams.ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;\
+                StructParams.StructFlags = 0;\
+                StructParams.SizeOf = sizeof F##ContainerName;\
+                StructParams.AlignOf = alignof(F##ContainerName);\
+                StructParams.PropertyArray = nullptr;\
+                StructParams.NumProperties = 0;\
+                \
+                ConstructUScriptStruct(&ContainerName, &StructParams);\
+            }\
+            \
+            return ContainerName;\
+        };\
+        \
+FStructPropertyParams* ContainerName##Property = new FStructPropertyParams;\
+ZeroMemory(ContainerName##Property, sizeof FStructPropertyParams);\
+ContainerName##Property->Type = EPropertyClass::Struct;\
+ContainerName##Property->NameUTF8 = #ContainerName;\
+ContainerName##Property->ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;\
+ContainerName##Property->PropertyFlags = CPF_Edit | CPF_IsPlainOldData;\
+ContainerName##Property->ArrayDim = 1;\
+ContainerName##Property->ScriptStructFunc = Construct##ContainerName;\
+PendingCustomProperties.push_back(FCustomPropertyData(TEXT(Class), TEXT(FullClassPath), TEXT(#ContainerName), ContainerName##Property, sizeof F##ContainerName));
+
+
 struct FCustomPropertyData
 {
     FCustomPropertyData(std::wstring InClassName, std::wstring InFullClassPath, std::wstring InPropertyName, void* InConstructData, SIZE_T InPropertySize)

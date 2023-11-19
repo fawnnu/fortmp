@@ -366,6 +366,12 @@ bool patches_component_hook::GetTagsFromPawnLocation_Hook(AFortPoiVolume* FortPo
         return GetTagsFromPawnLocation(FortPoiVolume, Tags);
     }
 
+    if (!FortPoiVolume->EraPoiInfo().bLoggedInvalidBrushComponent)
+    {
+        FortPoiVolume->EraPoiInfo().bLoggedInvalidBrushComponent = true;
+        spdlog::error(L"GetTagsFromPawnLocation_Hook found Volume [{}] with no BrushComponent.", FortPoiVolume->GetName().c_str());
+    }
+    
     return false;
 }
 

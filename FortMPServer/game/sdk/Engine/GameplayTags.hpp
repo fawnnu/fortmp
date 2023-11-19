@@ -12,7 +12,12 @@ struct FGameplayTag
         TagName = InTagName;
     }
 
-    bool operator==(FGameplayTag& cmp)
+    bool operator==(FGameplayTag cmp)
+    {
+        return cmp.TagName == TagName;
+    }
+
+    bool operator==(const FGameplayTag cmp) const
     {
         return cmp.TagName == TagName;
     }

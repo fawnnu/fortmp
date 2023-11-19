@@ -115,6 +115,7 @@ struct FEraPlayerInfo
     std::vector<UAthenaDanceItemDefinition*> OwnedEmotes;
     bool bLastKillHeadshot;
     bool bIsDisconneting;
+    std::vector<FGameplayTag> CurrentPOIList;
 };
 
 class player_component
@@ -247,3 +248,4 @@ namespace player_component_hooks
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);
 inline FFortWorldMarkerData* (*WorldMarkerDataCtr)(FFortWorldMarkerData*);
+inline double (*GetPoiGridTagsForPawn)(AFortGameModeAthena*, AFortPawn*, FGameplayTagContainer&);
