@@ -258,7 +258,13 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pistol", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "pistol"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
         }
     }
@@ -274,7 +280,13 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:shotgun", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "shotgun"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage = 0;
         }
     }
@@ -290,7 +302,13 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:assault_rifle", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "assault_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
         }
     }
@@ -306,7 +324,13 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:sniper", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "sniper"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
         }
     }
@@ -322,7 +346,13 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "grenade"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:grenade", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
         }
     }
@@ -338,7 +368,13 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:smg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "smg"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage = 0;
         }
     }
@@ -354,7 +390,13 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:grenade_launcher", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "grenade_launcher"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage = 0;
         }
     }
@@ -370,7 +412,13 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:rpg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "rpg"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage = 0;
         }
     }
@@ -386,7 +434,13 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_smg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "suppressed_smg"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage = 0;
         }
     }
@@ -402,7 +456,13 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:suppressed_pistol", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "suppresssed_pistol"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage = 0;
         }
     }
@@ -418,7 +478,13 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:minigun", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "minigun"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage = 0;
         }
     }
@@ -434,7 +500,13 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:lmg", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "lmg"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage = 0;
         }
     }
@@ -450,7 +522,13 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:enemy_building", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "enemy_building"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
         }
     }
@@ -466,7 +544,13 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "damage:pickaxe", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage);
+            nlohmann::json payload =
+            {
+                {"weapon", "pickaxe"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage = 0;
         }
     }
@@ -482,7 +566,12 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "headshot_damage", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage);
+            nlohmann::json payload =
+            {
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:headshot-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage = 0;
         }
     }
@@ -498,7 +587,13 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:jewel_opponent", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent);
+            nlohmann::json payload =
+            {
+                {"type", "jewel_opponent"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:special-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent = 0;
         }
     }
@@ -514,7 +609,13 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
 
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "special_damage:c4_enemy_building", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage);
+            nlohmann::json payload =
+            {
+                {"type", "c4_enemy_building"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:special-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage = 0;
         }
     }
