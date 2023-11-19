@@ -274,6 +274,15 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Rifle"))
                     {
                         weapon = "assault_rifle";
+
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Assault.Burst")))
+                        {
+                            weapon = "burst_assault_rifle";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Assault.Silenced")))
+                        {
+                            weapon = "silenced_assault_rifle";
+                        }
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Sniper") ||
                              DeathCause == death_cause_enum->GetEnumIndex(L"SniperNoScope") )

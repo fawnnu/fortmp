@@ -97,6 +97,8 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(PistolDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShotgunDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(AssaultRifleDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(BurstAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(SuppressedAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SniperDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(GrenadeDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SMGDamageCallback, AFortPlayerController::StaticClass());
@@ -310,6 +312,50 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
+        }
+    }
+}
+
+void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "burst_assault_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage = 0;
+        }
+    }
+}
+
+void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "silenced_assault_rifle"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage = 0;
         }
     }
 }
@@ -653,6 +699,20 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
             UKismetSystemLibrary::K2_ClearTimer(Self, L"AssaultRifleDamageCallback");
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"AssaultRifleDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::BurstAssaultRifle:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"BurstAssaultRifleDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"BurstAssaultRifleDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"BurstAssaultRifleDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::SuppressedAssaultRifle:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedAssaultRifleDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedAssaultRifleDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedAssaultRifleDamageCallback", 1.0, false);
         break;
     case EDamageCauser::Sniper:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SniperDamageCallback"))
@@ -1575,6 +1635,14 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.ShotgunDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Shotgun);
                         break;
+                    case EDamageCauser::SuppressedAssaultRifle:
+                        Value.SuppressedAssaultRifleDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedAssaultRifle);
+                        break;
+                    case EDamageCauser::BurstAssaultRifle:
+                        Value.BurstAssaultRifleDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::BurstAssaultRifle);
+                        break;
                     case EDamageCauser::AssaultRifle:
                         Value.AssaultRifleDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::AssaultRifle);
@@ -1743,10 +1811,10 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"Weapon.Ranged.Shotgun", EDamageCauser::Shotgun },
         { L"Weapon.Ranged.Shotgun.Pump", EDamageCauser::Shotgun },
         { L"Weapon.Ranged.Shotgun.Tactical", EDamageCauser::Shotgun },
+        { L"weapon.ranged.assault.silenced", EDamageCauser::SuppressedAssaultRifle },
+        { L"weapon.ranged.assault.burst", EDamageCauser::BurstAssaultRifle },
         { L"Weapon.Ranged.Assault", EDamageCauser::AssaultRifle },
-        { L"weapon.ranged.assault.burst", EDamageCauser::AssaultRifle },
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
-        { L"weapon.ranged.assault.silenced", EDamageCauser::AssaultRifle },
         { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
         { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
         { L"Weapon.Ranged.Sniper", EDamageCauser::Sniper },
