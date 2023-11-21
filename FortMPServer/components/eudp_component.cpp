@@ -313,7 +313,7 @@ eudp_client::eudp_client(std::string in_addr, int in_port, std::string in_key, O
         }
         
         // Local 'buffer' variable
-        char Message[1024];
+        char Message[65535];
 
         // Send key to server
         client->Send(eudp_packet({
@@ -326,8 +326,8 @@ eudp_client::eudp_client(std::string in_addr, int in_port, std::string in_key, O
         // Read incoming messages with recvfrom
         while (true)
         {
-            ZeroMemory(Message, 1024);
-            const int MessageLength = recvfrom(client->client_socket, Message, 1024, 0, reinterpret_cast<sockaddr*>(&client->server_addr), &server_addr_len);
+            ZeroMemory(Message, 65535);
+            const int MessageLength = recvfrom(client->client_socket, Message, 65535, 0, reinterpret_cast<sockaddr*>(&client->server_addr), &server_addr_len);
 
             if (MessageLength == 0)
             {

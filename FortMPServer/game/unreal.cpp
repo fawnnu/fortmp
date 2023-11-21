@@ -16,7 +16,8 @@ void unreal_manager::pre_init()
     INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
     INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
     INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 53 56 57 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B F9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 07 FF D0"));
-
+    INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
+    
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
         GetEngineVersionEasy() == 419 ||
@@ -105,8 +106,6 @@ unreal_manager::unreal_manager()
     INIT_POINTER(TryLoadMips, memory_manager::find_pattern("8B D6 4D 03 C6 48 8B CD E8 ? ? ? ? 84 C0", true, 9));
     INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"Loading non-streamed mips from an external bulk file.  This is not desireable.  File %s"));
     INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"TryLoadMips failed for %s, NumMipsCached: %d, LoadableMips: %d, FirstMipToLoad: %d"));
-
-    INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
 
     INIT_POINTER(CreateDefaultObject_Internal, *(void**)(reinterpret_cast<uintptr_t>(FindObject(L"/Script/CoreUObject.Default__PackageMap")->VTable) - 8));
 

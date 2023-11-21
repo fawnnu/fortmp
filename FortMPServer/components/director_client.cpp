@@ -131,9 +131,23 @@ void director_client::send_ready_event()
 
 void director_client::wait_for_config()
 {
+    static int FailureCount = 0;
+    
     while (!config_manager::bReceivedConfig)
     {
         spdlog::error("director_client did not receive 'config' event from director. Retrying in 100ms...");
+
+        FailureCount++;
+        if (FailureCount >= 100)
+        {
+            // Close the gameserver
+            if (client)
+            {
+                client->Close();
+            }
+            RequestExitWithStatus(true, 0);
+        }
+        
         Sleep(100);
     }
 }
