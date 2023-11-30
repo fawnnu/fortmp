@@ -58,7 +58,7 @@ loader_component::loader_component()
     }
     else
     {
-       spdlog::error(L"Failed to hook loader_component BeginPlay. Invalid BeginPlayAddress");
+        spdlog::error(L"Failed to hook loader_component BeginPlay. Invalid BeginPlayAddress");
     }
     
     DetourTransactionBegin();
@@ -74,43 +74,59 @@ loader_component::loader_component()
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
+    if (GetCL() == 4526925)
+    {
+        REGISTER_CUSTOM_UFUNCTION(SwapButterflyEventPOIs, AFortGameModeAthena::StaticClass());
+    }
 }
 
 void loader_component_hooks::BuildingFoundation_PostUpdate_Hook(ABuildingFoundation* BuildingFoundation, uint8_t State,
     void* ReservedValues)
 {
     // CL specific fix due to offset use on property
-    if (GetCL() == 4526925)
+    try
     {
-        // Disable before-event lake on 6.21
-        if (UKismetSystemLibrary::GetPathName(BuildingFoundation) == L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations:PersistentLevel.LF_Lake2")
+        auto config = config_manager::get_server_config();
+        for (auto& elem : config["startenabled_foundations"].items())
         {
-            spdlog::warn(L"BuildingFoundation_PostUpdate: Disabling LF_Lake2 on 6.21");
-        
-            BuildingFoundation->K2_DestroyActor();
-            return;
-        }   
-    
-        if(BuildingFoundation->DynamicFoundationType() == 2)
-        {
-            // Enable the foundation (DynamicFoundationType is originally StartDisabled so we gotta set this)
-            UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bFoundationEnabled"), true);
-            BuildingFoundation->OnRep_FoundationEnabled(true);
-        
-            BuildingFoundation->DynamicFoundationType() = 1;
+            if (GetCL() == elem.value()["target_cl"].get<int>())
+            {
+                std::string sFoundationName = elem.value()["foundation"].get<std::string>();
+                TO_WSTRING(sFoundationName, wFoundationName);
 
-            BuildingFoundation->OnRep_DynamicFoundationTransform();
+                if (BuildingFoundation == FindObject<ABuildingFoundation>(wFoundationName.c_str()))
+                {
+                    if(BuildingFoundation->DynamicFoundationType() == 2)
+                    {
+                        // Enable the foundation (DynamicFoundationType is originally StartDisabled so we gotta set this)
+                        UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bFoundationEnabled"), true);
+                        BuildingFoundation->OnRep_FoundationEnabled(false);
+        
+                        BuildingFoundation->DynamicFoundationType() = 1;
+
+                        BuildingFoundation->OnRep_DynamicFoundationTransform();
             
-            spdlog::warn(L"BuildingFoundation_PostUpdate: Enabling {}", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
-        }
+                        spdlog::warn(L"BuildingFoundation_PostUpdate: Enabling {}", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
+                    }
 
-        if(BuildingFoundation->DynamicFoundationType() == 1)
-        {
-            // credit: Callum/darkblade/callumboynton for property setting and offset
-            uint8* ByteValue = reinterpret_cast<uint8*>(__int64(BuildingFoundation) + 0xC69);
-            uint8 Mask = 0x8;
-            *ByteValue = ((*ByteValue) & ~Mask) | (Mask);
+                    if(BuildingFoundation->DynamicFoundationType() == 1)
+                    {
+                        // credit: Callum/darkblade/callumboynton for property setting
+                        auto Property = FindPropertyByName(BuildingFoundation->Class, TEXT("bFoundationEnabled"));
+
+                        if (Property)
+                        {
+                            uint8* ByteValue = reinterpret_cast<uint8*>(__int64(BuildingFoundation) + *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Property) + CoreOffsets::Offset_Internal));
+                            constexpr uint8 Mask = 0x8;
+                            *ByteValue = *ByteValue & ~Mask | Mask;
+                        }
+                    }
+                }
+            }
         }
+    }
+    catch (nlohmann::json::exception& err)
+    {
     }
     
     BuildingFoundation_PostUpdate(BuildingFoundation, State, ReservedValues);
@@ -137,6 +153,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
+        REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations_C.SwapPOI", loader_component_hooks::SwapPOI_Hook);
+        
         if (in_playlist == nullptr)
         {
             // See if server.json is overriding the playlist
@@ -673,6 +691,58 @@ void loader_component::WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackF
     }
 }
 
+void loader_component::SwapButterflyEventPOIs(AFortGameModeAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    static auto FoundationsToDisable = std::vector{
+        FindObject<ABuildingFoundation>(TEXT("/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations.PersistentLevel.LF_Lake1")),
+        FindObject<ABuildingFoundation>(TEXT("/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations.PersistentLevel.LF_FloatingIsland"))
+    };
+
+    if (FoundationsToDisable.size() > 0)
+    {
+        ABuildingFoundation* FoundationToDisable = FoundationsToDisable[FoundationsToDisable.size() - 1];
+        std::erase(FoundationsToDisable, FoundationToDisable);
+
+        spdlog::warn(L"loader_component_hooks::SwapPOI_Hook is disabling POI '{}'.", UKismetSystemLibrary::GetPathName(FoundationToDisable).c_str());
+    
+        UKismetSystemLibrary::SetBoolPropertyByName(FoundationToDisable, TEXT("bFoundationEnabled"), false);
+        UKismetSystemLibrary::SetBoolPropertyByName(FoundationToDisable, TEXT("bServerStreamedInLevel"), false);
+        FoundationToDisable->SetDynamicFoundationEnabled(false);
+        FoundationToDisable->OnRep_FoundationEnabled(true);
+        FoundationToDisable->OnRep_ServerStreamedInLevel();
+        FoundationToDisable->OnRep_DynamicFoundationTransform();
+        FName LevelToUnload = FoundationToDisable->LevelToStream();
+        loader_component_hooks::BuildingFoundation_PostUpdate(FoundationToDisable, 0, nullptr);
+        FoundationToDisable->OnRep_LevelToStream();
+        FoundationToDisable->DisableReadyForPostUpdate();
+        UGameplayStatics::UnloadStreamLevel(*GWorld, LevelToUnload, FLatentActionInfo(0, 0, TEXT("SwapButterflyEventPOIs"), Self), false);
+        return;
+    }
+
+    if (FoundationsToDisable.size() == 0)
+    {
+        if (ABuildingFoundation* Lake2Foundation = FindObject<ABuildingFoundation>(TEXT("/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations.PersistentLevel.LF_Lake2")))
+        {
+            if (Lake2Foundation->DynamicFoundationType() == 2)
+            {
+                UKismetSystemLibrary::SetBoolPropertyByName(Lake2Foundation, TEXT("bFoundationEnabled"), true);
+                Lake2Foundation->OnRep_FoundationEnabled(false);
+                Lake2Foundation->DynamicFoundationType() = 1;
+                Lake2Foundation->OnRep_DynamicFoundationTransform();
+            }
+            
+            if (Lake2Foundation->DynamicFoundationType() == 1)
+            {
+                Lake2Foundation->EnableReadyForPostUpdate();
+            }
+            
+            loader_component_hooks::BuildingFoundation_PostUpdate(Lake2Foundation, 1, nullptr);
+        }
+    }
+}
+
 void loader_component_hooks::UpdateLevelStreaming_Hook(UWorld* World)
 {
     // Call original function first
@@ -768,6 +838,17 @@ void loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook(UObje
                     SpawnActor(*GWorld, ConsumableClass, &Locations[i], nullptr, SpawnActorParameters);
                 }
             }
+        }
+    }
+}
+
+void loader_component_hooks::SwapPOI_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    if (*GWorld)
+    {
+        if ((*GWorld)->AuthorityGameMode())
+        {
+            (*GWorld)->AuthorityGameMode()->SwapButterflyEventPOIs();
         }
     }
 }

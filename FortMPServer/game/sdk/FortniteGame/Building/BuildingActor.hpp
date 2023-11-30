@@ -290,6 +290,7 @@ public:
     DEFINE_PROPERTY(uint8_t, DynamicFoundationType);
     DEFINE_PROPERTY(uint8_t, FoundationEnabledState);
     DEFINE_PROPERTY(uint8, bConditionalFoundation);
+    DEFINE_PROPERTY(FName, LevelToStream);
     
     void OnRep_ServerStreamedInLevel()
     {
@@ -335,6 +336,24 @@ public:
         STATIC_FINDFUNCTION(OnRep_DynamicFoundationTransform)
 
         Call(Function_OnRep_DynamicFoundationTransform);
+    }
+    void DisableReadyForPostUpdate()
+    {
+        if (auto Property = FindPropertyByName(Class, TEXT("bFoundationEnabled")))
+        {
+            uint8* ByteValue = reinterpret_cast<uint8*>(__int64(this) + *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Property) + CoreOffsets::Offset_Internal));
+            constexpr uint8 Mask = 0x8;
+            *ByteValue = *ByteValue & ~Mask;
+        }
+    }
+    void EnableReadyForPostUpdate()
+    {
+        if (auto Property = FindPropertyByName(Class, TEXT("bFoundationEnabled")))
+        {
+            uint8* ByteValue = reinterpret_cast<uint8*>(__int64(this) + *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Property) + CoreOffsets::Offset_Internal));
+            constexpr uint8 Mask = 0x8;
+            *ByteValue = *ByteValue & ~Mask | Mask;
+        }
     }
 };
 

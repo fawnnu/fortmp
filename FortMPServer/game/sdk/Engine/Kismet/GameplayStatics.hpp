@@ -1,8 +1,18 @@
 ﻿#pragma once
 
+struct FLatentActionInfo
+{
+public:
+    int32                                        Linkage;                                           // 0x0(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+    int32                                        UUID;                                              // 0x4(0x4)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+    class FName                                  ExecutionFunction;                                 // 0x8(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+    class UObject*                               CallbackTarget;                                    // 0x10(0x8)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash, NativeAccessSpecifierPublic)
+};
+
 class UGameplayStatics : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.GameplayStatics");;
     static APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
@@ -10,6 +20,15 @@ public:
         STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.GetPlayerController")
         
         return Default__GameplayStatics->Call<APlayerController*>(FunctionObject, WorldContextObject, PlayerIndex);
+    }
+
+    static void UnloadStreamLevel(UWorld* WorldContextObject, FName LevelToUnload, FLatentActionInfo LatentInfo, bool bShouldBlockOnUnload)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.UnloadStreamLevel")
+        
+        Default__GameplayStatics->Call(FunctionObject, WorldContextObject, LevelToUnload, LatentInfo, bShouldBlockOnUnload);
     }
 
     static void OpenLevel(UWorld* WorldContextObject, FName LevelName, bool bAbsolute, FString Options)

@@ -124,6 +124,13 @@ public:
         Call(Function_OnServerReady);
     }
     
+    void SwapButterflyEventPOIs()
+    {
+        STATIC_FINDFUNCTION(SwapButterflyEventPOIs)
+        
+        Call(Function_SwapButterflyEventPOIs);
+    }
+    
     // Custom event
     void OnServerMapInfoReady()
     {

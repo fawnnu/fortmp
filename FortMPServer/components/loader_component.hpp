@@ -22,6 +22,7 @@ public:
     
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame);
+    static void SwapButterflyEventPOIs(AFortGameModeAthena* Self, FFrame& StackFrame);
     
     inline static bool bPendingShutdown;
 
@@ -36,6 +37,7 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, UpdateLevelStreaming, (UWorld* World));
 
     DEFINE_FUNCTION_HOOK(void, EQSQueryDoneSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, SwapPOI, (UObject* Object, UObject* Function, void* Params));
     
     DEFINE_FUNCTION_HOOK(void, ABuildingContainer_BeginPlay, (ABuildingContainer* Target));
     DEFINE_FUNCTION_HOOK(void, AFortGameModeAthena_BeginPlay, (AFortGameModeAthena* Target));
