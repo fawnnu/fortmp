@@ -848,6 +848,7 @@ void loader_component_hooks::SwapPOI_Hook(UObject* Object, UObject* Function, vo
     {
         if ((*GWorld)->AuthorityGameMode())
         {
+            // Player goes into the butterfly level; swap POI
             (*GWorld)->AuthorityGameMode()->SwapButterflyEventPOIs();
         }
     }

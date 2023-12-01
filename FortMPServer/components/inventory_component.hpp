@@ -37,6 +37,12 @@ namespace inventory_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, GiveItemToInventoryOwner, (TScriptInterface<class UObject> InventoryOwner, class UFortWorldItemDefinition* ItemDefinition, int NumberToGive, bool bNotifyPlayer, int ItemLevel));
 
+    DEFINE_FUNCTION_HOOK(void, K2_RemoveItemFromAllPlayers, (UWorld* WorldContextObject, UFortWorldItemDefinition* ItemDefinition, int AmountToRemove))
+
+    DEFINE_FUNCTION_HOOK(void, K2_GiveItemToPlayer, (class AFortPlayerController* PlayerController, class UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer))
+
+    DEFINE_FUNCTION_HOOK(void, K2_GiveItemToAllPlayers, (class UObject* WorldContextObject, class UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer))
+
     DEFINE_FUNCTION_HOOK(void, ServerRemoveInventoryItem, (AFortPlayerController* PlayerController, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(bool, RemoveInventoryItem, (void* Interface, FGuid Guid, int Count))
     inline int InterfaceToOwnerOffset;

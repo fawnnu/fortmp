@@ -33,12 +33,21 @@ inventory_component::inventory_component()
     
     DetourTransactionCommit();
 
-    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
-
-    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
-
-    REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
-
+    if (GetFortniteVersionEasy() >= 7.0 || GetFortniteVersionEasy() < 6.0)
+    {
+        REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+        REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
+        REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
+    }
+    else
+    {
+        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
+        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
+        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_GiveItemToAllPlayers", inventory_component_hooks::K2_GiveItemToAllPlayers_Hook);
+        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromAllPlayers", inventory_component_hooks::K2_RemoveItemFromAllPlayers_Hook);
+    }
+    
     // Create custom function
     REGISTER_CUSTOM_UFUNCTION(UpdateWeaponLoadedAmmo, AFortWeapon::StaticClass());
 }
@@ -65,6 +74,11 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
 
 UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo, std::vector<float> GenericAttributeValues)
 {
+    if (item_definition == nullptr)
+    {
+        return nullptr;
+    }
+    
     if (player_controller->WorldInventory() == nullptr)
     {
         return nullptr;
@@ -728,6 +742,11 @@ int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(AFortPlayerControlle
 {
     if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(PlayerController, ItemDefinition)))
     {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"inventory_component_hooks::K2_RemoveItemFromPlayer_Hook: Removing {} {} from inventory.", AmountToRemove, ItemToRemove->ItemEntry().ItemDefinition() ? ItemToRemove->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+        }
+        
         inventory_component::remove_item(PlayerController, ItemToRemove->ItemEntry().ItemGuid(), AmountToRemove, false);
     }
     
@@ -736,6 +755,14 @@ int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(AFortPlayerControlle
 
 int inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook(AFortPlayerController* PlayerController, FGuid ItemGuid, int AmountToRemove, bool bForceRemoval)
 {
+    if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid)))
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook: Removing {} {} from inventory.", AmountToRemove, ItemToRemove->ItemEntry().ItemDefinition() ? ItemToRemove->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+        }
+    }
+    
     inventory_component::remove_item(PlayerController, ItemGuid, AmountToRemove, false);
     
     return 1;
@@ -745,7 +772,72 @@ void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<U
 {
     if (AFortPlayerController* PlayerController = static_cast<AFortPlayerController*>(InventoryOwner.GetObjectRef()))
     {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"inventory_component_hooks::GiveItemToInventoryOwner_Hook: adding {} {} to inventory.", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL");
+        }
+        
         inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+    }
+}
+
+void inventory_component_hooks::K2_RemoveItemFromAllPlayers_Hook(UWorld* WorldContextObject, UFortWorldItemDefinition* ItemDefinition, int AmountToRemove)
+{
+    if (*GWorld)
+    {
+        if ((*GWorld)->AuthorityGameMode())
+        {
+            for (auto PlayerController : (*GWorld)->AuthorityGameMode()->AlivePlayers())
+            {
+                if (!memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+                {
+                    if (UFortWorldItem* ItemToRemove = static_cast<UFortWorldItem*>(inventory_component::get_inventory_item_by_definition(PlayerController, ItemDefinition)))
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"inventory_component_hooks::K2_RemoveItemFromAllPlayers_Hook: Removing {} {} from inventory [{}].", AmountToRemove, ItemToRemove->ItemEntry().ItemDefinition() ? ItemToRemove->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL", PlayerController->GetName().c_str());
+                        }
+        
+                        inventory_component::remove_item(PlayerController, ItemToRemove->ItemEntry().ItemGuid(), AmountToRemove, false);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void inventory_component_hooks::K2_GiveItemToPlayer_Hook(AFortPlayerController* PlayerController, UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer)
+{
+    if (PlayerController)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"inventory_component_hooks::K2_GiveItemToPlayer_Hook: adding {} {} to inventory.", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL");
+        }
+        
+        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+    }
+}
+
+void inventory_component_hooks::K2_GiveItemToAllPlayers_Hook(UObject* WorldContextObject, UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer)
+{
+    if (*GWorld)
+    {
+        if ((*GWorld)->AuthorityGameMode())
+        {
+            for (auto PlayerController : (*GWorld)->AuthorityGameMode()->AlivePlayers())
+            {
+                if (!memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"inventory_component_hooks::K2_GiveItemToAllPlayers_Hook: Adding {} {} to inventory [{}].", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL", PlayerController->GetName().c_str());
+                    }
+        
+                    inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+                }
+            }
+        }
     }
 }
 
@@ -756,8 +848,11 @@ void inventory_component_hooks::ServerRemoveInventoryItem_Hook(AFortPlayerContro
 
     if (UFortItem* Item = inventory_component::get_inventory_item_by_guid(PlayerController, ItemGuid))
     {
-        spdlog::info(L"inventory_component_hooks::ServerRemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
-
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"inventory_component_hooks::ServerRemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
+        }
+        
         inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
     }
 }

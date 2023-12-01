@@ -313,6 +313,16 @@ public:
         
         return Default__FortKismetLibrary->Call<bool>(FunctionObject, A, B);
     }
+    
+    static void K2_GiveItemToAllPlayers(class UObject* WorldContextObject, class UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer)
+    {
+        // Static function to use default object
+        static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortKismetLibrary.K2_GiveItemToAllPlayers")
+        
+        Default__FortKismetLibrary->Call(FunctionObject, WorldContextObject, ItemDefinition, NumberToGive, bNotifyPlayer);
+    }
 };
 
 class UAbilitySystemBlueprintLibrary : public UObject
