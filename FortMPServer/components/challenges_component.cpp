@@ -1174,7 +1174,7 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
             nlohmann::json parameters{
                 {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
+                {"poi", sObjective}
             };
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:poi", parameters);
