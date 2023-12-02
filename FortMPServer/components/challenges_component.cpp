@@ -1153,6 +1153,42 @@ void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* Int
     }  
 }
 
+void challenges_component::SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
+{
+    CHECK_PAST_WARMUP()
+    
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        // Convert FName to std::string
+        std::string sObjective = BackendObjectiveName.sToString();
+
+        if (sObjective.find("Athena.Location.POI") == std::string::npos)
+        {
+            return;
+        }
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:poi", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component::SendJewelInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()

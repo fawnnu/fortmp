@@ -52,6 +52,7 @@ public:
     static void SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
+    static void SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendJewelInteraction(AFortPlayerController* InteractingController);
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);

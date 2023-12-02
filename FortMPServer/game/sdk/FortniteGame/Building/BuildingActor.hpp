@@ -438,3 +438,9 @@ class ACBGA_SpookyMist_C : public AActor
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/ForagedItems/SpookyMist/CBGA_SpookyMist.CBGA_SpookyMist_C");
 };
+
+class AProp_QuestInteractable_TimeTrials_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/TimedChallenge/Prop_QuestInteractable_TimeTrials.Prop_QuestInteractable_TimeTrials_C");
+};

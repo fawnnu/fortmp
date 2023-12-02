@@ -878,7 +878,8 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                 if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())
                 {
                     // Check if its a port a fort
-                    if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TowerGrenade/Athena_TowerGrenade.Athena_TowerGrenade"))
+                    if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TowerGrenade/Athena_TowerGrenade.Athena_TowerGrenade") ||
+                        reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SuperTowerGrenade/Levels/PortAFort_A/Athena_SuperTowerGrenade_A.Athena_SuperTowerGrenade_A") )
                     {
                         challenges_component::SendPortAFortInteraction(PlayerController);
                     }
