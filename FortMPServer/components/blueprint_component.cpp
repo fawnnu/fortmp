@@ -46,7 +46,7 @@ BlueprintDisasm::BlueprintDisasm(UFunction* InTargetScript)
     TO_STRING(ScriptName, sScriptName)
 
     // Class
-    std::wstring ClassName = InTargetScript->GetName().c_str();
+    std::wstring ClassName = InTargetScript->Outer->GetName().c_str();
     TO_STRING(ClassName, sClassName);
     
     // TArray -> std::vector
@@ -70,7 +70,7 @@ BlueprintDisasm::BlueprintDisasm(UFunction* InTargetScript)
     }
 
     // Output to file...
-    std::filesystem::create_directories(dll_utils::get_current_path() + std::string("/Exports"));
+    std::filesystem::create_directories(dll_utils::get_current_path() + std::string("/Exports/").append(sClassName));
     std::ofstream OutputStream;
     std::string Filename = "dump-" + sScriptName + ".json";
     OutputStream.open(dll_utils::get_current_path() + std::string("/Exports/").append(sClassName).append("/").append(Filename));
