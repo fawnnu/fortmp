@@ -56,9 +56,6 @@ void Setup()
     // Setup logging (File sinks)
     new log_component();
     
-    // Create custom properties component
-    new customproperties_component();
-    
     // Setup Unreal Engine
     new unreal_manager();
 

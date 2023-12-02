@@ -25,7 +25,10 @@ customproperties_component::customproperties_component()
             spdlog::critical("Failed to setup hook '{}', invalid function pointer provided. Closing....", "customproperties_component_hooks::ConstructUProperty");
 
             // Unregister the server
-            gameserver_client::Client->SendLeave();
+            if (gameserver_client::Client)
+            {
+                gameserver_client::Client->SendLeave();
+            }
             
             // Close director connection
             if (director_client::client)
@@ -44,8 +47,11 @@ customproperties_component::customproperties_component()
         spdlog::critical(L"customproperties_component: failed to initialize. Closing...");
         
         // Unregister the server
-        gameserver_client::Client->SendLeave();
-            
+        if (gameserver_client::Client)
+        {
+            gameserver_client::Client->SendLeave();
+        }
+        
         // Close director connection
         if (director_client::client)
         {
