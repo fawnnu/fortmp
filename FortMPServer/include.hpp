@@ -61,3 +61,4 @@
 #include "utils/hook.hpp"
 
 #include "utils/Containers.hpp"
+#include "components/blueprint_component.hpp"

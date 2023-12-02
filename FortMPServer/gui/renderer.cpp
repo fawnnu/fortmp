@@ -433,6 +433,64 @@ void renderer::CreateNewWindow()
 
                         ImGui::EndTabItem();
                     }
+
+                    if (ImGui::BeginTabItem("Blueprint"))
+                    {
+                        static std::string SelectedScript;
+                        
+                        ImGui::BeginChild("BlueprintList", ImVec2(170, ImGui::GetContentRegionAvail().y - 31), true);
+                        for (auto& [key, val] : BlueprintDisasm::DisassembledBlueprintFunctions)
+                        {
+                            if (key.size() > 0)
+                            {
+                                if (ImGui::Selectable(key.c_str(), SelectedScript == key))
+                                {
+                                    SelectedScript = key;
+                                }
+                            }
+                        }
+                        ImGui::EndChild();
+
+                        ImGui::SameLine();
+                        
+                        ImGui::BeginChild("LoggerContainer", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y - 31));
+                        if (SelectedScript.size() > 0 && BlueprintDisasm::DisassembledBlueprintFunctions.contains(SelectedScript))
+                        {
+                            ImGui::TextUnformatted(BlueprintDisasm::DisassembledBlueprintFunctions[SelectedScript].dump(4).c_str());
+                        }
+                        ImGui::EndChild();
+
+                        ImGui::Separator();
+                        
+                        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+
+                        static char BlueprintPath[255];
+                        if (ImGui::InputTextWithHint("", "Enter a blueprint class path...", BlueprintPath, sizeof BlueprintPath, ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            std::string str_command(BlueprintPath);
+                            TO_WSTRING(str_command, wstr_command);
+
+                            ZeroMemory(BlueprintPath, sizeof BlueprintPath);
+                            
+                            if (UObject* BlueprintClass = FindObject(wstr_command.c_str()))
+                            {
+                                for (UObject* Child = *reinterpret_cast<UObject**>(reinterpret_cast<__int64>(BlueprintClass) + CoreOffsets::Children); Child; Child = *reinterpret_cast<UObject**>(reinterpret_cast<__int64>(Child) + CoreOffsets::Next))
+                                {
+                                    if (Child->IsA(UFunction::StaticClass()))
+                                    {
+                                        if (!BlueprintDisasm::DisassembledBlueprintFunctions.contains(Child->sGetName().c_str()))
+                                        {
+                                            new BlueprintDisasm(static_cast<UFunction*>(Child));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        ImGui::PopItemWidth();
+                        
+                        ImGui::EndTabItem();
+                    }
                     
                     ImGui::EndTabBar();
                 }

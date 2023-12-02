@@ -33,6 +33,7 @@ void unreal_manager::pre_init()
         CoreOffsets::SuperStruct = 0x30;
         CoreOffsets::ByteOffset = 0x71;
         CoreOffsets::FieldMask =  0x73;
+        CoreOffsets::Script = 0x48;
     }
     else if (GetEngineVersionEasy() == 422 ||
              GetEngineVersionEasy() == 423 ||
@@ -47,6 +48,7 @@ void unreal_manager::pre_init()
         CoreOffsets::SuperStruct = 0x40;
         CoreOffsets::ByteOffset = 0x71;
         CoreOffsets::FieldMask =  0x73;
+        CoreOffsets::Script = 0x58;
     }
     else if (GetEngineVersionEasy() == 425 ||
              GetEngineVersionEasy() == 426)
@@ -60,6 +62,7 @@ void unreal_manager::pre_init()
         CoreOffsets::SuperStruct = 0x40;
         CoreOffsets::ByteOffset = 121;
         CoreOffsets::FieldMask =  123;
+        CoreOffsets::Script = 0x60;
     }
 }
 

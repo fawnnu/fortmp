@@ -124,3 +124,14 @@ void log_component::add_message_safe(std::string message, spdlog::level::level_e
 
     messages.push_back(log_msg(message, level));
 }
+
+
+void log_component::add_message_safe_bp(std::string message, spdlog::level::level_enum level)
+{
+    if (bp_messages.size() > 100)
+    {
+        bp_messages.erase(bp_messages.begin());
+    }
+
+    bp_messages.push_back(log_msg(message, level));
+}
