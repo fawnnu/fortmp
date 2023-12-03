@@ -210,22 +210,6 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         
         return;
     }
-
-
-    FVector pickup_location = Pickup->K2_GetActorLocation();
-    FVector pawn_location = PlayerPawn->K2_GetActorLocation();
-                
-    float XY_distance_from_pickup_location = sqrtf((pickup_location.X - pawn_location.X) * (pickup_location.X - pawn_location.X) +
-                                (pickup_location.Y - pawn_location.Y) * (pickup_location.Y - pawn_location.Y));
-    
-    // Validation
-    if (XY_distance_from_pickup_location > 5000)
-    {
-        // Kick the player
-        PlayerPawn->Controller()->ClientReturnToMainMenu(L"[AC] You have been kicked for exploiting.");
-        
-        spdlog::error(L"pickup_component::handle_pickup validation failed, {} attempted to pickup an item from further than 1 meter. Kicking.", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str());
-    }
         
     // Prevent duplication
     if (Pickup->bPickedUp())
