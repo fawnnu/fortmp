@@ -195,6 +195,12 @@ public:
 
         return Call<bool>(Function_IsInVehicle);
     }
+    bool IsSkydiving()
+    {
+        STATIC_FINDFUNCTION(IsSkydiving)
+
+        return Call<bool>(Function_IsSkydiving);
+    }
 
     void SetPawnVisibility(bool bNewHidden, bool bPropagateToWeapon)
     {
