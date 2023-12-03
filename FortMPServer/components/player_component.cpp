@@ -1240,14 +1240,20 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         }
                         else
                         {
-                            spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 100ms...", "/api/internal/users/" + sAccountID + "/profile");
+                            spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
+                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
+                            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                            {
+                                // Mark as bPendingKick
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                            }
                             if (Response)
                             {
                                 spdlog::error("Query profile failure error code: {}", Response->status);
                             }
                         }
 
-                        Sleep(100);
+                        Sleep(1000);
                     }
                     
                     nlohmann::json data = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile;
@@ -2319,6 +2325,12 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         // Make sure profile is there
         while (true)
         {
+            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick)
+            {
+                NewPlayer->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer."));
+                return;
+            }
+            
             if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bProfileReady)
             {
                 break;

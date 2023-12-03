@@ -116,6 +116,8 @@ enum EEraPlatform
 struct FEraPlayerInfo
 {
     nlohmann::json Profile;
+    int ProfileFailures;
+    bool bPendingKick;
     bool bProfileReady;
     std::vector<std::pair<nlohmann::json, UObject*>> PendingVariantsData;
     std::wstring PlayerPlatform;
