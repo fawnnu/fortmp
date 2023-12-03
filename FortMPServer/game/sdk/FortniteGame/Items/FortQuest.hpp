@@ -227,3 +227,11 @@ public:
     DEFINE_PROPERTY(float, DistanceTraveled);
     DEFINE_PROPERTY(AFortPlayerController*, ControllerWhoThrewTomato);
 };
+
+class ABP_ShootingGallery_01_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/ShootingGallery/Blueprint/BP_ShootingGallery_01.BP_ShootingGallery_01_C");
+
+    DEFINE_PROPERTY(TArray<int>, PopInt);
+};

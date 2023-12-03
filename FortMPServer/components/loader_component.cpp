@@ -341,19 +341,10 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
                 if (cube)
                 {
-                    // Crack progress. Make it 0.01 by default because 0.0 makes it scuffed (TODO: Backend implementation)
-                    cube->CrackProgress() = 0.01;
-
-                    // Once CrackProgress reaches 1.0f on backend, set DrainActive to true and start progressing up the DrainAmount from 0.0f to 1.0f.
-
-                    // Activate the drain process (TODO: Backend implementation) (Needed to start the event)
-                    cube->DrainActive() = false;
-                    if(cube->DrainActive())
-                    {
-                        // Goes from 0.0 to 1.0f.
-                        // One cube drip is +0.045(45)f
-                        cube->DrainAmount() = 0;
-                    }   
+                    // Updated cube progress
+                    cube->CrackProgress() = 1.0;
+                    cube->DrainActive() = true;
+                    cube->DrainAmount() = 1.0;
                 }
 
                 spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);

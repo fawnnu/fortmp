@@ -72,7 +72,6 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
-    
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     
     if (GetEngineVersionEasy() < 420)
@@ -2578,6 +2577,25 @@ void player_component_hooks::ServerAwardVehicleTrickPoints_Hook(AFortPlayerContr
     UKismetSystemLibrary::K2_SetTimer(Self, L"TrickPointsCallback", 5.0, false);
     
     ServerAwardVehicleTrickPoints(Self, StackFrame);
+}
+
+void player_component_hooks::ReceiveActorEndOverlap_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor)
+
+    if (Self && OtherActor)
+    {
+        if (Self->IsA(APlayerPawn_Athena_C::StaticClass()))
+        {
+            if (OtherActor->IsA(ABP_ShootingGallery_01_C::StaticClass()))
+            {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"player_component_hooks::ReceiveActorEndOverlap_Hook: Pawn finished overlapping with shooting gallery. Score: {} {}.", static_cast<ABP_ShootingGallery_01_C*>(OtherActor)->PopInt()[0], static_cast<ABP_ShootingGallery_01_C*>(OtherActor)->PopInt()[1]);
+                }
+            }
+        }
+    }  
 }
 
 void player_component_hooks::OnRemoval_Hook(UObject* Self, UObject* Function, void* Params)
