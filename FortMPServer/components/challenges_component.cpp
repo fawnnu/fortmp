@@ -351,6 +351,33 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {"distance", (VictimPlayerController->Pawn()->GetDistanceTo(KillerPlayerController->Pawn()) / 100)}
                 };
 
+                static std::vector<std::string> POITagsForCorruptedZone = {
+                    "Athena.Location.Meta.SevenSeals.01",
+                    "Athena.Location.Meta.SevenSeals.02",
+                    "Athena.Location.Meta.SevenSeals.03",
+                    "Athena.Location.Meta.SevenSeals.04",
+                    "Athena.Location.Meta.SevenSeals.05",
+                    "Athena.Location.Meta.SevenSeals.06",
+                    "Athena.Location.Meta.SevenSeals.07",
+                };
+
+                // Read player POI
+                std::vector POIList = static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().CurrentPOIList;
+                for (std::string POITag : POITagsForCorruptedZone)
+                {
+                    TO_WSTRING(POITag, wPOITag);
+                    FGameplayTag POIGameplayTag(wPOITag.c_str());
+                    if (std::find(POIList.begin(), POIList.end(), POIGameplayTag) != POIList.end())
+                    {
+                        // Found one of the POI tags: break and add to elimination payload
+                        parameters["meta"] = {
+                            {"in_corrupted_area", true}
+                        };
+                        
+                        break;
+                    }
+                }
+
                 // Invalidate headshot kill record
                 static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().bLastKillHeadshot = false;
             
