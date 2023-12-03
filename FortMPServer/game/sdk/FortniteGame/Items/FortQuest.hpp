@@ -218,3 +218,12 @@ public:
 
     DEFINE_PROPERTY(FName, ObjectiveBackendName);
 };
+
+class AB_Toy_Tomato_Base_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Toys/Tomato/Shared/B_Toy_Tomato_Base.B_Toy_Tomato_Base_C")
+
+    DEFINE_PROPERTY(float, DistanceTraveled);
+    DEFINE_PROPERTY(AFortPlayerController*, ControllerWhoThrewTomato);
+};
