@@ -521,12 +521,12 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         else if (OtherActor->IsA(AB_Toy_Tomato_Base_C::StaticClass()))
         {
             // Atleast 15 meters to send
-            if (static_cast<AB_Toy_Tomato_Base_C*>(OtherActor)->DistanceTraveled() >= 1500)
+            if (PlayerPawn->GetDistanceTo(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn()) >= 1500)
             {
                 // Don't allow self
-                if (PlayerPawn->Controller() != static_cast<AB_Toy_Tomato_Base_C*>(OtherActor)->ControllerWhoThrewTomato())
+                if (PlayerPawn->Controller() != static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()))
                 {
-                    challenges_component::SendTomatoInteraction(PlayerPawn->Controller(), static_cast<AB_Toy_Tomato_Base_C*>(OtherActor)->DistanceTraveled() / 100);
+                    challenges_component::SendTomatoInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), PlayerPawn->GetDistanceTo(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn()) / 100);
                 }
             }
         }

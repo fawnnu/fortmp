@@ -108,7 +108,7 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with shadow stones
         handle_shadowstone_interaction(player_controller, reinterpret_cast<ACBGA_SpookyMist_C*>(receiving_actor));
     }
-    else if (AProp_Athena_Doorbell_Interactable_C::StaticClass())
+    else if (receiving_actor->IsA(AProp_Athena_Doorbell_Interactable_C::StaticClass()))
     {
         handle_doorbell_interaction(player_controller, reinterpret_cast<AProp_Athena_Doorbell_Interactable_C*>(receiving_actor));
     }

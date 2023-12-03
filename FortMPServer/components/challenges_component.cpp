@@ -785,7 +785,7 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
             nlohmann::json parameters{
                 {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"z", InteractingController->Pawn()->K2_GetActorLocation().Y}
+                {"z", InteractingController->Pawn()->K2_GetActorLocation().Z}
             };
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:dance", parameters);
