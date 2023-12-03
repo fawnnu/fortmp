@@ -444,3 +444,11 @@ class AProp_QuestInteractable_TimeTrials_C : public AActor
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/TimedChallenge/Prop_QuestInteractable_TimeTrials.Prop_QuestInteractable_TimeTrials_C");
 };
+
+class AProp_Athena_Doorbell_Interactable_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Doorbell/Prop_Athena_Doorbell_Interactable.Prop_Athena_Doorbell_Interactable_C");
+
+    DEFINE_PROPERTY(class UBoxComponent*, InsideHouseOverlap);
+};

@@ -108,6 +108,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interaction with shadow stones
         handle_shadowstone_interaction(player_controller, reinterpret_cast<ACBGA_SpookyMist_C*>(receiving_actor));
     }
+    else if (AProp_Athena_Doorbell_Interactable_C::StaticClass())
+    {
+        handle_doorbell_interaction(player_controller, reinterpret_cast<AProp_Athena_Doorbell_Interactable_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -433,6 +437,41 @@ void interact_component::handle_shadowstone_interaction(AFortPlayerController* p
     ACBGA_SpookyMist_C* spookymist)
 {
     inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist"), 1);
+}
+
+void interact_component::handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell)
+{
+    if (UBoxComponent* BoxComponent = doorbell->InsideHouseOverlap())
+    {
+        FVector ComponentLocation = BoxComponent->K2_GetComponentLocation();
+        FVector UnscaledBoxExtent = BoxComponent->GetUnscaledBoxExtent();
+        
+        // Log
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"interact_component::handle_doorbell_interaction: Checking overlap for BoxComponent [{}].", UKismetSystemLibrary::GetPathName(BoxComponent).c_str());
+            spdlog::info(L"interact_component::handle_doorbell_interaction: {} [Location: [{}, {}, {}], UnscaledBoxExtent: [{}, {}, {}]].", BoxComponent->GetName().c_str(), ComponentLocation.X, ComponentLocation.Y, ComponentLocation.Z, UnscaledBoxExtent.X, UnscaledBoxExtent.Y, UnscaledBoxExtent.Z);
+        }
+        
+        // Construct parameters for BoxOverlapActors
+        TArray<AActor*> ActorsToIgnore{};
+        TArray<uint8_t> ObjectTypes;
+        UEnum* EObjectTypeQuery = FindObject<UEnum>(L"/Script/Engine.EObjectTypeQuery");
+        for (uint8_t i = 0; i < EObjectTypeQuery->GetEnumIndex(L"ObjectTypeQuery_MAX"); i++)
+        {
+            ObjectTypes.Add(i);
+        }
+        TArray<AActor*> Result;
+
+        // BoxOverlapActors
+        UKismetSystemLibrary::BoxOverlapActors(*GWorld, ComponentLocation, UnscaledBoxExtent, ObjectTypes, AFortPawn::StaticClass(), ActorsToIgnore, &Result);
+
+        // Send interaction event for instigator
+        if (Result.Num() > 0)
+        {
+            challenges_component::SendDoorbellInteraction(player_controller);
+        }
+    }
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

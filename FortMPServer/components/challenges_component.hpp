@@ -65,6 +65,7 @@ public:
     static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
+    static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 };

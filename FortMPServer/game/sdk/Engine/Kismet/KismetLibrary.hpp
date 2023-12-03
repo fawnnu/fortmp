@@ -43,6 +43,43 @@ public:
         return parameters.ReturnValue;
     }
     
+    static bool BoxOverlapActors(class UObject* WorldContextObject, const struct FVector& BoxPos, const struct FVector& BoxExtent, TArray<uint8_t>& ObjectTypes, UObject* ActorClassFilter, TArray<class AActor*>& ActorsToIgnore, TArray<class AActor*>* OutActors)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+        
+        struct 
+        {
+        public:
+            UObject*                               WorldContextObject;
+            FVector                               BoxPos;            
+            FVector                               BoxExtent;         
+            TArray<uint8_t>          ObjectTypes;       
+            UObject*                                ActorClassFilter;  
+            TArray<AActor*>                        ActorsToIgnore;    
+            TArray<AActor*>                        OutActors;         
+            bool                                         ReturnValue;       
+            uint8                                        Pad_1C0E[0x7];     
+        } parameters;
+
+        parameters.WorldContextObject = WorldContextObject;
+        parameters.BoxPos = BoxPos;
+        parameters.BoxExtent = BoxExtent;
+        parameters.ObjectTypes = ObjectTypes;
+        parameters.ActorClassFilter = ActorClassFilter;
+        parameters.ActorsToIgnore = ActorsToIgnore;
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.BoxOverlapActors")
+        
+        ProcessEvent(Default__KismetSystemLibrary, FunctionObject, &parameters);
+
+        if (OutActors)
+        {
+            *OutActors = parameters.OutActors;
+        }
+        
+        return parameters.ReturnValue;
+    }
+    
     static void SetBoolPropertyByName(UObject* Target, FName PropertyName, bool Value)
     {
         // Static function so use default object

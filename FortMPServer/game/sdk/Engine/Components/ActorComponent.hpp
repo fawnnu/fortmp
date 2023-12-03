@@ -36,6 +36,13 @@ struct FHitResult
 class USceneComponent : public UActorComponent
 {
 public:
+    FVector K2_GetComponentLocation()
+    {
+        STATIC_FINDFUNCTION(K2_GetComponentLocation)
+
+        return Call<FVector>(Function_K2_GetComponentLocation);
+    }
+    
     void K2_SetWorldLocation(FVector Translation, bool bSweep, bool bTeleport, FHitResult* OutHitResult)
     {
         STATIC_FINDFUNCTION(K2_SetWorldLocation)
@@ -153,4 +160,21 @@ public:
     }
     
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaMarkerComponent");
+};
+
+class UBoxComponent : public USceneComponent
+{
+public:
+    FVector GetUnscaledBoxExtent()
+    {
+        STATIC_FINDFUNCTION(GetUnscaledBoxExtent)
+
+        return Call<FVector>(Function_GetUnscaledBoxExtent);
+    }
+    FVector GetScaledBoxExtent()
+    {
+        STATIC_FINDFUNCTION(GetScaledBoxExtent)
+
+        return Call<FVector>(Function_GetScaledBoxExtent);
+    }
 };
