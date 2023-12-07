@@ -12,6 +12,7 @@ team_component::team_component()
 
     REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%d], actual: [%d]"), team_component_hooks::PickTeam_Hook);
     REGISTER_FUNCTION_DETOUR(team_component_hooks::PickTeam, memory_manager::find_function_by_string(L"PickTeam for [%s], preferred: [%s], actual: [%s]"), team_component_hooks::PickTeam_Hook);
+    REGISTER_FUNCTION_DETOUR(team_component_hooks::GetSquadIdForCurrentPlayer, memory_manager::find_function_by_string(L"GetSquadIdForCurrentPlayer failed to find a squad id for player %s"), team_component_hooks::GetSquadIdForCurrentPlayer_Hook);
         
     DetourTransactionCommit();
 }
@@ -57,7 +58,7 @@ uint8_t team_component::PickTeam_Implementation(uint8_t InTeamIndex, AFortPlayer
     
     spdlog::error(L"team_component::PickTeam_Implementation couldn't find a valid team, calling PickTeam...");
     
-    return team_component_hooks::PickTeam((*GWorld)->AuthorityGameMode(), InTeamIndex, FortPlayerController);
+    return 0;
 }
 
 void team_component::InitializeTeams()
@@ -454,5 +455,42 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
 
 uint8_t team_component_hooks::PickTeam_Hook(AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController)
 {
-    return team_component::PickTeam_Implementation(InTeamIndex, PlayerController);
+    uint8_t ReturnValue = team_component::PickTeam_Implementation(InTeamIndex, PlayerController);;
+
+    if (ReturnValue > 0)
+    {
+        return ReturnValue;
+    }
+    
+    return PickTeam((*GWorld)->AuthorityGameMode(), InTeamIndex, PlayerController);
+}
+
+uint8_t team_component_hooks::GetSquadIdForCurrentPlayer_Hook(void* Self, FUniqueNetIdRepl& ID)
+{
+    for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+    {
+        UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
+        if (ClientConnection)
+        {
+            if (AFortPlayerController* Controller = ClientConnection->PlayerController())
+            {
+                if (AFortPlayerState* PlayerState = Controller->PlayerState())
+                {
+                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayerState->UniqueId(), ID))
+                    {
+                        // We got our playerstate
+                        if (era_team* found_team = team_component::find_era_team(Controller, false))
+                        {
+                            // log
+                            spdlog::info(L"team_component_hooks::GetSquadIdForCurrentPlayer_Hook found {}'s team. Squad Id: {}.", PlayerState->GetName(), found_team->get_team_index());
+                            
+                            return found_team->get_team_index();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return GetSquadIdForCurrentPlayer(Self, ID);
 }

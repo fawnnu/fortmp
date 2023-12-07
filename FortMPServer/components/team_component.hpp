@@ -91,4 +91,6 @@ namespace team_component_hooks
 {
     // Called when the game tries to select a team for the player
     DEFINE_FUNCTION_HOOK(uint8_t, PickTeam, (AFortGameMode* FortGameMode, uint8_t InTeamIndex, AFortPlayerController* PlayerController));
+
+    DEFINE_FUNCTION_HOOK(uint8_t, GetSquadIdForCurrentPlayer, (void* Self, FUniqueNetIdRepl& ID))
 }
