@@ -470,11 +470,11 @@ uint8_t team_component_hooks::GetSquadIdForCurrentPlayer_Hook(void* Self, FUniqu
     for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
     {
         UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
-        if (ClientConnection)
+        if (!memory_manager::is_bad_read_pointer(ClientConnection) && ClientConnection)
         {
-            if (AFortPlayerController* Controller = ClientConnection->PlayerController())
+            if (AFortPlayerController* Controller = ClientConnection->PlayerController(); !memory_manager::is_bad_read_pointer(Controller) && Controller)
             {
-                if (AFortPlayerState* PlayerState = Controller->PlayerState())
+                if (AFortPlayerState* PlayerState = Controller->PlayerState(); !memory_manager::is_bad_read_pointer(PlayerState) && PlayerState)
                 {
                     if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayerState->UniqueId(), ID))
                     {
