@@ -53,6 +53,15 @@ player_component::player_component()
         {
             spdlog::error(L"Failed to hook '{}', invalid function object provided", L"/Script/FortniteGame.FortPlayerController.SpawnToyInstance");
         } };
+
+    // Call hook in StartGhostMode
+    {
+        if (uintptr_t target_addr = memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 80 B9 ? ? ? ? ? 48 8B FA 48 8B D9 75 61 80 B9 ? ? ? ? ? 75 58 48 8B 01 FF 90 ? ? ? ? 48 C7 44 24"))
+        {
+            const auto all_calls_in_function = memory_manager::get_all_stripped_calls_in_function_wiktor(target_addr);
+            memory_manager::call_hook(all_calls_in_function[all_calls_in_function.size() - 1], reinterpret_cast<uintptr_t>(player_component_hooks::GiveItemToPlayer_Hook));
+        }
+    }
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -2680,4 +2689,14 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
             }
         }
     }
+}
+
+void player_component_hooks::GiveItemToPlayer_Hook(TScriptInterface<AFortPlayerController>* Interface, UFortItemDefinition* ItemDefinition, int Quantity)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"player_component_hooks::GiveItemToPlayer_Hook: Granting {} {} to {}", ItemDefinition->GetName().c_str(), Quantity, (*Interface)->GetName().c_str());
+    }
+    
+    inventory_component::add_item(static_cast<AFortPlayerController*>(Interface->GetObjectRef()), ItemDefinition, Quantity);
 }

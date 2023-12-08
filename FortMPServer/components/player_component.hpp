@@ -262,6 +262,7 @@ namespace player_component_hooks
     DEFINE_FUNCTION_HOOK(void, GameplayCue, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, OnRemoval, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, ReceiveActorEndOverlap, (UObject* Self, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, GiveItemToPlayer, (TScriptInterface<AFortPlayerController>* Interface, UFortItemDefinition* ItemDefinition, int Quantity))
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);
