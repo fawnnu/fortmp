@@ -251,6 +251,17 @@ void renderer::CreateNewWindow()
                                 }
                             }
 
+
+                            if (ImGui::Button("Start Reality Collapse Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> domino_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), Adomino_scripting_C::StaticClass());
+                                
+                                for (auto actor : domino_scripters)
+                                {
+                                    static_cast<Adomino_scripting_C*>(actor)->StartEvent();
+                                }
+                            }
+                            
                             if (ImGui::Button("Next Cube Step", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
                             {
                                 TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass((*GWorld), ACUBE_C::StaticClass());

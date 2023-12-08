@@ -590,7 +590,7 @@ void loader_component::handle_cl_specific_additions()
     }
 
     // 1.11, christmas bus
-    if (GetCL() == 3807424)
+    if (GetCL() == 3807424 || GetFortniteVersionEasy() >= 7 && GetFortniteVersionEasy() < 8)
     {
         era_mutators_component::Execute("winter_bus", nullptr);
     }

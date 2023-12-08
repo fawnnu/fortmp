@@ -2511,8 +2511,8 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             NewPlayer->Pawn()->OnPawnLanded().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnLandedImplementation")));
         }
 
-        // Butterfly event
-        if (era_mutators_component::IsActive("butterfly_begin"))
+        // Butterfly/domino event
+        if (era_mutators_component::IsActive("butterfly_begin") || era_mutators_component::IsActive("domino_event"))
         {
             UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->Pawn(), "bIsInvulnerable", true);
         }
