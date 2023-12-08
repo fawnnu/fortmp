@@ -5,6 +5,10 @@ enum class EDamageCauser : uint8_t
     None,
     Pistol,
     SuppressedPistol,
+    HandCannonPistol,
+    PumpShotgun,
+    TacticalShotgun,
+    HeavyShotgun,
     Shotgun,
     AssaultRifle,
     SuppressedAssaultRifle,
@@ -43,7 +47,11 @@ struct FDamageDealtMapValue
         return PistolDamage + ShotgunDamage + AssaultRifleDamage + SniperDamage + GrenadeDamage + SMGDamage + GrenadeLauncherDamage + RPGDamage + LMGDamage + MinigunDamage + PickaxeDamage;
     }
 
+    int HandCannonPistolDamage;
     int PistolDamage;
+    int PumpShotgunDamage;
+    int TacticalShotgunDamage;
+    int HeavyShotgunDamage;
     int ShotgunDamage;
     int AssaultRifleDamage;
     int BurstAssaultRifleDamage;
@@ -140,6 +148,10 @@ public:
 
     // Damage timers
     static void PistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HandCannonPistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void PumpShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void TacticalShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HeavyShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void ShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void AssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void BurstAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);

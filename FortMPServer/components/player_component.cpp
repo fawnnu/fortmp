@@ -116,6 +116,10 @@ player_component::player_component()
 
     // Timers for each weapon type
     REGISTER_CUSTOM_UFUNCTION(PistolDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(HandCannonPistolDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(PumpShotgunDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(TacticalShotgunDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(HeavyShotgunDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShotgunDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(AssaultRifleDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(BurstAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
@@ -309,6 +313,94 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
+        }
+    }
+}
+
+void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "hand_cannon"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage = 0;
+        }
+    }
+}
+
+void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "pump_shotgun"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage = 0;
+        }
+    }
+}
+
+void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "tactical_shotgun"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage = 0;
+        }
+    }
+}
+
+void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "heavy_shotgun"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage = 0;
         }
     }
 }
@@ -779,6 +871,13 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
 {
     switch (DamageCauser)
     {
+    case EDamageCauser::HandCannonPistol:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HandCannonPistolDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"HandCannonPistolDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HandCannonPistolDamageCallback", 1.0, false);
+        break;
     case EDamageCauser::Pistol:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PistolDamageCallback"))
         {
@@ -792,6 +891,27 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedPistolDamageCallback");
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedPistolDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::PumpShotgun:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PumpShotgunDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"PumpShotgunDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PumpShotgunDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::TacticalShotgun:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"TacticalShotgunDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"TacticalShotgunDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"TacticalShotgunDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::HeavyShotgun:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeavyShotgunDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"HeavyShotgunDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavyShotgunDamageCallback", 1.0, false);
         break;
     case EDamageCauser::Shotgun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"ShotgunDamageCallback"))
@@ -1763,6 +1883,10 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.HuntingSniperDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HuntingSniper);
                         break;
+                    case EDamageCauser::HandCannonPistol:
+                        Value.HandCannonPistolDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::HandCannonPistol);
+                        break;
                     case EDamageCauser::Pistol:
                         {
                             if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
@@ -1777,6 +1901,18 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                             }
                             break;
                         }
+                    case EDamageCauser::PumpShotgun:
+                        Value.PumpShotgunDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::PumpShotgun);
+                        break;
+                    case EDamageCauser::TacticalShotgun:
+                        Value.TacticalShotgunDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::TacticalShotgun);
+                        break;
+                    case EDamageCauser::HeavyShotgun:
+                        Value.HeavyShotgunDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::HeavyShotgun);
+                        break;
                     case EDamageCauser::Shotgun:
                         Value.ShotgunDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Shotgun);
@@ -1954,16 +2090,18 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
 {
     static std::map<FName, EDamageCauser> death_cause_map =
     {
+        { L"Weapon.Ranged.Shotgun.Pump", EDamageCauser::PumpShotgun },
+        { L"Weapon.Ranged.Shotgun.Tactical", EDamageCauser::TacticalShotgun },
+        { L"Weapon.Ranged.Shotgun.Heavy", EDamageCauser::HeavyShotgun },
         { L"Weapon.Ranged.Shotgun", EDamageCauser::Shotgun },
-        { L"Weapon.Ranged.Shotgun.Pump", EDamageCauser::Shotgun },
-        { L"Weapon.Ranged.Shotgun.Tactical", EDamageCauser::Shotgun },
         { L"weapon.ranged.assault.silenced", EDamageCauser::SuppressedAssaultRifle },
         { L"weapon.ranged.assault.burst", EDamageCauser::BurstAssaultRifle },
         { L"Weapon.Ranged.Assault", EDamageCauser::AssaultRifle },
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
         { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
-        { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
+        { L"Weapon.Ranged.Pistol.HandCannon", EDamageCauser::HandCannonPistol },
         { L"Weapon.Ranged.Pistol.Standard", EDamageCauser::Pistol },
+        { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
         { L"weapon.ranged.sniper.bolt", EDamageCauser::BoltSniper },
         { L"Weapon.Ranged.Sniper.Hunting", EDamageCauser::HuntingSniper },
         { L"Weapon.Ranged.Sniper.Heavy", EDamageCauser::HeavySniper },

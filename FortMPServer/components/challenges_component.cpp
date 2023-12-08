@@ -254,7 +254,11 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {
                         weapon = "pistol";
 
-                        if (GameplayTags.GameplayTags.Find(FGameplayTag(L"Weapon.Meta.Suppressed")))
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag(L"Weapon.Ranged.Pistol.HandCannon")))
+                        {
+                            weapon = "hand_cannon";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag(L"Weapon.Meta.Suppressed")))
                         {
                             weapon = "suppressed_pistol";
                         }
@@ -262,6 +266,19 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Shotgun"))
                     {
                         weapon = "shotgun";
+
+                        if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Shotgun.Heavy")))
+                        {
+                            weapon = "heavy_shotgun";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Shotgun.Tactical")))
+                        {
+                            weapon = "tactical_shotgun";
+                        }
+                        else if (GameplayTags.GameplayTags.Find(FGameplayTag("Weapon.Ranged.Shotgun.Pump")))
+                        {
+                            weapon = "pump_shotgun";
+                        }
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Rifle"))
                     {
