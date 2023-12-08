@@ -167,7 +167,15 @@ public:
     DEFINE_BIT_PROPERTY(bool, bIsSkydivingFromBus);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
+    DEFINE_PROPERTY(UObject*, AnimBPOverride);
 
+    void OnRep_AnimBPOverride()
+    {
+        STATIC_FINDFUNCTION(OnRep_AnimBPOverride)
+
+        Call(Function_OnRep_AnimBPOverride);
+    }
+    
     class AFortAthenaVehicle* ServerOnExitVehicle()
     {
         STATIC_FINDFUNCTION(ServerOnExitVehicle)

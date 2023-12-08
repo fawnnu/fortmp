@@ -260,9 +260,10 @@ namespace player_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, GameplayCue_Shield_PotionConsumed, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, GameplayCue, (UObject* Self, UObject* Function, void* Params));
-    DEFINE_FUNCTION_HOOK(void, OnRemoval, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, ReceiveActorEndOverlap, (UObject* Self, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, GiveItemToPlayer, (TScriptInterface<AFortPlayerController>* Interface, UFortItemDefinition* ItemDefinition, int Quantity))
+    DEFINE_FUNCTION_HOOK(void, PushAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
+    DEFINE_FUNCTION_HOOK(void, PopAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

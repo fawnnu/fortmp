@@ -62,6 +62,18 @@ player_component::player_component()
             memory_manager::call_hook(all_calls_in_function[all_calls_in_function.size() - 1], reinterpret_cast<uintptr_t>(player_component_hooks::GiveItemToPlayer_Hook));
         }
     }
+
+    // Call hook in ApplyGadgetItem....
+    {
+        if (uintptr_t target_addr = memory_manager::find_pattern("E8 ? ? ? ? 49 8D 8E ? ? ? ? B2 01 E8 ? ? ? ? 41 8B 96 ? ? ? ? 4C 8B C0 48 8B CF E8 ? ? ? ? EB 1A 3C 02 75 16 48 8B 07 49 8D 96 ? ? ? ? 41 B0 01 48 8B CF"))
+        {
+            memory_manager::call_hook(target_addr, reinterpret_cast<uintptr_t>(player_component_hooks::PushAnimBPOverride_Hook));
+        }
+        if (uintptr_t target_addr = memory_manager::find_pattern("E8 ? ? ? ? 48 8D 8F ? ? ? ? B2 01 E8 ? ? ? ? 8B 97 ? ? ? ? 4C 8B C0 48 8B CE E8 ? ? ? ? E9 ? ? ? ? 3C 02 0F 85 ? ? ? ? 49 8B 06 48 8D 97 ? ? ? ? 45 33 C0 49 8B CE FF 90"))
+        {
+            memory_manager::call_hook(target_addr, reinterpret_cast<uintptr_t>(player_component_hooks::PopAnimBPOverride_Hook));
+        }
+    }
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -2619,24 +2631,6 @@ void player_component_hooks::ReceiveActorEndOverlap_Hook(UObject* Self, UObject*
     }  
 }
 
-void player_component_hooks::OnRemoval_Hook(UObject* Self, UObject* Function, void* Params)
-{
-    GET_PROCESS_EVENT_PARAMETER(AActor*, MyTarget)
-
-    if (!memory_manager::is_bad_read_pointer(MyTarget) && MyTarget)
-    {
-        auto Controller = static_cast<AFortPawn*>(MyTarget)->Controller();
-
-        if (!memory_manager::is_bad_read_pointer(Controller) && Controller)
-        {
-            if (UFortItem* Item = inventory_component::get_inventory_item_by_definition(Controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist")))
-            {
-                inventory_component::remove_item(Controller, static_cast<UFortWorldItem*>(Item)->ItemEntry().ItemGuid(), -1, false);
-            }
-        }
-    }
-}
-
 void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(FGameplayCueParameters, Parameters)
@@ -2699,4 +2693,32 @@ void player_component_hooks::GiveItemToPlayer_Hook(TScriptInterface<AFortPlayerC
     }
     
     inventory_component::add_item(static_cast<AFortPlayerController*>(Interface->GetObjectRef()), ItemDefinition, Quantity);
+}
+
+void player_component_hooks::PushAnimBPOverride_Hook(AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride)
+{
+    if (AnimBPOverride)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(TEXT("player_component_hooks::PushAnimBPOverride_Hook: Setting AnimBPOverride to '{}'."), AnimBPOverride->GetName().c_str());
+        }
+    
+        Self->AnimBPOverride() = AnimBPOverride;
+        Self->OnRep_AnimBPOverride();
+    }
+}
+
+void player_component_hooks::PopAnimBPOverride_Hook(AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride)
+{
+    if (AnimBPOverride && Self->AnimBPOverride() == AnimBPOverride)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(TEXT("player_component_hooks::PopAnimBPOverride_Hook: Setting AnimBPOverride to nullptr."));
+        }
+    
+        Self->AnimBPOverride() = nullptr;
+        Self->OnRep_AnimBPOverride();
+    }
 }
