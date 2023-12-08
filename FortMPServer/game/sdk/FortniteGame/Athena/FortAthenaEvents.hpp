@@ -10,6 +10,20 @@ public:
     DEFINE_PROPERTY(int, AreEndSequenceCrackVisible);
 };
 
+class Adomino_scripting_C : public AActor
+{
+public:
+
+    DEFINE_CLASS(L"/Game/fortmp/content_complex/domino/blueprints/domino_scripting.domino_scripting_C")
+    
+    void StartEvent()
+    {
+        STATIC_FINDFUNCTION(StartEvent)
+
+        Call(Function_StartEvent);
+    }
+};
+
 class ABP_GeodeScripting_C : public AActor
 {
 public:
