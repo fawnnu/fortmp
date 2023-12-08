@@ -1359,7 +1359,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         httplib::Headers headers = {
                             { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
                         };
-                        auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile", headers);
+                        auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
                         if (Response && Response->status == 200)
                         {
                             try
