@@ -12,3 +12,5 @@ namespace storm_component_hooks
 {
     DEFINE_FUNCTION_HOOK(void, SetSafezoneValues, (AFortGameModeAthena* FortGameModeAthena, int unk));
 }
+
+inline char (*StartSafeZone)(AFortGameModeAthena* Self, char, char);

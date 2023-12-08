@@ -3,6 +3,7 @@
 
 #include "config_manager.hpp"
 #include "inventory_component.hpp"
+#include "storm_component.hpp"
 
 era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callback)
 {
@@ -13,6 +14,40 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("butterfly_begin", [](LPVOID)
+    {
+        // 1 hour storm formation
+        (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 60;
+    });
+    
+    new era_mutator("butterfly_end", [](LPVOID)
+    {
+        (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 1;
+
+        // Start safe zone again
+        if (StartSafeZone)
+        {
+            StartSafeZone((*GWorld)->AuthorityGameMode(), 1, 1);
+        }
+        
+        // Remove god from everyone
+        for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+        {
+            UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+            if (!memory_manager::is_bad_read_pointer(ClientConnection) && ClientConnection)
+            {
+                if (AFortPlayerController* PlayerController = ClientConnection->PlayerController(); !memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+                {
+                    if (AFortPlayerPawn* PlayerPawn = PlayerController->Pawn(); !memory_manager::is_bad_read_pointer(PlayerPawn) && PlayerPawn)
+                    {
+                        UKismetSystemLibrary::SetBoolPropertyByName(PlayerPawn, L"bIsInvulnerable", false);
+                    }
+                }
+            }
+        }
+    });
+    
     new era_mutator("rocket", [](LPVOID)
     {
         if (GetCL() == 4159770)
@@ -188,4 +223,15 @@ void era_mutators_component::Execute(std::string Name, void* Params)
             (*Iterator)->callback(Params);
         }
     }
+}
+
+
+bool era_mutators_component::IsActive(std::string Name)
+{
+    if (const auto Iterator = std::find(era_mutators.begin(), era_mutators.end(), Name); Iterator != era_mutators.end())
+    {
+        return std::find(enabled_era_mutators.begin(), enabled_era_mutators.end(), Name) != enabled_era_mutators.end();
+    }
+
+    return false;
 }

@@ -611,6 +611,9 @@ void loader_component::OnMapInfoLoaded()
 {
     // Implement llamas
     initialize_llamas();
+
+    // Butterfly event storm mutator
+    era_mutators_component::Execute("butterfly_begin", nullptr);
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
@@ -841,6 +844,9 @@ void loader_component_hooks::SwapPOI_Hook(UObject* Object, UObject* Function, vo
         {
             // Player goes into the butterfly level; swap POI
             (*GWorld)->AuthorityGameMode()->SwapButterflyEventPOIs();
+
+            // Storm resume
+            era_mutators_component::Execute("butterfly_end", nullptr);
         }
     }
 }

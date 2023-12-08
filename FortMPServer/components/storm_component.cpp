@@ -3,6 +3,8 @@
 
 storm_component::storm_component()
 {
+    INIT_POINTER(StartSafeZone, memory_manager::find_function_by_string(L"AFortGameModeAthena::IsSafeZoneAllowed: Skipping SafeZone phase: bSkipSafeZones == true"));
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 

@@ -7,6 +7,7 @@
 #include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "director_client.hpp"
+#include "era_mutators_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
@@ -2370,6 +2371,12 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))
         {
             NewPlayer->Pawn()->OnPawnLanded().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnLandedImplementation")));
+        }
+
+        // Butterfly event
+        if (era_mutators_component::IsActive("butterfly_begin"))
+        {
+            UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->Pawn(), "bIsInvulnerable", true);
         }
 
         // Implementable event

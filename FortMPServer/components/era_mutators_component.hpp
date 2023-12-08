@@ -48,6 +48,7 @@ public:
 
     // Execute
     static void Execute(std::string Name, void* Params);
+    static bool IsActive(std::string Name);
 
     // Mutators list
     static inline std::vector<era_mutator*> era_mutators;
