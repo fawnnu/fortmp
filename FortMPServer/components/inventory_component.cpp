@@ -31,17 +31,39 @@ inventory_component::inventory_component()
         inventory_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(memory_manager::scan_for(RemoveInventoryItem_Address, {0x48, 0x81, 0xc1}) + 3);
     }
     
-    DetourTransactionCommit();
-
     if (GetFortniteVersionEasy() >= 7.0 || GetFortniteVersionEasy() < 6.0)
     {
-        REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+        {
+            UFunction* function_to_hook = FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer") ? FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer") : FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", false, true);
+            if (function_to_hook != nullptr)
+            {
+                const auto all_calls_in_function = memory_manager::get_all_calls_in_function(reinterpret_cast<uintptr_t>(function_to_hook->get_native_function()));
+                const uintptr_t called_function = all_calls_in_function[all_calls_in_function.size() - 1] + 5 + *reinterpret_cast<int*>(all_calls_in_function[all_calls_in_function.size() - 1] + 1);
+                REGISTER_FUNCTION_DETOUR(inventory_component_hooks::K2_RemoveItemFromPlayer, called_function, inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+            } else
+            {
+                spdlog::error(L"Failed to hook '{}', invalid function object provided", L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer");
+            }
+        }
+        
         REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
         REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
     }
     else
     {
-        REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+        {
+            UFunction* function_to_hook = FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer") ? FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer") : FindObject<UFunction>(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer", false, true);
+            if (function_to_hook != nullptr)
+            {
+                const auto all_calls_in_function = memory_manager::get_all_calls_in_function_unsafe(reinterpret_cast<uintptr_t>(function_to_hook->get_native_function()));
+                const uintptr_t called_function = all_calls_in_function[all_calls_in_function.size() - 1] + 5 + *reinterpret_cast<int*>(all_calls_in_function[all_calls_in_function.size() - 1] + 1);
+                REGISTER_FUNCTION_DETOUR(inventory_component_hooks::K2_RemoveItemFromPlayer, called_function, inventory_component_hooks::K2_RemoveItemFromPlayer_Hook);
+            } else
+            {
+                spdlog::error(L"Failed to hook '{}', invalid function object provided", L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayer");
+            }
+        }
+        
         REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_RemoveItemFromPlayerByGuid", inventory_component_hooks::K2_RemoveItemFromPlayerByGuid_Hook);
         REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.GiveItemToInventoryOwner", inventory_component_hooks::GiveItemToInventoryOwner_Hook);
         REGISTER_CALL_DETOUR_UNSAFE(L"/Script/FortniteGame.FortKismetLibrary.K2_GiveItemToAllPlayers", inventory_component_hooks::K2_GiveItemToAllPlayers_Hook);
@@ -50,6 +72,8 @@ inventory_component::inventory_component()
     
     // Create custom function
     REGISTER_CUSTOM_UFUNCTION(UpdateWeaponLoadedAmmo, AFortWeapon::StaticClass());
+    
+    DetourTransactionCommit();
 }
 
 void inventory_component::clear_primary_inventory(AFortPlayerController* fort_player_controller, bool should_drop_item)

@@ -36,14 +36,6 @@ void challenges_component::Initialize()
         if (auto Function = FindFunctionByName(FindObject(L"/Game/Athena/PlayerPawn_Athena_Generic.PlayerPawn_Athena_Generic_C"), L"GameplayCue.Shield.PotionConsumed", 1))
         {
             hook_manager::hooked_functions[Function] = std::function(&player_component_hooks::GameplayCue_Hook);
-        };
-        if (GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
-        {
-            FindObject(L"/Game/Athena/GameplayCueNotifies/GCN_Loop_SpookyMist.GCN_Loop_SpookyMist_C", true);
-            if (auto Function = FindFunctionByName(FindObject(L"/Game/Athena/GameplayCueNotifies/GCN_Loop_SpookyMist.GCN_Loop_SpookyMist_C"), L"OnRemoval", 1))
-            {
-                hook_manager::hooked_functions[Function] = std::function(&player_component_hooks::OnRemoval_Hook);
-            }
         }
     }
 }

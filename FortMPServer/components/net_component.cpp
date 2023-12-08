@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "director_client.hpp"
+#include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
 #include "replication_component.hpp"
@@ -350,6 +351,9 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                     std::string player_name = name_converter.to_bytes(wPlayer_name);
                     
                     spdlog::info("Player '{}' left its channel [ACCOUNT_ID: {}]", player_name.c_str(), account_id.c_str());
+
+                    // Drop items
+                    inventory_component::clear_primary_inventory(FortPlayerController, true);   
                 }
             }
         }
