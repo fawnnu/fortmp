@@ -397,6 +397,7 @@ ordered_json BlueprintDisasm::DisasmExpression(int& ScriptIndex)
             ScriptIndex++;
             break;
         }
+    case EX_LocalFinalFunction:
     case EX_FinalFunction:
         {
             ReturnValue["InstructionType"] = "FinalFunction";
@@ -426,6 +427,7 @@ ordered_json BlueprintDisasm::DisasmExpression(int& ScriptIndex)
             ScriptIndex++;
             break;
         }
+    case EX_LocalVirtualFunction:
     case EX_VirtualFunction:
         {
             ReturnValue["InstructionType"] = "VirtualFunction";

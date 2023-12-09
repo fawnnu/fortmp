@@ -555,6 +555,11 @@ public:
     }
 };
 
+struct FTimespan
+{
+    int64_t Ticks;
+};
+
 template <typename T>
 struct TScriptDelegate
 {
@@ -966,8 +971,8 @@ enum EExprToken
 	EX_StructMemberContext	= 0x42, // Context expression to address a property within a struct
 	EX_LetMulticastDelegate	= 0x43, // Assignment to a multi-cast delegate
 	EX_LetDelegate			= 0x44, // Assignment to a delegate
-	//						= 0x45, 
-	//						= 0x46, // CST_ObjectToInterface
+	EX_LocalVirtualFunction	= 0x45, // Special instructions to quickly call a virtual function that we know is going to run only locally
+	EX_LocalFinalFunction	= 0x46, // Special instructions to quickly call a final function that we know is going to run only locally
 	//						= 0x47, // CST_ObjectToBool
 	EX_LocalOutVariable		= 0x48, // local out (pass by reference) function parameter
 	//						= 0x49, // CST_InterfaceToBool
