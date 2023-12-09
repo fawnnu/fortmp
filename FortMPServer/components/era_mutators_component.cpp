@@ -14,6 +14,10 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("no_cube", [](LPVOID)
+    {
+    });
+    
     new era_mutator("season6_kevin", [](LPVOID)
     {
         if (auto EventScripter = ABP_IslandScripting_C::get_island_scripting())

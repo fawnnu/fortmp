@@ -327,32 +327,46 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
             if (island_scripting)
             {
-                FVector default_floating_island_position = island_scripting->IslandPosition();
-
-                // Activate the beam in the sky for fortnitemares
-                if (island_scripting->HasProperty(L"IsDeimosActive"))
+                if (!era_mutators_component::IsActive("no_cube"))
                 {
-                    island_scripting->IsDeimosActive() = true;
+                    FVector default_floating_island_position = island_scripting->IslandPosition();
+
+                    // Activate the beam in the sky for fortnitemares
+                    if (island_scripting->HasProperty(L"IsDeimosActive"))
+                    {
+                        island_scripting->IsDeimosActive() = true;
+                    }
+
+                    // Update the minimap on 6.21
+                    if (island_scripting->HasProperty(L"UpdateMap"))
+                    {
+                        island_scripting->UpdateMap() = true;
+                        island_scripting->OnRep_UpdateMap();
+                    }
+
+                    ACUBE_Simple_C* cube = island_scripting->CubeBP();
+
+                    if (cube)
+                    {
+                        // Updated cube progress
+                        cube->CrackProgress() = 1.0;
+                        cube->DrainActive() = true;
+                        cube->DrainAmount() = 1.0;
+                    }
+
+                    spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);
                 }
-
-                // Update the minimap on 6.21
-                if (island_scripting->HasProperty(L"UpdateMap"))
+                else
                 {
+                    island_scripting->DisableVortexGust() = true;
+                    island_scripting->OnRep_DisableVortexGust();
+                    island_scripting->MapIconState() = 1;
+                    island_scripting->OnRep_MapIconState();
+                    island_scripting->LevelActorsDeletedInt() = 1;
+                    island_scripting->OnRep_LevelActorsDeletedInt();
                     island_scripting->UpdateMap() = true;
                     island_scripting->OnRep_UpdateMap();
                 }
-
-                ACUBE_Simple_C* cube = island_scripting->CubeBP();
-
-                if (cube)
-                {
-                    // Updated cube progress
-                    cube->CrackProgress() = 1.0;
-                    cube->DrainActive() = true;
-                    cube->DrainAmount() = 1.0;
-                }
-
-                spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);
             }
         }
         
@@ -644,6 +658,7 @@ void loader_component::handle_cl_specific_additions()
     if (GetCL() == 4526925)
     {
         era_mutators_component::Execute("halloween_bus", nullptr);
+        era_mutators_component::Execute("no_cube", nullptr);
     }
     
     // Load dynamic builder class

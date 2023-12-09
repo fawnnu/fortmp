@@ -103,6 +103,9 @@ public:
     DEFINE_PROPERTY(bool, UpdateMap);
     DEFINE_PROPERTY(bool, HasCubeTriggered);
     DEFINE_PROPERTY(float, CrackProgress);
+    DEFINE_PROPERTY(int, MapIconState);
+    DEFINE_PROPERTY(bool, DisableVortexGust);
+    DEFINE_PROPERTY(int, LevelActorsDeletedInt);
     DEFINE_PROPERTY(ACUBE_Simple_C*, CubeBP);
     
     DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Island/BP_IslandScripting.BP_IslandScripting_C")
@@ -126,6 +129,27 @@ public:
         STATIC_FINDFUNCTION(OnRep_CubeletGrowthstage)
 
         Call(Function_OnRep_CubeletGrowthstage);
+    }
+    
+    void OnRep_LevelActorsDeletedInt()
+    {
+        STATIC_FINDFUNCTION(OnRep_LevelActorsDeletedInt)
+
+        Call(Function_OnRep_LevelActorsDeletedInt);
+    }
+    
+    void OnRep_DisableVortexGust()
+    {
+        STATIC_FINDFUNCTION(OnRep_DisableVortexGust)
+
+        Call(Function_OnRep_DisableVortexGust);
+    }
+    
+    void OnRep_MapIconState()
+    {
+        STATIC_FINDFUNCTION(OnRep_MapIconState)
+
+        Call(Function_OnRep_MapIconState);
     }
     
     void CubecrackLeadup()
@@ -154,6 +178,13 @@ public:
         STATIC_FINDFUNCTION(OnRep_UpdateMap)
 
         Call(Function_OnRep_UpdateMap, true);
+    }
+
+    void HideAndDestroyLevelActors()
+    {
+        STATIC_FINDFUNCTION(HideAndDestroyLevelActors)
+
+        Call(Function_HideAndDestroyLevelActors, true);
     }
     
     static ABP_IslandScripting_C* get_island_scripting()
