@@ -22,16 +22,18 @@
 
 void loader_component::pre_init()
 {
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    
     // Season 5 crash fix
     if (GetEngineVersionEasy() < 421)
     {
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-    
         REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetCurrentPlaylistId, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object found in AFortGameStateAthena::SetCurrentPlaylistId()"), loader_component_hooks::SetCurrentPlaylistId_Hook);
-
-        DetourTransactionCommit();
     }
+
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
+
+    DetourTransactionCommit();
 }
 
 loader_component::loader_component()
@@ -67,7 +69,6 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? 00 00 00 F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetCalendarEventInformation, memory_manager::find_function_by_string(L"GetCalendarEventInformation(%s) called without an event manager"), loader_component_hooks::GetCalendarEventInformation_Hook);
     
     DetourTransactionCommit();
@@ -220,6 +221,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true), L"Loot_AthenaFloorLoot");
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_Warmup_C", false, true), L"Loot_AthenaFloorLoot_Warmup");
 
+        // Handle foundations
+        handle_unloaded_foundations();
+        
         // initialize vending machines
         initialize_vending_machines();
 
@@ -353,6 +357,47 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
+    }
+}
+
+void loader_component::handle_unloaded_foundations()
+{
+    TArray<ABuildingFoundation*> BuildingFoundations = UGameplayStatics::GetAllActorsOfClass<ABuildingFoundation>(*GWorld, ABuildingFoundation::StaticClass());
+
+    for (ABuildingFoundation* BuildingFoundation : BuildingFoundations)
+    {
+        if (!BuildingFoundation->bFoundationEnabled())
+        {
+            try
+            {
+                auto config = config_manager::get_server_config();
+                for (auto& elem : config["startenabled_foundations"].items())
+                {
+                    if (GetCL() == elem.value()["target_cl"].get<int>())
+                    {
+                        std::string sFoundationName = elem.value()["foundation"].get<std::string>();
+                        TO_WSTRING(sFoundationName, wFoundationName);
+
+                        if (BuildingFoundation == FindObject<ABuildingFoundation>(wFoundationName.c_str()))
+                        {
+                            // Enable the foundation (DynamicFoundationType is originally StartDisabled so we gotta set this)
+                            UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bFoundationEnabled"), true);
+                            BuildingFoundation->OnRep_FoundationEnabled(false);
+                            BuildingFoundation->DynamicFoundationType() = 1;
+                            BuildingFoundation->OnRep_DynamicFoundationTransform();
+                            BuildingFoundation->EnableReadyForPostUpdate();
+
+                            spdlog::warn(L"handle_unloaded_foundations: Enabling {} (As the game did not attempt loading it)", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
+                            
+                            loader_component_hooks::BuildingFoundation_PostUpdate(BuildingFoundation, 1, nullptr);
+                        }
+                    }
+                }
+            }
+            catch (nlohmann::json::exception& err)
+            {
+            }
+        }
     }
 }
 

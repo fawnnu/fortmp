@@ -291,6 +291,7 @@ public:
     DEFINE_PROPERTY(uint8_t, FoundationEnabledState);
     DEFINE_PROPERTY(uint8, bConditionalFoundation);
     DEFINE_PROPERTY(FName, LevelToStream);
+    DEFINE_BIT_PROPERTY(bool, bFoundationEnabled);
     
     void OnRep_ServerStreamedInLevel()
     {
@@ -329,7 +330,14 @@ public:
     {
         STATIC_FINDFUNCTION(OnRep_FoundationEnabled)
 
-        Call(Function_OnRep_FoundationEnabled, bEnabled);
+        if (FindPropertyByName(Function_OnRep_FoundationEnabled, TEXT("bEnabled")))
+        {
+            Call(Function_OnRep_FoundationEnabled, bEnabled);
+        }
+        else
+        {
+            Call(Function_OnRep_FoundationEnabled);
+        }
     }
     void OnRep_DynamicFoundationTransform()
     {

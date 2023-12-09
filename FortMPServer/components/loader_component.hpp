@@ -7,7 +7,7 @@ public:
     static void pre_init();
 
     static void start_match(UFortPlaylistAthena* in_playlist = nullptr);
-
+    static void handle_unloaded_foundations();
     static bool initialize_playlist(UFortPlaylistAthena* in_playlist);
     static void update_max_players(int MaxPlayers);
     static int get_max_players();
