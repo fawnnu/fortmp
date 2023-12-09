@@ -67,7 +67,9 @@ void Setup()
     
     // Setup renderer on another thread
     new gui_manager();
-
+    
+    new era_mutators_component();
+    
 #ifdef _RELEASE
     // Initialize the QOS component
     CreateThread(nullptr, 0, [](LPVOID) -> DWORD
@@ -104,8 +106,15 @@ void Setup()
                 new gamemodes_component();
                     
                 // load into level
-                UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
-
+                if (era_mutators_component::IsActive("domino_event"))
+                {
+                    UGameplayStatics::OpenLevel(*GWorld, TEXT("/game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_MainLevel"), true, TEXT(""));
+                }
+                else
+                {
+                    UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
+                }
+                
                 while ((*GWorld)->GetName().find(GetFortniteVersionEasy() >= 10 ? L"Frontend" : L"FortniteEmptyDedicated") != std::string::npos)
                 {
                     // block DLL thread until level starts to load
@@ -145,7 +154,6 @@ void Setup()
                 new playlist_component();
                 new anticheat_component();
                 new challenges_component();
-                new era_mutators_component();
                     
                 break;
             }
