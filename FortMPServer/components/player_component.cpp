@@ -1472,6 +1472,37 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             }
                         }
 
+                        // Item wraps parsing
+                        if (UAthenaItemWrapDefinition::StaticClass())
+                        {
+                            if (locker.contains("wraps"))
+                            {
+                                nlohmann::json wraps = locker["wraps"];
+
+                                if (wraps.is_array())
+                                {
+                                    for (auto& elem : wraps.items())
+                                    {
+                                        std::string wrap = elem.value();
+
+                                        if (wrap.find(":") != std::string::npos)
+                                        {
+                                            wrap = wrap.substr(wrap.find(":") + 1);
+                                            TO_WSTRING(wrap, wWrap);
+
+                                            if (UAthenaItemWrapDefinition* WrapItem = FindObject<UAthenaItemWrapDefinition>(wWrap.c_str(), false, true))
+                                            {
+                                                if (WrapItem->IsA(UAthenaItemWrapDefinition::StaticClass()))
+                                                {
+                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().ItemWraps().Add(WrapItem);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         for (auto& elem : locker.items())
                         {
                             if (elem.value().is_object())

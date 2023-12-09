@@ -176,6 +176,12 @@ public:
     DEFINE_PROPERTY(float, WalkForwardSpeed);
 };
 
+class UAthenaItemWrapDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaItemWrapDefinition")
+};
+
 class UAthenaSprayItemDefinition : public UAthenaDanceItemDefinition
 {
 public:
@@ -266,6 +272,7 @@ struct FFortAthenaLoadout
     DEFINE_STRUCT_PROPERTY(UAthenaCharacterPartItemDefinition*, Backpack);
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, ItemWrapOverride);
     DEFINE_STRUCT_PROPERTY(TArray<FMcpVariantChannelInfo>, CharacterVariantChannels);
+    DEFINE_STRUCT_PROPERTY(TArray<UAthenaItemWrapDefinition*>, ItemWraps);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAthenaLoadout");
 };
