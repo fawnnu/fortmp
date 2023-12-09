@@ -21,6 +21,15 @@ struct FFortCreativePlotPermissionData
 
 class AFortVolume;
 
+class AFortMiniGame : public AActor
+{
+public:
+    
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortMiniGame");
+
+    DEFINE_PROPERTY(AFortVolume*, Volume);
+};
+
 class AFortAthenaCreativePortal : public AActor
 {
 public:
@@ -33,7 +42,8 @@ public:
     DEFINE_PROPERTY(FString, ImageUrl);
     DEFINE_PROPERTY(FVector, TeleportLocation);
     DEFINE_PROPERTY(TArray<struct FUniqueNetIdRepl>, PlayersReady);
-
+    DEFINE_PROPERTY(uint8, CurrentPopulation);
+    
     void OnRep_PortalOpen()
     {
         STATIC_FINDFUNCTION(OnRep_PortalOpen)

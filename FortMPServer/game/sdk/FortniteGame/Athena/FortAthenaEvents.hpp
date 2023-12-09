@@ -24,6 +24,47 @@ public:
     }
 };
 
+class ABP_SnowSetup_C : public AActor
+{
+public:
+
+    DEFINE_CLASS(L"/Game/Athena/Environments/Landscape/Blueprints/BP_SnowSetup.BP_SnowSetup_C");
+
+    DEFINE_PROPERTY(float, Zone);
+    
+    void SetSnow(float NewParam)
+    {
+        STATIC_FINDFUNCTION(SetSnow)
+
+        Call(Function_SetSnow, NewParam);
+    }
+
+    void SetFullSnowEd()
+    {
+        STATIC_FINDFUNCTION(SetSnow)
+
+        Call(Function_SetSnow);
+    }
+
+    void OnRep_Snow_Amount()
+    {
+        STATIC_FINDFUNCTION(OnRep_Snow_Amount)
+
+        Call(Function_OnRep_Snow_Amount);
+    }
+    
+    static ABP_SnowSetup_C* get_snow_setup()
+    {
+        TArray<AActor*> island_scripter = UGameplayStatics::GetAllActorsOfClass(*GWorld, StaticClass());
+                                
+        for (auto actor : island_scripter)
+        {
+            return static_cast<ABP_SnowSetup_C*>(actor);
+        }
+        return nullptr;
+    }
+};
+
 class ABP_GeodeScripting_C : public AActor
 {
 public:

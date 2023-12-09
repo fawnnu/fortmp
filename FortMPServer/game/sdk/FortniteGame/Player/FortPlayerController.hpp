@@ -189,6 +189,20 @@ public:
         return Call<bool>(Function_IsInAircraft);
     }
 
+    void ClientCreativeStopFly()
+    {
+        STATIC_FINDFUNCTION(ClientCreativeStopFly)
+        
+        Call(Function_ClientCreativeStopFly);
+    }
+
+    void ServerCreativeStopFly()
+    {
+        STATIC_FINDFUNCTION(ServerCreativeStopFly)
+        
+        Call(Function_ServerCreativeStopFly);
+    }
+    
     void ClientConfirmTargetData(uint16 UniqueId, bool bSuccess, TArray<uint8> HitReplaces)
     {
         STATIC_FINDFUNCTION(ClientConfirmTargetData)
