@@ -703,7 +703,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
         {
             nlohmann::json payload =
             {
-                {"weapon", "suppresssed_pistol"},
+                {"weapon", "suppressed_pistol"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage}
             };
             
@@ -1914,24 +1914,18 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.HuntingSniperDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HuntingSniper);
                         break;
+                    case EDamageCauser::SuppressedPistol:
+                        Value.SuppressedPistolDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedPistol);
+                        break;
                     case EDamageCauser::HandCannonPistol:
                         Value.HandCannonPistolDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HandCannonPistol);
                         break;
                     case EDamageCauser::Pistol:
-                        {
-                            if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
-                            {
-                                Value.SuppressedPistolDamage += Damage;
-                                HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedPistol);
-                            }
-                            else
-                            {
-                                Value.PistolDamage += Damage;
-                                HandleDebouncedDamage(Instigator, EDamageCauser::Pistol);
-                            }
-                            break;
-                        }
+                        Value.PistolDamage += Damage;
+                        HandleDebouncedDamage(Instigator, EDamageCauser::Pistol);
+                        break;
                     case EDamageCauser::PumpShotgun:
                         Value.PumpShotgunDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::PumpShotgun);
@@ -2130,6 +2124,7 @@ EDamageCauser player_component::get_damage_causer(FGameplayTagContainer& Tags)
         { L"Weapon.Ranged.Assault", EDamageCauser::AssaultRifle },
         { L"weapon.ranged.assault.standard", EDamageCauser::AssaultRifle },
         { L"Weapon.Ranged.LMG", EDamageCauser::LMG },
+        { L"Weapon.Ranged.Pistol.Suppressed", EDamageCauser::SuppressedPistol },
         { L"Weapon.Ranged.Pistol.HandCannon", EDamageCauser::HandCannonPistol },
         { L"Weapon.Ranged.Pistol.Standard", EDamageCauser::Pistol },
         { L"Weapon.Ranged.Pistol", EDamageCauser::Pistol },
