@@ -116,6 +116,7 @@ inline std::deque<std::function<void()>> game_thread_queue;
 inline std::deque<nlohmann::json> kick_events_queue;
 inline std::deque<struct progression_entry*> challenges_progression_queue;
 inline std::deque<reply_info*> event_replies;
+inline std::deque<std::string> live_events;
 
 namespace hook_manager_hooks
 {

@@ -3,6 +3,7 @@
 
 #include "challenges_component.hpp"
 #include "director_client.hpp"
+#include "era_mutators_component.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
@@ -143,6 +144,14 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
         // Execute code on game thread
         game_thread_queue.front()();
         game_thread_queue.pop_front();
+    }
+
+    while (!live_events.empty())
+    {
+        // Execute live event
+        era_mutators_component::Execute(std::string(live_events.front()), nullptr);
+        
+        live_events.pop_front();
     }
 
     while (!event_replies.empty())

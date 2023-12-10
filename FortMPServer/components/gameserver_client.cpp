@@ -325,123 +325,130 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
         }
 
         // Make sure it's a phoenix message
-        if (VectorPayloadString.size() == 2)
+        try
         {
-            if (VectorPayloadString[1] == "event:start")
+            if (VectorPayloadString.size() == 2)
             {
-                if (JsonPayloadData.contains("type") && JsonPayloadData["type"].is_string())
+                if (VectorPayloadString[1] == "event:start")
                 {
-                    era_mutators_component::Execute(std::string(JsonPayloadData["type"]), nullptr);
-                }
-            }
-            
-            // If it's a phx_error message, log it
-            if (VectorPayloadString[1] == "phx_error")
-            {
-                std::string ChannelName = VectorPayloadString[0];
-                if (ChannelName.size() > 0)
-                {
-                    spdlog::error("Channel '{}' crashed. [Received phx_error]", ChannelName.c_str());
-                    try
+                    if (JsonPayloadData.contains("type") && JsonPayloadData["type"].is_string())
                     {
-                        spdlog::error("phx_error last message: {}", LastMessagePayload.dump().c_str());
-                    }
-                    catch (nlohmann::json::other_error& err)
-                    {
-                        spdlog::error("phx_error last message can't be dumped.");
+                        live_events.push_back(JsonPayloadData["type"].get<std::string>());
                     }
                 }
-            }
             
-            // If it's a phx_reply message, check if there's any callback to call
-            if (VectorPayloadString[1] == "phx_reply")
-            {
-                if (MessagesMap.contains(VectorPayloadInt[1]))
+                // If it's a phx_error message, log it
+                if (VectorPayloadString[1] == "phx_error")
                 {
-                    // Send the event to be processed by gamethread
-                    event_replies.push_back(new reply_info(MessagesMap[VectorPayloadInt[1]], VectorPayloadString[0], JsonPayloadData));
-
-                    // Remove message from MessagesMap
-                    MessagesMap.erase(MessagesMap.find(VectorPayloadInt[1]));
-                }
-            }
-            
-            // If it's a "progression" message, process it to send the client a live progression notification
-            if (VectorPayloadString[1] == "progression")
-            {
-                if (JsonPayloadData.contains("challenge") &&
-                    JsonPayloadData.contains("objective") &&
-                    JsonPayloadData.contains("value"))
-                {
-                    std::string challenge = JsonPayloadData["challenge"];
-                    std::string objective = JsonPayloadData["objective"];
-                    int value = JsonPayloadData["value"];
-
                     std::string ChannelName = VectorPayloadString[0];
-
-                    if (ChannelName.find("player:v2:") != std::string::npos)
+                    if (ChannelName.size() > 0)
                     {
-                        std::string AccountID = ChannelName.substr(ChannelName.find(":v2:") + 4);
-
-                        progression_entry* new_entry = new progression_entry;
-                        new_entry->challenge = challenge;
-                        new_entry->objective = objective;
-                        new_entry->value = value;
-                        new_entry->player = AccountID;
-
-                        challenges_progression_queue.push_back(new_entry);
+                        spdlog::error("Channel '{}' crashed. [Received phx_error]", ChannelName.c_str());
+                        try
+                        {
+                            spdlog::error("phx_error last message: {}", LastMessagePayload.dump().c_str());
+                        }
+                        catch (nlohmann::json::other_error& err)
+                        {
+                            spdlog::error("phx_error last message can't be dumped.");
+                        }
                     }
                 }
-            }
+            
+                // If it's a phx_reply message, check if there's any callback to call
+                if (VectorPayloadString[1] == "phx_reply")
+                {
+                    if (MessagesMap.contains(VectorPayloadInt[1]))
+                    {
+                        // Send the event to be processed by gamethread
+                        event_replies.push_back(new reply_info(MessagesMap[VectorPayloadInt[1]], VectorPayloadString[0], JsonPayloadData));
+
+                        // Remove message from MessagesMap
+                        MessagesMap.erase(MessagesMap.find(VectorPayloadInt[1]));
+                    }
+                }
+            
+                // If it's a "progression" message, process it to send the client a live progression notification
+                if (VectorPayloadString[1] == "progression")
+                {
+                    if (JsonPayloadData.contains("challenge") &&
+                        JsonPayloadData.contains("objective") &&
+                        JsonPayloadData.contains("value"))
+                    {
+                        std::string challenge = JsonPayloadData["challenge"];
+                        std::string objective = JsonPayloadData["objective"];
+                        int value = JsonPayloadData["value"];
+
+                        std::string ChannelName = VectorPayloadString[0];
+
+                        if (ChannelName.find("player:v2:") != std::string::npos)
+                        {
+                            std::string AccountID = ChannelName.substr(ChannelName.find(":v2:") + 4);
+
+                            progression_entry* new_entry = new progression_entry;
+                            new_entry->challenge = challenge;
+                            new_entry->objective = objective;
+                            new_entry->value = value;
+                            new_entry->player = AccountID;
+
+                            challenges_progression_queue.push_back(new_entry);
+                        }
+                    }
+                }
         
-            // If we receive a kick message, kick the target player
-            if (VectorPayloadString[1] == "kick")
-            {
-                kick_events_queue.push_back(JsonPayloadData);
-            }
+                // If we receive a kick message, kick the target player
+                if (VectorPayloadString[1] == "kick")
+                {
+                    kick_events_queue.push_back(JsonPayloadData);
+                }
         
-            // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
-            if (VectorPayloadString[1] == "player")
-            {
-                std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
-                std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
+                // If it's a "player" message, add the encryptiontoken to the encryptiontoken list
+                if (VectorPayloadString[1] == "player")
+                {
+                    std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
+                    std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
            
-                // Add to the valid EncryptionToken list
-                player_component::EncryptionTokenList.push_back(wEncryptionToken);
+                    // Add to the valid EncryptionToken list
+                    player_component::EncryptionTokenList.push_back(wEncryptionToken);
 
-                // Properly handle incoming fill and ticket
-                if (JsonPayloadData.contains("fill") && JsonPayloadData.contains("ticket"))
-                {
-                    bool fill = false;
-                    std::string ticket = "";
+                    // Properly handle incoming fill and ticket
+                    if (JsonPayloadData.contains("fill") && JsonPayloadData.contains("ticket"))
+                    {
+                        bool fill = false;
+                        std::string ticket = "";
                 
-                    if (JsonPayloadData["ticket"].is_string())
-                    {
-                        ticket = JsonPayloadData["ticket"];
-                    }
-                    if (JsonPayloadData["fill"].is_boolean())
-                    {
-                        fill = JsonPayloadData["fill"];
-                    }
+                        if (JsonPayloadData["ticket"].is_string())
+                        {
+                            ticket = JsonPayloadData["ticket"];
+                        }
+                        if (JsonPayloadData["fill"].is_boolean())
+                        {
+                            fill = JsonPayloadData["fill"];
+                        }
 
-                    if (ticket.length() > 0)
-                    {
-                        const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
+                        if (ticket.length() > 0)
+                        {
+                            const std::wstring wTicket = std::wstring(ticket.begin(), ticket.end());
                     
-                        auto& new_team_instance = team_component::TeamsMap[wTicket];
-                        new_team_instance.TeamMembers.push_back(wEncryptionToken);
-                        new_team_instance.fill = fill;
+                            auto& new_team_instance = team_component::TeamsMap[wTicket];
+                            new_team_instance.TeamMembers.push_back(wEncryptionToken);
+                            new_team_instance.fill = fill;
+                        }
                     }
-                }
 
-                if (JsonPayloadData.contains("profile"))
-                {
-                    if (JsonPayloadData["profile"].is_object())
+                    if (JsonPayloadData.contains("profile"))
                     {
-                        //&/player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
+                        if (JsonPayloadData["profile"].is_object())
+                        {
+                            //&/player_component::Profiles[wEncryptionToken] = JsonPayloadData["profile"];
+                        }
                     }
                 }
             }
+        }
+        catch (std::exception& err)
+        {
+            spdlog::error("gameserver_client::OnMessageReceived: failed to process incoming message. Error: {}.", err.what());
         }
     }
     catch (nlohmann::json::parse_error& ex)
