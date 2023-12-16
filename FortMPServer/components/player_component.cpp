@@ -1483,18 +1483,26 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                 {
                                     for (auto& elem : wraps.items())
                                     {
-                                        std::string wrap = elem.value();
-
-                                        if (wrap.find(":") != std::string::npos)
+                                        if (elem.value().is_null())
                                         {
-                                            wrap = wrap.substr(wrap.find(":") + 1);
-                                            TO_WSTRING(wrap, wWrap);
+                                            continue;
+                                        }
 
-                                            if (UAthenaItemWrapDefinition* WrapItem = FindObject<UAthenaItemWrapDefinition>(wWrap.c_str(), false, true))
+                                        if (elem.value().is_string())
+                                        {
+                                            std::string wrap = elem.value();
+
+                                            if (wrap.find(":") != std::string::npos)
                                             {
-                                                if (WrapItem->IsA(UAthenaItemWrapDefinition::StaticClass()))
+                                                wrap = wrap.substr(wrap.find(":") + 1);
+                                                TO_WSTRING(wrap, wWrap);
+
+                                                if (UAthenaItemWrapDefinition* WrapItem = FindObject<UAthenaItemWrapDefinition>(wWrap.c_str(), false, true))
                                                 {
-                                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().ItemWraps().Add(WrapItem);
+                                                    if (WrapItem->IsA(UAthenaItemWrapDefinition::StaticClass()))
+                                                    {
+                                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().ItemWraps().Add(WrapItem);
+                                                    }
                                                 }
                                             }
                                         }
