@@ -196,7 +196,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
-    if (Portal)
+    if (Portal && PlayerPawn && PlayerPawn->Controller())
     {
         if (STATIC_HASPROPERTY(Portal, LinkedVolume))
         {
@@ -213,7 +213,7 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
 
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
-    
+            
             Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
             Portal->OnPlayerPawnTeleported(PlayerPawn);
         }
