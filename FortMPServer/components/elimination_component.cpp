@@ -368,18 +368,21 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
 #ifdef _RELEASE
         // Summary event
-        if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
+        if (!creative_component::is_creative_enabled())
         {
-            // Send placement for the whole team
-            if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
+            if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
             {
-                for (AController* TeamMember : TeamInfo->TeamMembers())
+                // Send placement for the whole team
+                if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
                 {
-                    // Send summary
-                    challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
+                    for (AController* TeamMember : TeamInfo->TeamMembers())
+                    {
+                        // Send summary
+                        challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
 
-                    // Set placement
-                    static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
+                        // Set placement
+                        static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
+                    }
                 }
             }
         }

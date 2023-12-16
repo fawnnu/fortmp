@@ -8,6 +8,7 @@
 #include "log_component.hpp"
 #include "player_component.hpp"
 #include "replication_component.hpp"
+#include "creative_component.hpp"
 
 net_component::net_component()
 {
@@ -326,6 +327,12 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
 
             if (account_id.size() > 0)
             {
+                // Send summary, on creative
+                if (creative_component::is_creative_enabled())
+                {
+                    challenges_component::SendSummary(FortPlayerController, 2);
+                }
+                
                 // Mark as disconnecting
                 static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().bIsDisconneting = true;
                 
