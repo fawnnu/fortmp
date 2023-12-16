@@ -96,6 +96,8 @@ void unreal_manager::pre_init()
         CoreOffsets::FieldMask =  123;
         CoreOffsets::Script = 0x60;
     }
+
+    gameserver_client::PreInitialize();
 }
 
 unreal_manager::unreal_manager()

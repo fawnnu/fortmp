@@ -52,6 +52,7 @@ public:
     gameserver_client();
 
     void Initialize();
+    static void PreInitialize();
     void Register();
     static void WaitForReply(int MessageReference, PVOID callback);
 
@@ -96,4 +97,6 @@ public:
     nlohmann::json LastMessagePayload;
 
     int LocalNonAckHeartbeatsForPlayers;
+
+    std::shared_ptr<Aws::S3::S3Client> S3Client;
 };

@@ -115,6 +115,14 @@ gameserver_client::gameserver_client()
 void gameserver_client::Initialize()
 {
 #ifdef _RELEASE
+    {
+        // Initialize our client object
+        Aws::Client::ClientConfiguration ClientConfig;
+        ClientConfig.endpointOverride = "34e19315f44dab48bc0d496bea16a1d0.r2.cloudflarestorage.com"; 
+        Aws::Auth::AWSCredentials Credentials("a6dc961104a779468543630be4e6259b", "f989383ce3f277383fc3ff7fa6845438ff6c92faac0629dafa4aab1ea0dbee64");
+        S3Client = std::make_shared<Aws::S3::S3Client>(Credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(Aws::S3::S3Client::ALLOCATION_TAG), ClientConfig);
+    }
+    
     // initialize the client
     Client_WS.init_asio();
 
@@ -154,6 +162,12 @@ void gameserver_client::Initialize()
         Sleep(1000);
     }
 #endif
+}
+
+void gameserver_client::PreInitialize()
+{
+    const Aws::SDKOptions Options;
+    InitAPI(Options);
 }
 
 void gameserver_client::Register()

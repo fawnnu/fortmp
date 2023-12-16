@@ -8,6 +8,14 @@
 #define ASIO_STANDALONE
 #define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_CPP11_TYPE_TRAITS_
+#define AWS_SDK_PLATFORM_WINDOWS
+#define USE_WINDOWS_DLL_SEMANTICS
+#define ENABLE_WINDOWS_CLIENT
+#define ENABLE_BCRYPT_ENCRYPTION
+#define USE_IMPORT_EXPORT
+#define AWS_S3_EXPORTS
+#define AWS_LAMBDA_EXPORTS
+#define AWS_CORE_EXPORTS
 
 #include <Windows.h>
 #include <Psapi.h>
@@ -41,6 +49,28 @@
 #pragma comment(lib, "openssl/libcrypto.lib")
 #pragma comment(lib, "openssl/libssl.lib")
 
+// S3 AWS SDK
+#pragma comment(lib, "aws/aws-c-auth.lib")
+#pragma comment(lib, "aws/aws-c-cal.lib")
+#pragma comment(lib, "aws/aws-c-common.lib")
+#pragma comment(lib, "aws/aws-c-compression.lib")
+#pragma comment(lib, "aws/aws-c-event-stream.lib")
+#pragma comment(lib, "aws/aws-checksums.lib")
+#pragma comment(lib, "aws/aws-c-http.lib")
+#pragma comment(lib, "aws/aws-c-io.lib")
+#pragma comment(lib, "aws/aws-c-mqtt.lib")
+#pragma comment(lib, "aws/aws-cpp-sdk-core.lib")
+#pragma comment(lib, "aws/aws-cpp-sdk-s3.lib")
+#pragma comment(lib, "aws/aws-crt-cpp.lib")
+#pragma comment(lib, "aws/aws-c-s3.lib")
+#pragma comment(lib, "aws/aws-c-sdkutils.lib")
+#pragma comment(lib, "Crypt32.lib")
+
+#include <aws/core/Aws.h>
+#include <aws/s3/S3Client.h>
+#include <aws/core/auth/AWSCredentialsProviderChain.h>
+#include <aws/s3/model/PutObjectRequest.h>
+#include <aws/s3/model/GetObjectRequest.h>
 #include <spdlog/spdlog.h>
 #include <Detours.h>
 #include <nlohmann/json.hpp>

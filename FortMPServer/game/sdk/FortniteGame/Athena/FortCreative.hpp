@@ -127,8 +127,48 @@ public:
     }
 };
 
+struct FBaseActorRecord
+{
+    
+};
+
+struct FNewActorRecord
+{
+    
+};
+
+struct FDeleteActorRecord
+{
+    
+};
+
 class ULevelSaveRecord : public UObject
 {
+public:
+    DEFINE_PROPERTY(TArray<FBaseActorRecord>, BaseActorRecords);
+    DEFINE_PROPERTY(TArray<FNewActorRecord>, NewActorRecords);
+    DEFINE_PROPERTY(TArray<FDeleteActorRecord>, DeleteActorRecords);
+
+    void PostUpdateSpawnedActorsHelper(int StartIndex)
+    {
+        STATIC_FINDFUNCTION(PostUpdateSpawnedActorsHelper)
+
+        Call(Function_PostUpdateSpawnedActorsHelper, StartIndex);
+    }
+    
+    void FindAndRemoveDuplicateRecordsUsingBucketMap(int StartIndex)
+    {
+        STATIC_FINDFUNCTION(FindAndRemoveDuplicateRecordsUsingBucketMap)
+
+        Call(Function_FindAndRemoveDuplicateRecordsUsingBucketMap,StartIndex);
+    }
+    
+    void NotifyFinishedSpawning()
+    {
+        STATIC_FINDFUNCTION(NotifyFinishedSpawning)
+
+        Call(Function_NotifyFinishedSpawning);
+    }
 };
 
 class ULevelStreaming;
@@ -170,7 +210,29 @@ public:
     }
 };
 
-class UFortLevelSaveComponent : public UActorComponent
+class ULevelSaveComponent : public UActorComponent
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.LevelSaveComponent")
+
+    DEFINE_PROPERTY(ULevelSaveRecord*, LevelRecord);
+
+    void ApplySaveToWorld(bool bComplexShouldSpawn)
+    {
+        STATIC_FINDFUNCTION(ApplySaveToWorld)
+
+        Call(Function_ApplySaveToWorld, bComplexShouldSpawn);
+    }
+
+    void LoadLevelRecord()
+    {
+        STATIC_FINDFUNCTION(LoadLevelRecord)
+
+        Call(Function_LoadLevelRecord);
+    }
+};
+
+class UFortLevelSaveComponent : public ULevelSaveComponent
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortLevelSaveComponent")

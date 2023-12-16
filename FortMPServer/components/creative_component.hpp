@@ -31,6 +31,12 @@ namespace creative_component_hooks
     
     // Called when trying to go back to hub
     DEFINE_FUNCTION_HOOK(void, ServerTeleportToPlaygroundLobbyIsland, (AFortPlayerControllerAthena* FortPlayerControllerAthena, FFrame& StackFrame));
+
+    DEFINE_FUNCTION_HOOK(void, OnFinishedRecordRead, (UObject*, UObject*, void*));
+    DEFINE_FUNCTION_HOOK(void, OnFinishedRecordWrite, (UObject*, UObject*, void*));
+    DEFINE_FUNCTION_HOOK(void, OnFinishedLoading, (UObject*, UObject*, void*));
+    DEFINE_FUNCTION_HOOK(void, SaveOutLevelRecord, (UFortLevelSaveComponent* Self))
+    inline int SaveOutLevelRecord_Index;
 }
 
 // Used to load a creative playset

@@ -123,4 +123,6 @@ namespace hook_manager_hooks
     // Called every time that ProcessEvent is called
     DEFINE_FUNCTION_HOOK(void, AActor_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, UEnvQueryInstanceBlueprintWrapper_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, UFortLevelSaveComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, UPlaysetLevelStreamComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
 }

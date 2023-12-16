@@ -2,11 +2,24 @@
 #include "creative_component.hpp"
 
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "looting_component.hpp"
+#include "player_component.hpp"
 
 creative_component::creative_component()
 {
+    if (UFunction* SaveOutLevelRecord = FindObject<UFunction>(L"/Script/FortniteGame.LevelSaveBaseComponent.SaveOutLevelRecord"))
+    {
+        if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(SaveOutLevelRecord->get_native_function()), {0x48, 0xFF, 0xA0}))
+        {
+            creative_component_hooks::SaveOutLevelRecord_Index = *reinterpret_cast<int*>(Result + 3) / 8;
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, creative_component_hooks::SaveOutLevelRecord_Index, creative_component_hooks::SaveOutLevelRecord);
+        }
+    }
     
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordRead", creative_component_hooks::OnFinishedRecordRead_Hook);
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordWrite", creative_component_hooks::OnFinishedRecordWrite_Hook);
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.PlaysetLevelStreamComponent.OnFinishedLoading", creative_component_hooks::OnFinishedLoading_Hook);
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaCreativePortal.TeleportPlayerToLinkedVolume", creative_component_hooks::TeleportPlayerToLinkedVolume_Hook);
     
     DetourTransactionBegin();
@@ -254,4 +267,207 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
     }
 
     return ServerTeleportToPlaygroundLobbyIsland(FortPlayerControllerAthena, StackFrame);
+}
+
+void creative_component_hooks::OnFinishedRecordRead_Hook(UObject* Object, UObject*, void*)
+{
+    if (Object->IsA(UFortLevelSaveComponent::StaticClass()))
+    {
+        UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Object);
+
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"creative_component_hooks::OnFinishedRecordRead_Hook: finished loading record [{}] from disk.", UKismetSystemLibrary::GetPathName(LevelSaveComponent->LevelRecord()).c_str());
+        }
+
+        // Apply to world
+        LevelSaveComponent->ApplySaveToWorld(true);
+    }
+}
+
+void creative_component_hooks::OnFinishedRecordWrite_Hook(UObject* Object, UObject*, void*)
+{
+    CreateThread(nullptr, 0, [](LPVOID InParam)->DWORD
+    {
+        UObject* Object = static_cast<UObject*>(InParam);
+        
+        if (Object->IsA(UFortLevelSaveComponent::StaticClass()))
+        {
+            UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Object);
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"creative_component_hooks::OnFinishedRecordWrite_Hook: finished writing record [{}] to disk.", UKismetSystemLibrary::GetPathName(LevelSaveComponent->LevelRecord()).c_str());
+            }
+
+            // Get owner
+            AFortVolume* Owner = static_cast<AFortVolume*>(static_cast<UPlaysetLevelStreamComponent*>(Object)->GetOwner());
+            UPlaysetLevelStreamComponent* PlaysetComponent = nullptr;
+
+            if (!Owner)
+            {
+                return 0;
+            }
+        
+            for (auto Component : Owner->BlueprintCreatedComponents())
+            {
+                if (!Component)
+                {
+                    return 0;    
+                }
+            
+                if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+                {
+                    PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
+                }
+            }
+
+            // Get file buffer & upload on CDN bucket 'creativeislands'
+            if (PlaysetComponent)
+            {
+                // Get owner's account ID
+                std::string account_id;
+                for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                {
+                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), LevelSaveComponent->AccountIdOfOwner()))
+                    {
+                        account_id = player_component::get_account_id(Connection->PlayerController());
+                    }
+                }
+
+                if (account_id.size() <= 0)
+                {
+                    return 0;
+                }
+            
+                // The file name will be the playset's name
+                std::wstring wPlaysetName = PlaysetComponent->CurrentPlayset()->GetName();
+                TO_STRING(wPlaysetName, sPlaysetName);
+
+                // Get the actual file name locally, in appdata
+                char* Buf;
+                size_t Len;
+                _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
+                std::string Path(Buf);
+                std::wstring VolumeName = Owner->GetName();
+                TO_STRING(VolumeName, sVolumeName);
+                Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
+
+                if (std::filesystem::exists(Path))
+                {
+                    Aws::S3::Model::PutObjectRequest Request;
+                    Request.SetBucket("creativeislands");
+                    Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+                
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("creative_component_hooks::OnFinishedRecordWrite_Hook: uploading '{}' to ERACDN:creativeislands. Key: '{}'", Path.c_str(), account_id + "/" + sPlaysetName + ".sav");
+                    }
+
+                    std::shared_ptr<Aws::IOStream> inputData = Aws::MakeShared<Aws::FStream>("SampleAllocationTag",Path, std::ios_base::in | std::ios_base::binary);
+
+                    Request.SetBody(inputData);
+
+                    Aws::S3::Model::PutObjectOutcome outcome = gameserver_client::Client->S3Client->PutObject(Request);
+
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("creative_component_hooks::OnFinishedRecordWrite_Hook: upload of key '{}' finished. Result: {}.", account_id + "/" + sPlaysetName + ".sav", outcome.IsSuccess() ? "succeeded" : "failed");
+                    }
+                }
+                else
+                {
+                    spdlog::error("creative_component_hooks::OnFinishedRecordWrite_Hook: attempted to read from '{}', invalid file.", Path.c_str());
+                }
+            }
+        }
+
+        return 0;
+    }, Object, 0, nullptr);
+}
+
+void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*, void*)
+{
+    CreateThread(nullptr, 0, [](LPVOID InParam) -> DWORD
+    {
+        UObject* Object = static_cast<UObject*>(InParam); 
+        
+        if (Object->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+        {
+            AFortVolume* Owner = static_cast<AFortVolume*>(static_cast<UPlaysetLevelStreamComponent*>(Object)->GetOwner());
+
+            for (auto Component : Owner->BlueprintCreatedComponents())
+            {
+                if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                {
+                    // Attempt loading the island record from CDN
+                    std::string account_id;
+                    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                    {
+                        if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner()))
+                        {
+                            account_id = player_component::get_account_id(Connection->PlayerController());
+                        }
+                    }
+
+                    if (account_id.size() <= 0)
+                    {
+                        return 0;
+                    }
+
+                    // Get playset name
+                    std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
+                    TO_STRING(PlaysetName, sPlaysetName);
+
+                    // Perform request
+                    Aws::S3::Model::GetObjectRequest Request;
+                    Request.SetBucket("creativeislands");
+                    Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+                    char* Buf;
+                    size_t Len;
+                    _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
+                    std::string Path(Buf);
+                    std::wstring VolumeName = Owner->GetName();
+                    TO_STRING(VolumeName, sVolumeName);
+                    Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
+                    Request.SetResponseStreamFactory(
+                    [=]() {
+                           return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
+                    }
+                    );
+                    Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
+                
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
+                    }
+
+                    // If we couldn't download but we have an island file locally, delete it before loading it.
+                    if (!outcome.IsSuccess())
+                    {
+                        if (std::filesystem::exists(Path))
+                        {
+                            std::filesystem::remove(Path);
+                        }
+                    }
+                
+                    static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
+                    break;
+                }
+            }
+        }
+        
+        return 0;
+    }, Object, 0, nullptr);
+}
+
+void creative_component_hooks::SaveOutLevelRecord_Hook(UFortLevelSaveComponent* Self)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"creative_component_hooks::SaveOutLevelRecord_Hook: saving island.");
+    }
+
+    // Call base function to perform saving
+    reinterpret_cast<void (*)(UFortLevelSaveComponent*)>(CreateDefaultObject<ULevelSaveComponent>()->VTable[SaveOutLevelRecord_Index])(Self);
 }

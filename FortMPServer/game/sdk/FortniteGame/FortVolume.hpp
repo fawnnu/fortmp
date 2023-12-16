@@ -44,6 +44,13 @@ public:
         
         Call(Function_UpdateVolumeLevelStreams);
     }
+    
+    void ApplyLevelSaveToWorld(class ULevelSaveRecord* SaveToSpawnFrom, bool bComplexShouldSpawn)
+    {
+        STATIC_FINDFUNCTION(ApplyLevelSaveToWorld)
+        
+        Call(Function_ApplyLevelSaveToWorld,SaveToSpawnFrom, bComplexShouldSpawn);
+    }
 
     AFortVolume* SpawnVolume(UObject* VolumeClass, UFortPlaysetItemDefinition* Playset, FVector Location, FRotator Rotation)
     {

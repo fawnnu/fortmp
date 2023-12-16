@@ -33,6 +33,8 @@ hook_manager::hook_manager()
     DetourTransactionCommit();
 
     REGISTER_VTABLE_HOOK(FindObject(L"/Script/AIModule.Default__EnvQueryInstanceBlueprintWrapper")->VTable, ProcessEvent_Index, hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent);
+    REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent);
+    REGISTER_VTABLE_HOOK(CreateDefaultObject<UPlaysetLevelStreamComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
 }
 
 void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
@@ -70,4 +72,41 @@ void hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent_Hook(UOb
     }
     
     return UEnvQueryInstanceBlueprintWrapper_ProcessEvent(Object, Function, Params);
+}
+
+
+void hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    if (Object && Function)
+    {
+        if (hook_manager::hooked_functions[Function])
+        {
+            // Call hooked function
+            hook_manager::hooked_functions[Function](Object, Function, Params);
+        }
+    
+        UFortLevelSaveComponent_ProcessEvent(Object, Function, Params);
+
+        if (hook_manager::post_hooked_functions[Function])
+        {
+            // Call hooked function
+            hook_manager::post_hooked_functions[Function](Object, Function, Params);
+        }
+    }
+}
+
+void hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    if (hook_manager::hooked_functions[Function])
+    {
+        hook_manager::hooked_functions[Function](Object, Function, Params);
+    }
+
+    UPlaysetLevelStreamComponent_ProcessEvent(Object, Function, Params);
+
+    if (hook_manager::post_hooked_functions[Function])
+    {
+        // Call hooked function
+        hook_manager::post_hooked_functions[Function](Object, Function, Params);
+    }
 }
