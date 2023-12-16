@@ -36,6 +36,8 @@ creative_component::creative_component()
 
 void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMiniGame* MiniGame, FFrame& StackFrame)
 {
+    AddMiniGamePlayer(MiniGame, StackFrame);
+    
     if(MiniGame->Volume())
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
@@ -48,6 +50,8 @@ void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMiniGame* MiniGame, F
 
 void creative_component_hooks::RemoveMiniGamePlayer_Hook(AFortMiniGame* MiniGame, FFrame& StackFrame)
 {
+    RemoveMiniGamePlayer(MiniGame, StackFrame);
+
     if(MiniGame->Volume())
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
