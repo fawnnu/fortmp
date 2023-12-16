@@ -151,6 +151,70 @@ ordered_json BlueprintDisasm::DisasmExpression(int& ScriptIndex)
             ScriptIndex++;
             break;
         }
+    case EX_TextConst:
+        {
+            ReturnValue["InstructionType"] = "TextConst";
+
+            switch (static_cast<EBlueprintTextLiteralType>(Script[ScriptIndex++]))
+            {
+            case Empty:
+                {
+                    ReturnValue["TextLiteralType"] = "Empty";
+                    break;
+                }
+            case LocalizedText:
+                {
+                    ReturnValue["TextLiteralType"] = "LocalizedText";
+                    std::wstring SourceString = ReadString(ScriptIndex).c_str();
+                    std::wstring KeyString = ReadString(ScriptIndex).c_str();
+                    std::wstring Namespace = ReadString(ScriptIndex).c_str();
+                    TO_STRING(SourceString, sSourceString);
+                    TO_STRING(KeyString, sKeyString);
+                    TO_STRING(Namespace, sNamespace);
+                    ReturnValue["SourceString"] = sSourceString;
+                    ReturnValue["LocalizationKey"] = sKeyString;
+                    ReturnValue["LocalizationNamespace"] = sNamespace;
+                    break;
+                }
+            case InvariantText:
+                {
+                    ReturnValue["TextLiteralType"] = "InvariantText";
+                    std::wstring SourceString = ReadString(ScriptIndex).c_str();
+                    TO_STRING(SourceString, sSourceString)
+                    ReturnValue["SourceString"] = sSourceString;
+                    break;
+                }
+
+            case LiteralString:
+                {
+                    ReturnValue["TextLiteralType"] = "LiteralString";
+                    std::wstring SourceString = ReadString(ScriptIndex).c_str();
+                    TO_STRING(SourceString, sSourceString)
+                    ReturnValue["SourceString"] = sSourceString;
+                    break;
+                }
+            case StringTableEntry:
+                {
+                    ReturnValue["TextLiteralType"] = "StringTableEntry";
+					
+                    ReadQword(ScriptIndex);
+                    std::wstring TableIdString = ReadString(ScriptIndex).c_str();
+                    std::wstring KeyString = ReadString(ScriptIndex).c_str();
+                    TO_STRING(TableIdString, sTableIdString)
+                    TO_STRING(KeyString, sKeyString)
+
+                    ReturnValue["TableId"] = sTableIdString;
+                    ReturnValue["TableKey"] = sKeyString;
+                    break;
+                }
+            default:
+                {
+                    ReturnValue["TextLiteralType"] = "Unknown text type.";
+                    break;
+                }
+            }
+            break;
+        }
     case EX_ObjToInterfaceCast:
         {
             ReturnValue["InstructionType"] = "ObjToInterfaceCast";

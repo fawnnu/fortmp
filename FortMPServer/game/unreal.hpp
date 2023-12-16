@@ -1013,6 +1013,14 @@ enum EExprToken
 	EX_Max					= 0x100,
 };
 
+enum EBlueprintTextLiteralType
+{
+    Empty,
+    LocalizedText,
+    InvariantText,
+    LiteralString,
+    StringTableEntry,
+};
 
 struct FScriptName
 {

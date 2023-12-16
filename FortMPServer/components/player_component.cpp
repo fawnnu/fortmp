@@ -33,7 +33,11 @@ player_component::player_component()
 
     INIT_POINTER(UpdateZiplineState, memory_manager::find_function_by_string(L"AFortPlayerPawn::OnRep_ZiplineState"));
     INIT_POINTER(GetPoiGridTagsForPawn, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B 99 ? ? ? ? 49 8B F0 48 8B FA 48 85 DB 0F 84 ? ? ? ? E8 ? ? ? ? 48 8B 53 10 4C 8D 88 ? ? ? ? 49 63 41 08 3B 82 ? ? ? ? 7F 14 48 8B C8 48 8B 82 ? ? ? ? 4C 39 0C C8 75 04"))
-
+    if (!GetPoiGridTagsForPawn)
+    {
+        INIT_POINTER(GetPoiGridTagsForPawn, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B 99 ? ? ? ? 49 8B F0 48 8B FA 48 85 DB 0F 84 ? ? ? ? E8 ? ? ? ? 48 8B 53 10 4C 8D 48 30 48 63 40 38 3B 42 38 0F 8F ? ? ? ? 48 8B C8 48 8B 42 30 4C 39 0C C8 0F 85 ? ? ? ? 48 83 BB ? ? ? ? ?"));
+    }
+    
     if (UFunction* ClientAddMarker = FindObject<UFunction>(L"/Script/FortniteGame.AthenaMarkerComponent.ClientAddMarker"))
     {
         uintptr_t WorldMarkerDataCtr_Call = memory_manager::scan_for(reinterpret_cast<uintptr_t>(ClientAddMarker->get_native_function()), {0xE8, WILDCARD, WILDCARD, WILDCARD, 0xFF});

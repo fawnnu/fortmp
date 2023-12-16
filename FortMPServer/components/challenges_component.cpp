@@ -796,6 +796,38 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
                 {"z", InteractingController->Pawn()->K2_GetActorLocation().Z}
             };
+
+            static std::map<std::string, std::string> POITagToObjectivesMap = {
+                {"Athena.Location.Quest.Dance.Forbidden.01", "battlepass_dance_athena_location_forbidden_01"},
+                {"Athena.Location.Quest.Dance.Forbidden.02", "battlepass_dance_athena_location_forbidden_02"},
+                {"Athena.Location.Quest.Dance.Forbidden.03", "battlepass_dance_athena_location_forbidden_03"},
+                {"Athena.Location.Quest.Dance.Forbidden.04", "battlepass_dance_athena_location_forbidden_04"},
+                {"Athena.Location.Quest.Dance.Forbidden.05", "battlepass_dance_athena_location_forbidden_05"},
+                {"Athena.Location.Quest.Dance.Forbidden.06", "battlepass_dance_athena_location_forbidden_06"},
+                {"Athena.Location.Quest.Dance.Forbidden.07", "battlepass_dance_athena_location_forbidden_07"},
+                {"Athena.Location.Quest.Dance.Forbidden.08", "battlepass_dance_athena_location_forbidden_08"},
+                {"Athena.Location.Quest.Dance.Forbidden.09", "battlepass_dance_athena_location_forbidden_09"},
+                {"Athena.Location.Quest.Dance.Forbidden.10", "battlepass_dance_athena_location_forbidden_10"},
+                {"Athena.Location.Quest.Dance.Forbidden.11", "battlepass_dance_athena_location_forbidden_11"},
+                {"Athena.Location.Quest.Dance.Forbidden.12", "battlepass_dance_athena_location_forbidden_12"},
+                {"Athena.Location.Quest.Dance.Forbidden.13", "battlepass_dance_athena_location_forbidden_13"},
+                {"Athena.Location.Quest.Dance.Forbidden.14", "battlepass_dance_athena_location_forbidden_14"},
+                {"Athena.Location.Quest.Dance.Forbidden.15", "battlepass_dance_athena_location_forbidden_15"},
+                {"Athena.Quests.DanceLocation.Generic.01", "battlepass_dance_chain_athena_scavengerhunt_locations_a"},
+                {"Athena.Quests.DanceLocation.Generic.02", "battlepass_dance_chain_athena_scavengerhunt_locations_b"},
+                {"Athena.Quests.DanceLocation.Generic.03", "battlepass_dance_chain_athena_scavengerhunt_locations_c"}
+            };
+
+            for (FGameplayTag Tag : static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().CurrentPOIList)
+            {
+                if (POITagToObjectivesMap.contains(Tag.TagName.sToString()))
+                {
+                    std::string Objective = POITagToObjectivesMap[Tag.TagName.sToString()];
+
+                    // Add objective key!
+                    parameters["objective"] = Objective;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:dance", parameters);
         }
