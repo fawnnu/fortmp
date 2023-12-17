@@ -209,16 +209,16 @@ void anticheat_component_hooks::ServerNotifyPawnHit_Hook(AFortProjectileAthena* 
     {
         if (Hit.Actor().Get() && Hit.Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
         {
-            // Don't run these checks on less than 50m hits
-            if (Self->GetDistanceTo(Hit.Actor().Get()) > 5000)
+            // Don't run these checks on less than 100m hits
+            if (Self->GetDistanceTo(Hit.Actor().Get()) > 10000)
             {
                 // Check if TraceEnd and the bullet's location on the server are different
                 FVector CurrentLoc = Self->K2_GetActorLocation();
                 float Difference_X = sqrtf((Hit.TraceEnd().X - CurrentLoc.X) * (Hit.TraceEnd().X - CurrentLoc.X));
                 float Difference_Y = sqrtf((Hit.TraceEnd().Y - CurrentLoc.Y) * (Hit.TraceEnd().Y - CurrentLoc.Y));
 
-                if (Difference_X >= 5000 ||
-                    Difference_Y >= 5000)
+                if (Difference_X >= 10000 ||
+                    Difference_Y >= 10000)
                 {
                     // Log
                     spdlog::warn(L"'{}' has hit unlikely bullet. [X axis distance: {}, Y axis distance: {}]", Controller->MyPlayerInfo()->PlayerName().c_str(), Difference_X, Difference_Y);
