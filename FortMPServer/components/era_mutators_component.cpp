@@ -167,6 +167,11 @@ era_mutators_component::era_mutators_component()
     {
         (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus", true, false));
     });
+    
+    new era_mutator("holiday_supplydrop", [](LPVOID Parameters)
+    {
+        (*GWorld)->GameState()->ChangeSupplyDropCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/SupplyDrops/AthenaSupplyDrop_Holiday.AthenaSupplyDrop_Holiday_C", true, false));
+    });
 
     new era_mutator("halloween_bus", [](LPVOID Parameters)
     {

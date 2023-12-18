@@ -319,7 +319,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
          */
         director_client::send_ready_event();
 #endif
-
+        
         // Set default floating island location on season 6
         if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
         {
@@ -649,12 +649,16 @@ void loader_component::handle_cl_specific_additions()
         era_mutators_component::Execute("birthday_bus", nullptr);
     }
 
-    // 1.11, christmas bus
+    // 1.11 & S7, christmas bus
     if (GetCL() == 3807424 || GetFortniteVersionEasy() >= 7 && GetFortniteVersionEasy() < 8)
     {
         era_mutators_component::Execute("winter_bus", nullptr);
     }
 
+    if (GetFortniteVersionEasy() >= 7 && GetFortniteVersionEasy() < 8)
+    {
+        era_mutators_component::Execute("holiday_supplydrop", nullptr);
+    }
     if (GetCL() == 4526925)
     {
         era_mutators_component::Execute("halloween_bus", nullptr);
@@ -921,7 +925,7 @@ void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAth
 {
     // Mark world as ready
     UKismetSystemLibrary::SetBoolPropertyByName(Target, L"bWorldIsReady", true);
-    
+
     AFortGameModeAthena_BeginPlay(Target);
 }
 

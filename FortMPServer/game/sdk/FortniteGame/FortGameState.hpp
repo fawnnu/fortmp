@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Athena/MapInfo.hpp"
 #include "sdk/FortniteGame/Athena/FortCreative.hpp"
 #include "sdk/FortniteGame/Athena/FortPlaylist.hpp"
 #include "sdk/Engine/Kismet/KismetLibrary.hpp"
@@ -278,6 +279,14 @@ public:
             {
                 DefaultBattleBus() = BattleBusOverride;
             }
+        }
+    }
+
+    void ChangeSupplyDropCosmetic(UFortItemDefinition* SupplyDropCosmetic)
+    {
+        if (auto supply_drop_info = FindObject<UFortSupplyDropInfo>(L"/Game/Athena/Balance/MapInfos/DefaultSupplyDrop.DefaultSupplyDrop", true, false))
+        {
+            supply_drop_info->SupplyDropClass() = SupplyDropCosmetic;
         }
     }
     
