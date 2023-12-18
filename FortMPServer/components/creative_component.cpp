@@ -392,77 +392,70 @@ void creative_component_hooks::OnFinishedRecordWrite_Hook(UObject* Object, UObje
 
 void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*, void*)
 {
-    CreateThread(nullptr, 0, [](LPVOID InParam) -> DWORD
+    if (Object->IsA(UPlaysetLevelStreamComponent::StaticClass()))
     {
-        UObject* Object = static_cast<UObject*>(InParam); 
-        
-        if (Object->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+        AFortVolume* Owner = static_cast<AFortVolume*>(static_cast<UPlaysetLevelStreamComponent*>(Object)->GetOwner());
+
+        for (auto Component : Owner->BlueprintCreatedComponents())
         {
-            AFortVolume* Owner = static_cast<AFortVolume*>(static_cast<UPlaysetLevelStreamComponent*>(Object)->GetOwner());
-
-            for (auto Component : Owner->BlueprintCreatedComponents())
+            if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
             {
-                if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                // Attempt loading the island record from CDN
+                std::string account_id;
+                for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
                 {
-                    // Attempt loading the island record from CDN
-                    std::string account_id;
-                    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner()))
                     {
-                        if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner()))
-                        {
-                            account_id = player_component::get_account_id(Connection->PlayerController());
-                        }
+                        account_id = player_component::get_account_id(Connection->PlayerController());
                     }
-
-                    if (account_id.size() <= 0)
-                    {
-                        return 0;
-                    }
-
-                    // Get playset name
-                    std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
-                    TO_STRING(PlaysetName, sPlaysetName);
-
-                    // Perform request
-                    Aws::S3::Model::GetObjectRequest Request;
-                    Request.SetBucket("creativeislands");
-                    Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
-                    char* Buf;
-                    size_t Len;
-                    _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
-                    std::string Path(Buf);
-                    std::wstring VolumeName = Owner->GetName();
-                    TO_STRING(VolumeName, sVolumeName);
-                    Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
-                    Request.SetResponseStreamFactory(
-                    [=]() {
-                           return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
-                    }
-                    );
-                    Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
-                
-                    if (log_component::enable_debug_logs)
-                    {
-                        spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
-                    }
-
-                    // If we couldn't download but we have an island file locally, delete it before loading it.
-                    if (!outcome.IsSuccess())
-                    {
-                        if (std::filesystem::exists(Path))
-                        {
-                            std::filesystem::remove(Path);
-                        }
-                    }
-                
-                    static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
-                    break;
                 }
+
+                if (account_id.size() <= 0)
+                {
+                    return;
+                }
+
+                // Get playset name
+                std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
+                TO_STRING(PlaysetName, sPlaysetName);
+
+                // Perform request
+                Aws::S3::Model::GetObjectRequest Request;
+                Request.SetBucket("creativeislands");
+                Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+                char* Buf;
+                size_t Len;
+                _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
+                std::string Path(Buf);
+                std::wstring VolumeName = Owner->GetName();
+                TO_STRING(VolumeName, sVolumeName);
+                Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
+                Request.SetResponseStreamFactory(
+                [=]() {
+                       return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
+                }
+                );
+                Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
+                
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
+                }
+
+                // If we couldn't download but we have an island file locally, delete it before loading it.
+                if (!outcome.IsSuccess())
+                {
+                    if (std::filesystem::exists(Path))
+                    {
+                        std::filesystem::remove(Path);
+                    }
+                }
+                
+                static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
+                break;
             }
         }
-        
-        return 0;
-    }, Object, 0, nullptr);
+    }
 }
 
 void creative_component_hooks::SaveOutLevelRecord_Hook(UFortLevelSaveComponent* Self)
