@@ -23,13 +23,6 @@ anticheat_component::anticheat_component()
             }
         }
     }
-    
-    DetourTransactionBegin();
-    DetourUpdateThread(GetCurrentThread());
-
-    REGISTER_UFUNCTION_DETOUR(anticheat_component_hooks::ServerNotifyPawnHit, TEXT("/Script/FortniteGame.FortProjectileAthena.ServerNotifyPawnHit"), anticheat_component_hooks::ServerNotifyPawnHit_Hook)
-
-    DetourTransactionCommit();
 }
 
 void anticheat_component::Initialize()
