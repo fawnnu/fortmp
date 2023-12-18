@@ -8,7 +8,12 @@ struct FGameplayAbilityTargetDataHandle
 
     TArray<TSharedPtr<struct FFortGameplayAbilityTargetData_SingleTargetHit>>& GetData()
     {
-        return *reinterpret_cast<TArray<TSharedPtr<FFortGameplayAbilityTargetData_SingleTargetHit>>*>(reinterpret_cast<uintptr_t>(this) + 0x18);
+        return *reinterpret_cast<TArray<TSharedPtr<FFortGameplayAbilityTargetData_SingleTargetHit>>*>(reinterpret_cast<uintptr_t>(this) + 0x10);
+    }
+    
+    TSharedPtr<struct FFortGameplayAbilityTargetData_SingleTargetHit>& GetSingleData()
+    {
+        return *reinterpret_cast<TSharedPtr<FFortGameplayAbilityTargetData_SingleTargetHit>*>(reinterpret_cast<uintptr_t>(this));
     }
     
     bool IsValid(int32 Index)

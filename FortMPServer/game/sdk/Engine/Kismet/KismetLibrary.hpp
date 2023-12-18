@@ -8,6 +8,51 @@ struct FTimerHandle
 class UKismetSystemLibrary : public UObject
 {
 public:
+    static bool LineTraceSingle(class UObject* WorldContextObject, const struct FVector& Start, const struct FVector& End, uint8_t TraceChannel, bool bTraceComplex, TArray<class AActor*>& ActorsToIgnore, uint8_t DrawDebugType, struct FHitResult* OutHit, bool bIgnoreSelf, const struct FLinearColor& TraceColor, const struct FLinearColor& TraceHitColor, float DrawTime)
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+
+        struct
+        {
+            UWorld* WorldContextObject;
+            FVector Start;
+            FVector End;
+            uint8_t TraceChannel;
+            bool bTraceComplex;
+            TArray<AActor*> ActorsToIgnore;
+            uint8_t DrawDebugType;
+            FHitResult OutHit;
+            bool bIgnoreSelf;
+            FLinearColor TraceColor;
+            FLinearColor TraceHitColor;
+            float DrawTime;
+            bool ReturnValue;
+        } parameters;
+
+        parameters.WorldContextObject = reinterpret_cast<UWorld*>(WorldContextObject);
+        parameters.Start = Start;
+        parameters.End = End;
+        parameters.TraceChannel = TraceChannel;
+        parameters.bTraceComplex = bTraceComplex;
+        parameters.ActorsToIgnore = ActorsToIgnore;
+        parameters.DrawDebugType = DrawDebugType;
+        parameters.bIgnoreSelf = bIgnoreSelf;
+        parameters.TraceColor = TraceColor;
+        parameters.TraceHitColor = TraceHitColor;
+        parameters.DrawTime = DrawTime;
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.LineTraceSingle")
+        
+        ProcessEvent(Default__KismetSystemLibrary, FunctionObject, &parameters);
+
+        if (OutHit)
+        {
+            memcpy(OutHit, &parameters.OutHit, FHitResult::GetStructSize());
+        }
+        
+        return parameters.ReturnValue;
+    }
+    
     static bool SphereOverlapActors(UObject* WorldContextObject, FVector SpherePos, float SphereRadius, TArray<uint8_t> ObjectTypes, UObject* ActorClassFilter, TArray<AActor*> ActorsToIgnore, TArray<AActor*>* OutActors)
     {
         static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");

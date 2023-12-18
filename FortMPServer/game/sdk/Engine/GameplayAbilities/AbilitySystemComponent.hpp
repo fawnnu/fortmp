@@ -123,6 +123,7 @@ public:
 struct FFortGameplayAbilityTargetData_SingleTargetHit
 {
     DEFINE_STRUCT_PROPERTY(bool, bHitReplaced);
+    DEFINE_STRUCT_PROPERTY(FHitResult, HitResult);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayAbilityTargetData_SingleTargetHit");
 };
