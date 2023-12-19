@@ -28,6 +28,7 @@ creative_component::creative_component()
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerGiveCreativeItem, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem", creative_component_hooks::ServerGiveCreativeItem_Hook);
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::AddMiniGamePlayer, memory_manager::find_function_by_string(L".AddMinigamePlayer - %s added"), creative_component_hooks::AddMiniGamePlayer_Hook);
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::RemoveMiniGamePlayer, memory_manager::find_function_by_string(L".RemoveMinigamePlayer - %s removed"), creative_component_hooks::RemoveMiniGamePlayer_Hook);
+    REGISTER_FUNCTION_DETOUR(creative_component_hooks::SetTeamForPlayer, memory_manager::find_pattern("48 89 6C 24 ? 56 48 83 EC 20 80 B9 ? ? ? ? ? 41 0F B6 F0 48 8B EA 75 6E 48 8B 01 FF 90 ? ? ? ? 48 85 C0 74 60"), creative_component_hooks::SetTeamForPlayer_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
     INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
 
@@ -35,6 +36,14 @@ creative_component::creative_component()
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 38 80 3D ? ? ? ? ? 72 2A 48 8B 05 ? ? ? ? 4C 8D 45 28 48 89 45 28"), creative_component_hooks::LoadFileToArray);
     
     DetourTransactionCommit();
+}
+
+void creative_component_hooks::SetTeamForPlayer_Hook(AFortMiniGame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"creative_component_hooks::SetTeamForPlayer_Hook called (Presumably on minigame start). Nulling call.");
+    }
 }
 
 void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMiniGame* MiniGame, FFrame& StackFrame)
