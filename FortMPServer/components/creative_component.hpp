@@ -15,6 +15,8 @@ public:
     
     // Handle everything that has to be done once a player joins the match
     static void handle_player_join(UNetConnection* NetConnection);
+
+    static const TCHAR* GetEraSaveFileName(const TCHAR* OldName);
 };
 
 namespace creative_component_hooks
@@ -36,6 +38,8 @@ namespace creative_component_hooks
     DEFINE_FUNCTION_HOOK(void, OnFinishedRecordWrite, (UObject*, UObject*, void*));
     DEFINE_FUNCTION_HOOK(void, OnFinishedLoading, (UObject*, UObject*, void*));
     DEFINE_FUNCTION_HOOK(void, SaveOutLevelRecord, (UFortLevelSaveComponent* Self))
+    DEFINE_FUNCTION_HOOK(bool, SaveArrayToFile, (TArray<uint8>& Self, const TCHAR* FileName, void* FileManager, uint32 WriteFlags))
+    DEFINE_FUNCTION_HOOK(bool, LoadFileToArray, (TArray<uint8>& Self, const TCHAR* FileName, uint32 WriteFlags))
     inline int SaveOutLevelRecord_Index;
 }
 

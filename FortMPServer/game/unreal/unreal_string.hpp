@@ -49,6 +49,14 @@ struct FString : private TArray<wchar_t>
         return Data;
     }
 
+    std::string AnsiString() const
+    {
+        const std::wstring wString(Data);
+        TO_STRING(wString, sString)
+
+        return sString;
+    }
+
     bool IsValid()
     {
         return Data;

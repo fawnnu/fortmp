@@ -52,6 +52,19 @@ public:
         
         return parameters.ReturnValue;
     }
+
+    static FString GetProjectSavedDirectory()
+    {
+        static UObject* Default__KismetSystemLibrary = FindObject(L"/Script/Engine.Default__KismetSystemLibrary");
+
+        FString ReturnValue;
+        
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetSystemLibrary.GetProjectSavedDirectory")
+        
+        ProcessEvent(Default__KismetSystemLibrary, FunctionObject, &ReturnValue);
+
+        return ReturnValue;
+    }
     
     static bool SphereOverlapActors(UObject* WorldContextObject, FVector SpherePos, float SphereRadius, TArray<uint8_t> ObjectTypes, UObject* ActorClassFilter, TArray<AActor*> ActorsToIgnore, TArray<AActor*>* OutActors)
     {

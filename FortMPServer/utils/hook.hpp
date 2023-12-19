@@ -78,6 +78,16 @@
         }\
     }
 
+#define REGISTER_CALL_DETOUR_WITH_SAVE(CallAddress, FunctionDetour) \
+    {\
+        if (CallAddress != 0)\
+        {\
+            uintptr_t ActualAddress = CallAddress + 5 + *reinterpret_cast<int*>(CallAddress + 1);\
+            INIT_POINTER(FunctionDetour, ActualAddress);\
+            memory_manager::call_hook(CallAddress, reinterpret_cast<uintptr_t>(FunctionDetour##_Hook));\
+        }\
+    }
+
 #define REGISTER_VTABLE_HOOK(VTable, FunctionIndex, FunctionToHook)\
     {\
         if (VTable)\

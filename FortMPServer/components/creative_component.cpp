@@ -30,6 +30,9 @@ creative_component::creative_component()
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::RemoveMiniGamePlayer, memory_manager::find_function_by_string(L".RemoveMinigamePlayer - %s removed"), creative_component_hooks::RemoveMiniGamePlayer_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
     INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
+
+    REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 0F B6 F8 44 89 75 EF 44 39 75 F3 74 0B 33 D2 48 8D 4D E7 E8 ? ? ? ?"), creative_component_hooks::SaveArrayToFile);
+    REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 38 80 3D ? ? ? ? ? 72 2A 48 8B 05 ? ? ? ? 4C 8D 45 28 48 89 45 28"), creative_component_hooks::LoadFileToArray);
     
     DetourTransactionCommit();
 }
@@ -98,6 +101,59 @@ void creative_component::handle_player_join(UNetConnection* NetConnection)
         // Assign portal to player
         assign_portal_to_player(NetConnection, 0);
     }
+}
+
+const TCHAR* creative_component::GetEraSaveFileName(const TCHAR* OldName)
+{
+    std::wstring LocalFilePath(OldName);
+    if (LocalFilePath.find_last_of(L"/\\") != std::wstring::npos &&
+        LocalFilePath.find(L"LevelSave.sav") != std::wstring::npos)
+    {
+        std::wstring LocalFileName = LocalFilePath.substr(LocalFilePath.find_last_of(L"/\\") + 1);
+        LocalFileName = LocalFileName.substr(0, LocalFileName.find(L"LevelSave.sav"));
+        TO_STRING(LocalFileName, sLocalFileName);
+        
+        // Get volume actor by name
+        TArray<AFortVolume*> VolumeActors = UGameplayStatics::GetAllActorsOfClass<AFortVolume>(*GWorld, AFortVolume::StaticClass());
+        for (AFortVolume* Volume : VolumeActors)
+        {
+            if (!memory_manager::is_bad_read_pointer(Volume) && Volume && Volume->GetName() == LocalFileName)
+            {
+                for (UActorComponent* Component : Volume->BlueprintCreatedComponents())
+                {
+                    if (Component)
+                    {
+                        if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                        {
+                            UFortLevelSaveComponent* FortLevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
+
+                            std::string account_id = player_component::get_account_id_from_unique_id(FortLevelSaveComponent->AccountIdOfOwner());
+                            if (account_id.size() <= 0)
+                            {
+                                return nullptr;
+                            }
+
+                            std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
+                            std::filesystem::create_directories(AccountSavePath);
+                            std::string Path = AccountSavePath.append("/").append(sLocalFileName).append("LevelSave.sav");
+                            TO_WSTRING(Path, wPath);
+
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"creative_component::GetEraSaveFileName converted OldName ['{}'] to Era SaveGame Path (includes account_id) ['{}'].", OldName, wPath.c_str());
+                            }
+                            
+                            return wPath.c_str();
+                        }
+                    }
+                }
+                
+                break;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 void creative_component::assign_portal_to_player(UNetConnection* NetConnection, int PortalIndex)
@@ -330,32 +386,24 @@ void creative_component_hooks::OnFinishedRecordWrite_Hook(UObject* Object, UObje
             if (PlaysetComponent)
             {
                 // Get owner's account ID
-                std::string account_id;
-                for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
-                {
-                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), LevelSaveComponent->AccountIdOfOwner()))
-                    {
-                        account_id = player_component::get_account_id(Connection->PlayerController());
-                    }
-                }
-
+                std::string account_id = player_component::get_account_id_from_unique_id(LevelSaveComponent->AccountIdOfOwner());
                 if (account_id.size() <= 0)
                 {
                     return 0;
                 }
+
+                // Make save folder for account id if it does not exist yet
+                std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
+                std::filesystem::create_directories(AccountSavePath);
             
                 // The file name will be the playset's name
                 std::wstring wPlaysetName = PlaysetComponent->CurrentPlayset()->GetName();
                 TO_STRING(wPlaysetName, sPlaysetName);
 
                 // Get the actual file name locally, in appdata
-                char* Buf;
-                size_t Len;
-                _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
-                std::string Path(Buf);
                 std::wstring VolumeName = Owner->GetName();
                 TO_STRING(VolumeName, sVolumeName);
-                Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
+                std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
 
                 if (std::filesystem::exists(Path))
                 {
@@ -401,20 +449,16 @@ void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*,
             if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
             {
                 // Attempt loading the island record from CDN
-                std::string account_id;
-                for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
-                {
-                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner()))
-                    {
-                        account_id = player_component::get_account_id(Connection->PlayerController());
-                    }
-                }
-
+                std::string account_id = player_component::get_account_id_from_unique_id(static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner());
                 if (account_id.size() <= 0)
                 {
                     return;
                 }
-
+                
+                // Make save folder for account id if it does not exist yet
+                std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
+                std::filesystem::create_directories(AccountSavePath);
+                
                 // Get playset name
                 std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
                 TO_STRING(PlaysetName, sPlaysetName);
@@ -423,13 +467,9 @@ void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*,
                 Aws::S3::Model::GetObjectRequest Request;
                 Request.SetBucket("creativeislands");
                 Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
-                char* Buf;
-                size_t Len;
-                _dupenv_s(&Buf, &Len, "LOCALAPPDATA");
-                std::string Path(Buf);
-                std::wstring VolumeName = Owner->GetName();
+                std::wstring VolumeName = Owner->GetName().c_str();
                 TO_STRING(VolumeName, sVolumeName);
-                Path = Path.append(R"(\FortniteGame\Saved\SaveGames\)").append(sVolumeName).append("LevelSave.sav");
+                std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
                 Request.SetResponseStreamFactory(
                 [=]() {
                        return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
@@ -467,4 +507,24 @@ void creative_component_hooks::SaveOutLevelRecord_Hook(UFortLevelSaveComponent* 
 
     // Call base function to perform saving
     reinterpret_cast<void (*)(UFortLevelSaveComponent*)>(CreateDefaultObject<ULevelSaveComponent>()->VTable[SaveOutLevelRecord_Index])(Self);
+}
+
+bool creative_component_hooks::SaveArrayToFile_Hook(TArray<uint8>& Self, const TCHAR* FileName, void* FileManager, uint32 WriteFlags)
+{
+    if (const TCHAR* NewFileName = creative_component::GetEraSaveFileName(FileName))
+    {
+        return SaveArrayToFile(Self, NewFileName ? NewFileName : FileName, FileManager, WriteFlags);
+    }
+
+    return false;
+}
+
+bool creative_component_hooks::LoadFileToArray_Hook(TArray<uint8>& Self, const TCHAR* FileName, uint32 WriteFlags)
+{
+    if (const TCHAR* NewFileName = creative_component::GetEraSaveFileName(FileName))
+    {
+        return LoadFileToArray(Self, NewFileName ? NewFileName : FileName, WriteFlags);
+    }
+
+    return false;
 }

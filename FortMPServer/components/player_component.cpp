@@ -1818,6 +1818,21 @@ std::string player_component::get_account_id(AFortPlayerController* target_playe
     return "";
 }
 
+std::string player_component::get_account_id_from_unique_id(FUniqueNetIdRepl& UniqueId)
+{
+    std::string account_id;
+    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+    {
+        if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), UniqueId))
+        {
+            account_id = get_account_id(Connection->PlayerController());
+            break;
+        }
+    }
+
+    return account_id;
+}
+
 AFortPlayerController* player_component::get_player_by_account_id(std::wstring in_account_id)
 {
     if (*GWorld && (*GWorld)->NetDriver())

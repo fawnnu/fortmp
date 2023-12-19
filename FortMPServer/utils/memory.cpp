@@ -581,6 +581,11 @@ uintptr_t memory_manager::scan_for_wiktor(uintptr_t begin, const char* signature
 
 void memory_manager::call_hook(uintptr_t call_instruction_address, uintptr_t hook_address)
 {
+	if (!call_instruction_address)
+	{
+		return;
+	}
+	
 	uintptr_t new_page_address = allocate_page_near_address(call_instruction_address, ENewPageLocation::HIGH);
 
 	// Add the below instructions to the new page
