@@ -1,7 +1,9 @@
 ﻿#include "include.hpp"
 #include "blueprint_component.hpp"
 
+#include "challenges_component.hpp"
 #include "function_component.hpp"
+#include "log_component.hpp"
 
 using namespace nlohmann;
 
@@ -10,6 +12,9 @@ blueprint_component::blueprint_component()
     REGISTER_CUSTOM_UFUNCTION(LogFMP, UFortKismetLibrary::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(LogFMP, UFortKismetLibrary::StaticClass(), 0x10);
 
+    REGISTER_CUSTOM_UFUNCTION(SendEventFMP, UFortKismetLibrary::StaticClass());
+    INIT_CUSTOM_FUNC_PARAMS(SendEventFMP, UFortKismetLibrary::StaticClass(), 0x28);
+    
     REGISTER_CUSTOM_UFUNCTION(BP_FindObject, UFortKismetLibrary::StaticClass());
     INIT_CUSTOM_FUNC_PARAMS(BP_FindObject, UFortKismetLibrary::StaticClass(), 0x18);
     INIT_CUSTOM_FUNC_RET_OFFSET(BP_FindObject, UFortKismetLibrary::StaticClass(), 0x10);
@@ -23,6 +28,26 @@ void blueprint_component::LogFMP(UObject* Self, FFrame& StackFrame)
     
     // Redirect this function's input to spdlog
     spdlog::info(L"BlueprintLog: {}", InString.c_str());
+}
+
+void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
+{
+    GET_CUSTOM_FUNCTION_BP_PARAM(FString, event);
+    GET_CUSTOM_FUNCTION_BP_PARAM(FString, event_data);
+    GET_CUSTOM_FUNCTION_BP_PARAM(UObject*, player_controller);
+    
+    INIT_CUSTOM_FUNCTION();
+    
+    if (event == L"EraEvent.CandyCane")
+    {
+        challenges_component::SendCandyCaneVisitInteraction(static_cast<AFortPlayerController*>(player_controller), event_data.c_str());   
+    }
+
+    if (log_component::enable_debug_logs)
+    {
+         // Redirect this function's input to spdlog
+         spdlog::info(L"Blueprint Event Data: {} {}", event_data.c_str(), player_controller->GetName().c_str());   
+    }
 }
 
 void blueprint_component::BP_FindObject(UObject* Self, FFrame& StackFrame, void* ReturnValue)
