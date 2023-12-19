@@ -841,6 +841,49 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
     }   
 }
 
+void challenges_component::SendCandyCaneVisitInteraction(AFortPlayerController* InteractingController, FName CurrentEraPOI)
+{
+    CHECK_PAST_WARMUP()
+    
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                {"z", InteractingController->Pawn()->K2_GetActorLocation().Z}
+            };
+
+            static std::map<std::string, std::string> POITagToObjectivesMap = {
+                {"Era.CandyCane.01", "FDF_visit_athena_giant_candy_cane_01"},
+                {"Era.CandyCane.02", "FDF_visit_athena_giant_candy_cane_02"},
+                {"Era.CandyCane.03", "FDF_visit_athena_giant_candy_cane_03"},
+                {"Era.CandyCane.04", "FDF_visit_athena_giant_candy_cane_04"}
+            };
+
+            if (POITagToObjectivesMap.contains(CurrentEraPOI.sToString()))
+            {
+                std::string Objective = POITagToObjectivesMap[CurrentEraPOI.sToString()];
+
+                // Add objective key!
+                parameters["objective"] = Objective;
+            }
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:candy-cane", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendSprayInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()

@@ -43,6 +43,7 @@ public:
     static void SendMushroomInteraction(AFortPlayerController* InteractingController, ACBGA_ShieldsSmall_C* ShieldsSmall);
     static void SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter);
     static void SendDanceInteraction(AFortPlayerController* InteractingController);
+    static void SendCandyCaneVisitInteraction(AFortPlayerController* InteractingController, FName CurrentEraPOI);
     static void SendSprayInteraction(AFortPlayerController* InteractingController);
     static void SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective);
     static void SendLightningBoltInteraction(AFortPlayerController* InteractingController, AProp_QuestActor_FloatingLightningBolt_Parent_C* LightningBolt, FName Objective);
