@@ -303,7 +303,10 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
         {
             if (item_count > replicated_entry.Count())
             {
-                spdlog::error(L"Player '{}' tried to drop more items than they have, aborting.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"Player '{}' tried to drop more items than they have, aborting.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                }
                 
                 return;
             }
