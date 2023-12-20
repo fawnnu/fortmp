@@ -460,14 +460,12 @@ void creative_component_hooks::OnFinishedRecordWrite_Hook(UObject* Object, UObje
         
             for (auto Component : Owner->BlueprintCreatedComponents())
             {
-                if (!Component)
+                if (Component)
                 {
-                    return 0;    
-                }
-            
-                if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
-                {
-                    PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
+                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+                    {
+                        PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
+                    }
                 }
             }
 
@@ -535,53 +533,56 @@ void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*,
 
         for (auto Component : Owner->BlueprintCreatedComponents())
         {
-            if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+            if (Component)
             {
-                // Attempt loading the island record from CDN
-                std::string account_id = player_component::get_account_id_from_unique_id(static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner());
-                if (account_id.size() <= 0)
+                if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
                 {
-                    return;
-                }
-                
-                // Make save folder for account id if it does not exist yet
-                std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
-                std::filesystem::create_directories(AccountSavePath);
-                
-                // Get playset name
-                std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
-                TO_STRING(PlaysetName, sPlaysetName);
-
-                // Perform request
-                Aws::S3::Model::GetObjectRequest Request;
-                Request.SetBucket("creativeislands");
-                Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
-                std::wstring VolumeName = Owner->GetName().c_str();
-                TO_STRING(VolumeName, sVolumeName);
-                std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
-                Request.SetResponseStreamFactory(
-                [=]() {
-                       return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
-                }
-                );
-                Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
-                
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
-                }
-
-                // If we couldn't download but we have an island file locally, delete it before loading it.
-                if (!outcome.IsSuccess())
-                {
-                    if (std::filesystem::exists(Path))
+                    // Attempt loading the island record from CDN
+                    std::string account_id = player_component::get_account_id_from_unique_id(static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner());
+                    if (account_id.size() <= 0)
                     {
-                        std::filesystem::remove(Path);
+                        return;
                     }
-                }
                 
-                static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
-                break;
+                    // Make save folder for account id if it does not exist yet
+                    std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
+                    std::filesystem::create_directories(AccountSavePath);
+                
+                    // Get playset name
+                    std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
+                    TO_STRING(PlaysetName, sPlaysetName);
+
+                    // Perform request
+                    Aws::S3::Model::GetObjectRequest Request;
+                    Request.SetBucket("creativeislands");
+                    Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+                    std::wstring VolumeName = Owner->GetName().c_str();
+                    TO_STRING(VolumeName, sVolumeName);
+                    std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
+                    Request.SetResponseStreamFactory(
+                    [=]() {
+                           return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
+                    }
+                    );
+                    Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
+                
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
+                    }
+
+                    // If we couldn't download but we have an island file locally, delete it before loading it.
+                    if (!outcome.IsSuccess())
+                    {
+                        if (std::filesystem::exists(Path))
+                        {
+                            std::filesystem::remove(Path);
+                        }
+                    }
+                
+                    static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
+                    break;
+                }
             }
         }
     }
