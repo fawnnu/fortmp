@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "challenges_component.hpp"
 
+#include "creative_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
 #include "player_component.hpp"
@@ -43,6 +44,7 @@ void challenges_component::Initialize()
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && TargetContainer)
     {
@@ -70,6 +72,7 @@ void challenges_component::SendChestEvent(AFortPlayerController* InteractingCont
 void challenges_component::SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && SupplyDrop)
     {
@@ -97,6 +100,7 @@ void challenges_component::SendSupplyDropEvent(AFortPlayerController* Interactin
 void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && TargetContainer)
     {
@@ -124,6 +128,7 @@ void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingContr
 void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (OwnerPC && Self)
     {
@@ -151,6 +156,7 @@ void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFor
 void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && Llama)
     {
@@ -235,6 +241,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
 void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (KillerPlayerController && VictimPlayerController)
     {
@@ -406,6 +413,7 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
 void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (ExecutingPlayerController && VictimPlayerController)
     {
@@ -440,6 +448,7 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
 void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && Letter)
     {
@@ -471,6 +480,7 @@ void challenges_component::SendLetterInteraction(AFortPlayerController* Interact
 void challenges_component::SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && Gnome)
     {
@@ -502,6 +512,7 @@ void challenges_component::SendGnomeInteraction(AFortPlayerController* Interacti
 void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && BattleStar)
     {
@@ -533,6 +544,7 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
 void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && BattleStar)
     {
@@ -564,6 +576,7 @@ void challenges_component::SendBattleStarInteraction(AFortPlayerController* Inte
 void challenges_component::SendPortAFortInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -591,6 +604,7 @@ void challenges_component::SendPortAFortInteraction(AFortPlayerController* Inter
 void challenges_component::SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && HopRock)
     {
@@ -618,6 +632,7 @@ void challenges_component::SendHopRockInteraction(AFortPlayerController* Interac
 void challenges_component::SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* Apple)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && Apple)
     {
@@ -645,6 +660,7 @@ void challenges_component::SendAppleInteraction(AFortPlayerController* Interacti
 void challenges_component::SendMushroomInteraction(AFortPlayerController* InteractingController, ACBGA_ShieldsSmall_C* Mushroom)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && Mushroom)
     {
@@ -672,6 +688,7 @@ void challenges_component::SendMushroomInteraction(AFortPlayerController* Intera
 void challenges_component::SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && StormCenter)
     {
@@ -699,6 +716,7 @@ void challenges_component::SendStormCenterInteraction(AFortPlayerController* Int
 void challenges_component::SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && LocationProp)
     {
@@ -730,6 +748,7 @@ void challenges_component::SendLocationInteraction(AFortPlayerController* Intera
 void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && SkydiveRing)
     {
@@ -757,6 +776,7 @@ void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* Int
 void challenges_component::SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && LaunchPad)
     {
@@ -784,6 +804,7 @@ void challenges_component::SendLaunchPadInteraction(AFortPlayerController* Inter
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -844,6 +865,7 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
 void challenges_component::SendCandyCaneVisitInteraction(AFortPlayerController* InteractingController, FName CurrentEraPOI)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -887,6 +909,7 @@ void challenges_component::SendCandyCaneVisitInteraction(AFortPlayerController* 
 void challenges_component::SendSprayInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -914,6 +937,7 @@ void challenges_component::SendSprayInteraction(AFortPlayerController* Interacti
 void challenges_component::SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && VendingMachine)
     {
@@ -941,6 +965,7 @@ void challenges_component::SendVendingMachineInteraction(AFortPlayerController* 
 void challenges_component::SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && RubberDuck)
     {
@@ -972,6 +997,7 @@ void challenges_component::SendRubberDuckInteraction(AFortPlayerController* Inte
 void challenges_component::SendLightningBoltInteraction(AFortPlayerController* InteractingController, AProp_QuestActor_FloatingLightningBolt_Parent_C* LightningBolt, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && LightningBolt)
     {
@@ -1121,6 +1147,7 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
 void challenges_component::SendDiscoBallInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1148,6 +1175,7 @@ void challenges_component::SendDiscoBallInteraction(AFortPlayerController* Inter
 void challenges_component::SendShoppingCartInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1175,6 +1203,7 @@ void challenges_component::SendShoppingCartInteraction(AFortPlayerController* In
 void challenges_component::SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1206,6 +1235,7 @@ void challenges_component::SendPitchGoalInteraction(AFortPlayerController* Inter
 void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1237,6 +1267,7 @@ void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* 
 void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1268,6 +1299,7 @@ void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* Int
 void challenges_component::SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1304,6 +1336,7 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
 void challenges_component::SendJewelInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1331,6 +1364,7 @@ void challenges_component::SendJewelInteraction(AFortPlayerController* Interacti
 void challenges_component::SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1362,6 +1396,7 @@ void challenges_component::SendGolfInteraction(AFortPlayerController* Interactin
 void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && RiftPortal)
     {
@@ -1389,6 +1424,7 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
 void challenges_component::SendTrapInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -1417,6 +1453,7 @@ void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* In
     AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && JigsawPuzzle)
     {
@@ -1449,6 +1486,7 @@ void challenges_component::SendSpotlightDanceInteraction(AFortPlayerController* 
     AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && StreetLight)
     {
@@ -1481,6 +1519,7 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
                                                  AFortPickup* Pickup)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingPlayerController && InteractingPlayerController->Pawn() && Pickup)
     {
@@ -1545,6 +1584,8 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
 void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController,
     FGameplayTag POI)
 {
+    CHECK_CREATIVE()
+    
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -1588,6 +1629,7 @@ void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* I
 void challenges_component::SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
    if (InteractingPlayerController && InteractingPlayerController->Pawn())
    {
@@ -1615,6 +1657,7 @@ void challenges_component::SendSpookyMistInteraction(AFortPlayerController* Inte
 void challenges_component::SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
@@ -1643,6 +1686,7 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
 void challenges_component::SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
@@ -1670,6 +1714,7 @@ void challenges_component::SendDoorbellInteraction(AFortPlayerController* Intera
 void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
 
     static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack");
     static UFortItemDefinition* AGID_SpookyMist = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist");
@@ -1709,6 +1754,7 @@ void challenges_component::SendFlamingHoopInteraction(AFortPlayerController* Int
     AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
     
     if (InteractingController && FlamingHoop)
     {

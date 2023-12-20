@@ -303,6 +303,8 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -324,6 +326,8 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -347,6 +351,8 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -368,6 +374,8 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
 void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+    
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -391,6 +399,8 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -412,6 +422,8 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
 void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -435,6 +447,8 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -456,6 +470,8 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -479,6 +495,8 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -501,6 +519,8 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -522,6 +542,8 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -545,6 +567,8 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -566,6 +590,8 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
 void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -589,6 +615,8 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -611,6 +639,8 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -632,6 +662,8 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -655,6 +687,8 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -676,6 +710,8 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -699,6 +735,8 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -720,6 +758,8 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
 
     if (Self)
     {
@@ -743,6 +783,8 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -765,6 +807,8 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -787,6 +831,8 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -809,6 +855,8 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -830,6 +878,8 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -852,6 +902,8 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (Self)
     {
         std::string account_id = get_account_id(Self);
@@ -1059,6 +1111,8 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
@@ -1082,6 +1136,8 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_CREATIVE()
+    
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
@@ -1104,6 +1160,8 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
 void player_component::TrickPointsCallback(AFortPlayerController* Self, FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION()
+
+    CHECK_CREATIVE()
 
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
@@ -1128,6 +1186,8 @@ void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& Stack
 {
     INIT_CUSTOM_FUNCTION()
 
+    CHECK_CREATIVE()
+    
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
@@ -1156,6 +1216,8 @@ void player_component::CampfireHealthCallback(AFortPlayerController* Self, FFram
 {
     INIT_CUSTOM_FUNCTION()
 
+    CHECK_CREATIVE()
+    
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;

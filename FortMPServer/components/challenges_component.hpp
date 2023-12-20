@@ -15,6 +15,13 @@
     }\
     }\
     
+#define CHECK_CREATIVE()\
+    \
+    if (creative_component::is_creative_enabled())\
+    {\
+    return;\
+    }\
+    
 
 class challenges_component
 {

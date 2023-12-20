@@ -353,7 +353,9 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                         {
                             director_client::client->Send(eudp_packet({
                                 {"type", "player_left"},
-                                {"payload", nlohmann::json()}
+                                {"payload", {
+                                    {"account_id", account_id}
+                                }}
                             }));
                         }
                     }
