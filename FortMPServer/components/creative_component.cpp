@@ -20,6 +20,8 @@ creative_component::creative_component()
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordRead", creative_component_hooks::OnFinishedRecordRead_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordWrite", creative_component_hooks::OnFinishedRecordWrite_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.PlaysetLevelStreamComponent.OnFinishedLoading", creative_component_hooks::OnFinishedLoading_Hook);
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortMinigame.HandleMinigameStarted", creative_component_hooks::HandleMinigameStarted_Hook);
+    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortMinigame.HandleMinigameEnded", creative_component_hooks::HandleMinigameEnded_Hook);
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaCreativePortal.TeleportPlayerToLinkedVolume", creative_component_hooks::TeleportPlayerToLinkedVolume_Hook);
     
     DetourTransactionBegin();
@@ -38,7 +40,7 @@ creative_component::creative_component()
     DetourTransactionCommit();
 }
 
-void creative_component_hooks::SetTeamForPlayer_Hook(AFortMiniGame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex)
+void creative_component_hooks::SetTeamForPlayer_Hook(AFortMinigame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex)
 {
     if (log_component::enable_debug_logs)
     {
@@ -46,29 +48,31 @@ void creative_component_hooks::SetTeamForPlayer_Hook(AFortMiniGame* Self, AFortP
     }
 }
 
-void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMiniGame* MiniGame, FFrame& StackFrame)
+void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMinigame* MiniGame, AFortPlayerState* PlayerState)
 {
-    AddMiniGamePlayer(MiniGame, StackFrame);
+    AddMiniGamePlayer(MiniGame, PlayerState);
     
     if(MiniGame->Volume())
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
             MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()++;
+            UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(PlayerState->Owner())->Pawn(), L"bIsInvulnerable", false);
             spdlog::info(L"creative_component:AddMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
         }
     }
 }
 
-void creative_component_hooks::RemoveMiniGamePlayer_Hook(AFortMiniGame* MiniGame, FFrame& StackFrame)
+void creative_component_hooks::RemoveMiniGamePlayer_Hook(AFortMinigame* MiniGame, AFortPlayerState* PlayerState)
 {
-    RemoveMiniGamePlayer(MiniGame, StackFrame);
+    RemoveMiniGamePlayer(MiniGame, PlayerState);
 
     if(MiniGame->Volume())
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
             MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()--;
+            UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(PlayerState->Owner())->Pawn(), L"bIsInvulnerable", true);
             spdlog::info(L"creative_component:RemoveMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
         }
     }
@@ -536,4 +540,95 @@ bool creative_component_hooks::LoadFileToArray_Hook(TArray<uint8>& Self, const T
     }
 
     return false;
+}
+
+void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObject*, void*)
+{
+    AFortMinigame* Minigame = static_cast<AFortMinigame*>(Object);
+    
+    TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), sizeof FMinigamePlayer);
+    
+    for (FMinigamePlayer& Player : Players)
+    {
+        AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner());
+
+        // Remove phone on minigame start ( in case game fails to )
+        if (UFortItem* Item = inventory_component::get_inventory_item_by_definition(PlayerController, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/Prototype/WID_CreativeTool.WID_CreativeTool")))
+        {
+            inventory_component::remove_item(PlayerController, Item->GetItemGuid(), -1, false);
+        }
+
+        if (!Player.ClaimedPlayerStart())
+        {
+            Player.ClaimedPlayerStart() = Minigame->ChoosePlayerStart(PlayerController);
+        }
+        
+        if (Player.ClaimedPlayerStart())
+        {
+            // Destroy current pawn, and restart
+            reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn()->K2_DestroyActor();
+            
+            (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, Player.ClaimedPlayerStart());
+
+            Player.ClaimedPlayerStart() = nullptr;
+        }
+        else
+        {
+            // Get a respawn location
+            FVector Loc;
+            FRotator Rot;
+            bool bOutRespawningOnGround;
+            if (static_cast<AFortMinigame*>(Object)->DetermineSpawnLocation(static_cast<AFortPlayerStateAthena*>(Player.PlayerState()), &Loc, &Rot, &bOutRespawningOnGround))
+            {
+                // Destroy current pawn, and restart
+                reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn()->K2_DestroyActor();
+                
+                (*GWorld)->AuthorityGameMode()->RestartPlayerAtTransform(PlayerController, UKismetMathLibrary::MakeTransform(Loc, Rot, FVector(1, 1, 1)));
+
+                if (!bOutRespawningOnGround)
+                {
+                    PlayerController->Pawn()->BeginSkydiving(false);
+                }
+            }
+        }
+    }
+}
+
+void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object, UObject*, void*)
+{
+    AFortMinigame* Minigame = static_cast<AFortMinigame*>(Object);
+    FUniqueNetIdRepl AccountIdOfOwner{};
+    bool bFoundOwner = false;
+    
+    for (UActorComponent* Component : Minigame->Volume()->BlueprintCreatedComponents())
+    {
+        if (Component)
+        {
+            if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+            {
+                memcpy(&AccountIdOfOwner, &static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner(), sizeof FUniqueNetIdRepl);
+                bFoundOwner = true;
+                break;
+            }
+        }
+    }
+
+    if (bFoundOwner)
+    {
+        TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), sizeof FMinigamePlayer);
+    
+        for (FMinigamePlayer& Player : Players)
+        {
+            AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner());
+
+            // clear inventory
+            inventory_component::clear_primary_inventory(PlayerController, false);
+
+            // If it's the island owner, give them the phone back
+            if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(PlayerController->NetConnection()->PlayerID(), AccountIdOfOwner))
+            {
+                inventory_component::add_item(PlayerController, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/Prototype/WID_CreativeTool.WID_CreativeTool"), 1);
+            }
+        }
+    }
 }

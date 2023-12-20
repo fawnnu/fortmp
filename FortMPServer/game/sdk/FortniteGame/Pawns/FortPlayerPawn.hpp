@@ -221,7 +221,7 @@ public:
     {
         STATIC_FINDFUNCTION(BeginSkydiving)
 
-        Call(Function_BeginSkydiving, bFromBus, bFromBus);
+        Call(Function_BeginSkydiving, bFromBus);
     }
     
     class AFortAthenaVehicle* GetVehicle()

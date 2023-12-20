@@ -45,6 +45,20 @@ public:
         
         Call(Function_RestartPlayer, NewPlayer);
     }
+
+    void RestartPlayerAtPlayerStart(class AController* NewPlayer, class AActor* StartSpot)
+    {
+        STATIC_FINDFUNCTION(RestartPlayerAtPlayerStart)
+        
+        Call(Function_RestartPlayerAtPlayerStart, NewPlayer, StartSpot);
+    }
+
+    void RestartPlayerAtTransform(class AController* NewPlayer, FTransform Transform)
+    {
+        STATIC_FINDFUNCTION(RestartPlayerAtTransform)
+        
+        Call(Function_RestartPlayerAtTransform, NewPlayer, Transform);
+    }
 };
 
 class AGameMode : public AGameModeBase

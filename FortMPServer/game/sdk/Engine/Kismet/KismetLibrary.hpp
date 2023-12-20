@@ -343,6 +343,16 @@ public:
         
         return Default__KismetMathLibrary->Call<FRotator>(FunctionObject, Q);
     }
+
+    static FTransform MakeTransform(FVector Location, FRotator Rotation, FVector Scale)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.MakeTransform")
+        
+        return Default__KismetMathLibrary->Call<FTransform>(FunctionObject, Location, Rotation, Scale);
+    }
 };
 
 class UKismetStringLibrary : public UObject

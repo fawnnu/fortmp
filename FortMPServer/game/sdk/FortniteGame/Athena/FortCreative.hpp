@@ -21,13 +21,72 @@ struct FFortCreativePlotPermissionData
 
 class AFortVolume;
 
-class AFortMiniGame : public AActor
+struct FMinigamePlayer : public FFastArraySerializerItem
+{
+public:
+    DEFINE_STRUCT_PROPERTY(AActor*, ClaimedPlayerStart);
+    DEFINE_STRUCT_PROPERTY(AFortPlayerState*, PlayerState);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.MinigamePlayer")
+};
+
+struct FMinigamePlayers : public FFastArraySerializer
+{
+public:
+    DEFINE_STRUCT_PROPERTY(TArray<FMinigamePlayer>*, Players);
+    DEFINE_STRUCT_PROPERTY(class AFortMinigame*, Owner);
+	
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.MinigamePlayers")
+};
+
+class AFortMinigame : public AActor
 {
 public:
     
-    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortMiniGame");
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortMinigame");
 
     DEFINE_PROPERTY(AFortVolume*, Volume);
+    DEFINE_PROPERTY(FMinigamePlayers, PlayerArray);
+
+    AActor* ChoosePlayerStart(AController* Player)
+    {
+        STATIC_FINDFUNCTION(ChoosePlayerStart)
+
+        return Call<AActor*>(Function_ChoosePlayerStart, Player);
+    }
+
+    bool DetermineSpawnLocation(class AFortPlayerStateAthena* PlayerState, struct FVector* OutLocation, struct FRotator* OutRotation, bool* bOutRespawningOnGround)
+    {
+        STATIC_FINDFUNCTION(DetermineSpawnLocation)
+
+        struct 
+        {
+            AFortPlayerStateAthena* PlayerState;
+            FVector OutLocation;
+            FRotator OutRotation;
+            bool bOutRespawningOnGround;
+            bool ReturnValue;
+        } parameters;
+
+        parameters.PlayerState = PlayerState;
+        
+        ProcessEvent(this, Function_DetermineSpawnLocation, &parameters);
+
+        if (OutLocation)
+        {
+            *OutLocation = parameters.OutLocation;
+        }
+        if (OutRotation)
+        {
+            *OutRotation = parameters.OutRotation;
+        }
+        if (bOutRespawningOnGround)
+        {
+            *bOutRespawningOnGround = parameters.bOutRespawningOnGround;
+        }
+        
+        return parameters.ReturnValue;
+    }
 };
 
 class AFortAthenaCreativePortal : public AActor
