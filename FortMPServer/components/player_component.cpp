@@ -233,6 +233,10 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                 {
                     Self->EraPlayerInfo().PositionNotChangedCount++;
                 }
+                else
+                {
+                    Self->EraPlayerInfo().PositionNotChangedCount = 0;
+                }
 
                 // 5 minutes, kick
                 if (Self->EraPlayerInfo().PositionNotChangedCount >= 300)
