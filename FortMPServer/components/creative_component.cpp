@@ -263,6 +263,55 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
     }
 }
 
+void creative_component_hooks::ResetMyCurrentCreativePlot_Hook(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
+{
+    /*CreateThread(nullptr, 0, [](LPVOID InParam)->DWORD
+    {
+        AFortPlayerControllerAthena* PlayerController = static_cast<AFortPlayerControllerAthena*>(InParam);
+        AFortVolume* CreativePlot = PlayerController->CreativePlotLinkedVolume();
+
+        if (CreativePlot)
+        {
+            UPlaysetLevelStreamComponent* PlaysetComponent = nullptr;
+            for (auto Component : CreativePlot->BlueprintCreatedComponents())
+            {
+                if (!Component)
+                {
+                    return 0;    
+                }
+            
+                if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+                {
+                    PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
+                }
+            }
+
+            if (PlaysetComponent)
+            {
+                std::wstring PlaysetName = PlaysetComponent->CurrentPlayset()->GetName();
+                TO_STRING(PlaysetName, sPlaysetName);
+
+                std::string account_id = player_component::get_account_id(PlayerController);
+                if (account_id.length() <= 0)
+                {
+                    return 0;
+                }
+
+                Aws::S3::Model::DeleteObjectRequest Request;
+                Request.WithKey(account_id + "/" + sPlaysetName + ".sav").WithBucket("creativeislands");
+
+                auto Outcome = gameserver_client::Client->S3Client->DeleteObject(Request);
+                if (Outcome.IsSuccess())
+                {
+                    
+                }
+            }
+        }
+        
+        return 0;
+    }, PlayerController, 0, nullptr);   */
+}
+
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
     if (Portal && PlayerPawn && PlayerPawn->Controller())

@@ -26,6 +26,7 @@ namespace creative_component_hooks
 
     // Called when granting an item via the creative inventory
     DEFINE_FUNCTION_HOOK(void, ServerGiveCreativeItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, ResetMyCurrentCreativePlot, (AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame));
     
     DEFINE_FUNCTION_HOOK(void, AddMiniGamePlayer, (AFortMinigame* MiniGame, AFortPlayerState* PlayerState));
     

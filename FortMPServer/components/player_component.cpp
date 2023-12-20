@@ -2300,7 +2300,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     if (NewPlayer->IsA(FortGameModeAthena->PlayerControllerClass()))
     {
         // Make sure the player is joining for the first time (ONLY FOR NON-ADMINS)
-        if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr)
+        if (NewPlayer->PlayerState()->NumRejoins() > 0 && NewPlayer->CheatManager() == nullptr && !creative_component::is_creative_enabled())
         {
             spdlog::error(L"Player {} attempted to rejoin. Kicking...", static_cast<AFortPlayerController*>(NewPlayer)->MyPlayerInfo()->PlayerName().c_str());
                 

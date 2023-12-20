@@ -71,6 +71,7 @@
 #include <aws/core/auth/AWSCredentialsProviderChain.h>
 #include <aws/s3/model/PutObjectRequest.h>
 #include <aws/s3/model/GetObjectRequest.h>
+#include <aws/s3/model/DeleteObjectRequest.h>
 #include <spdlog/spdlog.h>
 #include <Detours.h>
 #include <nlohmann/json.hpp>
