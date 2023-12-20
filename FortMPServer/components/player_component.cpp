@@ -2345,7 +2345,10 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     PostLogin(FortGameModeAthena, NewPlayer);
 
 #ifdef _RELEASE
-    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+    if (team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true) && team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false))
+    {
+        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+    }
 #elif _TESTING
     team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
 #endif
