@@ -228,6 +228,19 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                 const FVector CurrentLocation = Self->Pawn()->K2_GetActorLocation();
                 const FVector LastPos = PlayerStats.LastPos;
 
+                // Equal location
+                if (CurrentLocation.X == LastPos.X && CurrentLocation.Y == LastPos.Y && CurrentLocation.Z == LastPos.Z)
+                {
+                    Self->EraPlayerInfo().PositionNotChangedCount++;
+                }
+
+                // 5 minutes, kick
+                if (Self->EraPlayerInfo().PositionNotChangedCount >= 300)
+                {
+                    Self->ClientReturnToMainMenu(L"AFK Timer.");
+                    return;
+                }
+
                 const float Distance = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
                                             (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y) +
                                             (CurrentLocation.Z - LastPos.Z) * (CurrentLocation.Z - LastPos.Z));

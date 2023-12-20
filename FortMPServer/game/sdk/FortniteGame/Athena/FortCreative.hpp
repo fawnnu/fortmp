@@ -47,6 +47,7 @@ public:
 
     DEFINE_PROPERTY(AFortVolume*, Volume);
     DEFINE_PROPERTY(FMinigamePlayers, PlayerArray);
+    DEFINE_PROPERTY(uint8, CurrentState);
 
     AActor* ChoosePlayerStart(AController* Player)
     {

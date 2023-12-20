@@ -314,7 +314,7 @@ void creative_component_hooks::ResetMyCurrentCreativePlot_Hook(AFortPlayerContro
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
 {
-    if (Portal && PlayerPawn && PlayerPawn->Controller())
+    if (Portal && !memory_manager::is_bad_read_pointer(PlayerPawn) && PlayerPawn && !memory_manager::is_bad_read_pointer(PlayerPawn->Controller()) && PlayerPawn->Controller())
     {
         if (STATIC_HASPROPERTY(Portal, LinkedVolume))
         {
@@ -324,11 +324,38 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
         
                 return;
             }
+
+            if (Portal->LinkedVolume())
+            {
+                if ((*GWorld)->GameState()->VolumeManager()->GetMinigameForVolume(Portal->LinkedVolume()))
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("GetMinigameForVolume CurrentState: {}", (*GWorld)->GameState()->VolumeManager()->GetMinigameForVolume(Portal->LinkedVolume())->CurrentState());
+                    }
+                    
+                    // Don't let in if minigame is in progress
+                    if ((*GWorld)->GameState()->VolumeManager()->GetMinigameForVolume(Portal->LinkedVolume())->CurrentState() == 1 ||
+                        (*GWorld)->GameState()->VolumeManager()->GetMinigameForVolume(Portal->LinkedVolume())->CurrentState() == 2)
+                    {
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                return;
+            }
     
             PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
             
             static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
 
+            if (!PlayerPawn->Controller())
+            {
+                return;
+            }
+            
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
             
@@ -599,6 +626,11 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
     
     for (FMinigamePlayer& Player : Players)
     {
+        if  (!Player.PlayerState() || !Player.PlayerState()->Owner())
+        {
+            continue;
+        }
+        
         AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner());
 
         // Remove phone on minigame start ( in case game fails to )
@@ -668,6 +700,11 @@ void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object, UObject
     
         for (FMinigamePlayer& Player : Players)
         {
+            if (!Player.PlayerState() || !Player.PlayerState()->Owner())
+            {
+                continue;
+            }
+            
             AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner());
 
             // clear inventory

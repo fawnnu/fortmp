@@ -58,6 +58,13 @@ public:
 
         return Call<AFortVolume*>(Function_SpawnVolume, VolumeClass, Playset, Location, Rotation);
     }
+
+    AFortMinigame* GetMinigameForVolume(AFortVolume* Volume)
+    {
+        STATIC_FINDFUNCTION(GetMinigameForVolume);
+
+        return Call<AFortMinigame*>(Function_GetMinigameForVolume, Volume);
+    }
 };
 
 struct FEraPoiInfo

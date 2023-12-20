@@ -132,6 +132,7 @@ struct FEraPlayerInfo
     std::wstring AccountId;
     FDamageDealtMapValue DamageDealtTracker;
     FPlayerStats PlayerStatsTracker;
+    int PositionNotChangedCount;
     std::vector<UAthenaDanceItemDefinition*> OwnedEmotes;
     bool bLastKillHeadshot;
     bool bIsDisconneting;

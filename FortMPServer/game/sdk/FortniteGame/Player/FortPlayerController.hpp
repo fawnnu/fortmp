@@ -557,6 +557,13 @@ public:
         Call(Function_PreLobbyIslandTeleport);
     }
 
+    AFortMinigame* GetMinigame()
+    {
+        STATIC_FINDFUNCTION(GetMinigame)
+        
+        return Call<AFortMinigame*>(Function_GetMinigame);
+    }
+
     void PostLobbyIslandTeleport(AFortPlayerPawn* FortPlayerPawn)
     {
         STATIC_FINDFUNCTION(PostLobbyIslandTeleport)
