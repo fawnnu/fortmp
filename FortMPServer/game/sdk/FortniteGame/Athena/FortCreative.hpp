@@ -185,6 +185,13 @@ public:
         
         Call(Function_MarkPortalUsed, PortalUsed);
     }
+    
+    void ReleasePortal(AFortAthenaCreativePortal* PortalUsed)
+    {
+        STATIC_FINDFUNCTION(ReleasePortal)
+        
+        Call(Function_ReleasePortal, PortalUsed);
+    }
 };
 
 struct FBaseActorRecord
@@ -325,6 +332,30 @@ public:
         STATIC_FINDFUNCTION(ApplySaveToWorld)
         
         Call(Function_ApplySaveToWorld, bComplexShouldSpawn);
+    }
+    void ConstructNewLevelRecord(AActor* Owner)
+    {
+        STATIC_FINDFUNCTION(ConstructNewLevelRecord)
+        
+        Call(Function_ConstructNewLevelRecord, Owner);
+    }
+    void PostUpdateSpawnedActorsHelper(int StartingIndex)
+    {
+        STATIC_FINDFUNCTION(PostUpdateSpawnedActorsHelper)
+        
+        Call(Function_PostUpdateSpawnedActorsHelper, StartingIndex);
+    }
+    void BroadcastPostUpdateSpawnedCompleted()
+    {
+        STATIC_FINDFUNCTION(BroadcastPostUpdateSpawnedCompleted)
+        
+        Call(Function_BroadcastPostUpdateSpawnedCompleted);
+    }
+    void NotifyFinishedSpawning()
+    {
+        STATIC_FINDFUNCTION(NotifyFinishedSpawning)
+        
+        Call(Function_NotifyFinishedSpawning);
     }
 };
 

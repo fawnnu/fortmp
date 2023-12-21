@@ -45,6 +45,20 @@ public:
         Call(Function_UpdateVolumeLevelStreams);
     }
     
+    void ResetVolumeAndLevelRecord(class AFortVolume* Volume, class AFortPlayerController* RequestingFortPC)
+    {
+        STATIC_FINDFUNCTION(ResetVolumeAndLevelRecord)
+        
+        Call(Function_ResetVolumeAndLevelRecord, Volume, RequestingFortPC);
+    }
+    
+    void MinigameExitReadOnlyForVolume(AFortVolume* Volume)
+    {
+        STATIC_FINDFUNCTION(MinigameExitReadOnlyForVolume)
+        
+        Call(Function_MinigameExitReadOnlyForVolume, Volume);
+    }
+    
     void ApplyLevelSaveToWorld(class ULevelSaveRecord* SaveToSpawnFrom, bool bComplexShouldSpawn)
     {
         STATIC_FINDFUNCTION(ApplyLevelSaveToWorld)

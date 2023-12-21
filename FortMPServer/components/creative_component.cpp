@@ -32,6 +32,7 @@ creative_component::creative_component()
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::RemoveMiniGamePlayer, memory_manager::find_function_by_string(L".RemoveMinigamePlayer - %s removed"), creative_component_hooks::RemoveMiniGamePlayer_Hook);
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::SetTeamForPlayer, memory_manager::find_pattern("48 89 6C 24 ? 56 48 83 EC 20 80 B9 ? ? ? ? ? 41 0F B6 F0 48 8B EA 75 6E 48 8B 01 FF 90 ? ? ? ? 48 85 C0 74 60"), creative_component_hooks::SetTeamForPlayer_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
+    REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ResetMyCurrentCreativePlot, L"/Script/FortniteGame.FortPlayerControllerAthena.ResetMyCurrentCreativePlot", creative_component_hooks::ResetMyCurrentCreativePlot_Hook);
     INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
 
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 0F B6 F8 44 89 75 EF 44 39 75 F3 74 0B 33 D2 48 8D 4D E7 E8 ? ? ? ?"), creative_component_hooks::SaveArrayToFile);
@@ -203,8 +204,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
         
         creative_portal->SetOwner(player_controller_athena);
 
-      //  creative_portal->ImageUrl() = L"";
-        
         creative_portal->ClientSaveStateChanged(false);
         creative_portal->ClientSaveDisplayChanged(false);
         
@@ -265,51 +264,15 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
 void creative_component_hooks::ResetMyCurrentCreativePlot_Hook(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
 {
-    /*CreateThread(nullptr, 0, [](LPVOID InParam)->DWORD
+    if (AFortVolume* CreativePlot = PlayerController->CreativePlotLinkedVolume())
     {
-        AFortPlayerControllerAthena* PlayerController = static_cast<AFortPlayerControllerAthena*>(InParam);
-        AFortVolume* CreativePlot = PlayerController->CreativePlotLinkedVolume();
-
-        if (CreativePlot)
+        if (log_component::enable_debug_logs)
         {
-            UPlaysetLevelStreamComponent* PlaysetComponent = nullptr;
-            for (auto Component : CreativePlot->BlueprintCreatedComponents())
-            {
-                if (!Component)
-                {
-                    return 0;    
-                }
-            
-                if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
-                {
-                    PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
-                }
-            }
-
-            if (PlaysetComponent)
-            {
-                std::wstring PlaysetName = PlaysetComponent->CurrentPlayset()->GetName();
-                TO_STRING(PlaysetName, sPlaysetName);
-
-                std::string account_id = player_component::get_account_id(PlayerController);
-                if (account_id.length() <= 0)
-                {
-                    return 0;
-                }
-
-                Aws::S3::Model::DeleteObjectRequest Request;
-                Request.WithKey(account_id + "/" + sPlaysetName + ".sav").WithBucket("creativeislands");
-
-                auto Outcome = gameserver_client::Client->S3Client->DeleteObject(Request);
-                if (Outcome.IsSuccess())
-                {
-                    
-                }
-            }
+            spdlog::info(L"creative_component_hooks::ResetMyCurrentCreativePlot_Hook: resetting player's plot.");
         }
-        
-        return 0;
-    }, PlayerController, 0, nullptr);   */
+
+        (*GWorld)->GameState()->VolumeManager()->ResetVolumeAndLevelRecord(CreativePlot, PlayerController);
+    }
 }
 
 void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCreativePortal* Portal, AFortPlayerPawn* PlayerPawn, bool bUseSpawnTags)
@@ -428,7 +391,7 @@ void creative_component_hooks::OnFinishedRecordRead_Hook(UObject* Object, UObjec
         {
             spdlog::info(L"creative_component_hooks::OnFinishedRecordRead_Hook: finished loading record [{}] from disk.", UKismetSystemLibrary::GetPathName(LevelSaveComponent->LevelRecord()).c_str());
         }
-
+        
         // Apply to world
         LevelSaveComponent->ApplySaveToWorld(true);
     }

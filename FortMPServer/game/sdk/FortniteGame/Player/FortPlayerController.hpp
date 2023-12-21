@@ -577,6 +577,13 @@ public:
         
         Call(Function_GatherDistanceTraveled);
     }
+
+    void ResetMyCurrentCreativePlot()
+    {
+        STATIC_FINDFUNCTION(ResetMyCurrentCreativePlot)
+        
+        Call(Function_ResetMyCurrentCreativePlot);
+    }
 };
 
 struct FFortPlayerDeathReport
