@@ -31,6 +31,13 @@ public:
         
         Call(Function_OnRep_CurrentPlayset);
     }
+    
+    void ServerClearVolume()
+    {
+        STATIC_FINDFUNCTION(ServerClearVolume);
+        
+        Call(Function_ServerClearVolume);
+    }
 };
 
 class AFortVolumeManager : public AActor

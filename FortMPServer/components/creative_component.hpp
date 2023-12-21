@@ -50,3 +50,4 @@ namespace creative_component_hooks
 
 // Used to load a creative playset
 inline UObject* (*LoadPlayset)(UPlaysetLevelStreamComponent* InPlaysetComponent);
+inline uint64 (*UpdateVolumeState)(AFortVolume*, uint8 NewState);

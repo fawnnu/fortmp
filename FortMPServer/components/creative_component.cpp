@@ -8,6 +8,8 @@
 
 creative_component::creative_component()
 {
+    INIT_POINTER(UpdateVolumeState, memory_manager::find_pattern("40 53 48 83 EC 30 80 B9 ? ? ? ? ? 48 8B D9 75 31 88 91 ? ? ? ? 80 FA 03 75 0C E8 ? ? ? ? 0F B6 93 ? ? ? ?"))
+    
     if (UFunction* SaveOutLevelRecord = FindObject<UFunction>(L"/Script/FortniteGame.LevelSaveBaseComponent.SaveOutLevelRecord"))
     {
         if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(SaveOutLevelRecord->get_native_function()), {0x48, 0xFF, 0xA0}))
