@@ -61,7 +61,7 @@ void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMinigame* MiniGame, A
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
             MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()++;
-            UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(PlayerState->Owner())->Pawn(), L"bIsInvulnerable", false);
+            
             spdlog::info(L"creative_component:AddMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
         }
     }
@@ -76,7 +76,7 @@ void creative_component_hooks::RemoveMiniGamePlayer_Hook(AFortMinigame* MiniGame
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
             MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()--;
-            UKismetSystemLibrary::SetBoolPropertyByName(static_cast<AFortPlayerController*>(PlayerState->Owner())->Pawn(), L"bIsInvulnerable", true);
+            
             spdlog::info(L"creative_component:RemoveMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
         }
     }
@@ -648,7 +648,7 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
 {
     AFortMinigame* Minigame = static_cast<AFortMinigame*>(Object);
     
-    TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), sizeof FMinigamePlayer);
+    TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), FMinigamePlayer::GetStructSize());
     
     for (FMinigamePlayer& Player : Players)
     {
@@ -722,7 +722,7 @@ void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object, UObject
 
     if (bFoundOwner)
     {
-        TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), sizeof FMinigamePlayer);
+        TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), FMinigamePlayer::GetStructSize());
     
         for (FMinigamePlayer& Player : Players)
         {

@@ -86,6 +86,13 @@ public:
 
         return Call<AFortMinigame*>(Function_GetMinigameForVolume, Volume);
     }
+
+    TArray<AFortPlayerControllerAthena*> GetAllPlayersInVolume(AFortVolume* Volume)
+    {
+        STATIC_FINDFUNCTION(GetAllPlayersInVolume);
+
+        return Call<TArray<AFortPlayerControllerAthena*>>(Function_GetAllPlayersInVolume, Volume);
+    }
 };
 
 struct FEraPoiInfo
