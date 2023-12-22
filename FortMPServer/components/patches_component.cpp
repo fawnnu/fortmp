@@ -178,7 +178,7 @@ patches_component::patches_component()
         // Pawn spawning patches
 
         const UObject* DefaultFortGameModeAthenaObject = FindObject(L"/Script/FortniteGame.Default__FortGameModeAthena");
-        const UObject* DefaultGameModeBaseObject = FindObject(L"/Script/Engine.Default__GameModeBase");
+        const UObject* DefaultGameModeBaseObject = FindObject(L"/Script/FortniteGame.Default__FortGameMode");
 
         // Use Engine's SpawnDefaultPawnFor
         if (const uintptr_t target_address = memory_manager::find_function_by_string(L"SpawnDefaultPawnFor: Fail"))

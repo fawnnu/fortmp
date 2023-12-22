@@ -16,6 +16,8 @@ public:
     // Handle everything that has to be done once a player joins the match
     static void handle_player_join(UNetConnection* NetConnection);
 
+    static void LoadIsland(AFortVolume* Volume);
+    
     static const TCHAR* GetEraSaveFileName(const TCHAR* OldName);
 };
 
@@ -51,3 +53,4 @@ namespace creative_component_hooks
 // Used to load a creative playset
 inline UObject* (*LoadPlayset)(UPlaysetLevelStreamComponent* InPlaysetComponent);
 inline uint64 (*UpdateVolumeState)(AFortVolume*, uint8 NewState);
+inline void (*ResetLevelRecord)(UFortLevelSaveComponent*);

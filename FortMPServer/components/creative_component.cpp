@@ -9,6 +9,7 @@
 creative_component::creative_component()
 {
     INIT_POINTER(UpdateVolumeState, memory_manager::find_pattern("40 53 48 83 EC 30 80 B9 ? ? ? ? ? 48 8B D9 75 31 88 91 ? ? ? ? 80 FA 03 75 0C E8 ? ? ? ? 0F B6 93 ? ? ? ?"))
+    INIT_POINTER(ResetLevelRecord, memory_manager::find_function_by_string(L"ResetLevelRecord requested"))
     
     if (UFunction* SaveOutLevelRecord = FindObject<UFunction>(L"/Script/FortniteGame.LevelSaveBaseComponent.SaveOutLevelRecord"))
     {
@@ -119,6 +120,81 @@ void creative_component::handle_player_join(UNetConnection* NetConnection)
     }
 }
 
+void creative_component::LoadIsland(AFortVolume* Owner)
+{
+    if (!Owner)
+    {
+        return;
+    }
+    
+    UFortLevelSaveComponent* LevelSaveComponent = nullptr;
+    UPlaysetLevelStreamComponent* LevelStreamComponent = nullptr;
+    
+    for (auto Component : Owner->BlueprintCreatedComponents())
+    {
+        if (Component)
+        {
+            if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+            {
+                LevelSaveComponent = reinterpret_cast<UFortLevelSaveComponent*>(Component);
+            }
+            if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+            {
+                LevelStreamComponent = reinterpret_cast<UPlaysetLevelStreamComponent*>(Component);
+            }
+        }
+    }
+
+    if (LevelSaveComponent && LevelStreamComponent)
+    {
+        // Attempt loading the island record from CDN
+        std::string account_id = player_component::get_account_id_from_unique_id(LevelSaveComponent->AccountIdOfOwner());
+        if (account_id.size() <= 0)
+        {
+            return;
+        }
+                
+        // Make save folder for account id if it does not exist yet
+        std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
+        std::filesystem::create_directories(AccountSavePath);
+                
+        // Get playset name
+        std::wstring PlaysetName = LevelStreamComponent->CurrentPlayset()->GetName();
+        TO_STRING(PlaysetName, sPlaysetName);
+
+        // Perform request
+        Aws::S3::Model::GetObjectRequest Request;
+        Request.SetBucket("creativeislands");
+        Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+        std::wstring VolumeName = Owner->GetName().c_str();
+        TO_STRING(VolumeName, sVolumeName);
+        std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
+        Request.SetResponseStreamFactory(
+        [=]() {
+               return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
+        }
+        );
+        Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
+                
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"creative_component::LoadIsland: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
+        }
+
+        // If we couldn't download but we have an island file locally, delete it before loading it.
+        if (!outcome.IsSuccess())
+        {
+            if (std::filesystem::exists(Path))
+            {
+                std::filesystem::remove(Path);
+            }
+        }
+
+        // Load level record
+        LevelSaveComponent->LoadLevelRecord();
+    }
+}
+
 const TCHAR* creative_component::GetEraSaveFileName(const TCHAR* OldName)
 {
     std::wstring LocalFilePath(OldName);
@@ -217,6 +293,27 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
             UFortItem* PlotInstance = Plot->CreateTemporaryItemInstanceBP(1, 1);
             
             UFortPlaysetItemDefinition* Playset = Plot->BasePlayset().Get();
+
+            // Check whether or not we should reload the island
+            bool bRefreshingOwnership = false;
+            for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
+            {
+                // Prevent a crash on later builds and when more people are joining
+                if (Component)
+                {
+                    if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                    {
+                        UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
+
+                        // If we already had an owner
+                        if (UFortKismetLibrary::IsValid_UniqueNetIdRepl(LevelSaveComponent->AccountIdOfOwner()))
+                        {
+                            bRefreshingOwnership = true;
+                            break;
+                        }
+                    }
+                }
+            }
             
             // Now get this volume's playset component and initialize the island
             for (UActorComponent* Component : creative_portal->LinkedVolume()->BlueprintCreatedComponents())
@@ -224,7 +321,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                 // Prevent a crash on later builds and when more people are joining
                 if (Component)
                 {
-                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()))
+                    if (Component->IsA(UPlaysetLevelStreamComponent::StaticClass()) && !bRefreshingOwnership)
                     {
                         UPlaysetLevelStreamComponent* PlaysetComponent = static_cast<UPlaysetLevelStreamComponent*>(Component);
                         
@@ -249,13 +346,29 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                         
                         // Log
                         spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
-
-                        return;
                     }
                     if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
                     {
                         UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
 
+                        // If we already had an owner
+                        if (bRefreshingOwnership)
+                        {
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"creative_component::assign_portal_to_player is transferring island ownership.");
+                            }
+
+                            // Clear the volume
+                            creative_portal->LinkedVolume()->ServerClearVolume();
+
+                            // Make a new record
+                            LevelSaveComponent->ConstructNewLevelRecord(creative_portal->LinkedVolume());
+
+                            // Load the record, which will then apply the save to world
+                            LoadIsland(creative_portal->LinkedVolume());
+                        }
+                        
                         LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
                     }
                 }
@@ -496,60 +609,7 @@ void creative_component_hooks::OnFinishedLoading_Hook(UObject* Object, UObject*,
     {
         AFortVolume* Owner = static_cast<AFortVolume*>(static_cast<UPlaysetLevelStreamComponent*>(Object)->GetOwner());
 
-        for (auto Component : Owner->BlueprintCreatedComponents())
-        {
-            if (Component)
-            {
-                if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
-                {
-                    // Attempt loading the island record from CDN
-                    std::string account_id = player_component::get_account_id_from_unique_id(static_cast<UFortLevelSaveComponent*>(Component)->AccountIdOfOwner());
-                    if (account_id.size() <= 0)
-                    {
-                        return;
-                    }
-                
-                    // Make save folder for account id if it does not exist yet
-                    std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
-                    std::filesystem::create_directories(AccountSavePath);
-                
-                    // Get playset name
-                    std::wstring PlaysetName = static_cast<UPlaysetLevelStreamComponent*>(Object)->CurrentPlayset()->GetName();
-                    TO_STRING(PlaysetName, sPlaysetName);
-
-                    // Perform request
-                    Aws::S3::Model::GetObjectRequest Request;
-                    Request.SetBucket("creativeislands");
-                    Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
-                    std::wstring VolumeName = Owner->GetName().c_str();
-                    TO_STRING(VolumeName, sVolumeName);
-                    std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
-                    Request.SetResponseStreamFactory(
-                    [=]() {
-                           return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
-                    }
-                    );
-                    Aws::S3::Model::GetObjectOutcome outcome = gameserver_client::Client->S3Client->GetObject(Request);
-                
-                    if (log_component::enable_debug_logs)
-                    {
-                        spdlog::info(L"creative_component_hooks::OnFinishedLoading_Hook: finished loading playset, loading record from disk. Download status: [Size: {}, Successful: {}]", outcome.GetResult().GetContentLength(), outcome.IsSuccess());
-                    }
-
-                    // If we couldn't download but we have an island file locally, delete it before loading it.
-                    if (!outcome.IsSuccess())
-                    {
-                        if (std::filesystem::exists(Path))
-                        {
-                            std::filesystem::remove(Path);
-                        }
-                    }
-                
-                    static_cast<UFortLevelSaveComponent*>(Component)->LoadLevelRecord();
-                    break;
-                }
-            }
-        }
+        creative_component::LoadIsland(Owner);
     }
 }
 

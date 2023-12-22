@@ -419,6 +419,16 @@ public:
         return Default__FortKismetLibrary->Call<bool>(FunctionObject, A, B);
     }
     
+    static bool IsValid_UniqueNetIdRepl(FUniqueNetIdRepl ID)
+    {
+        // Static function to use default object
+        static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortKismetLibrary.IsValid_UniqueNetIdRepl")
+        
+        return Default__FortKismetLibrary->Call<bool>(FunctionObject, ID);
+    }
+    
     static void K2_GiveItemToAllPlayers(class UObject* WorldContextObject, class UFortWorldItemDefinition* ItemDefinition, int32 NumberToGive, bool bNotifyPlayer)
     {
         // Static function to use default object
