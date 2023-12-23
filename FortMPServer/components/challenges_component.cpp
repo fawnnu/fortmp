@@ -2,6 +2,7 @@
 #include "challenges_component.hpp"
 
 #include "creative_component.hpp"
+#include "function_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
 #include "player_component.hpp"
@@ -9,6 +10,10 @@
 
 challenges_component::challenges_component()
 {
+    QuestToInteractionMatch = {
+        {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_PianoChain_Play_Piano1.Quest_BR_PianoChain_Play_Piano1"), "interaction:piano"},
+        {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion.Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion"), "interaction:dance-off-competition"}
+    };
 }
 
 void challenges_component::Initialize()
@@ -39,6 +44,13 @@ void challenges_component::Initialize()
             hook_manager::hooked_functions[Function] = std::function(&player_component_hooks::GameplayCue_Hook);
         }
     }
+
+    // register hook
+    if (UObject* Property = FindObject(L"/Game/Athena/Items/QuestInteractables/AthenaQuestFunctionLibrary.AthenaQuestFunctionLibrary_C.Athena_GiveQuestUpdateToPlayers.PlayerControllersForUpdate"))
+    {
+        *reinterpret_cast<uint64_t*>(reinterpret_cast<__int64>(Property) + CoreOffsets::PropertyFlags) &= ~0x0000000000000100;
+    }
+    REGISTER_SCRIPT_FUNCTION_HOOK(L"/Game/Athena/Items/QuestInteractables/AthenaQuestFunctionLibrary.AthenaQuestFunctionLibrary_C.Athena_GiveQuestUpdateToPlayers", challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook, true);
 }
 
 void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
@@ -1988,6 +2000,48 @@ void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObj
             if (Platform4Pawn && Platform4Pawn->Controller())
             {
                 challenges_component::SendDiscoBallInteraction(Platform4Pawn->Controller());
+            }
+        }
+    }
+}
+
+void challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook(UObject* Context, FFrame& StackFrame, void* Param)
+{
+    GET_PARAMETER(UFortQuestItemDefinition*, InQuestItemRef);
+    GET_PARAMETER(FName, ObjectiveBackendName);
+    GET_PARAMETER(TArray<AFortPlayerController*>, PlayerControllersForUpdate);
+    
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook called with {}.", ObjectiveBackendName.ToString().c_str());
+    }
+
+    for (AFortPlayerController* PlayerController : PlayerControllersForUpdate)
+    {
+        if (PlayerController && PlayerController->Pawn())
+        {
+            if (challenges_component::QuestToInteractionMatch.contains(InQuestItemRef))
+            {
+                std::string account_id = player_component::get_account_id(PlayerController);
+                std::string Objective = ObjectiveBackendName.sToString().c_str();
+
+                if (account_id.size() > 0)
+                {
+                    std::string Event = challenges_component::QuestToInteractionMatch[InQuestItemRef];
+
+                    nlohmann::json Payload{
+                        {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                        {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                        {"objective", Objective}
+                    };
+
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook sending {}.", ObjectiveBackendName.ToString().c_str());
+                    }
+
+                    gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, Event, Payload);
+                }
             }
         }
     }

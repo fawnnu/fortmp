@@ -62,6 +62,19 @@
         StackFrame.Code++;\
     }
 
+#define GET_BP_PARAM(ParameterType, ParameterName)\
+    ParameterType ParameterName;\
+    StackFrame.Step(StackFrame.Object, &ParameterName);\
+
+#define GET_BP_PARAM_NULL()\
+    StackFrame.Step(StackFrame.Object, nullptr);\
+
+#define INIT_BP_FUNC_PARAM_READING()\
+    if (StackFrame.Code)\
+    {\
+        StackFrame.Code++;\
+    }
+
 class function_component
 {
 public:
