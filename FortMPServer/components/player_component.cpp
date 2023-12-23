@@ -2573,17 +2573,25 @@ void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController*
     {
         if (FortPlayerController->PlayerState()->bHasStartedPlaying() == false)
         {
-            // Grant harvesting tool
-            inventory_component::add_item(FortPlayerController, static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
         
-            for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
+            if (era_mutators_component::IsActive("domino_event"))
             {
-                // Grant default item
-                inventory_component::add_item(FortPlayerController, starting_item.Item, starting_item.Count);
+                // Do nothing for now, later we might give a special item for this event
             }
+            else
+            {
+                // Grant harvesting tool
+                inventory_component::add_item(FortPlayerController, static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
         
-            // Equip pickaxe
-            FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
+                for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
+                {
+                    // Grant default item
+                    inventory_component::add_item(FortPlayerController, starting_item.Item, starting_item.Count);
+                }
+        
+                // Equip pickaxe
+                FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
+            }
     
             creative_component::handle_player_join(FortPlayerController->NetConnection());
 

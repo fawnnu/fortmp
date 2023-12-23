@@ -460,3 +460,11 @@ public:
 
     DEFINE_PROPERTY(class UBoxComponent*, InsideHouseOverlap);
 };
+
+class AProp_FMP_GooseEgg_Interactable : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/fortmp/content_simple/athena/quests/Prop_FMP_GooseEgg_Interactable.Prop_FMP_GooseEgg_Interactable_C");
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};

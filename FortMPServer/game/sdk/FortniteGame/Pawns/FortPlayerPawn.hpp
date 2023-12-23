@@ -310,6 +310,12 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerPawnAthena");
 };
 
+class AFortAthenaFerretVehicle : public AFortAthenaVehicle
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaFerretVehicle")
+};
+
 class AFortAIPawn : public UObject
 {
 public:
