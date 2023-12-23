@@ -195,6 +195,15 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/SkydiveRings/Prop_SkydiveRings_QuestInteractable.Prop_SkydiveRings_QuestInteractable_C");
 };
 
+class Afortmp_golden_ring_quest : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/fortmp/content_simple/athena/quests/Fortmas/GoldenRings/fortmp_golden_ring_quest.fortmp_golden_ring_quest_C");
+
+    DEFINE_PROPERTY(FName, ObjectiveQuestName);
+};
+
+
 class AActor_QuestObject_Touch_FlamingHoops_Parent : public AActor
 {
 public:

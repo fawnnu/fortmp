@@ -24,6 +24,20 @@ public:
     }
 };
 
+class Abp_fortmp_map_loader : public AActor
+{
+public:
+
+    DEFINE_CLASS(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C")
+    
+    void StartNYE()
+    {
+        STATIC_FINDFUNCTION(StartNYE)
+
+        Call(Function_StartNYE);
+    }
+};
+
 class ABP_SnowSetup_C : public AActor
 {
 public:

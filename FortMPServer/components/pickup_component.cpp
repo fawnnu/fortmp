@@ -567,6 +567,22 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 challenges_component::SendSkyDiveRingInteraction(PlayerPawn->Controller(), static_cast<AProp_SkydiveRings_QuestInteractable*>(OtherActor));
             }
         }
+        else if (OtherActor->IsA(Afortmp_golden_ring_quest::StaticClass()))
+        {
+            if (PlayerPawn->Controller())
+            {
+                if (PlayerPawn->IsInVehicle())
+                {
+                    if (PlayerPawn->GetVehicle() != nullptr)
+                    {
+                        if (PlayerPawn->GetVehicle()->IsA(AFortAthenaFerretVehicle::StaticClass()))
+                        {
+                            challenges_component::SendGoldenRingBiplaneInteraction(PlayerPawn->Controller(), static_cast<Afortmp_golden_ring_quest*>(OtherActor), static_cast<Afortmp_golden_ring_quest*>(OtherActor)->ObjectiveQuestName());      
+                        }   
+                    }
+                }
+            }
+        }
         else if (OtherActor->IsA(AActor_QuestObject_Touch_FlamingHoops_Parent::StaticClass()))
         {
             if (PlayerPawn->Controller() && PlayerPawn->IsInVehicle())

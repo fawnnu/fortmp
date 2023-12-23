@@ -773,6 +773,69 @@ void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* Int
     }  
 }
 
+void challenges_component::SendGoldenRingBiplaneInteraction(AFortPlayerController* InteractingController, Afortmp_golden_ring_quest* SkydiveRing, FName Objective)
+{
+    CHECK_PAST_WARMUP()
+
+    if (InteractingController && SkydiveRing)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            // Convert FName to std::string
+            std::string sObjective = Objective.sToString();
+
+            nlohmann::json parameters{
+                                {"x", SkydiveRing->K2_GetActorLocation().X},
+                                {"y", SkydiveRing->K2_GetActorLocation().Y},
+                                {"objective", sObjective}
+            };
+            
+                
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:plane-rings", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    } 
+}
+
+void challenges_component::SendGooseEggInteraction(AFortPlayerController* InteractingController, AProp_FMP_GooseEgg_Interactable* GooseEgg, FName Objective)
+{
+    CHECK_PAST_WARMUP()
+    
+    if (InteractingController && GooseEgg)
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+
+        // Convert FName to std::string
+        std::string sObjective = Objective.sToString();
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                        {"x", GooseEgg->K2_GetActorLocation().X},
+                        {"y", GooseEgg->K2_GetActorLocation().Y},
+                        {"objective", sObjective}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:goose-egg", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad)
 {
     CHECK_PAST_WARMUP()
@@ -836,7 +899,8 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                 {"Athena.Location.Quest.Dance.Forbidden.15", "battlepass_dance_athena_location_forbidden_15"},
                 {"Athena.Quests.DanceLocation.Generic.01", "battlepass_dance_chain_athena_scavengerhunt_locations_a"},
                 {"Athena.Quests.DanceLocation.Generic.02", "battlepass_dance_chain_athena_scavengerhunt_locations_b"},
-                {"Athena.Quests.DanceLocation.Generic.03", "battlepass_dance_chain_athena_scavengerhunt_locations_c"}
+                {"Athena.Quests.DanceLocation.Generic.03", "battlepass_dance_chain_athena_scavengerhunt_locations_c"},
+                {"EraEvent.FortmasDanceArea.01", "FDF_dance_athena_christmas_tree_01"}
             };
 
             for (FGameplayTag Tag : static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().CurrentPOIList)

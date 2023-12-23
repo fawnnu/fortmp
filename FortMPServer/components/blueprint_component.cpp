@@ -4,6 +4,7 @@
 #include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "log_component.hpp"
+#include "player_component.hpp"
 
 using namespace nlohmann;
 
@@ -41,6 +42,35 @@ void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
     if (event == L"EraEvent.CandyCane")
     {
         challenges_component::SendCandyCaneVisitInteraction(static_cast<AFortPlayerController*>(player_controller), event_data.c_str());   
+    }
+    else if (event == L"EraEvent.FortmasDanceAreaEnter")
+    {
+        auto player_info = static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo();
+
+        // Check if player isn't already in the dance area
+        for (FGameplayTag& tag : player_info.CurrentPOIList)
+        {
+            if (tag == FGameplayTag(event_data.c_str()))
+            {
+                break;
+            }
+        }
+        
+        static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().CurrentPOIList.push_back(FGameplayTag(event_data.c_str()));
+        spdlog::info(L"Player entering fortmas dance area");
+    }
+    else if (event == L"EraEvent.FortmasDanceAreaExit")
+    {
+        auto player_info = static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo();
+
+        for (int i = player_info.CurrentPOIList.size() - 1; i >= 0; i--)
+        {
+            if (player_info.CurrentPOIList[i].TagName == FGameplayTag(event_data.c_str()))
+            {
+                std::erase(player_info.CurrentPOIList, player_info.CurrentPOIList[i]);
+                spdlog::info(L"Player exiting fortmas dance area");
+            }
+        }
     }
 
     if (log_component::enable_debug_logs)

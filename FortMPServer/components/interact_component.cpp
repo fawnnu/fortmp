@@ -107,6 +107,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         handle_doorbell_interaction(player_controller, reinterpret_cast<AProp_Athena_Doorbell_Interactable_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_FMP_GooseEgg_Interactable::StaticClass()))
+    {
+        handle_gooseegg_interaction(player_controller, reinterpret_cast<AProp_FMP_GooseEgg_Interactable*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -400,6 +404,20 @@ void interact_component::handle_rubberduck_interaction(AFortPlayerController* pl
     }
 }
 
+void interact_component::handle_gooseegg_interaction(AFortPlayerController* player_controller, AProp_FMP_GooseEgg_Interactable* goose_egg)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_gooseegg_interaction is sending goose egg interaction.");
+    }
+    
+    if (goose_egg->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendGooseEggInteraction(player_controller, goose_egg, goose_egg->QuestBackendObjectiveName());
+    }
+}
+
 void interact_component::handle_lightningbolt_interaction(AFortPlayerController* player_controller, AProp_QuestActor_FloatingLightningBolt_Parent_C* lightningbolt)
 {
     if (log_component::enable_debug_logs)
@@ -413,6 +431,7 @@ void interact_component::handle_lightningbolt_interaction(AFortPlayerController*
         challenges_component::SendLightningBoltInteraction(player_controller, lightningbolt, lightningbolt->QuestBackendObjectiveName());
     }
 }
+
 
 void interact_component::handle_jigsaw_puzzle_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Jigsaw_Parent* jigsawpuzzle)
 {
