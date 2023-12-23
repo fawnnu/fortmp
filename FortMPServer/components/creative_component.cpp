@@ -711,10 +711,13 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
         if (Player.ClaimedPlayerStart())
         {
             // Destroy current pawn, and restart
-            reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn()->K2_DestroyActor();
+            if (AFortPawn* PlayerPawn = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn())
+            {
+                PlayerPawn->K2_DestroyActor();
             
-            (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, Player.ClaimedPlayerStart());
-
+                (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, Player.ClaimedPlayerStart());
+            }
+            
             Player.ClaimedPlayerStart() = nullptr;
         }
         else
@@ -726,13 +729,16 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
             if (static_cast<AFortMinigame*>(Object)->DetermineSpawnLocation(static_cast<AFortPlayerStateAthena*>(Player.PlayerState()), &Loc, &Rot, &bOutRespawningOnGround))
             {
                 // Destroy current pawn, and restart
-                reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn()->K2_DestroyActor();
-                
-                (*GWorld)->AuthorityGameMode()->RestartPlayerAtTransform(PlayerController, UKismetMathLibrary::MakeTransform(Loc, Rot, FVector(1, 1, 1)));
-
-                if (!bOutRespawningOnGround)
+                if (AFortPawn* PlayerPawn = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn())
                 {
-                    PlayerController->Pawn()->BeginSkydiving(false);
+                    PlayerPawn->K2_DestroyActor();
+                
+                    (*GWorld)->AuthorityGameMode()->RestartPlayerAtTransform(PlayerController, UKismetMathLibrary::MakeTransform(Loc, Rot, FVector(1, 1, 1)));
+
+                    if (!bOutRespawningOnGround)
+                    {
+                        PlayerController->Pawn()->BeginSkydiving(false);
+                    }
                 }
             }
         }
