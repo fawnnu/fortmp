@@ -530,6 +530,14 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 }
             }
         }
+        else if (OtherActor->IsA(AB_Toy_Snowball_Base_C::StaticClass()))
+        {
+            // Don't allow self
+            if (PlayerPawn->Controller() != static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()))
+            {
+                challenges_component::SendSnowballInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()));
+            }
+        }
         else if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
         {
             if (OtherActor->HasProperty(L"PlayersWhoHaveTouchedThisCenter"))

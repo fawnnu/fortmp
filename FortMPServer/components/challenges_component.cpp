@@ -1759,6 +1759,34 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
     }   
 }
 
+void challenges_component::SendSnowballInteraction(AFortPlayerController* InteractingPlayerController)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+         
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+            };
+             
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:snowball", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
 void challenges_component::SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController)
 {
     CHECK_PAST_WARMUP()
