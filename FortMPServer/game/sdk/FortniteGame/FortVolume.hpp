@@ -87,6 +87,13 @@ public:
         return Call<AFortMinigame*>(Function_GetMinigameForVolume, Volume);
     }
 
+    AFortVolume* GetVolumeForPlayerState(AFortPlayerState* PlayerState)
+    {
+        STATIC_FINDFUNCTION(GetVolumeForPlayerState);
+
+        return Call<AFortVolume*>(Function_GetVolumeForPlayerState, PlayerState);
+    }
+
     TArray<AFortPlayerControllerAthena*> GetAllPlayersInVolume(AFortVolume* Volume)
     {
         STATIC_FINDFUNCTION(GetAllPlayersInVolume);

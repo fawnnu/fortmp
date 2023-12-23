@@ -308,22 +308,28 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         // Spawn dead player loot
         if (VictimPlayerController->WorldInventory())
         {
-            if(creative_component::is_creative_enabled())
+            if (creative_component::is_creative_enabled())
             {
-                if (STATIC_HASPROPERTY(VictimPlayerController, OwnedPortal))
+                if (AFortVolume* Volume = (*GWorld)->GameState()->VolumeManager()->GetVolumeForPlayerState(VictimPlayerController->PlayerState()))
                 {
-                    if (static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal() != nullptr)
+                    if (AFortPlayerControllerAthena* VolumeOwner = creative_component::GetVolumeOwner(Volume))
                     {
-                        if (auto Mutator = (*GWorld)->AuthorityGameMode()->GetMutatorByClass(static_cast<AFortPlayerControllerAthena*>(VictimPlayerController)->OwnedPortal(), AFortAthenaMutator_InventoryOverride::StaticClass()))
+                        if (STATIC_HASPROPERTY(VolumeOwner, OwnedPortal))
                         {
-                            AFortAthenaMutator_InventoryOverride* mutator_inventory_override = static_cast<AFortAthenaMutator_InventoryOverride*>(Mutator);
-                            if (mutator_inventory_override->DropAllItemsOverride() != 2)
+                            if (VolumeOwner->OwnedPortal())
                             {
-                                inventory_component::clear_primary_inventory(VictimPlayerController, true);
+                                if (AFortGameplayMutator* Mutator = (*GWorld)->AuthorityGameMode()->GetMutatorByClass(VolumeOwner->OwnedPortal(), AFortAthenaMutator_InventoryOverride::StaticClass()))
+                                {
+                                    AFortAthenaMutator_InventoryOverride* MutatorInventoryOverride = static_cast<AFortAthenaMutator_InventoryOverride*>(Mutator);
+                                    if (MutatorInventoryOverride->DropAllItemsOverride() != 2)
+                                    {
+                                        inventory_component::clear_primary_inventory(VictimPlayerController, true);
+                                    }
+                                }   
                             }
-                        }   
+                        }  
                     }
-                }   
+                }
             }
             else if (elimination_component::keep_inventory_after_death == false)
             {
