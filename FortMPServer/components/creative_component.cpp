@@ -248,6 +248,41 @@ const TCHAR* creative_component::GetEraSaveFileName(const TCHAR* OldName)
     return nullptr;
 }
 
+AFortPlayerControllerAthena* creative_component::GetVolumeOwner(AFortVolume* Volume)
+{
+    if (Volume)
+    {
+        for (UActorComponent* Component : Volume->BlueprintCreatedComponents())
+        {
+            if (Component)
+            {
+                if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                {
+                    UFortLevelSaveComponent* LevelSaveComponent = reinterpret_cast<UFortLevelSaveComponent*>(Component);
+
+                    if (UFortKismetLibrary::IsValid_UniqueNetIdRepl(LevelSaveComponent->AccountIdOfOwner()))
+                    {
+                        for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+                        {
+                            if (UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i])
+                            {
+                                if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(ClientConnection->PlayerID(), LevelSaveComponent->AccountIdOfOwner()))
+                                {
+                                    return reinterpret_cast<AFortPlayerControllerAthena*>(ClientConnection->PlayerController());
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 void creative_component::assign_portal_to_player(UNetConnection* NetConnection, int PortalIndex)
 {
     AFortCreativePortalManager* creative_portal_manager = (*GWorld)->GameState()->CreativePortalManager();
@@ -658,7 +693,10 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
         }
         
         AFortPlayerController* PlayerController = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner());
-
+        
+        // clear inventory
+        inventory_component::clear_primary_inventory(PlayerController, false);
+        
         // Remove phone on minigame start ( in case game fails to )
         if (UFortItem* Item = inventory_component::get_inventory_item_by_definition(PlayerController, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/Prototype/WID_CreativeTool.WID_CreativeTool")))
         {

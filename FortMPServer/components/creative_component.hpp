@@ -19,6 +19,8 @@ public:
     static void LoadIsland(AFortVolume* Volume);
     
     static const TCHAR* GetEraSaveFileName(const TCHAR* OldName);
+
+    static AFortPlayerControllerAthena* GetVolumeOwner(AFortVolume* Volume);
 };
 
 namespace creative_component_hooks
