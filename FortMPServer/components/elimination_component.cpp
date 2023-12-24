@@ -192,8 +192,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 DeathReport.KillerPlayerState()->KillScore()++;
 
                 nlohmann::json server_config = config_manager::get_server_config();
-    
-                if (server_config.contains("server_key"))
+
+                try
                 {
                     std::string server_key = server_config["server_key"];
                     if (server_key.length() == 0)
@@ -203,7 +203,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                             current_playlist->HasProperty(L"RespawnType") == true &&
                             current_playlist->RespawnType() == 0)
                         {
-                            // We make the max limit on prod 40 to automatically ban cheaters who have went past this limit considering noone has ever gotten that much on era by playing legit.
+                            // We make the max limit on prod 40 to automatically ban cheaters who have went past this limit considering noone has ever gotten that much on era/fortnite by playing legit.
                             if (DeathReport.KillerPlayerState()->KillScore() >= 40)
                             {
                                 if (auto killer_pawn = DeathReport.KillerPawn())
@@ -217,6 +217,9 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                             }
                         }
                     }
+                }
+                catch (nlohmann::json::exception& err)
+                {
                 }
             }
 
