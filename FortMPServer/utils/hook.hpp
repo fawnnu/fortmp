@@ -31,6 +31,16 @@
                                                                                                                                 \
     if (function_to_hook) hook_manager::post_hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
+#define REGISTER_SCRIPT_FUNCTION_HOOK(FunctionObject, FunctionDetour, ReturnAfterHook)                                                           \
+    { UFunction* function_to_hook = FindObject<UFunction>(FunctionObject);                                                          \
+                                                                                                                                \
+    if (function_to_hook) hook_manager::process_internal_hooks[function_to_hook] = std::make_pair(std::function<void(UObject*, FFrame&, void*)>(&FunctionDetour), ReturnAfterHook); }
+
+#define END_SCRIPT_FUNCTION_HOOK(FunctionDetour)\
+    DetourTransactionBegin();\
+    DetourDetach(&reinterpret_cast<PVOID&>(FunctionDetour), FunctionDetour##_Hook);\
+    DetourTransactionCommit();\
+
 #define REGISTER_CALL_DETOUR(FunctionObject, FunctionDetour) \
     { \
         UFunction* function_to_hook = FindObject<UFunction>(FunctionObject) ? \
@@ -119,6 +129,9 @@ public:
     
     // Map of functions to hook
     inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> post_hooked_functions;
+    
+    // Map of functions to hook
+    inline static std::map<UObject*, std::pair<std::function<void(UObject*, FFrame&, void*)>, bool>> process_internal_hooks;
 };
 
 // Queue of code to execute on game thread
@@ -135,4 +148,7 @@ namespace hook_manager_hooks
     DEFINE_FUNCTION_HOOK(void, UEnvQueryInstanceBlueprintWrapper_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, UFortLevelSaveComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, UPlaysetLevelStreamComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, ProcessInternal, (UObject* Context, FFrame& StackFrame, void* ReturnValue))
+    DEFINE_FUNCTION_HOOK(void, ProcessLocalScriptFunction, (UObject* Context, FFrame& StackFrame, void* ReturnValue))
+    DEFINE_FUNCTION_HOOK(void, ProcessScriptFunction, (UObject* Context, UFunction* Function, FFrame& Stack, void* RESULT_DECL, void* Exec))
 }

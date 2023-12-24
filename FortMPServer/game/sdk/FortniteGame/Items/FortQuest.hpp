@@ -237,10 +237,25 @@ public:
     DEFINE_PROPERTY(AFortPlayerController*, ControllerWhoThrewTomato);
 };
 
+class AB_Toy_Snowball_Base_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Toys/Snowball/Shared/B_Toy_Snowball_Base.B_Toy_Snowball_Base_C")
+};
+
 class ABP_ShootingGallery_01_C : public AActor
 {
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/ShootingGallery/Blueprint/BP_ShootingGallery_01.BP_ShootingGallery_01_C");
 
     DEFINE_PROPERTY(TArray<int>, PopInt);
+};
+
+class AProp_Quest_FullPiano_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/BigPiano/Prop_Quest_FullPiano.Prop_Quest_FullPiano_C");
+
+    DEFINE_PROPERTY(TArray<AFortPlayerController*>, ContributedPlayers);
+    DEFINE_PROPERTY(int, QuestProgressIndex);
 };

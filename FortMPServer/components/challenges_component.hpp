@@ -75,9 +75,12 @@ public:
     static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
+    static void SendSnowballInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
+
+    static inline std::map<UFortQuestItemDefinition*, std::string> QuestToInteractionMatch;
 };
 
 struct progression_entry
@@ -96,4 +99,5 @@ namespace challenges_component_hooks
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, PidgeonShot, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, Athena_GiveQuestUpdateToPlayers, (UObject* Context, FFrame& StackFrame, void* Param))
 }
