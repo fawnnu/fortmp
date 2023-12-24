@@ -241,6 +241,9 @@ namespace player_component_hooks
 
     // Called to set a CharacterPart, we hook it to null it
     DEFINE_FUNCTION_HOOK(void, ServerChoosePart, (AFortPlayerPawn*, FFrame&));
+    
+    // Called to set a different name, we hook it to null it
+    DEFINE_FUNCTION_HOOK(void, ServerChangeName, (AFortPlayerController*, FFrame&));
 
     // Spawn Toy Instance
     DEFINE_FUNCTION_HOOK(AActor*, SpawnToyInstance, (AFortPlayerController* PlayerController, UObject* ToyClass, FTransform SpawnPosition));

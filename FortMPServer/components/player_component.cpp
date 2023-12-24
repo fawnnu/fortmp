@@ -85,6 +85,7 @@ player_component::player_component()
 
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAcknowledgePossession, L"/Script/Engine.PlayerController.ServerAcknowledgePossession", player_component_hooks::ServerAcknowledgePossession_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerChoosePart, L"/Script/FortniteGame.FortPlayerPawn.ServerChoosePart", player_component_hooks::ServerChoosePart_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerChangeName, L"/Script/Engine.PlayerController.ServerChangeName", player_component_hooks::ServerChangeName_Hook);
     
     REGISTER_FUNCTION_DETOUR(player_component_hooks::PostLogin, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLogin"), player_component_hooks::PostLogin_Hook);
     
@@ -1450,6 +1451,13 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     UNetConnection* Connection = NewProfileParsingParameters->Connection;
                     std::wstring AccountID = NewProfileParsingParameters->AccountID;
                     TO_STRING(AccountID, sAccountID)
+                    std::string Name;
+                    if (UGameplayStatics::HasOption(Options, TEXT("Name")))
+                    {
+                        FString FortName = UGameplayStatics::ParseOption(Options, TEXT("Name"));
+                        std::wstring wFortName = FortName.c_str();
+                        TO_EX_STRING(wFortName, Name);
+                    }
                 
                     while (true)
                     {
@@ -1499,6 +1507,24 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     }
                     
                     nlohmann::json data = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile;
+
+                    // Validate name
+                    if (Name.length > 0)
+                    {
+                        if (data.contains("display_name"))
+                        {
+                            if (std::string(data["display_name"]) != Name)
+                            {
+                                spdlog::error("Player '{}' provided a different name in join options ('{}').", std::string(data["display_name"]), Name.c_str());
+                            
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                            }
+                            else
+                            {
+                                spdlog::info("Validated Player's name [Backend: '{}', Options: '{}'].", std::string(data["display_name"]), Name.c_str());
+                            }
+                        }
+                    }
                     
                     // Handle custom replication
                     if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform.size() > 0)
@@ -2358,6 +2384,11 @@ void player_component_hooks::ServerChoosePart_Hook(AFortPlayerPawn* FortPlayerPa
     {
         ServerChoosePart(FortPlayerPawn, StackFrame);
     }
+}
+
+void player_component_hooks::ServerChangeName_Hook(AFortPlayerController*, FFrame&)
+{
+    // Do nothing   
 }
 
 void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer)
