@@ -210,7 +210,16 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         
         return;
     }
-        
+
+    if (FindFunctionByName(PlayerPawn->Class, TEXT("IsSkydiving"), 1))
+    {
+        if (PlayerPawn->IsSkydiving())
+        {
+            spdlog::error(L"pickup_component::handle_pickup called while skydiving.");
+            return;
+        }
+    }
+    
     // Prevent duplication
     if (Pickup->bPickedUp())
     {
