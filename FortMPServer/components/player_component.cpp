@@ -1509,7 +1509,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     nlohmann::json data = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile;
 
                     // Validate name
-                    if (Name.length > 0)
+                    if (Name.length() > 0)
                     {
                         if (data.contains("display_name"))
                         {
