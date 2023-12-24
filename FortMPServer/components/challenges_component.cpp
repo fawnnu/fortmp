@@ -1761,7 +1761,6 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
 
 void challenges_component::SendSnowballInteraction(AFortPlayerController* InteractingPlayerController)
 {
-    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
     
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
