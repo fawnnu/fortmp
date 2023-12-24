@@ -222,6 +222,16 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
         if (!memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
         {
             FPlayerStats& PlayerStats = Self->EraPlayerInfo().PlayerStatsTracker;
+
+            bool bOnGround = true;
+                
+            if (FindFunctionByName(Self->Pawn()->Class, TEXT("IsSkydiving"), 1))
+            {
+                if (Self->Pawn()->IsSkydiving())
+                {
+                    bOnGround = false;
+                }
+            }
             
             if (PlayerStats.LastPos.IsValid())
             {
@@ -249,6 +259,23 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                                             (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y) +
                                             (CurrentLocation.Z - LastPos.Z) * (CurrentLocation.Z - LastPos.Z));
 
+                const float DistanceXY = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
+                            (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y));
+
+                if (!Self->IsInAircraft() && Self->Pawn()->IsInVehicle())
+                {
+                    if (DistanceXY > 6000)
+                    {
+                        Self->ClientReturnToMainMenu(L"[AC] Cheat detected.");
+                        spdlog::warn(L"[DEBUG] Kicked player {} for travelling {} cm on the XY axis in the last second", Self->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+                    }
+                    
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::warn(L"[DEBUG] Player {} traveled {} cm on the XY axis in the last second", Self->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+                    }
+                }
+                
                 PlayerStats.DistanceTraveled += Distance;
             }
             
@@ -257,16 +284,6 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
             // Get the POI we're currently in
             if (GetPoiGridTagsForPawn)
             {
-                bool bOnGround = true;
-                
-                if (FindFunctionByName(Self->Pawn()->Class, TEXT("IsSkydiving"), 1))
-                {
-                    if (Self->Pawn()->IsSkydiving())
-                    {
-                        bOnGround = false;
-                    }
-                }
-
                 if (bOnGround)
                 {
                     FGameplayTagContainer Container;
