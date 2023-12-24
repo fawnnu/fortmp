@@ -2,6 +2,7 @@
 #include "elimination_component.hpp"
 
 #include "challenges_component.hpp"
+#include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "era_mutators_component.hpp"
 #include "function_component.hpp"
@@ -189,6 +190,34 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 // Credit elimination if not on the same team
                 DeathReport.KillerPlayerState()->ClientReportKill(VictimPlayerController->PlayerState());
                 DeathReport.KillerPlayerState()->KillScore()++;
+
+                nlohmann::json server_config = config_manager::get_server_config();
+    
+                if (server_config.contains("server_key"))
+                {
+                    std::string server_key = server_config["server_key"];
+                    if (server_key.length() == 0)
+                    {
+                        if (current_playlist == nullptr ||
+                            current_playlist->HasProperty(L"RespawnType") == false ||
+                            current_playlist->HasProperty(L"RespawnType") == true &&
+                            current_playlist->RespawnType() == 0)
+                        {
+                            // We make the max limit on prod 40 to automatically ban cheaters who have went past this limit considering noone has ever gotten that much on era by playing legit.
+                            if (DeathReport.KillerPlayerState()->KillScore() >= 40)
+                            {
+                                if (auto killer_pawn = DeathReport.KillerPawn())
+                                {
+                                    // Perform a ban
+                                    if (auto account_id = player_component::get_account_id(killer_pawn->Controller()); account_id.size())
+                                    {
+                                        gameserver_client::Client->SendBan(account_id);
+                                    }   
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (DeathReport.KillerPawn())
