@@ -29,6 +29,7 @@ struct FHitResult
     DEFINE_STRUCT_PROPERTY(FVector, ImpactNormal);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AActor>, Actor);
     DEFINE_STRUCT_PROPERTY(FName, BoneName);
+    char pad[0x88];
     
     DEFINE_STRUCT_CLASS(L"/Script/Engine.HitResult")
     OVERLOAD_NEW_OPERATOR();

@@ -1,8 +1,11 @@
 ﻿#include "include.hpp"
 #include "anticheat_component.hpp"
 
+#include "log_component.hpp"
 #include "looting_component.hpp"
 #include "player_component.hpp"
+
+#define FCC_Trace_Weapon 20
 
 anticheat_component::anticheat_component()
 {
@@ -162,6 +165,90 @@ bool anticheat_component::ValidateTargetDataFrequency(FRangedAbilityData& Abilit
     if (TotalTimeShotDelta < std::fmaxf(FiringRatePerSecond - 0.1, FiringRatePerSecond * 0.75))
     {
         return false;
+    }
+    
+    return true;
+}
+
+
+// TODO: Move to client
+bool anticheat_component::ValidateShot(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility,
+    FGameplayAbilityTargetDataHandle& InData)
+{
+    if (FCollisionQueryParams__Ctor &&
+        FCollisionQueryParams__AddIgnoredActors &&
+        LineTraceMultiByChannel)
+    {
+        if (InData.GetData().Num() == 1)
+        {
+            if (RangedWeaponAbility)
+            {
+                AFortWeapon* Weapon = RangedWeaponAbility->CurrentWeapon();
+                UFortWeaponRangedItemDefinition* WeaponRangedData = reinterpret_cast<UFortWeaponRangedItemDefinition*>(Weapon->WeaponData());
+            
+                if (WeaponRangedData->IsA(UFortWeaponRangedItemDefinition::StaticClass()) && !Weapon->IsProjectileWeapon())
+                {
+                    if (FFortRangedWeaponStats* WeaponStats = reinterpret_cast<FFortRangedWeaponStats*>(looting_component::get_weapon_stats(WeaponRangedData)))
+                    {
+                        if (WeaponStats->SweepRadius() == 0.0)
+                        {
+                            FVector TraceStart = InData.GetSingleData().Get()->HitResult().TraceStart();
+                            FVector TraceEnd = InData.GetSingleData().Get()->HitResult().TraceEnd();
+                            FVector& ClientImpactPoint = InData.GetSingleData().Get()->HitResult().ImpactPoint();
+
+                            // Result
+                            TArray<FHitResult> HitResults;
+
+                            // Params
+                            static FName WeaponTrace = FName(TEXT("WeaponTrace"));
+                            FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams();
+                            FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(WeaponTrace, true, RangedWeaponAbility->GetAvatarActorFromActorInfo());
+
+                            // Line trace
+                            (*GWorld)->LineTraceMultiByChannel(HitResults, TraceStart, TraceEnd, FCC_Trace_Weapon, CollisionQueryParams, CollisionResponseParams);
+
+                            // Check results
+                            if (HitResults.Num() == 1)
+                            {
+                                FVector& ServerImpactPoint = HitResults[0].ImpactPoint();
+
+                                // Round
+                                ServerImpactPoint.X = round(ServerImpactPoint.X);
+                                ServerImpactPoint.Y = round(ServerImpactPoint.Y);
+                                ServerImpactPoint.Z = round(ServerImpactPoint.Z);
+
+                                // Compare
+                                if (ServerImpactPoint.X != ClientImpactPoint.X ||
+                                    ServerImpactPoint.Y != ClientImpactPoint.Y ||
+                                    ServerImpactPoint.Z != ClientImpactPoint.Z)
+                                {
+                                    const float Distance = sqrtf((ServerImpactPoint.X - ClientImpactPoint.X) * (ServerImpactPoint.X - ClientImpactPoint.X) +
+                                                                 (ServerImpactPoint.Y - ClientImpactPoint.Y) * (ServerImpactPoint.Y - ClientImpactPoint.Y) +
+                                                                 (ServerImpactPoint.Z - ClientImpactPoint.Z) * (ServerImpactPoint.Z - ClientImpactPoint.Z));
+                        
+                                    // Check the distance, if it's less than 10cm, allow the client sent values.
+                                    if (Distance > 10.0)
+                                    {
+                                        if (log_component::enable_debug_logs)
+                                        {
+                                            AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->GetOwner());
+                                            AFortPlayerController* Controller = Pawn->Controller();
+                                            
+                                            spdlog::warn(L"player_component_hooks::OnTargetDataReadyCallback_Hook: Player '{}' sent mismatched values.", Controller->MyPlayerInfo()->PlayerName().c_str());
+                                            spdlog::warn(L"player_component_hooks::OnTargetDataReadyCallback_Hook: Server Impact Point: {} {} {}.", ServerImpactPoint.X, ServerImpactPoint.Y, ServerImpactPoint.Z);
+                                            spdlog::warn(L"player_component_hooks::OnTargetDataReadyCallback_Hook: Client Impact Point: {} {} {}.", ClientImpactPoint.X, ClientImpactPoint.Y, ClientImpactPoint.Z);
+                                        }
+
+                                        // Override shot
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     return true;

@@ -52,6 +52,13 @@ public:
 
         Call(Function_K2_RemoveGameplayCue, CueTag);
     }
+
+    AActor* GetAvatarActorFromActorInfo()
+    {
+        STATIC_FINDFUNCTION(GetAvatarActorFromActorInfo)
+
+        return Call<AActor*>(Function_GetAvatarActorFromActorInfo);
+    }
 };
 
 class UFortGameplayAbility : public UGameplayAbility

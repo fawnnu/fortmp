@@ -45,6 +45,7 @@ public:
     static void Initialize();
     static bool ValidateTargetData(UFortGameplayAbility_RangedWeapon* Ability);
     static bool ValidateTargetDataFrequency(FRangedAbilityData& AbilityData, UFortGameplayAbility_RangedWeapon* Ability, UWorld* World, float FiringRatePerSecond, float OptimalTimeDelta, float CustomTimeDilation);
+    static bool ValidateShot(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData);
     static float GetFiringRate(AFortWeapon* FortWeapon);
     static float GetBurstFiringRate(AFortWeapon* FortWeapon);
 

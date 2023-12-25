@@ -371,6 +371,13 @@ struct FFortBaseWeaponStats
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortBaseWeaponStats");
 };
 
+struct FFortRangedWeaponStats
+{
+    DEFINE_STRUCT_PROPERTY(float, SweepRadius);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortRangedWeaponStats");
+};
+
 struct FItemAndCount
 {
     int Count;

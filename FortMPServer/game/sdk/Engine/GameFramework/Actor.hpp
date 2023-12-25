@@ -71,6 +71,15 @@ public:
         return Call<FTransform>(Function_GetTransform);
     }
 
+    TArray<AActor*> GetAttachedActors()
+    {
+        STATIC_FINDFUNCTION(GetAttachedActors)
+
+        TArray<AActor*> Result;
+        ProcessEvent(this, Function_GetAttachedActors, &Result);
+        return Result;
+    }
+
     void GetOverlappingComponents(TArray<class UPrimitiveComponent*>* OutOverlappedComponents)
     {
         STATIC_FINDFUNCTION(GetOverlappingComponents)

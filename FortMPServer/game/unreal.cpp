@@ -154,6 +154,7 @@ unreal_manager::unreal_manager()
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
     INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("40 53 57 41 56 48 83 EC 20 4C 8B 74 24 ? 33 FF 48 89 79 08 48 8B D9 48 89 79 40 48 89 79 48 48 89 79 60 48 89 79 68 44 88 49 11 89 79 18 48 89 11 40 88 79 10"));
     INIT_POINTER(LineTraceMultiByChannel, memory_manager::find_pattern("48 83 EC 48 48 8D 05 ? ? ? ? 48 89 44 24 ? 48 8B 84 24 ? ? ? ? 48 89 44 24 ? 48 8B 44 24 ? 48 89 44 24 ? 8B 44 24 70 89 44 24 20 E8 ? ? ? ? 48 83 C4 48 C3"));
+    INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 53 41 55 41 56 48 83 EC 20 33 DB 4C 8B F2 4C 8B E9 39 5A 08 7E 7A 48 89 74 24 ? 33 F6"));
     
     if (const uintptr_t LastHitchSig = memory_manager::find_pattern("8B 88 ? ? ? ? 89 8B ? ? ? ? F2 0F 11 B3 ? ? ? ? 48 8B 5C 24 ? 0F 28 74 24 ? 48 83 C4 30"))
     {
@@ -235,4 +236,13 @@ void TArray<FMcpVariantChannelInfo>::Free()
     Max = 0;
     FMemory_Free(Data);
     Data = nullptr;
+}
+
+FCollisionQueryParams::FCollisionQueryParams(FName TagName, bool bTraceComplex, AActor* ActorToIgnore)
+{
+    constexpr FName EmptyStatId = FName();
+    FCollisionQueryParams__Ctor(this, TagName, EmptyStatId, bTraceComplex, ActorToIgnore);
+    bReturnPhysicalMaterial = true;
+    TArray<AActor*> ActorsToIgnore = ActorToIgnore->GetAttachedActors();
+    AddIgnoredActors(ActorsToIgnore);
 }

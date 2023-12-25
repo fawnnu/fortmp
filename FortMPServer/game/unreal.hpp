@@ -79,10 +79,13 @@ inline void (*NetConnection__Close)(class UNetConnection* Self);
 inline void (*ConstructUScriptStruct)(UObject** OutStruct, struct FStructParams* Params);
 
 // Construct collision parameters
-inline void* (*FCollisionQueryParams__Ctor)(void*, FName TraceTag, void* StatId, bool bTraceComplex, class AActor* IgnoreActor);
+inline void* (*FCollisionQueryParams__Ctor)(struct FCollisionQueryParams*, FName TraceTag, FName StatId, bool bTraceComplex, class AActor* IgnoreActor);
 
 // Construct collision parameters
-inline bool (*LineTraceMultiByChannel)(UWorld*, TArray<struct FHitResult>& OutHits, FVector& Start, FVector& End, int TraceChannel, void* CollisionQueryParams, void* CollisionResponseParams);
+inline bool (*LineTraceMultiByChannel)(UWorld*, TArray<struct FHitResult>& OutHits, FVector& Start, FVector& End, int TraceChannel, FCollisionQueryParams& CollisionQueryParams, struct FCollisionResponseParams& CollisionResponseParams);
+
+// Add ignored actors to params
+inline void (*FCollisionQueryParams__AddIgnoredActors)(FCollisionQueryParams*, TArray<AActor*>&);
 
 namespace CoreOffsets
 {
@@ -1037,5 +1040,34 @@ struct FScriptName
     FName ToName()
     {
         return FName(ComparisonIndex, Number);
+    }
+};
+
+struct FCollisionResponseParams
+{
+    FCollisionResponseParams()
+    {
+        memset(Padding, 0x2, 0x20);
+    }
+    
+    char Padding[0x20];
+};
+
+struct FCollisionQueryParams
+{
+    FCollisionQueryParams()
+    {
+        
+    }
+    
+    FCollisionQueryParams(FName TagName, bool bTraceComplex, AActor* ActorToIgnore);
+    
+    char Padding[0x20];
+    bool bReturnPhysicalMaterial;
+    char Padding_2[0x1DF];
+
+    void AddIgnoredActors(TArray<AActor*>& ActorsToAdd)
+    {
+        FCollisionQueryParams__AddIgnoredActors(this, ActorsToAdd);
     }
 };

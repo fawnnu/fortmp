@@ -92,6 +92,11 @@ public:
         
         return Call<AWorldSettings*>(Function_K2_GetWorldSettings);
     }
+
+    bool LineTraceMultiByChannel(TArray<struct FHitResult>& OutHits, FVector& Start, FVector& End, int TraceChannel, FCollisionQueryParams& CollisionQueryParams, struct FCollisionResponseParams& CollisionResponseParams)
+    {
+        return ::LineTraceMultiByChannel(this, OutHits, Start, End, TraceChannel, CollisionQueryParams, CollisionResponseParams);   
+    }
 };
 
 class ULevelStreaming : public UObject
