@@ -152,7 +152,9 @@ unreal_manager::unreal_manager()
 
     INIT_POINTER(GIsClient, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28", true, 21));
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
-
+    INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("40 53 57 41 56 48 83 EC 20 4C 8B 74 24 ? 33 FF 48 89 79 08 48 8B D9 48 89 79 40 48 89 79 48 48 89 79 60 48 89 79 68 44 88 49 11 89 79 18 48 89 11 40 88 79 10"));
+    INIT_POINTER(LineTraceMultiByChannel, memory_manager::find_pattern("48 83 EC 48 48 8D 05 ? ? ? ? 48 89 44 24 ? 48 8B 84 24 ? ? ? ? 48 89 44 24 ? 48 8B 44 24 ? 48 89 44 24 ? 8B 44 24 70 89 44 24 20 E8 ? ? ? ? 48 83 C4 48 C3"));
+    
     if (const uintptr_t LastHitchSig = memory_manager::find_pattern("8B 88 ? ? ? ? 89 8B ? ? ? ? F2 0F 11 B3 ? ? ? ? 48 8B 5C 24 ? 0F 28 74 24 ? 48 83 C4 30"))
     {
         CoreOffsets::LastHitch = *reinterpret_cast<DWORD*>(LastHitchSig + 8);

@@ -78,6 +78,12 @@ inline void (*NetConnection__Close)(class UNetConnection* Self);
 // Construct a struct
 inline void (*ConstructUScriptStruct)(UObject** OutStruct, struct FStructParams* Params);
 
+// Construct collision parameters
+inline void* (*FCollisionQueryParams__Ctor)(void*, FName TraceTag, void* StatId, bool bTraceComplex, class AActor* IgnoreActor);
+
+// Construct collision parameters
+inline bool (*LineTraceMultiByChannel)(UWorld*, TArray<struct FHitResult>& OutHits, FVector& Start, FVector& End, int TraceChannel, void* CollisionQueryParams, void* CollisionResponseParams);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
