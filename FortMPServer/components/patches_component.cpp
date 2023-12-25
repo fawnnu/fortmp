@@ -38,7 +38,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
     
     // Prevent players from having no pawn
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::SpawnDefaultPawnAtTransform_Implementation, memory_manager::find_function_by_string(L"SpawnDefaultPawnAtTransform: Couldn't spawn Pawn of type %s at %s"), patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook);
+    REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 48 89 44 24 ? 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF"), patches_component_hook::SpawnActor_Pawn);
     
     // Re-implement GC checks
     REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 420 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
@@ -502,30 +502,36 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
     }
 }
 
-APawn* patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook(AGameModeBase* Self, APlayerController* NewPlayer, FTransform& SpawnTransform)
+APawn* patches_component_hook::SpawnActor_Pawn_Hook(UWorld* Self, UObject* Class, FVector& Location, FRotator& Rotation, const FActorSpawnParameters& Params)
 {
-    if (APawn* ReturnValue = SpawnDefaultPawnAtTransform_Implementation(Self, NewPlayer, SpawnTransform))
+    // When we're spawning an athena player pawn, act accordingly
+    if (Class->This_IsA(APlayerPawn_Athena_C::StaticClass()))
     {
+        if (APawn* ReturnValue = SpawnActor_Pawn(Self, Class, Location, Rotation, Params))
+        {
+            return ReturnValue;
+        }
+
+        // Call function again with offseted location
+        APawn* ReturnValue = nullptr;
+        do
+        {
+            spdlog::error(L"SpawnActor_Pawn_Hook failed. Calling again with a different location...");
+        
+            Location.Z -= 200.f;
+        
+            ReturnValue = SpawnActor_Pawn(Self, Class, Location, Rotation, Params);
+
+            if (ReturnValue)
+            {
+                spdlog::info(L"SpawnActor_Pawn_Hook succeeded.");
+            }
+        } while (ReturnValue == nullptr);
+
         return ReturnValue;
     }
 
-    // Call function again with offseted location
-    APawn* ReturnValue = nullptr;
-    do
-    {
-        spdlog::error(L"SpawnDefaultPawnAtTransform_Implementation failed. Calling again with a different location...");
-        
-        SpawnTransform.Translation.Z -= 200.f;
-        
-        ReturnValue = SpawnDefaultPawnAtTransform_Implementation(Self, NewPlayer, SpawnTransform);
-
-        if (ReturnValue)
-        {
-            spdlog::info(L"SpawnDefaultPawnAtTransform_Implementation succeeded.");
-        }
-    } while (ReturnValue == nullptr);
-
-    return ReturnValue;
+    return SpawnActor_Pawn(Self, Class, Location, Rotation, Params);
 }
 
 bool patches_component_hook::FSocketBSD__RecvFrom_Hook(void* Self, uint8* Data, int32 BufferSize,  int32& BytesRead, void* Source, int Flags)
