@@ -86,6 +86,21 @@ patches_component::patches_component()
         REGISTER_FUNCTION_DETOUR(patches_component_hook::GetClientSettingsRecord, memory_manager::find_function_by_string(L"Advanced Options Enabled", {0xe8}, 1), patches_component_hook::GetClientSettingsRecord_Hook);
     }
 
+    // Patch FortGameMode spawning
+    {
+        if (const uintptr_t target_address = memory_manager::find_pattern("72 41 8B 44 24 58 FF C0 89 44 24 58 E9 ? ? ? ? 48 8B 9D ? ? ? ? 48 8D 45 F0"))
+        {
+            DWORD new_protect, old_protect;
+            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 4096, PAGE_EXECUTE_READWRITE, &old_protect);
+            memset(reinterpret_cast<void*>(target_address), 0x90, 2);
+            VirtualProtect(reinterpret_cast<LPVOID>(target_address), 4096, old_protect, &new_protect);
+        }
+        else
+        {
+            spdlog::error(L"Failed to patch FortGameMode's SpawnDefaultPawnFor.");
+        }
+    }
+    
     {
 #ifdef _RELEASE
         // Allow matchmaking
