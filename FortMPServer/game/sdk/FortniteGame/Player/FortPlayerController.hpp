@@ -409,7 +409,25 @@ public:
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);
     DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
+    DEFINE_PROPERTY(bool, bDelayedTeleporting);
 
+    void RespawnTurnCameraBackOn()
+    {
+        STATIC_FINDFUNCTION(RespawnTurnCameraBackOn)
+
+        Call(Function_RespawnTurnCameraBackOn);
+    }
+
+    void ClientHideScreenWhileRespawning(FText& HUDReason)
+    {
+        STATIC_FINDFUNCTION(ClientHideScreenWhileRespawning)
+
+        FText Params;
+        memcpy(&Params, &HUDReason, 0x18);
+        
+        ProcessEvent(this, Function_ClientHideScreenWhileRespawning, &Params);
+    }
+    
     void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, FAthenaRewardResult* Result)
     {
         STATIC_FINDFUNCTION(ClientSendEndBattleRoyaleMatchForPlayer)

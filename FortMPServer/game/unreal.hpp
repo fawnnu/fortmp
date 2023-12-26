@@ -1071,3 +1071,8 @@ struct FCollisionQueryParams
         FCollisionQueryParams__AddIgnoredActors(this, ActorsToAdd);
     }
 };
+
+struct FText
+{
+    char Padding[0x18];
+};

@@ -21,6 +21,11 @@ public:
     static const TCHAR* GetEraSaveFileName(const TCHAR* OldName);
 
     static AFortPlayerControllerAthena* GetVolumeOwner(AFortVolume* Volume);
+
+    // Custom functions
+    static void TeleportPlayerToLobbyIslandWithTimer(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame);
+    static void TeleportPlayerToIsland(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame);
+    static void FinalizeTeleport(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame);
 };
 
 namespace creative_component_hooks

@@ -103,6 +103,7 @@ public:
     DEFINE_PROPERTY(FVector, TeleportLocation);
     DEFINE_PROPERTY(TArray<struct FUniqueNetIdRepl>, PlayersReady);
     DEFINE_PROPERTY(uint8, CurrentPopulation);
+    DEFINE_PROPERTY(FText, TeleportingPlayersText);
     
     void OnRep_PortalOpen()
     {
@@ -398,4 +399,10 @@ public:
         
         Call(Function_OnFinishedLoading_Internal);
     }
+};
+
+class ABGA_IslandPortal_C : public AFortAthenaCreativePortal
+{
+public:
+    DEFINE_CLASS(L"/Game/Playgrounds/Items/BGA_IslandPortal.BGA_IslandPortal_C")
 };

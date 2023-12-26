@@ -168,12 +168,27 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
     DEFINE_PROPERTY(UObject*, AnimBPOverride);
+    DEFINE_PROPERTY(uint8, PreviousStasisMode);
 
     void OnRep_AnimBPOverride()
     {
         STATIC_FINDFUNCTION(OnRep_AnimBPOverride)
 
         Call(Function_OnRep_AnimBPOverride);
+    }
+
+    void SetStasisMode(uint8 InStasisMode)
+    {
+        STATIC_FINDFUNCTION(SetStasisMode)
+
+        Call(Function_SetStasisMode, InStasisMode);
+    }
+
+    void HandleInStasis()
+    {
+        STATIC_FINDFUNCTION(HandleInStasis)
+
+        Call(Function_HandleInStasis);
     }
     
     class AFortAthenaVehicle* ServerOnExitVehicle()

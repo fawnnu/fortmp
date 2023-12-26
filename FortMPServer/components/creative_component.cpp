@@ -1,6 +1,7 @@
 #include "include.hpp"
 #include "creative_component.hpp"
 
+#include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
@@ -42,6 +43,11 @@ creative_component::creative_component()
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 38 80 3D ? ? ? ? ? 72 2A 48 8B 05 ? ? ? ? 4C 8D 45 28 48 89 45 28"), creative_component_hooks::LoadFileToArray);
     
     DetourTransactionCommit();
+
+    // Register custom function
+    REGISTER_CUSTOM_UFUNCTION(TeleportPlayerToLobbyIslandWithTimer, AFortPlayerControllerAthena::StaticClass())
+    REGISTER_CUSTOM_UFUNCTION(TeleportPlayerToIsland, AFortPlayerControllerAthena::StaticClass())
+    REGISTER_CUSTOM_UFUNCTION(FinalizeTeleport, AFortPlayerControllerAthena::StaticClass())
 }
 
 void creative_component_hooks::SetTeamForPlayer_Hook(AFortMinigame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex)
@@ -283,6 +289,72 @@ AFortPlayerControllerAthena* creative_component::GetVolumeOwner(AFortVolume* Vol
     return nullptr;
 }
 
+void creative_component::TeleportPlayerToLobbyIslandWithTimer(AFortPlayerControllerAthena* FortPlayerControllerAthena,
+    FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    AActor* PlayerStart = (*GWorld)->AuthorityGameMode()->ChoosePlayerStart(FortPlayerControllerAthena);
+
+    if (PlayerStart)
+    {
+        FortPlayerControllerAthena->Pawn()->K2_TeleportTo(PlayerStart->K2_GetActorLocation(), PlayerStart->K2_GetActorRotation());
+
+        // Revert stasis
+        FortPlayerControllerAthena->Pawn()->SetStasisMode(0);
+        
+        FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
+
+        // Clear inventory when going to hub to make sure player doesnt have creative phone and any sort of items
+        inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
+        
+        // Unset linked volume
+        FortPlayerControllerAthena->CreativePlotLinkedVolume() = nullptr;
+
+        FortPlayerControllerAthena->OnRep_CreativePlotLinkedVolume();
+        
+        // Equip pickaxe
+        FortPlayerControllerAthena->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerControllerAthena)->ItemEntry().ItemGuid());
+        
+        FortPlayerControllerAthena->ServerCreativeStopFly();
+        FortPlayerControllerAthena->ClientCreativeStopFly();
+
+        // Restart
+        UKismetSystemLibrary::K2_SetTimer(FortPlayerControllerAthena, TEXT("FinalizeTeleport"), 2.0, false);
+    }
+    else
+    {
+        spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Invalid PlayerStart");
+    }
+}
+
+void creative_component::TeleportPlayerToIsland(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    AFortPlayerPawn* PlayerPawn = PlayerController->Pawn();
+    AFortAthenaCreativePortal* Portal = PlayerController->CreativePlotLinkedVolume()->LinkedPortals()[PlayerController->CreativePlotLinkedVolume()->LinkedPortals().Num() - 1];
+    
+    PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
+    
+    // Reset stasis
+    PlayerPawn->SetStasisMode(0);
+            
+    static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
+
+    Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
+    Portal->OnPlayerPawnTeleported(PlayerPawn);
+
+    UKismetSystemLibrary::K2_SetTimer(PlayerController, TEXT("FinalizeTeleport"), 2.0, false);
+}
+
+void creative_component::FinalizeTeleport(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    (*GWorld)->AuthorityGameMode()->RestartPlayer(PlayerController);
+}
+
 void creative_component::assign_portal_to_player(UNetConnection* NetConnection, int PortalIndex)
 {
     AFortCreativePortalManager* creative_portal_manager = (*GWorld)->GameState()->CreativePortalManager();
@@ -459,21 +531,20 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
             {
                 return;
             }
-    
-            PlayerPawn->K2_TeleportTo(Portal->LinkedVolume()->K2_GetActorLocation(), FRotator());
-            
-            static_cast<AFortPlayerPawnAthena*>(PlayerPawn)->TeleportToSkyDive(18000);
 
-            if (!PlayerPawn->Controller())
-            {
-                return;
-            }
+            // Stasis mode
+            PlayerPawn->SetStasisMode(3);
+            PlayerPawn->HandleInStasis();
             
+            // Black screen
+            static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->ClientHideScreenWhileRespawning(CreateDefaultObject<ABGA_IslandPortal_C>()->TeleportingPlayersText());
+
+            // Save portal in playercontroller
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
             
-            Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
-            Portal->OnPlayerPawnTeleported(PlayerPawn);
+            // Teleport timer
+            UKismetSystemLibrary::K2_SetTimer(PlayerPawn->Controller(), TEXT("TeleportPlayerToIsland"), 3.0, false);
         }
     }
 }
@@ -498,35 +569,17 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
         
         return ServerTeleportToPlaygroundLobbyIsland(FortPlayerControllerAthena, StackFrame);
     }
-    
+
+    // Pre teleport
     FortPlayerControllerAthena->PreLobbyIslandTeleport();
 
-    AActor* PlayerStart = (*GWorld)->AuthorityGameMode()->ChoosePlayerStart(FortPlayerControllerAthena);
+    // Stasis
+    FortPlayerControllerAthena->Pawn()->SetStasisMode(3);
+    FortPlayerControllerAthena->Pawn()->HandleInStasis();
+    FortPlayerControllerAthena->ClientHideScreenWhileRespawning(CreateDefaultObject<ABGA_IslandPortal_C>()->TeleportingPlayersText());
 
-    if (PlayerStart)
-    {
-        FortPlayerControllerAthena->Pawn()->K2_TeleportTo(PlayerStart->K2_GetActorLocation(), PlayerStart->K2_GetActorRotation());
-        
-        FortPlayerControllerAthena->PostLobbyIslandTeleport(FortPlayerControllerAthena->Pawn());
-
-        // Clear inventory when going to hub to make sure player doesnt have creative phone and any sort of items
-        inventory_component::clear_primary_inventory(FortPlayerControllerAthena, false);
-        
-        // Unset linked volume
-        FortPlayerControllerAthena->CreativePlotLinkedVolume() = nullptr;
-
-        FortPlayerControllerAthena->OnRep_CreativePlotLinkedVolume();
-        
-        // Equip pickaxe
-        FortPlayerControllerAthena->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerControllerAthena)->ItemEntry().ItemGuid());
-        
-        FortPlayerControllerAthena->ServerCreativeStopFly();
-        FortPlayerControllerAthena->ClientCreativeStopFly();
-    }
-    else
-    {
-        spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Invalid PlayerStart");
-    }
+    // Timer
+    UKismetSystemLibrary::K2_SetTimer(FortPlayerControllerAthena, TEXT("TeleportPlayerToLobbyIslandWithTimer"), 3.0, false);
 
     return ServerTeleportToPlaygroundLobbyIsland(FortPlayerControllerAthena, StackFrame);
 }
