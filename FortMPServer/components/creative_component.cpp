@@ -318,9 +318,6 @@ void creative_component::TeleportPlayerToLobbyIslandWithTimer(AFortPlayerControl
         
         FortPlayerControllerAthena->ServerCreativeStopFly();
         FortPlayerControllerAthena->ClientCreativeStopFly();
-
-        // Restart
-        UKismetSystemLibrary::K2_SetTimer(FortPlayerControllerAthena, TEXT("FinalizeTeleport"), 2.0, false);
     }
     else
     {
@@ -344,8 +341,6 @@ void creative_component::TeleportPlayerToIsland(AFortPlayerControllerAthena* Pla
 
     Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
     Portal->OnPlayerPawnTeleported(PlayerPawn);
-
-    UKismetSystemLibrary::K2_SetTimer(PlayerController, TEXT("FinalizeTeleport"), 2.0, false);
 }
 
 void creative_component::FinalizeTeleport(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
@@ -536,9 +531,6 @@ void creative_component_hooks::TeleportPlayerToLinkedVolume_Hook(AFortAthenaCrea
             PlayerPawn->SetStasisMode(3);
             PlayerPawn->HandleInStasis();
             
-            // Black screen
-            static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->ClientHideScreenWhileRespawning(CreateDefaultObject<ABGA_IslandPortal_C>()->TeleportingPlayersText());
-
             // Save portal in playercontroller
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->CreativePlotLinkedVolume() = Portal->LinkedVolume();
             static_cast<AFortPlayerControllerAthena*>(PlayerPawn->Controller())->OnRep_CreativePlotLinkedVolume();
@@ -576,8 +568,7 @@ void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortP
     // Stasis
     FortPlayerControllerAthena->Pawn()->SetStasisMode(3);
     FortPlayerControllerAthena->Pawn()->HandleInStasis();
-    FortPlayerControllerAthena->ClientHideScreenWhileRespawning(CreateDefaultObject<ABGA_IslandPortal_C>()->TeleportingPlayersText());
-
+    
     // Timer
     UKismetSystemLibrary::K2_SetTimer(FortPlayerControllerAthena, TEXT("TeleportPlayerToLobbyIslandWithTimer"), 3.0, false);
 
