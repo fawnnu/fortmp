@@ -457,7 +457,9 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                     if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
                     {
                         UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
-
+                        
+                        LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
+                        
                         // If we already had an owner
                         if (bRefreshingOwnership)
                         {
@@ -475,8 +477,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                             // Load the record, which will then apply the save to world
                             LoadIsland(creative_portal->LinkedVolume());
                         }
-                        
-                        LevelSaveComponent->AccountIdOfOwner() = creative_portal->OwningPlayer();
                     }
                 }
             }
