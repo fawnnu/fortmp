@@ -1461,45 +1461,58 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                 
                     while (true)
                     {
-                        httplib::Client ClientReq(API_URL);
-                        ClientReq.set_read_timeout(15, 0); // 15 seconds
-                        ClientReq.set_write_timeout(15, 0); // 15 seconds
-                        httplib::Headers headers = {
-                            { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-                        };
-                        auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
-                        if (Response && Response->status == 200)
+                        try
                         {
-                            try
+                            httplib::Client ClientReq(API_URL);
+                            ClientReq.set_read_timeout(15, 0); // 15 seconds
+                            ClientReq.set_write_timeout(15, 0); // 15 seconds
+                            httplib::Headers headers = {
+                                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
+                            };
+                            auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
+                            if (Response && Response->status == 200)
                             {
-                                nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
-
                                 try
                                 {
-                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
+                                    nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
+
+                                    try
+                                    {
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
                                     
-                                    break;
+                                        break;
+                                    }
+                                    catch (nlohmann::json::exception& err)
+                                    {
+                                    }
                                 }
-                                catch (nlohmann::json::exception& err)
+                                catch (nlohmann::json::parse_error& err)
                                 {
                                 }
                             }
-                            catch (nlohmann::json::parse_error& err)
+                            else
                             {
+                                spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
+                                if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                                {
+                                    // Mark as bPendingKick
+                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                                }
+                                if (Response)
+                                {
+                                    spdlog::error("Query profile failure error code: {}", Response->status);
+                                }
                             }
                         }
-                        else
+                        catch (std::exception& err)
                         {
-                            spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
+                            spdlog::error("Failed to query profile. Error: '{}'. Retrying in 1000ms...", err.what());
                             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
                             if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
                             {
                                 // Mark as bPendingKick
                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
-                            }
-                            if (Response)
-                            {
-                                spdlog::error("Query profile failure error code: {}", Response->status);
                             }
                         }
 
