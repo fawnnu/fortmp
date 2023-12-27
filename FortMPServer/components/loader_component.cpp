@@ -370,10 +370,13 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
-        UObject* fortmp_bp_loader = FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false);
-        if (fortmp_bp_loader)
+        if (!era_mutators_component::IsActive("domino_event"))
         {
-            SpawnDefaultActor(*GWorld, fortmp_bp_loader);   
+            UObject* fortmp_bp_loader = FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false);
+            if (fortmp_bp_loader)
+            {
+                SpawnDefaultActor(*GWorld, fortmp_bp_loader);   
+            }
         }
         
         spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());

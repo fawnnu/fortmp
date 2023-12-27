@@ -108,7 +108,7 @@ void Setup()
                 // load into level
                 if (era_mutators_component::IsActive("domino_event"))
                 {
-                    UGameplayStatics::OpenLevel(*GWorld, TEXT("/game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_MainLevel"), true, TEXT(""));
+                    UGameplayStatics::OpenLevel(*GWorld, TEXT("/game/fortmp/content_complex/domino/domino_level"), true, TEXT(""));
                 }
                 else
                 {
