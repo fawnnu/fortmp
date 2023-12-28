@@ -5,6 +5,7 @@
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
+#include "pickup_component.hpp"
 #include "player_component.hpp"
 
 creative_component::creative_component()
@@ -545,9 +546,22 @@ void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController
 {
     GET_PARAMETER(FFortItemEntry, CreativeItem);
 
-    if (CreativeItem.Count() && CreativeItem.ItemDefinition())
+    if (!inventory_component::is_inventory_full(FortPlayerController, 5))
     {
-        inventory_component::add_item(FortPlayerController, CreativeItem.ItemDefinition(), CreativeItem.Count(), looting_component::get_default_loaded_ammo(CreativeItem.ItemDefinition()));   
+        if (CreativeItem.Count() && CreativeItem.ItemDefinition())
+        {
+            inventory_component::add_item(FortPlayerController, CreativeItem.ItemDefinition(), CreativeItem.Count(), looting_component::get_default_loaded_ammo(CreativeItem.ItemDefinition()));
+        }
+    }
+    else
+    {
+        if (CreativeItem.Count() && CreativeItem.ItemDefinition())
+        {
+            if (FortPlayerController->Pawn())
+            {
+                pickup_component::spawn_pickup(CreativeItem.ItemDefinition(), FortPlayerController->Pawn()->K2_GetActorLocation(), CreativeItem.Count(), looting_component::get_default_loaded_ammo(CreativeItem.ItemDefinition()), true, nullptr, {}, FortPlayerController->Pawn());
+            }
+        }
     }
     
     return ServerGiveCreativeItem(FortPlayerController, StackFrame);

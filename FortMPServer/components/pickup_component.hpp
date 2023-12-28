@@ -5,7 +5,7 @@ class pickup_component
 public:
     pickup_component();
     
-    static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0, bool bToss = true, UObject* pickup_class = nullptr, std::vector<float> GenericAttributeValues = {});
+    static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0, bool bToss = true, UObject* pickup_class = nullptr, std::vector<float> GenericAttributeValues = {}, AFortPawn* PawnWhoDroppedPickup = nullptr);
 
     static void toss_pickup(AFortPickup* fort_pickup, ABuildingActor* from_container, FRotator toss_direction, float toss_angle, float toss_speed);
 

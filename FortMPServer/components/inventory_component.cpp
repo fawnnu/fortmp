@@ -174,7 +174,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                     if (is_inventory_full(player_controller, 5) || !has_item_type(player_controller, item_definition))
                     {
                         // Spawn item as pickup
-                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo());
+                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo(), true, nullptr, {}, player_controller->Pawn());
 
                         return nullptr;
                     }
@@ -195,7 +195,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 if (!has_item_type(player_controller, item_definition))
                 {
                     // Spawn item as pickup
-                    pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), item_count);
+                    pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), item_count, 0, true, nullptr, {}, player_controller->Pawn());
 
                     return nullptr;
                 }
@@ -339,7 +339,7 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                 }
                 
                 // Spawn dropped item as pickup
-                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo(), true, nullptr, GenericAttributeValues);
+                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo(), true, nullptr, GenericAttributeValues, player_controller->Pawn());
             }
 
             if (STATIC_HASPROPERTY(world_item_definition, bPersistInInventoryWhenFinalStackEmpty))

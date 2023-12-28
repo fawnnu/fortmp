@@ -263,7 +263,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                 const float DistanceXY = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
                             (CurrentLocation.Y - LastPos.Y) * (CurrentLocation.Y - LastPos.Y));
 
-                if (!Self->IsInAircraft() && Self->Pawn()->IsInVehicle())
+                if (!Self->IsInAircraft() && Self->Pawn()->IsInVehicle() && !creative_component::is_creative_enabled())
                 {
                     if (DistanceXY > 6000)
                     {

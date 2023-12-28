@@ -83,7 +83,7 @@ pickup_component::pickup_component()
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
-                                            int loaded_ammo, bool bToss, UObject* pickup_class, std::vector<float> GenericAttributeValues)
+                                            int loaded_ammo, bool bToss, UObject* pickup_class, std::vector<float> GenericAttributeValues, AFortPawn* PawnWhoDroppedPickup)
 {
     if (item_definition == nullptr)
     {
@@ -92,7 +92,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     
     static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
     
-    if(pickup_class == nullptr)
+    if (pickup_class == nullptr)
     {
         pickup_class = fort_pickup_class;
     }
@@ -118,7 +118,8 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().ItemDefinition() = item_definition;
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
-
+    fort_pickup->PawnWhoDroppedPickup() = PawnWhoDroppedPickup;
+    
     // copy list
     for (float Value : GenericAttributeValues)
     {
@@ -621,14 +622,15 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(resource_definition) ||
                 fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(trap_definition))
             {
-                if (fort_pickup->PickupLocationData().TossState() == 2) // AtRest
-                    {
-                    if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
-                    {
-                        // Pickup item automatically if it is not currently being tossed
-                        pickup_component::handle_pickup(fort_pickup, PlayerPawn);
-                    }
-                    }
+                if (fort_pickup->PawnWhoDroppedPickup() != nullptr && fort_pickup->PickupLocationData().TossState() != 2)
+                {
+                    // Do nothing
+                }
+                else if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
+                {
+                    // Pickup item automatically if it is not currently being tossed
+                    pickup_component::handle_pickup(fort_pickup, PlayerPawn);
+                }
             }
         }
     }
