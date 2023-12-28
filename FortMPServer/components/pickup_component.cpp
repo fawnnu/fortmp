@@ -4,7 +4,9 @@
 #include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "looting_component.hpp"
+#include "player_component.hpp"
 #include "replication_component.hpp"
 
 pickup_component::pickup_component()
@@ -220,7 +222,20 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
             return;
         }
     }
-    
+
+    auto PawnLoc = PlayerPawn->K2_GetActorLocation();
+    auto PickupLoc = Pickup->K2_GetActorLocation();
+    const float DistanceXY = sqrtf((PawnLoc.X - PickupLoc.X) * (PawnLoc.X - PickupLoc.X) +
+            (PawnLoc.Y - PickupLoc.Y) * (PawnLoc.Y - PickupLoc.Y));
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+    }
+    if (DistanceXY > 1000)
+    {
+        PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));
+    }
+        
     // Prevent duplication
     if (Pickup->bPickedUp())
     {
