@@ -59,7 +59,7 @@ struct FString : private TArray<wchar_t>
 
     bool IsValid()
     {
-        return Data;
+        return Data && Num() > 0;
     }
 };
 

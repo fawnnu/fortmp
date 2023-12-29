@@ -1455,6 +1455,21 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                     if (UGameplayStatics::HasOption(Options, TEXT("Name")))
                     {
                         FString FortName = UGameplayStatics::ParseOption(Options, TEXT("Name"));
+
+                        if (!FortName.IsValid())
+                        {
+                            if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
+                                NewPlayer &&
+                                NewPlayer->Cast<AFortPlayerControllerAthena>())
+                            {
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                            }
+
+                            spdlog::error(L"Player attempted to join with an invalid Name in options.");
+
+                            return 0;
+                        }
+                        
                         std::wstring wFortName = FortName.c_str();
                         TO_EX_STRING(wFortName, Name);
                     }
