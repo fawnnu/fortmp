@@ -265,7 +265,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
 
                 if (!Self->IsInAircraft() && Self->Pawn()->IsInVehicle() && !creative_component::is_creative_enabled())
                 {
-                    if (DistanceXY > 6000)
+                    if (DistanceXY > 15000)
                     {
                         Self->ClientReturnToMainMenu(L"[AC] Cheat detected.");
                         spdlog::warn(L"[DEBUG] Kicked player {} for travelling {} cm on the XY axis in the last second", Self->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
