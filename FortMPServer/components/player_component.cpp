@@ -1478,9 +1478,9 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                                     try
                                     {
-                                        if (memory_manager::is_bad_read_pointer(NewPlayer) ||
-                                            !NewPlayer ||
-                                            !NewPlayer->Cast<AFortPlayerControllerAthena>())
+                                        if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
+                                            NewPlayer &&
+                                            NewPlayer->Cast<AFortPlayerControllerAthena>())
                                         {
                                             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
                                         }
@@ -1498,9 +1498,9 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             else
                             {
                                 spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
-                                if (memory_manager::is_bad_read_pointer(NewPlayer) ||
-                                    !NewPlayer ||
-                                    !NewPlayer->Cast<AFortPlayerControllerAthena>())
+                                if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
+                                    NewPlayer &&
+                                    NewPlayer->Cast<AFortPlayerControllerAthena>())
                                 {
                                     static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
                                     if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
@@ -1518,9 +1518,9 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         catch (std::exception& err)
                         {
                             spdlog::error("Failed to query profile. Error: '{}'. Retrying in 1000ms...", err.what());
-                            if (memory_manager::is_bad_read_pointer(NewPlayer) ||
-                                !NewPlayer ||
-                                !NewPlayer->Cast<AFortPlayerControllerAthena>())
+                            if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
+                                NewPlayer &&
+                                NewPlayer->Cast<AFortPlayerControllerAthena>())
                             {
                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
                                 if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
