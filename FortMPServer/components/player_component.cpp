@@ -1478,8 +1478,13 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
                                     try
                                     {
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
-                                    
+                                        if (memory_manager::is_bad_read_pointer(NewPlayer) ||
+                                            !NewPlayer ||
+                                            !NewPlayer->Cast<AFortPlayerControllerAthena>())
+                                        {
+                                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
+                                        }
+                                        
                                         break;
                                     }
                                     catch (nlohmann::json::exception& err)
@@ -1493,11 +1498,16 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             else
                             {
                                 spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
-                                if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                                if (memory_manager::is_bad_read_pointer(NewPlayer) ||
+                                    !NewPlayer ||
+                                    !NewPlayer->Cast<AFortPlayerControllerAthena>())
                                 {
-                                    // Mark as bPendingKick
-                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
+                                    if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                                    {
+                                        // Mark as bPendingKick
+                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                                    }
                                 }
                                 if (Response)
                                 {
@@ -1508,15 +1518,29 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         catch (std::exception& err)
                         {
                             spdlog::error("Failed to query profile. Error: '{}'. Retrying in 1000ms...", err.what());
-                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
-                            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                            if (memory_manager::is_bad_read_pointer(NewPlayer) ||
+                                !NewPlayer ||
+                                !NewPlayer->Cast<AFortPlayerControllerAthena>())
                             {
-                                // Mark as bPendingKick
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
+                                if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
+                                {
+                                    // Mark as bPendingKick
+                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
+                                }
                             }
                         }
 
                         Sleep(1000);
+                    }
+                    
+                    // Make sure we're meant to read the profile
+                    if (memory_manager::is_bad_read_pointer(NewPlayer) ||
+                        !NewPlayer ||
+                        !NewPlayer->Cast<AFortPlayerControllerAthena>() ||
+                        NewPlayer->Cast<AFortPlayerControllerAthena>()->EraPlayerInfo().bIsDisconneting)
+                    {
+                        return 0;
                     }
                     
                     nlohmann::json data = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile;
@@ -1766,9 +1790,14 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                 catch (std::exception& err)
                 {
                     spdlog::error("Error {} occurred while reading profile. Kicking player...", err.what());
-                    if (static_cast<ProfileParsingParameters*>(INParams)->NewPlayer)
+                    if (!memory_manager::is_bad_read_pointer(static_cast<ProfileParsingParameters*>(INParams)->NewPlayer) &&
+                        static_cast<ProfileParsingParameters*>(INParams)->NewPlayer)
                     {
-                        static_cast<ProfileParsingParameters*>(INParams)->NewPlayer->ClientReturnToMainMenu(L"Failed to parse profile.");
+                        // Mark as bPendingKick
+                        if (AFortPlayerControllerAthena* NewPlayer = static_cast<ProfileParsingParameters*>(INParams)->NewPlayer->Cast<AFortPlayerControllerAthena>())
+                        {
+                            NewPlayer->EraPlayerInfo().bPendingKick = true;
+                        }
                     }
                 }
                 
@@ -2797,6 +2826,27 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
 {
     if (anticheat_component::ValidateTargetData(RangedWeaponAbility))
     {
+        // Bullet TP check
+        {
+            float Distance;
+            if (!anticheat_component::CheckForBulletTP(RangedWeaponAbility, InData, &Distance))
+            {
+                if (RangedWeaponAbility->CurrentWeapon() &&
+                    RangedWeaponAbility->CurrentWeapon()->Owner())
+                {
+                    if (AFortPlayerPawnAthena* Pawn = RangedWeaponAbility->CurrentWeapon()->Owner()->Cast<AFortPlayerPawnAthena>())
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::warn(L"player_component_hooks::OnTargetDataReadyCallback_Hook: Failed to pass Bullet TP checks for Player '{}'. Blanking shot, distance: {}.", Pawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), Distance);
+                        }
+                    }
+                }
+        
+                return 0;
+            }
+        }
+        
         if (static bool bRun = GetEngineVersionEasy() > 422)
         {
             if (RangedWeaponAbility)

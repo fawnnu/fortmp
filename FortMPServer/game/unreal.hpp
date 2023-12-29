@@ -206,6 +206,17 @@ public:
         return false;
     }
     
+    template <typename T>
+    T* Cast()
+    {
+        if (IsA(T::StaticClass()))
+        {
+            return reinterpret_cast<T*>(this);
+        }
+
+        return nullptr;
+    }
+    
     template<typename T = char, typename ...Params>
     T Call(UObject* function_object, Params... args)
     {

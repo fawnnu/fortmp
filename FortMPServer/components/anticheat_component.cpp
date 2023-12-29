@@ -254,6 +254,106 @@ bool anticheat_component::ValidateShot(UFortGameplayAbility_RangedWeapon* Ranged
     return true;
 }
 
+bool anticheat_component::CheckForBulletTP(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility,
+    FGameplayAbilityTargetDataHandle& InData, float* OutDistance)
+{
+    // Any normal gun, ignoring shotguns
+    if (InData.GetData().Num() == 1)
+    {
+        const float TraceStartToWeaponDistance = sqrtf((InData.GetSingleData().Get()->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) * (InData.GetSingleData().Get()->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) +
+                                            (InData.GetSingleData().Get()->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) * (InData.GetSingleData().Get()->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) +
+                                            (InData.GetSingleData().Get()->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z) * (InData.GetSingleData().Get()->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z));
+
+        // The distance should NEVER be more than 7.5 meters, in any scenario!
+        if (TraceStartToWeaponDistance >= 750.0)
+        {
+            if (OutDistance)
+            {
+                *OutDistance = TraceStartToWeaponDistance;
+            }
+            
+            // Blank the shot
+            return false;
+        }
+    }
+    else
+    {
+        for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
+        {
+            if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
+            {
+                const float TraceStartToWeaponDistance = sqrtf((SingleTargetHit->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) * (SingleTargetHit->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) +
+                                            (SingleTargetHit->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) * (SingleTargetHit->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) +
+                                            (SingleTargetHit->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z) * (SingleTargetHit->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z));
+
+                // The distance should NEVER be more than 7.5 meters, in any scenario!
+                if (TraceStartToWeaponDistance >= 750.0)
+                {
+                    if (OutDistance)
+                    {
+                        *OutDistance = TraceStartToWeaponDistance;
+                    }
+            
+                    // Blank the shot
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility,
+    FGameplayAbilityTargetDataHandle& InData)
+{
+    // Any normal gun, ignoring shotguns
+    if (InData.GetData().Num() == 1)
+    {
+        // If we didn't hit a pawn, trust the shot
+        if (AActor* Actor = InData.GetSingleData().Get()->HitResult().Actor().Get())
+        {
+            if (!Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+            {
+                return true;
+            }
+        }
+        
+        TArray<FHitResult> HitResults;
+
+        // Params
+        static FName WeaponTrace = FName(TEXT("WeaponTrace"));
+        FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams();
+        FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(WeaponTrace, true, RangedWeaponAbility->GetAvatarActorFromActorInfo());
+        
+        // Line trace
+        if ((*GWorld)->LineTraceMultiByChannel(HitResults, InData.GetSingleData().Get()->HitResult().TraceStart(), InData.GetSingleData().Get()->HitResult().ImpactPoint(), FCC_Trace_Weapon, CollisionQueryParams, CollisionResponseParams))
+        {
+            if (HitResults.Num() == 1)
+            {
+                if (HitResults[0].Actor().Get() && !HitResults[0].Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        if (RangedWeaponAbility->CurrentWeapon() &&
+                            RangedWeaponAbility->CurrentWeapon()->Owner())
+                        {
+                            if (AFortPlayerPawnAthena* Pawn = RangedWeaponAbility->CurrentWeapon()->Owner()->Cast<AFortPlayerPawnAthena>())
+                            {
+                                spdlog::warn(L"anticheat_component::CheckShotTrajectory: Player's ['{}'] shot impacted actor '{}'.", Pawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), HitResults[0].Actor().Get()->GetName().c_str());
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
 float anticheat_component::GetFiringRate(AFortWeapon* FortWeapon)
 {
     if (anticheat_component_offsets::GetFiringRateOffset > 0)

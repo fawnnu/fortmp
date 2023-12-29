@@ -33,6 +33,16 @@ struct FVector
     {
         return X != 0 && Y != 0 && Z != 0;
     }
+
+    FORCEINLINE std::string ToAnsiString() const
+    {
+        return std::to_string(X) + " " + std::to_string(Y) + " " + std::to_string(Z);
+    }
+
+    FORCEINLINE std::wstring ToUnicodeString() const
+    {
+        return std::to_wstring(X) + L" " + std::to_wstring(Y) + L" " + std::to_wstring(Z);
+    }
         
     // Vector's X component
     float X;
