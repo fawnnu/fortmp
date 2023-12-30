@@ -5,6 +5,7 @@
 #include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "storm_component.hpp"
 
 era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callback)
@@ -16,6 +17,10 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("siphon_new", [](LPVOID)
+    {
+    });
+    
     new era_mutator("2024_nye", [](LPVOID)
     {
         CHECK_CREATIVE()
@@ -238,6 +243,17 @@ era_mutators_component::era_mutators_component()
     parse_loaded_mutators();
 }
 
+void era_mutators_component::InitializeHooks()
+{
+    // Hook
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    REGISTER_FUNCTION_DETOUR(era_mutator_hooks::EvaluateCurveTableRow, memory_manager::find_pattern("4C 8B DC 49 89 5B 20 56 48 83 EC 70 45 33 C0 0F 29 74 24 ? 44 38 05 ? ? ? ? 48 8D 05 ? ? ? ? 49 8B F1 49 89 4B C8 49 0F 45 C0 49 89 53 D0 49 89 43 08 0F 28 F2 48 85 C9"), era_mutator_hooks::EvaluateCurveTableRow_Hook);
+
+    DetourTransactionCommit();
+}
+
 void era_mutators_component::parse_loaded_mutators()
 {
     auto config = config_manager::get_server_config();
@@ -274,4 +290,33 @@ bool era_mutators_component::IsActive(std::string Name)
     }
 
     return false;
+}
+
+void era_mutator_hooks::EvaluateCurveTableRow_Hook(UCurveTable* CurveTable, FName RowName, float InXY, uint8* OutResult, float* OutXY, FString& ContextString)
+{
+    static FName SiphonRowName = FName(TEXT("Default.Siphon.Enabled"));
+
+    if (RowName == SiphonRowName)
+    {
+        if (era_mutators_component::IsActive("siphon_new"))
+        {
+            if (OutResult)
+            {
+                *OutResult = 0;
+            }
+            if (OutXY)
+            {
+                *OutXY = 1.0;
+            }
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"era_mutator_hooks::EvaluateCurveTableRow_Hook: Overridden 'Default.Siphon.Enabled' [OutResult: {}, OutXY: {}].", OutResult ? *OutResult : 2, OutXY ? *OutXY : -1.0);
+            }
+            
+            return;
+        }
+    }
+
+    EvaluateCurveTableRow(CurveTable, RowName, InXY, OutResult, OutXY, ContextString);
 }

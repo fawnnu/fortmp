@@ -238,6 +238,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 GameplayEventData->OptionalObject2() = DeathReport.KillerPawn();
                 GameplayEventData->EventTag().TagName = FName(L"Event.EarnedElimination");
                 GameplayEventData->EventMagnitude() = 1.f;
+                GameplayEventData->TargetTags().GameplayTags.Add(FGameplayTag(FName(TEXT("Class.IsCommando"))));
+                GameplayEventData->InstigatorTags().GameplayTags.Add(FGameplayTag(FName(TEXT("Class.IsCommando"))));
 
                 UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(DeathReport.KillerPawn(), FGameplayTag(FName(L"Event.EarnedElimination")), GameplayEventData);
             

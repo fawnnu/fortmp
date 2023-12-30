@@ -154,6 +154,7 @@ void Setup()
                 new playlist_component();
                 new anticheat_component();
                 new challenges_component();
+                era_mutators_component::InitializeHooks();
                     
                 break;
             }

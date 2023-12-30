@@ -47,6 +47,8 @@ struct FGameplayEventData
     DEFINE_STRUCT_PROPERTY(AActor*, Target);
     DEFINE_STRUCT_PROPERTY(AActor*, OptionalObject);
     DEFINE_STRUCT_PROPERTY(AActor*, OptionalObject2);
+    DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, InstigatorTags);
+    DEFINE_STRUCT_PROPERTY(FGameplayTagContainer, TargetTags);
     DEFINE_STRUCT_PROPERTY(float, EventMagnitude);
     
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEventData");

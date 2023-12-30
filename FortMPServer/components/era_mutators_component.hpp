@@ -42,6 +42,7 @@ class era_mutators_component
 {
 public:
     era_mutators_component();
+    static void InitializeHooks();
 
     // Parse loaded_mutators
     static void parse_loaded_mutators();
@@ -56,3 +57,8 @@ public:
     // Active list of mutators
     static inline std::vector<std::string> enabled_era_mutators;
 };
+
+namespace era_mutator_hooks
+{
+    DEFINE_FUNCTION_HOOK(void, EvaluateCurveTableRow, (UCurveTable* CurveTable, FName RowName, float InXY, uint8* OutResult, float* OutXY, FString& ContextString))
+}
