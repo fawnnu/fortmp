@@ -222,18 +222,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
             return;
         }
     }
-
-    auto PawnLoc = PlayerPawn->K2_GetActorLocation();
-    auto PickupLoc = Pickup->K2_GetActorLocation();
-    const float DistanceXY = sqrtf((PawnLoc.X - PickupLoc.X) * (PawnLoc.X - PickupLoc.X) +
-            (PawnLoc.Y - PickupLoc.Y) * (PawnLoc.Y - PickupLoc.Y));
     
-    if (DistanceXY > 1000)
-    {
-        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis.", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
-        
-        PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));
-    }
         
     // Prevent duplication
     if (Pickup->bPickedUp())
@@ -241,6 +230,18 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         return;
     }
 
+    auto PawnLoc = PlayerPawn->K2_GetActorLocation();
+    auto PickupLoc = Pickup->K2_GetActorLocation();
+    const float DistanceXY = sqrtf((PawnLoc.X - PickupLoc.X) * (PawnLoc.X - PickupLoc.X) +
+            (PawnLoc.Y - PickupLoc.Y) * (PawnLoc.Y - PickupLoc.Y));
+    
+    if (DistanceXY > 2500)
+    {
+        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis.", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+        
+        PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));
+    }
+    
     // Pick it up
     InternalHandlePickup(Pickup, PlayerPawn, Pickup->PickupLocationData().FlyTime() / CreateDefaultObject<AFortPlayerPawnAthena>()->PickupSpeedMultiplier(), FVector(1,1,1));
 
