@@ -92,7 +92,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlayEmoteItem, L"/Script/FortniteGame.FortPlayerController.ServerPlayEmoteItem", player_component_hooks::ServerPlayEmoteItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySprayItem, L"/Script/FortniteGame.FortPlayerController.ServerPlaySprayItem", player_component_hooks::ServerPlaySprayItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::MovingEmoteStopped, L"/Script/FortniteGame.FortPawn.MovingEmoteStopped", player_component_hooks::MovingEmoteStopped_Hook);
-    
+
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerThankBusDriver, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerThankBusDriver", player_component_hooks::ServerThankBusDriver_Hook)
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAddMapMarker, L"/Script/FortniteGame.AthenaMarkerComponent.ServerAddMapMarker", player_component_hooks::ServerAddMapMarker_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
@@ -3135,4 +3136,13 @@ void player_component_hooks::PopAnimBPOverride_Hook(AFortPlayerPawn* Self, int P
         Self->AnimBPOverride() = nullptr;
         Self->OnRep_AnimBPOverride();
     }
+}
+
+void player_component_hooks::ServerThankBusDriver_Hook(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
+{
+    // Native func
+    ServerThankBusDriver(Self, StackFrame);
+
+    // Notify backend
+    challenges_component::SendThankBusDriverInteraction(Self);
 }

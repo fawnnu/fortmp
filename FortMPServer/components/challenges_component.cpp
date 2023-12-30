@@ -1649,9 +1649,12 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
         }
         else
         {
-            if (log_component::enable_debug_logs)
+            if (account_id.size() <= 0)
             {
-                spdlog::error(L"Invalid account_id or rarity while sending event.");
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"Invalid account_id while sending event.");
+                }
             }
         }
     }  
@@ -1812,6 +1815,35 @@ void challenges_component::SendDoorbellInteraction(AFortPlayerController* Intera
             }
         }
     }   
+}
+
+void challenges_component::SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (InteractingPlayerController)
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters
+            {
+                {"x", 0.0},
+                {"y", 0.0}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:bus-thank-you", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
 }
 
 void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)

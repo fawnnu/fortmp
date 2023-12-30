@@ -14,6 +14,16 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("2024_nye", [](LPVOID)
+    {
+        TArray<AActor*> domino_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false));
+                                
+        for (auto actor : domino_scripters)
+        {
+            static_cast<Abp_fortmp_map_loader*>(actor)->StartNYE();
+        } 
+    });
+    
     new era_mutator("no_cube", [](LPVOID)
     {
     });

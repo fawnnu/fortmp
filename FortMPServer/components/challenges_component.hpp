@@ -77,6 +77,7 @@ public:
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
     static void SendSnowballInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
+    static void SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 

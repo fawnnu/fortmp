@@ -275,12 +275,26 @@ namespace player_component_hooks
     // Track trick points
     DEFINE_FUNCTION_HOOK(void, ServerAwardVehicleTrickPoints, (AFortPlayerController* Self, FFrame& StackFrame))
 
+    // Track shield for challenges
     DEFINE_FUNCTION_HOOK(void, GameplayCue_Shield_PotionConsumed, (UObject* Self, UObject* Function, void* Params));
+
+    // Challenges
     DEFINE_FUNCTION_HOOK(void, GameplayCue, (UObject* Self, UObject* Function, void* Params));
+
+    // Challenges
     DEFINE_FUNCTION_HOOK(void, ReceiveActorEndOverlap, (UObject* Self, UObject* Function, void* Params));
+
+    // Reimplement function
     DEFINE_FUNCTION_HOOK(void, GiveItemToPlayer, (TScriptInterface<AFortPlayerController>* Interface, UFortItemDefinition* ItemDefinition, int Quantity))
+
+    // Reimplement AGID anim bp functionality
     DEFINE_FUNCTION_HOOK(void, PushAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
+
+    // Reimplement AGID anim bp functionality
     DEFINE_FUNCTION_HOOK(void, PopAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
+
+    // Reimplement bus thank challenge
+    DEFINE_FUNCTION_HOOK(void, ServerThankBusDriver, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);
