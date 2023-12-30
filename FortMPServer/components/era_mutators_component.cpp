@@ -1,7 +1,9 @@
 ﻿#include "include.hpp"
 #include "era_mutators_component.hpp"
 
+#include "challenges_component.hpp"
 #include "config_manager.hpp"
+#include "creative_component.hpp"
 #include "inventory_component.hpp"
 #include "storm_component.hpp"
 
@@ -16,12 +18,14 @@ era_mutators_component::era_mutators_component()
 {
     new era_mutator("2024_nye", [](LPVOID)
     {
+        CHECK_CREATIVE()
+        
         TArray<AActor*> domino_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false));
-                                
+                            
         for (auto actor : domino_scripters)
         {
             static_cast<Abp_fortmp_map_loader*>(actor)->StartNYE();
-        } 
+        }
     });
     
     new era_mutator("no_cube", [](LPVOID)
