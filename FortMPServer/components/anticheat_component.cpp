@@ -350,6 +350,54 @@ bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon*
             }
         }
     }
+    else
+    {
+        for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
+        {
+            if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
+            {
+                // If we didn't hit a pawn, trust the shot
+                if (AActor* Actor = SingleTargetHit->HitResult().Actor().Get())
+                {
+                    if (!Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+                    {
+                        continue;
+                    }
+                }
+        
+                TArray<FHitResult> HitResults;
+
+                // Params
+                static FName WeaponTrace = FName(TEXT("WeaponTrace"));
+                FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams();
+                FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(WeaponTrace, true, RangedWeaponAbility->GetAvatarActorFromActorInfo());
+        
+                // Line trace
+                if ((*GWorld)->LineTraceMultiByChannel(HitResults, SingleTargetHit->HitResult().TraceStart(), SingleTargetHit->HitResult().ImpactPoint(), FCC_Trace_Weapon, CollisionQueryParams, CollisionResponseParams))
+                {
+                    if (HitResults.Num() == 1)
+                    {
+                        if (HitResults[0].Actor().Get() && !HitResults[0].Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
+                        {
+                            if (log_component::enable_debug_logs)
+                            {
+                                if (RangedWeaponAbility->CurrentWeapon() &&
+                                    RangedWeaponAbility->CurrentWeapon()->Owner())
+                                {
+                                    if (AFortPlayerPawnAthena* Pawn = RangedWeaponAbility->CurrentWeapon()->Owner()->Cast<AFortPlayerPawnAthena>())
+                                    {
+                                        spdlog::warn(L"anticheat_component::CheckShotTrajectory: Player's ['{}'] shot impacted actor '{}'.", Pawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), HitResults[0].Actor().Get()->GetName().c_str());
+                                    }
+                                }
+                            }
+
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     return true;
 }

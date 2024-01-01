@@ -2862,6 +2862,13 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
                 return 0;
             }
         }
+
+        {
+            if (!anticheat_component::CheckShotTrajectory(RangedWeaponAbility, InData))
+            {
+                return 0;
+            }
+        }
         
         if (static bool bRun = GetEngineVersionEasy() > 422)
         {
