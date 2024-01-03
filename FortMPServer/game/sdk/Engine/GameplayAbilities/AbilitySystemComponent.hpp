@@ -118,6 +118,38 @@ public:
         
         Call(Function_ClientActivateAbilityFailed, AbilityToActivate, PredictionKey);
     }
+
+    void BP_ApplyGameplayEffectSpecToSelf(FGameplayEffectSpecHandle* SpecHandle)
+    {
+        STATIC_FINDFUNCTION(BP_ApplyGameplayEffectSpecToSelf)
+
+        struct 
+        {
+            FGameplayEffectSpecHandle SpecHandle;
+            FActiveGameplayEffectHandle ReturnValue;
+        } FunctionParams;
+
+        memcpy(&FunctionParams.SpecHandle, SpecHandle, sizeof FGameplayEffectSpecHandle);
+        
+        ProcessEvent(this, Function_BP_ApplyGameplayEffectSpecToSelf, &FunctionParams);
+    }
+
+    void BP_ApplyGameplayEffectToSelf(UObject* Class, float Level, FGameplayEffectContextHandle Handle)
+    {
+        STATIC_FINDFUNCTION(BP_ApplyGameplayEffectToSelf)
+
+        struct 
+        {
+            UObject* Class;
+            float Level;
+            FGameplayEffectContextHandle SpecHandle;
+            FActiveGameplayEffectHandle ReturnValue;
+        } FunctionParams;
+
+        FunctionParams.SpecHandle = Handle;
+        
+        ProcessEvent(this, Function_BP_ApplyGameplayEffectToSelf, &FunctionParams);
+    }
 };
 
 struct FFortGameplayAbilityTargetData_SingleTargetHit

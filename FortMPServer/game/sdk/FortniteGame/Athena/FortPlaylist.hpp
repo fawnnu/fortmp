@@ -1,5 +1,13 @@
 #pragma once
 
+class UFortGameplayModifierItemDefinition : public UFortItemDefinition
+{
+public:
+    DEFINE_PROPERTY(TArray<struct FFortGameplayEffectDeliveryInfo>, PersistentGameplayEffects);
+
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameplayModifierItemDefinition")
+};
+
 class UFortPlaylist : public UObject
 {
 public:
@@ -12,6 +20,7 @@ public:
     DEFINE_PROPERTY(int, MaxTeamSize);
     DEFINE_PROPERTY(int, MaxSquadSize);
     DEFINE_PROPERTY(int, MaxTeamCount);
+    DEFINE_PROPERTY(TArray<TSoftObjectPtr<UFortGameplayModifierItemDefinition>>, ModifierList);
 };
 
 class UFortPlaylistAthena : public UFortPlaylist

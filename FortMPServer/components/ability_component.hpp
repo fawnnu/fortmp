@@ -10,7 +10,8 @@ public:
 
     // Activate abilities from ability set
     static void apply_ability_set(UObject* player_pawn, UObject* ability_set);
-
+    static void apply_playlist_modifiers(UObject* player_pawn);
+    
     static void UpdateTagMap(UAbilitySystemComponent* AbilitySystemComponent, FGameplayTag& Tag, int CountDelta);
     static void RemoveGameplayCue(UAbilitySystemComponent* AbilitySystemComponent, FGameplayTag& CueTag);
 };

@@ -311,7 +311,6 @@ public:
         
         return Call<FActiveGameplayModifierHandle>(Function_RegisterGameplayModifier, InModifierToRegister, Expiration);
     }
-
     
     void SetFloatingIslandInformation(struct FVector& WorldPosition, bool bActivated)
     {

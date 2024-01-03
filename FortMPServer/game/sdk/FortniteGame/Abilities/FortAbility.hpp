@@ -1,5 +1,62 @@
 ﻿#pragma once
 
+struct FActiveGameplayEffectHandle
+{
+    char Padding[0x8];
+};
+
+struct FGameplayEffectContext
+{
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, SourceObject);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, Instigator);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, EffectCauser);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEffectContext")
+};
+
+struct FGameplayEffectContextHandle
+{
+    TSharedPtr<FGameplayEffectContext> Data;
+};
+
+struct FGameplayEffectSpec
+{
+    DEFINE_STRUCT_PROPERTY(FGameplayEffectContextHandle, EffectContext);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEffectSpec");
+};
+
+struct FGameplayEffectSpecHandle
+{
+    TSharedPtr<FGameplayEffectSpec> Data;
+
+    void AddSourceObject(UObject* SourceObject)
+    {
+        if (FGameplayEffectSpec* Spec = Data.Get())
+        {
+            if (FGameplayEffectContext* Context = Spec->EffectContext().Data.Get())
+            {
+                Context->SourceObject() = SourceObject;
+            }
+        }
+    }
+};
+
+struct FGameplayEffectApplicationInfo
+{
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<UObject>, GameplayEffect);
+    DEFINE_STRUCT_PROPERTY(float, Level);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameplayEffectApplicationInfo")
+};
+
+struct FFortGameplayEffectDeliveryInfo
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FGameplayEffectApplicationInfo>, GameplayEffects);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayEffectDeliveryInfo")
+};
+
 struct FGameplayAbilityTargetDataHandle
 {
     uint8 UniqueId;
@@ -25,6 +82,8 @@ struct FGameplayAbilityTargetDataHandle
     {
         return IsValid(Index) ? GetData()[Index].Get() : nullptr;
     }
+
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAbilityTargetDataHandle")
 };
 
 struct FFortAbilityCost

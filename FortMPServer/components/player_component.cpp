@@ -2730,6 +2730,7 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
+        ability_component::apply_playlist_modifiers(NewPlayer->Pawn());
 
         // Make sure profile is there
         while (true)

@@ -443,6 +443,10 @@ public:
 class UAbilitySystemBlueprintLibrary : public UObject
 {
 public:
+    static struct FGameplayAbilityTargetDataHandle* AbilityTargetDataFromActor(AActor* Actor);
+
+    static struct FGameplayEffectSpecHandle* MakeSpecHandle(UObject* InGameplayEffect, class AActor* InInstigator, class AActor* InEffectCauser, float InLevel);
+
     static void SendGameplayEventToActor(AActor* Actor, FGameplayTag EventTag, FGameplayEventData* Payload)
     {
         static UObject* Default__AbilitySystemBlueprintLibrary = FindObject(L"/Script/GameplayAbilities.Default__AbilitySystemBlueprintLibrary");

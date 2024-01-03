@@ -2,6 +2,7 @@
 #include "ability_component.hpp"
 
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 
 ability_component::ability_component()
 {
@@ -79,6 +80,58 @@ void ability_component::apply_ability_set(UObject* player_pawn, UObject* ability
 
     // Apply ability set
     reinterpret_cast<AFortAIPawn*>(player_pawn)->AddFortAbilitySet(ability_set);
+}
+
+void ability_component::apply_playlist_modifiers(UObject* player_pawn)
+{
+    if (AFortPlayerPawnAthena* PlayerPawn = player_pawn->Cast<AFortPlayerPawnAthena>())
+    {
+        // Get playlist
+        if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
+        {
+            if (Playlist->Cast<UFortPlaylistAthena>())
+            {
+                if (STATIC_HASPROPERTY(Playlist, ModifierList))
+                {
+                    for (TSoftObjectPtr<UFortGameplayModifierItemDefinition> Modifier : Playlist->ModifierList())
+                    {
+                        if (UFortGameplayModifierItemDefinition* ModifierItemDefinition = Modifier.Get())
+                        {
+                            if (ModifierItemDefinition->Cast<UFortGameplayModifierItemDefinition>())
+                            {
+                                TArrayManager<FFortGameplayEffectDeliveryInfo> PersistentGameplayEffects = TArrayManager<FFortGameplayEffectDeliveryInfo>(&ModifierItemDefinition->PersistentGameplayEffects(), FFortGameplayEffectDeliveryInfo::GetStructSize());
+
+                                for (FFortGameplayEffectDeliveryInfo& PersistentGameplayEffect : PersistentGameplayEffects)
+                                {
+                                    // Loop through the gameplay effects
+                                    TArrayManager<FGameplayEffectApplicationInfo> GameplayEffects = TArrayManager<FGameplayEffectApplicationInfo>(&PersistentGameplayEffect.GameplayEffects(), FGameplayEffectApplicationInfo::GetStructSize());
+
+                                    for (FGameplayEffectApplicationInfo& GameplayEffect : GameplayEffects)
+                                    {
+                                        if (UAbilitySystemComponent* ASC = PlayerPawn->AbilitySystemComponent())
+                                        {
+                                            FGameplayEffectSpecHandle* Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(CreateDefaultObject<UObject>(GameplayEffect.GameplayEffect().Get()), PlayerPawn, PlayerPawn, GameplayEffect.Level());
+
+                                            if (Spec)
+                                            {
+                                                Spec->AddSourceObject(PlayerPawn);
+                                                ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
+
+                                                if (log_component::enable_debug_logs)
+                                                {
+                                                    spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ability_component::UpdateTagMap(UAbilitySystemComponent* AbilitySystemComponent, FGameplayTag& Tag, int CountDelta)
