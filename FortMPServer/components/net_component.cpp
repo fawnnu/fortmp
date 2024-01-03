@@ -176,69 +176,79 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
     {
         progression_entry* challenges_progression = challenges_progression_queue.front();
 
-        std::string challenge = challenges_progression->challenge;
-        std::string objective = challenges_progression->objective;
-        int value = challenges_progression->value;
-        std::string AccountID = challenges_progression->player;
-        
-        TO_WSTRING(AccountID, wAccountID);
-
-        if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wAccountID))
+        if (challenges_progression)
         {
-            if (log_component::enable_debug_logs)
+            std::string challenge = challenges_progression->challenge;
+            std::string objective = challenges_progression->objective;
+            int value = challenges_progression->value;
+            std::string AccountID = challenges_progression->player;
+        
+            TO_WSTRING(AccountID, wAccountID);
+
+            if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wAccountID))
             {
-                if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+                if (log_component::enable_debug_logs)
                 {
+                    if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+                    {
+                        TO_WSTRING(objective, wObjective);
+                        TO_WSTRING(challenge, wChallenge);
+                
+                        spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
+                    }
+                }
+
+                // Working live progression
+                if (challenge.find("Quest:") != std::string::npos)
+                {
+                    challenge = challenge.substr(challenge.find(":") + 1);
+
                     TO_WSTRING(objective, wObjective);
                     TO_WSTRING(challenge, wChallenge);
-                
-                    spdlog::info(L"Player '{}' has progressed challenge '{}' [OBJECTIVE: '{}', VALUE: {}]", PlayerController->MyPlayerInfo()->PlayerName().c_str(), wChallenge.c_str(), wObjective.c_str(), value);
-                }
-            }
 
-            // Working live progression
-            if (challenge.find("Quest:") != std::string::npos)
-            {
-                challenge = challenge.substr(challenge.find(":") + 1);
-
-                TO_WSTRING(objective, wObjective);
-                TO_WSTRING(challenge, wChallenge);
-
-                if (UFortQuestItemDefinition* QuestItemDefinition = FindObject<UFortQuestItemDefinition>(wChallenge.c_str(), false, true))
-                {
-                    TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
-
-                    bool bQuestAlreadyExists = false;
-                    for (FFortUpdatedObjectiveStat& ObjectiveStat : UpdatedObjectiveStats)
+                    if (UFortQuestItemDefinition* QuestItemDefinition = FindObject<UFortQuestItemDefinition>(wChallenge.c_str(), false, true))
                     {
-                        if (ObjectiveStat.Quest() == QuestItemDefinition &&
-                            ObjectiveStat.BackendName() == wObjective.c_str())
+                        TArrayManager UpdatedObjectiveStats = TArrayManager<FFortUpdatedObjectiveStat>(&PlayerController->UpdatedObjectiveStats(), FFortUpdatedObjectiveStat::GetStructSize());
+
+                        bool bQuestAlreadyExists = false;
+                        for (FFortUpdatedObjectiveStat& ObjectiveStat : UpdatedObjectiveStats)
                         {
-                            bQuestAlreadyExists = true;
-                            ObjectiveStat.StatValue() = value;
+                            if (ObjectiveStat.Quest() == QuestItemDefinition &&
+                                ObjectiveStat.BackendName() == wObjective.c_str())
+                            {
+                                bQuestAlreadyExists = true;
+                                ObjectiveStat.StatValue() = value;
                             
-                            break;
+                                break;
+                            }
                         }
-                    }
 
-                    if (bQuestAlreadyExists == false)
-                    {
-                        FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
-                        ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
-                        NewObjectiveStat->Quest() = QuestItemDefinition;
-                        NewObjectiveStat->BackendName() = wObjective.c_str();
-                        NewObjectiveStat->StatValue() = value;
+                        if (bQuestAlreadyExists == false)
+                        {
+                            FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
+                            ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
+                            NewObjectiveStat->Quest() = QuestItemDefinition;
+                            NewObjectiveStat->BackendName() = wObjective.c_str();
+                            NewObjectiveStat->StatValue() = value;
 
-                        // Send live progression to client
-                        UpdatedObjectiveStats.Add(NewObjectiveStat);
+                            // Send live progression to client
+                            UpdatedObjectiveStats.Add(NewObjectiveStat);
+                        }
                     }
                 }
             }
         }
-
-        challenges_progression_queue.pop_front();
+        else
+        {
+            spdlog::error(L"net_component_hooks::TickFlush_Hook caught an invalid challenge progression object. Ignoring...");
+        }
         
-        delete challenges_progression;
+        challenges_progression_queue.pop_front();
+
+        if (challenges_progression)
+        {
+            delete challenges_progression;
+        }
     }
 
     while (!kick_events_queue.empty())
