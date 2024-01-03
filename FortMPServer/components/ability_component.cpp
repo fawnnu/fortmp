@@ -89,37 +89,49 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
         // Get playlist
         if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
         {
+            // Only proceed when respawning is off
             if (Playlist->Cast<UFortPlaylistAthena>())
             {
-                if (STATIC_HASPROPERTY(Playlist, ModifierList))
+                if (Playlist->HasProperty(L"RespawnType") == false ||
+                    Playlist->HasProperty(L"RespawnType") == true &&
+                    Playlist->RespawnType() == 0)
                 {
-                    for (TSoftObjectPtr<UFortGameplayModifierItemDefinition> Modifier : Playlist->ModifierList())
+                    if (STATIC_HASPROPERTY(Playlist, ModifierList))
                     {
-                        if (UFortGameplayModifierItemDefinition* ModifierItemDefinition = Modifier.Get())
+                        for (TSoftObjectPtr<UFortGameplayModifierItemDefinition> Modifier : Playlist->ModifierList())
                         {
-                            if (ModifierItemDefinition->Cast<UFortGameplayModifierItemDefinition>())
+                            if (UFortGameplayModifierItemDefinition* ModifierItemDefinition = Modifier.Get())
                             {
-                                TArrayManager<FFortGameplayEffectDeliveryInfo> PersistentGameplayEffects = TArrayManager<FFortGameplayEffectDeliveryInfo>(&ModifierItemDefinition->PersistentGameplayEffects(), FFortGameplayEffectDeliveryInfo::GetStructSize());
-
-                                for (FFortGameplayEffectDeliveryInfo& PersistentGameplayEffect : PersistentGameplayEffects)
+                                if (ModifierItemDefinition->Cast<UFortGameplayModifierItemDefinition>())
                                 {
-                                    // Loop through the gameplay effects
-                                    TArrayManager<FGameplayEffectApplicationInfo> GameplayEffects = TArrayManager<FGameplayEffectApplicationInfo>(&PersistentGameplayEffect.GameplayEffects(), FGameplayEffectApplicationInfo::GetStructSize());
+                                    TArrayManager<FFortGameplayEffectDeliveryInfo> PersistentGameplayEffects = TArrayManager<FFortGameplayEffectDeliveryInfo>(&ModifierItemDefinition->PersistentGameplayEffects(), FFortGameplayEffectDeliveryInfo::GetStructSize());
 
-                                    for (FGameplayEffectApplicationInfo& GameplayEffect : GameplayEffects)
+                                    for (FFortGameplayEffectDeliveryInfo& PersistentGameplayEffect : PersistentGameplayEffects)
                                     {
-                                        if (UAbilitySystemComponent* ASC = PlayerPawn->AbilitySystemComponent())
+                                        // Loop through the gameplay effects
+                                        TArrayManager<FGameplayEffectApplicationInfo> GameplayEffects = TArrayManager<FGameplayEffectApplicationInfo>(&PersistentGameplayEffect.GameplayEffects(), FGameplayEffectApplicationInfo::GetStructSize());
+
+                                        for (FGameplayEffectApplicationInfo& GameplayEffect : GameplayEffects)
                                         {
-                                            FGameplayEffectSpecHandle* Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(CreateDefaultObject<UObject>(GameplayEffect.GameplayEffect().Get()), PlayerPawn, PlayerPawn, GameplayEffect.Level());
-
-                                            if (Spec)
+                                            if (UAbilitySystemComponent* ASC = PlayerPawn->AbilitySystemComponent())
                                             {
-                                                Spec->AddSourceObject(PlayerPawn);
-                                                ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
-
-                                                if (log_component::enable_debug_logs)
+                                                if (UObject* GameplayEffectClass = GameplayEffect.GameplayEffect().Get())
                                                 {
-                                                    spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                    if (UObject* GameplayEffectDefaultObj = CreateDefaultObject<UObject>(GameplayEffectClass))
+                                                    {
+                                                        if (UGameplayEffect* GameplayEffectCast = GameplayEffectDefaultObj->Cast<UGameplayEffect>())
+                                                        {
+                                                            FGameplayEffectSpecHandle Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(GameplayEffectCast, PlayerPawn, PlayerPawn, GameplayEffect.Level());
+
+                                                            Spec.AddSourceObject(PlayerPawn);
+                                                            ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
+
+                                                            if (log_component::enable_debug_logs)
+                                                            {
+                                                                spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

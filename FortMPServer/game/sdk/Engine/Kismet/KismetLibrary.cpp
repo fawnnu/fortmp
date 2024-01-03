@@ -35,7 +35,7 @@ FGameplayAbilityTargetDataHandle* UAbilitySystemBlueprintLibrary::AbilityTargetD
     return ReturnValue;
 }
 
-FGameplayEffectSpecHandle* UAbilitySystemBlueprintLibrary::MakeSpecHandle(UObject* InGameplayEffect, AActor* InInstigator, AActor* InEffectCauser, float InLevel)
+FGameplayEffectSpecHandle UAbilitySystemBlueprintLibrary::MakeSpecHandle(UObject* InGameplayEffect, AActor* InInstigator, AActor* InEffectCauser, float InLevel)
 {
     static UObject* Default__AbilitySystemBlueprintLibrary = FindObject(L"/Script/GameplayAbilities.Default__AbilitySystemBlueprintLibrary");
 
@@ -57,8 +57,5 @@ FGameplayEffectSpecHandle* UAbilitySystemBlueprintLibrary::MakeSpecHandle(UObjec
     
     ProcessEvent(Default__AbilitySystemBlueprintLibrary, FunctionObject, &FunctionParams);
 
-    FGameplayEffectSpecHandle* ReturnValue = static_cast<FGameplayEffectSpecHandle*>(malloc(sizeof FGameplayEffectSpecHandle));
-    memcpy(ReturnValue, &FunctionParams.ReturnValue, sizeof FGameplayEffectSpecHandle);
-    
-    return ReturnValue;
+    return FunctionParams.ReturnValue;
 }

@@ -119,7 +119,7 @@ public:
         Call(Function_ClientActivateAbilityFailed, AbilityToActivate, PredictionKey);
     }
 
-    void BP_ApplyGameplayEffectSpecToSelf(FGameplayEffectSpecHandle* SpecHandle)
+    void BP_ApplyGameplayEffectSpecToSelf(FGameplayEffectSpecHandle SpecHandle)
     {
         STATIC_FINDFUNCTION(BP_ApplyGameplayEffectSpecToSelf)
 
@@ -129,7 +129,7 @@ public:
             FActiveGameplayEffectHandle ReturnValue;
         } FunctionParams;
 
-        memcpy(&FunctionParams.SpecHandle, SpecHandle, sizeof FGameplayEffectSpecHandle);
+        FunctionParams.SpecHandle = SpecHandle;
         
         ProcessEvent(this, Function_BP_ApplyGameplayEffectSpecToSelf, &FunctionParams);
     }

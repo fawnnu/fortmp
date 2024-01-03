@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+class UGameplayEffect : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/GameplayAbilities.GameplayEffect")
+};
+
 struct FActiveGameplayEffectHandle
 {
     char Padding[0x8];
