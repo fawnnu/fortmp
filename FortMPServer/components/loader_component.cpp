@@ -13,6 +13,7 @@
 #include "director_client.hpp"
 #include "era_mutators_component.hpp"
 #include "fort_mutators_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 #include "playlist_component.hpp"
 #include "replication_component.hpp"
@@ -521,6 +522,9 @@ void loader_component::initialize_vending_machines()
     {
         looting_component::set_vending_machine_loot(vending_machine_actor);
     }
+
+    // destroy all vendings if the mutator exists
+    era_mutators_component::Execute("NoVending", nullptr);
 }
 
 void loader_component::initialize_llamas()
@@ -928,6 +932,23 @@ void loader_component_hooks::SwapPOI_Hook(UObject* Object, UObject* Function, vo
 void loader_component_hooks::GetCalendarEventInformation_Hook(UObject* WorldContextObject, FString* EventName, bool* bIsEventActive, FTimespan* TimeSinceBegin, FTimespan* TimeUntilEnd, float* TimespanRatio)
 {
     // Do nothing for now;
+    if (EventName->IsValid())
+    {
+        const std::string Name = EventName->AnsiString();
+
+        if (era_mutators_component::IsActive(Name))
+        {
+            if (bIsEventActive)
+            {
+                *bIsEventActive = true;
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info("loader_component_hooks::GetCalendarEventInformation_Hook: activating '{}' event (Valid Era Mutator).", Name.c_str());
+                }
+            }
+        }
+    }
 }
 
 void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAthena* Target)

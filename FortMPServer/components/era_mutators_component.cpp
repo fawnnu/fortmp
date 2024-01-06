@@ -17,6 +17,20 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("NoVehicle", [](LPVOID)
+    {
+    });
+
+    new era_mutator("NoVending", [](LPVOID)
+    {
+        TArray<AB_Athena_VendingMachine_C*> vending_machine_actors = UGameplayStatics::GetAllActorsOfClass<AB_Athena_VendingMachine_C>(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
+        
+        for (AB_Athena_VendingMachine_C* vending_machine_actor : vending_machine_actors)
+        {
+            vending_machine_actor->K2_DestroyActor();
+        }
+    });
+
     new era_mutator("siphon_new", [](LPVOID)
     {
     });
