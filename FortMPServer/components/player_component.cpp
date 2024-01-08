@@ -2756,6 +2756,12 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         if (era_mutators_component::IsActive("domino_event"))
         {
             NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomizationNonNative(NewPlayer->Pawn());
+
+            // Kick player if joining when the event has already started
+            if ((*GWorld)->AuthorityGameMode()->bMatchHasStarted())
+            {
+                NewPlayer->ClientReturnToMainMenu(L"Project Era Festival has already started. Sorry!");
+            }
         }
         
         // Apply backpack, if specified
