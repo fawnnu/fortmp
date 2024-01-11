@@ -67,6 +67,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         {
             handle_shoppingcart_interaction(player_controller, static_cast<AShoppingCartVehicleSK*>(receiving_actor));
         }
+        else if (receiving_actor->IsA(AFortAthenaFerretVehicle::StaticClass(log_component::enable_debug_logs)))
+        {
+            handle_plane_interaction(player_controller, static_cast<AFortAthenaFerretVehicle*>(receiving_actor));
+        }
     }
     else if (receiving_actor->IsA(AAthenaSupplyDrop_Llama_C::StaticClass(log_component::enable_debug_logs)))
     {
@@ -275,10 +279,21 @@ void interact_component::handle_shoppingcart_interaction(AFortPlayerController* 
 {
     if (log_component::enable_debug_logs)
     {
-        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending llama interaction.");
+        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending shopping cart interaction.");
     }
     
     challenges_component::SendShoppingCartInteraction(player_controller);
+}
+
+void interact_component::handle_plane_interaction(AFortPlayerController* player_controller,
+    AFortAthenaFerretVehicle* vehicle)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_plane_interaction is sending plane interaction.");
+    }
+    
+    challenges_component::SendPlaneInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller));
 }
 
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)

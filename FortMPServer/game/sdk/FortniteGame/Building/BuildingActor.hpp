@@ -55,6 +55,7 @@ class ABuildingActor : public AActor
 public:
     DEFINE_PROPERTY(uint8_t, Team);
     DEFINE_PROPERTY(float, VertSnapGridSize);
+    DEFINE_PROPERTY(FGameplayTagContainer, StaticGameplayTags);
 
     void InitializeKismetSpawnedBuildingActor(ABuildingActor* BuildingOwner, AFortPlayerController* SpawningController)
     {

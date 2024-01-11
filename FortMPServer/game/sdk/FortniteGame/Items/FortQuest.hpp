@@ -1,9 +1,16 @@
 ﻿#pragma once
 
+struct FFortQuestObjectiveStatTableRow
+{
+    DEFINE_STRUCT_PROPERTY(FString, TargetTags);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortQuestObjectiveStatTableRow");
+};
+
 struct FFortMcpQuestObjectiveInfo
 {
     DEFINE_STRUCT_PROPERTY(FName, BackendName)
-    DEFINE_STRUCT_PROPERTY(FCurveTableRowHandle, ObjectiveStatHandle);
+    DEFINE_STRUCT_PROPERTY(FTableRowHandle, ObjectiveStatHandle);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortMcpQuestObjectiveInfo")
 };

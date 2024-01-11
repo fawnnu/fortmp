@@ -79,10 +79,12 @@ public:
     static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     static void SendZiplineInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendPlaneInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 
     static inline std::map<UFortQuestItemDefinition*, std::string> QuestToInteractionMatch;
+    static inline std::map<std::vector<FGameplayTag>, std::string> DestroyTagsToInteractionMatch;
 };
 
 struct progression_entry

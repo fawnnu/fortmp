@@ -1,7 +1,9 @@
 ﻿#include "include.hpp"
 #include "harvesting_component.hpp"
 
+#include "challenges_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 
 harvesting_component::harvesting_component()
@@ -18,7 +20,6 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
         static UObject* BuildingSMActor_Class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
         static UObject* FortWeapon_Class = FindObject(L"/Script/FortniteGame.FortWeapon");
         static UObject* FortWeaponMeleeItemDefinition_Class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-        static UFortItemDefinition* Athena_C4 = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/C4/Athena_C4.Athena_C4");
     
         if (building_actor->IsA(BuildingSMActor_Class))
         {
@@ -46,7 +47,43 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
             {
                 const bool bIsDestroyed = building_actor->GetHealth() - damage < 1;
                 const bool bIsWeakSpot = damage == 100;
-            
+
+                if (bIsDestroyed)
+                {
+                    // Check if we're tracking any "damage prop" challenges
+                    for (auto& [key, val] : challenges_component::DestroyTagsToInteractionMatch)
+                    {
+                        for (FGameplayTag TargetTag : key)
+                        {
+                            for (FGameplayTag StaticTag : building_actor->StaticGameplayTags().GameplayTags)
+                            {
+                                if (StaticTag == TargetTag)
+                                {
+                                    if (instigated_by->Pawn())
+                                    {
+                                        std::string account_id = player_component::get_account_id(instigated_by);
+
+                                        if (account_id.size() > 0)
+                                        {
+                                            nlohmann::json Payload{
+                                                {"x", instigated_by->Pawn()->K2_GetActorLocation().X},
+                                                {"y", instigated_by->Pawn()->K2_GetActorLocation().Y}
+                                            };
+
+                                            if (log_component::enable_debug_logs)
+                                            {
+                                                spdlog::info("harvesting_component::handle_building_damaged sending {}.", val.c_str());
+                                            }
+
+                                            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, val, Payload);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 if (!building_actor || !building_actor->BuildingResourceAmountOverride().CurveTable)
                 {
                     // Make sure objects are valid

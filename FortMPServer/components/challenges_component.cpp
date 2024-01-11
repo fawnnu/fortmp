@@ -14,6 +14,12 @@ challenges_component::challenges_component()
         {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_PianoChain_Play_Piano1.Quest_BR_PianoChain_Play_Piano1"), "interaction:piano"},
         {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion.Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion"), "interaction:dance-off-competition"}
     };
+
+    DestroyTagsToInteractionMatch = {
+        { {FGameplayTag(L"Athena.Quests.Building.Chair")}, "interaction:chair" },
+        { {FGameplayTag(L"Athena.Quests.Building.TelephonePoles")}, "interaction:pole" },
+        { {FGameplayTag(L"Athena.Quests.Building.Wood.Palettes")}, "interaction:pallet" }
+    };
 }
 
 void challenges_component::Initialize()
@@ -1863,6 +1869,34 @@ void challenges_component::SendZiplineInteraction(AFortPlayerControllerAthena* I
             };
 
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:zipline", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
+}
+
+void challenges_component::SendPlaneInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (InteractingPlayerController)
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:use-plane", parameters);
         }
         else
         {
