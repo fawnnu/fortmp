@@ -2757,6 +2757,18 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
+
+        // Due to long level loading times and de-synchronization on Project Era Festival/Drake Event, also apply character parts using ServerChoosePart
+        if (era_mutators_component::IsActive("domino_event"))
+        {
+            NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomizationNonNative(NewPlayer->Pawn());
+
+            // Kick player if joining when the event has already started
+            if ((*GWorld)->AuthorityGameMode()->bMatchHasStarted())
+            {
+                NewPlayer->ClientReturnToMainMenu(L"Project Era Festival has already started. Sorry!");
+            }
+        }
         
         // Apply backpack, if specified
         player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));

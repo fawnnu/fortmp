@@ -252,7 +252,7 @@ void renderer::CreateNewWindow()
                             }
 
 
-                            if (ImGui::Button("Start Reality Collapse Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            if (ImGui::Button("Start Project Era Festival", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
                             {
                                 TArray<AActor*> domino_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), Adomino_scripting_C::StaticClass());
                                 
@@ -260,6 +260,29 @@ void renderer::CreateNewWindow()
                                 {
                                     static_cast<Adomino_scripting_C*>(actor)->StartEvent();
                                 }
+                                
+                                (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = true;
+
+#ifdef _RELEASE
+                                gameserver_client::Client->GameServer_Status.accepting_players = false;
+                                gameserver_client::Client->SendUpdate();
+
+                                player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+                                /*
+                                 * Send a match_started event to director
+                                 */
+                                if (director_client::client)
+                                {
+                                    director_client::client->Send(eudp_packet({
+                                        {"type", "match_started"},
+                                        {"payload", {
+                                            {"starting_players", player_component::starting_players}
+                                        }}
+                                    }));
+                                }
+#endif
+
                             }
 
                             if (ImGui::Button("Start NY Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))

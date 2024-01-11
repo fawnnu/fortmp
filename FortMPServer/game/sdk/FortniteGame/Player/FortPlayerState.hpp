@@ -51,6 +51,26 @@ public:
 
         // TODO: Apply character parts ourselves if the native function does not exist
     }
+
+    void ApplyCharacterCustomizationNonNative(class AFortPlayerPawn* FortPlayerPawn)
+    {
+        // TODO; Apply variants eventually
+        
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), TEXT("Character")))
+        {
+            auto NewPlayer = FortPlayerPawn->GetController()->Cast<AFortPlayerControllerAthena>();
+
+            if (!NewPlayer) return;
+            
+            if (NewPlayer->CustomizationLoadout().Character())
+            {
+                for (auto part : NewPlayer->CustomizationLoadout().Character()->HeroDefinition()->Specializations().Data->Get()->CharacterParts())
+                {
+                    NewPlayer->Pawn()->ServerChoosePart(part.Get()->CharacterPartType(), part.Get());
+                }
+            }
+        }
+    }
 };
 
 struct FDeathInfo

@@ -730,6 +730,11 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
     if (ServerPlaylist)
     {
         fort_mutators_component::on_game_phase_updated(Self->GamePhase());
+
+        if (era_mutators_component::IsActive("domino_event"))
+        {
+            (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+        }
         
         // Can't use STATIC_HASPROPERTY as the playlist can change
         if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
