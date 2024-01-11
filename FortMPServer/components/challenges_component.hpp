@@ -78,6 +78,7 @@ public:
     static void SendSnowballInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendZiplineInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 

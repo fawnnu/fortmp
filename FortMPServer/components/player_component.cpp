@@ -2668,6 +2668,12 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
         LaunchVector.Z = ZiplineJumpStrength;
 
         FortPlayerPawn->LaunchCharacterJump(LaunchVector, false, false, false, true);
+
+        // Send backend event (notify that player used zipline)
+        if (!memory_manager::is_bad_read_pointer(FortPlayerPawn->Controller()) && FortPlayerPawn->Controller())
+        {
+            challenges_component::SendZiplineInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(FortPlayerPawn->Controller()));
+        }
     }
 }
 
