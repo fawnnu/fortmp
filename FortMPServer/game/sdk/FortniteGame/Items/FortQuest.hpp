@@ -266,3 +266,11 @@ public:
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, ContributedPlayers);
     DEFINE_PROPERTY(int, QuestProgressIndex);
 };
+
+class AProp_QuestInteractable_Noms_Base : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/NOMS/Shared/Prop_QuestInteractable_Noms_Base.Prop_QuestInteractable_Noms_Base_C")
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};

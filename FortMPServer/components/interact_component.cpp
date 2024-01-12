@@ -115,6 +115,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         handle_gooseegg_interaction(player_controller, reinterpret_cast<AProp_FMP_GooseEgg_Interactable*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_Noms_Base::StaticClass()))
+    {
+        handle_noms_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Noms_Base*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -508,6 +512,21 @@ void interact_component::handle_doorbell_interaction(AFortPlayerController* play
         {
             challenges_component::SendDoorbellInteraction(player_controller);
         }
+    }
+}
+
+void interact_component::handle_noms_interaction(AFortPlayerController* player_controller,
+    AProp_QuestInteractable_Noms_Base* noms)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_noms_interaction is sending letter interaction.");
+    }
+    
+    if (noms->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendLetterInteraction(player_controller, noms, noms->QuestBackendObjectiveName());
     }
 }
 

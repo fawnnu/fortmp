@@ -488,7 +488,7 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
     }
 }
 
-void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective)
+void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AActor* Letter, FName Objective)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()

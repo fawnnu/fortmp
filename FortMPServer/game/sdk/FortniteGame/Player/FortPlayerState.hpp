@@ -112,6 +112,7 @@ public:
     DEFINE_PROPERTY(uint8_t, TeamMemberState);
     DEFINE_PROPERTY(int, NumRejoins);
     DEFINE_PROPERTY(FPlayerBannerInfo, Banner);
+    DEFINE_PROPERTY(int, TotalPlayerScore);
     
     void OnRep_ReplicatedTeamMemberState()
     {
