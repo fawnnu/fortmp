@@ -1708,6 +1708,39 @@ void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* I
     } 
 }
 
+void challenges_component::SendNomsSignInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI)
+{
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        
+        // Convert FName to std::string
+        std::string sObjective = POI.TagName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            if (sObjective == "Athena.Location.Visit.Quest.NOMS")
+            {
+                nlohmann::json parameters{
+                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:noms", parameters);
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    } 
+}
+
 void challenges_component::SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController)
 {
     CHECK_PAST_WARMUP()

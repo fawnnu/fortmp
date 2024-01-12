@@ -73,6 +73,7 @@ public:
     static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
+    static void SendNomsSignInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
     static void SendSnowballInteraction(AFortPlayerController* InteractingPlayerController);
