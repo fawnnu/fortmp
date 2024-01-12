@@ -460,6 +460,8 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Doorbell/Prop_Athena_Doorbell_Interactable.Prop_Athena_Doorbell_Interactable_C");
 
     DEFINE_PROPERTY(class UBoxComponent*, InsideHouseOverlap);
+
+    DEFINE_PROPERTY(FName, ObjBackendName);
 };
 
 class AProp_FMP_GooseEgg_Interactable : public AActor

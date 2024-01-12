@@ -471,6 +471,13 @@ void interact_component::handle_shadowstone_interaction(AFortPlayerController* p
 
 void interact_component::handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_doorbell_interaction: sending interaction:doorbell-poi with objective {}.", doorbell->ObjBackendName().ToString().c_str());
+    }
+    
+    challenges_component::SendDoorbellPOIInteraction(player_controller, doorbell->ObjBackendName());
+    
     if (UBoxComponent* BoxComponent = doorbell->InsideHouseOverlap())
     {
         FVector ComponentLocation = BoxComponent->K2_GetComponentLocation();

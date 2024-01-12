@@ -59,6 +59,43 @@ public:
         return Call<UFortItem*>(Function_CreateTemporaryItemInstanceBP, Count, Level);
     }
 
+    std::string GetRarity()
+    {
+        std::string rarity;
+
+        if (STATIC_HASPROPERTY(this, Tier))
+        {
+            static UEnum* EFortItemTier = FindObject<UEnum>(L"/Script/FortniteGame.EFortItemTier");
+            static uint8_t I = EFortItemTier->GetEnumIndex(TEXT("I"));
+            static uint8_t II = EFortItemTier->GetEnumIndex(TEXT("II"));
+            static uint8_t III = EFortItemTier->GetEnumIndex(TEXT("III"));
+            static uint8_t IV = EFortItemTier->GetEnumIndex(TEXT("IV"));
+            static uint8_t V = EFortItemTier->GetEnumIndex(TEXT("V"));
+            if (Tier() == I)
+            {
+                rarity = "common";
+            }
+            else if (Tier() == II)
+            {
+                rarity = "uncommon";
+            }
+            else if (Tier() == III)
+            {
+                rarity = "rare";
+            }
+            else if (Tier() == IV)
+            {
+                rarity = "epic";
+            }
+            else if (Tier() == V)
+            {
+                rarity = "legendary";
+            }
+        }
+
+        return rarity;
+    }
+
     int GetMaxStackSize();
 };
 

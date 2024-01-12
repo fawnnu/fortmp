@@ -256,7 +256,7 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
     }
 }
 
-void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags)
+void challenges_component::SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags, std::string rarity)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -395,6 +395,16 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     "Athena.Location.Meta.SevenSeals.07",
                 };
 
+                static std::vector<std::string> POITagsForExpeditionOutposts = {
+                    "Athena.Quests.Location.ExplorerOutposts.A",
+                    "Athena.Quests.Location.ExplorerOutposts.B",
+                    "Athena.Quests.Location.ExplorerOutposts.C",
+                    "Athena.Quests.Location.ExplorerOutposts.D",
+                    "Athena.Quests.Location.ExplorerOutposts.E",
+                    "Athena.Quests.Location.ExplorerOutposts.F",
+                    "Athena.Quests.Location.ExplorerOutposts.G"
+                };
+
                 // Read player POI
                 std::vector POIList = static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().CurrentPOIList;
                 for (std::string POITag : POITagsForCorruptedZone)
@@ -404,12 +414,27 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     if (std::find(POIList.begin(), POIList.end(), POIGameplayTag) != POIList.end())
                     {
                         // Found one of the POI tags: break and add to elimination payload
-                        parameters["meta"] = {
-                            {"in_corrupted_area", true}
-                        };
+                        parameters["meta"]["in_corrupted_area"] = true;
                         
                         break;
                     }
+                }
+                for (std::string POITag : POITagsForExpeditionOutposts)
+                {
+                    TO_WSTRING(POITag, wPOITag);
+                    FGameplayTag POIGameplayTag(wPOITag.c_str());
+                    if (std::find(POIList.begin(), POIList.end(), POIGameplayTag) != POIList.end())
+                    {
+                        // Found one of the POI tags: break and add to elimination payload
+                        parameters["meta"]["in_expedition_outpost"] = true;
+                        
+                        break;
+                    }
+                }
+
+                if (rarity.size() > 0)
+                {
+                    parameters["meta"]["weapon_rarity"] = rarity;
                 }
 
                 // Invalidate headshot kill record
@@ -1612,35 +1637,7 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
 
         if (Pickup && Pickup->PrimaryPickupItemEntry().ItemDefinition())
         {
-            if (STATIC_HASPROPERTY(Pickup->PrimaryPickupItemEntry().ItemDefinition(), Tier))
-            {
-                static UEnum* EFortItemTier = FindObject<UEnum>(L"/Script/FortniteGame.EFortItemTier");
-                static uint8_t I = EFortItemTier->GetEnumIndex(TEXT("I"));
-                static uint8_t II = EFortItemTier->GetEnumIndex(TEXT("II"));
-                static uint8_t III = EFortItemTier->GetEnumIndex(TEXT("III"));
-                static uint8_t IV = EFortItemTier->GetEnumIndex(TEXT("IV"));
-                static uint8_t V = EFortItemTier->GetEnumIndex(TEXT("V"));
-                if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == I)
-                {
-                    rarity = "common";
-                }
-                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == II)
-                {
-                    rarity = "uncommon";
-                }
-                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == III)
-                {
-                    rarity = "rare";
-                }
-                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == IV)
-                {
-                    rarity = "epic";
-                }
-                else if (Pickup->PrimaryPickupItemEntry().ItemDefinition()->Tier() == V)
-                {
-                    rarity = "legendary";
-                }
-            }
+            rarity = Pickup->PrimaryPickupItemEntry().ItemDefinition()->GetRarity();
         }
 
         if (account_id.size() > 0 && rarity.size() > 0)
@@ -1812,6 +1809,37 @@ void challenges_component::SendDoorbellInteraction(AFortPlayerController* Intera
             };
              
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:doorbell", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }   
+}
+
+void challenges_component::SendDoorbellPOIInteraction(AFortPlayerController* InteractingPlayerController, FName Objective)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        std::string sObjective = Objective.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                {"objective", sObjective}
+            };
+             
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:doorbell-poi", parameters);
         }
         else
         {
