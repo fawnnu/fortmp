@@ -905,6 +905,14 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     {
                         challenges_component::SendPortAFortInteraction(PlayerController);
                     }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/DanceGrenade/Athena_DanceGrenade.Athena_DanceGrenade"))
+                    {
+                        challenges_component::SendBoogieBombInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController));
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/FireworksMortar/Athena_FireworksMortar.Athena_FireworksMortar"))
+                    {
+                        challenges_component::SendFireworksInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController));
+                    }
                     else // Check if it's a building resource
                     {
                         inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);
