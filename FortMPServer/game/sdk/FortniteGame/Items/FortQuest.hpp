@@ -274,3 +274,11 @@ public:
 
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 };
+
+class ABP_FrozenFireworkLauncher_Parent : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FrozenFireworks/Shared/BP_FrozenFireworkLauncher_Parent.BP_FrozenFireworkLauncher_Parent_C")
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};

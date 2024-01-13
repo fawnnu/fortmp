@@ -1997,7 +1997,7 @@ void challenges_component::SendBoogieBombInteraction(AFortPlayerControllerAthena
     }
 }
 
-void challenges_component::SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
+void challenges_component::SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -2006,11 +2006,14 @@ void challenges_component::SendFireworksInteraction(AFortPlayerControllerAthena*
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
 
+        std::string sObjective = Objective.sToString();
+        
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+                {"x", firework->K2_GetActorLocation().X},
+                {"y", firework->K2_GetActorLocation().Y},
+                {"objective", sObjective}
             };
 
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:firework", parameters);

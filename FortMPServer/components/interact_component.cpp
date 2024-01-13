@@ -119,6 +119,15 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         handle_noms_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Noms_Base*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(ABP_FrozenFireworkLauncher_Parent::StaticClass()))
+    {
+        handle_fireworks_interaction(player_controller, reinterpret_cast<ABP_FrozenFireworkLauncher_Parent*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with battle stars
+        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
@@ -527,6 +536,21 @@ void interact_component::handle_noms_interaction(AFortPlayerController* player_c
     {
         // Send interaction event
         challenges_component::SendLetterInteraction(player_controller, noms, noms->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_fireworks_interaction(AFortPlayerController* player_controller,
+    ABP_FrozenFireworkLauncher_Parent* firework)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_fireworks_interaction is sending firework interaction.");
+    }
+    
+    if (firework->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendFireworksInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller), firework, firework->QuestBackendObjectiveName());
     }
 }
 

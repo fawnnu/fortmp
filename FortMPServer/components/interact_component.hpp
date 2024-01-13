@@ -29,6 +29,7 @@ public:
     static void handle_shadowstone_interaction(AFortPlayerController* player_controller, ACBGA_SpookyMist_C* spookymist);
     static void handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell);
     static void handle_noms_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Noms_Base* noms);
+    static void handle_fireworks_interaction(AFortPlayerController* player_controller, ABP_FrozenFireworkLauncher_Parent* firework);
 };
 
 namespace interact_component_hooks
