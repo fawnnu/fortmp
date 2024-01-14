@@ -273,7 +273,8 @@ struct FFortAthenaLoadout
     DEFINE_STRUCT_PROPERTY(UAthenaCosmeticItemDefinition*, ItemWrapOverride);
     DEFINE_STRUCT_PROPERTY(TArray<FMcpVariantChannelInfo>, CharacterVariantChannels);
     DEFINE_STRUCT_PROPERTY(TArray<UAthenaItemWrapDefinition*>, ItemWraps);
-    
+
+    OVERLOAD_NEW_OPERATOR();
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAthenaLoadout");
 };
 

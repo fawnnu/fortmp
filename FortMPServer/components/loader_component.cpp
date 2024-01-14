@@ -1048,7 +1048,14 @@ bool loader_component_hooks::SetGameMode_Hook()
 
         if (AuthorityGameMode == nullptr)
         {
-            AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
+            if (era_mutators_component::IsActive("domino_event"))
+            {
+                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_GameMode.StellarBellum_GameMode_C", true));
+            }
+            else
+            {
+                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
+            }
         }
 
         if (AuthorityGameMode && (*GWorld)->AuthorityGameMode() == nullptr)

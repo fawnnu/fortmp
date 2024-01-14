@@ -72,6 +72,26 @@ void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
             }
         }
     }
+    else if (event == L"Domino.RefreshCosmetics")
+    {
+        auto player = static_cast<AFortPlayerControllerAthena*>(player_controller);
+
+        if (player && !memory_manager::is_bad_read_pointer(player))
+        {
+            if (player->Pawn() && !memory_manager::is_bad_read_pointer(player->Pawn()))
+            {
+                if (player->Pawn()->PlayerState() && !memory_manager::is_bad_read_pointer(player->Pawn()->PlayerState()))
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"Applying cosmetics manually [Domino.RefreshCosmetics]");
+                    }
+                    
+                    player->Pawn()->PlayerState()->ApplyCharacterCustomizationNonNative(player->Pawn());
+                }
+            }
+        }
+    }
 
     if (log_component::enable_debug_logs)
     {
