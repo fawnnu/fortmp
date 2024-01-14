@@ -250,11 +250,15 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                     Self->EraPlayerInfo().PositionNotChangedCount = 0;
                 }
 
-                // 5 minutes, kick
-                if (Self->EraPlayerInfo().PositionNotChangedCount >= 300)
+                if (!era_mutators_component::IsActive("domino_event"))
                 {
-                    Self->ClientReturnToMainMenu(L"AFK Timer.");
-                    return;
+                    // 5 minutes, kick
+                    if (Self->EraPlayerInfo().PositionNotChangedCount >= 300)
+                    {
+                    
+                        Self->ClientReturnToMainMenu(L"AFK Timer.");
+                        return;
+                    }   
                 }
 
                 const float Distance = sqrtf((CurrentLocation.X - LastPos.X) * (CurrentLocation.X - LastPos.X) +
@@ -2795,9 +2799,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
                 NewPlayer->ClientReturnToMainMenu(L"Project Era Festival has already started. Sorry!");
             }
         }
-        
-        // Apply backpack, if specified
-        player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));
+        else
+        {
+            // Apply backpack, if specified
+            player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));   
+        }
 
         // Equip the pickaxe on landing
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))

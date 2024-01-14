@@ -169,6 +169,7 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
     DEFINE_PROPERTY(UObject*, AnimBPOverride);
     DEFINE_PROPERTY(uint8, PreviousStasisMode);
+    DEFINE_PROPERTY(FFortAthenaLoadout, CustomizationLoadout);
 
     void OnRep_AnimBPOverride()
     {
