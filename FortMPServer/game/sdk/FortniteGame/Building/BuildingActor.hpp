@@ -55,6 +55,7 @@ class ABuildingActor : public AActor
 public:
     DEFINE_PROPERTY(uint8_t, Team);
     DEFINE_PROPERTY(float, VertSnapGridSize);
+    DEFINE_PROPERTY(FGameplayTagContainer, StaticGameplayTags);
 
     void InitializeKismetSpawnedBuildingActor(ABuildingActor* BuildingOwner, AFortPlayerController* SpawningController)
     {
@@ -459,6 +460,8 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/Doorbell/Prop_Athena_Doorbell_Interactable.Prop_Athena_Doorbell_Interactable_C");
 
     DEFINE_PROPERTY(class UBoxComponent*, InsideHouseOverlap);
+
+    DEFINE_PROPERTY(FName, ObjBackendName);
 };
 
 class AProp_FMP_GooseEgg_Interactable : public AActor

@@ -35,9 +35,9 @@ public:
     static void SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self);
     static void SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama);
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
-    static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags);
+    static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags, std::string rarity);
     static void SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController);
-    static void SendLetterInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Letter_Parent_C* Letter, FName Objective);
+    static void SendLetterInteraction(AFortPlayerController* InteractingController, AActor* Letter, FName Objective);
     static void SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective);
     static void SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective);
@@ -73,15 +73,22 @@ public:
     static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
+    static void SendNomsSignInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
     static void SendSnowballInteraction(AFortPlayerController* InteractingPlayerController);
     static void SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController);
+    static void SendDoorbellPOIInteraction(AFortPlayerController* InteractingPlayerController, FName Objective);
     static void SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendZiplineInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendPlaneInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendBoogieBombInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 
     static inline std::map<UFortQuestItemDefinition*, std::string> QuestToInteractionMatch;
+    static inline std::map<std::vector<FGameplayTag>, std::string> DestroyTagsToInteractionMatch;
 };
 
 struct progression_entry

@@ -327,6 +327,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                     
                             // Notify backend
                             challenges_component::SendCorruptedAreaInteraction(Self, Tag);
+                            challenges_component::SendNomsSignInteraction(Self, Tag);
                             challenges_component::SendPOIInteraction(Self, Tag.TagName);
                         }
                     }
@@ -2672,6 +2673,17 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
         LaunchVector.Z = ZiplineJumpStrength;
 
         FortPlayerPawn->LaunchCharacterJump(LaunchVector, false, false, false, true);
+    }
+    else
+    {
+        if (InZiplineState.bIsZiplining())
+        {
+            // Send backend event (notify that player used zipline)
+            if (!memory_manager::is_bad_read_pointer(FortPlayerPawn->Controller()) && FortPlayerPawn->Controller())
+            {
+                challenges_component::SendZiplineInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(FortPlayerPawn->Controller()));
+            }
+        }
     }
 }
 

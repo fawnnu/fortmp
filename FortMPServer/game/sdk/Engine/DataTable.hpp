@@ -6,7 +6,15 @@ struct FTableRowHandle
     class UDataTable* Table;
 
     // Current row name
-    FName RowName; 
+    FName RowName;
+
+    template <typename T>
+    T* Eval()
+    {
+        auto Map = *reinterpret_cast<TMap<FName, T*>*>(__int64(Table) + 0x30);
+
+        return &Map[RowName].Value;
+    }
 };
 
 class UDataTable : public UObject

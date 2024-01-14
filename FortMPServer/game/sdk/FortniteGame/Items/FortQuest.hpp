@@ -1,9 +1,16 @@
 ﻿#pragma once
 
+struct FFortQuestObjectiveStatTableRow
+{
+    DEFINE_STRUCT_PROPERTY(FString, TargetTags);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortQuestObjectiveStatTableRow");
+};
+
 struct FFortMcpQuestObjectiveInfo
 {
     DEFINE_STRUCT_PROPERTY(FName, BackendName)
-    DEFINE_STRUCT_PROPERTY(FCurveTableRowHandle, ObjectiveStatHandle);
+    DEFINE_STRUCT_PROPERTY(FTableRowHandle, ObjectiveStatHandle);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortMcpQuestObjectiveInfo")
 };
@@ -258,4 +265,20 @@ public:
 
     DEFINE_PROPERTY(TArray<AFortPlayerController*>, ContributedPlayers);
     DEFINE_PROPERTY(int, QuestProgressIndex);
+};
+
+class AProp_QuestInteractable_Noms_Base : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/NOMS/Shared/Prop_QuestInteractable_Noms_Base.Prop_QuestInteractable_Noms_Base_C")
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};
+
+class ABP_FrozenFireworkLauncher_Parent : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FrozenFireworks/Shared/BP_FrozenFireworkLauncher_Parent.BP_FrozenFireworkLauncher_Parent_C")
+
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
 };

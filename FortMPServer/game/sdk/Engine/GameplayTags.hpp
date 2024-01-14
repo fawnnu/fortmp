@@ -21,6 +21,11 @@ struct FGameplayTag
     {
         return cmp.TagName == TagName;
     }
+
+    FORCEINLINE bool operator<(FGameplayTag cmp) const
+    {
+        return TagName < cmp.TagName;
+    }
     
     FName TagName;
 };

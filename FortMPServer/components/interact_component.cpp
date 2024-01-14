@@ -67,6 +67,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         {
             handle_shoppingcart_interaction(player_controller, static_cast<AShoppingCartVehicleSK*>(receiving_actor));
         }
+        else if (receiving_actor->IsA(AFortAthenaFerretVehicle::StaticClass(log_component::enable_debug_logs)))
+        {
+            handle_plane_interaction(player_controller, static_cast<AFortAthenaFerretVehicle*>(receiving_actor));
+        }
     }
     else if (receiving_actor->IsA(AAthenaSupplyDrop_Llama_C::StaticClass(log_component::enable_debug_logs)))
     {
@@ -110,6 +114,19 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     else if (receiving_actor->IsA(AProp_FMP_GooseEgg_Interactable::StaticClass()))
     {
         handle_gooseegg_interaction(player_controller, reinterpret_cast<AProp_FMP_GooseEgg_Interactable*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_Noms_Base::StaticClass()))
+    {
+        handle_noms_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Noms_Base*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(ABP_FrozenFireworkLauncher_Parent::StaticClass()))
+    {
+        handle_fireworks_interaction(player_controller, reinterpret_cast<ABP_FrozenFireworkLauncher_Parent*>(receiving_actor));
+    }
+    else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with battle stars
+        handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestObject_Interactable_Parent_C*>(receiving_actor));
     }
 }
 
@@ -275,10 +292,21 @@ void interact_component::handle_shoppingcart_interaction(AFortPlayerController* 
 {
     if (log_component::enable_debug_logs)
     {
-        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending llama interaction.");
+        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending shopping cart interaction.");
     }
     
     challenges_component::SendShoppingCartInteraction(player_controller);
+}
+
+void interact_component::handle_plane_interaction(AFortPlayerController* player_controller,
+    AFortAthenaFerretVehicle* vehicle)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_plane_interaction is sending plane interaction.");
+    }
+    
+    challenges_component::SendPlaneInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller));
 }
 
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
@@ -456,6 +484,13 @@ void interact_component::handle_shadowstone_interaction(AFortPlayerController* p
 
 void interact_component::handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell)
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_doorbell_interaction: sending interaction:doorbell-poi with objective {}.", doorbell->ObjBackendName().ToString().c_str());
+    }
+    
+    challenges_component::SendDoorbellPOIInteraction(player_controller, doorbell->ObjBackendName());
+    
     if (UBoxComponent* BoxComponent = doorbell->InsideHouseOverlap())
     {
         FVector ComponentLocation = BoxComponent->K2_GetComponentLocation();
@@ -486,6 +521,36 @@ void interact_component::handle_doorbell_interaction(AFortPlayerController* play
         {
             challenges_component::SendDoorbellInteraction(player_controller);
         }
+    }
+}
+
+void interact_component::handle_noms_interaction(AFortPlayerController* player_controller,
+    AProp_QuestInteractable_Noms_Base* noms)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_noms_interaction is sending letter interaction.");
+    }
+    
+    if (noms->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendLetterInteraction(player_controller, noms, noms->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_fireworks_interaction(AFortPlayerController* player_controller,
+    ABP_FrozenFireworkLauncher_Parent* firework)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_fireworks_interaction is sending firework interaction.");
+    }
+    
+    if (firework->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendFireworksInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller), firework, firework->QuestBackendObjectiveName());
     }
 }
 

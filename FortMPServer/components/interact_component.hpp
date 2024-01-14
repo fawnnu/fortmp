@@ -12,6 +12,7 @@ public:
     static void handle_vending_machine_interaction(AFortPlayerController* player_controller, ABuildingItemCollectorActor* vending_machine);
     static void handle_vehicle_interaction(AFortPlayerController* player_controller, AFortAthenaVehicle* vehicle);
     static void handle_shoppingcart_interaction(AFortPlayerController* player_controller, AShoppingCartVehicleSK* vehicle);
+    static void handle_plane_interaction(AFortPlayerController* player_controller, AFortAthenaFerretVehicle* vehicle);
     static void handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop);
     static void handle_supplydrop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop);
     static void handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter);
@@ -27,6 +28,8 @@ public:
     static void handle_jigsaw_puzzle_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Jigsaw_Parent* jigsawpuzzle);
     static void handle_shadowstone_interaction(AFortPlayerController* player_controller, ACBGA_SpookyMist_C* spookymist);
     static void handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell);
+    static void handle_noms_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Noms_Base* noms);
+    static void handle_fireworks_interaction(AFortPlayerController* player_controller, ABP_FrozenFireworkLauncher_Parent* firework);
 };
 
 namespace interact_component_hooks

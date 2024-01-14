@@ -441,7 +441,20 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     // Make sure the killer and victim are different
                     if (KillerPlayerController != VictimPlayerController)
                     {
-                        challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause(), DeathReport.Tags());
+                        std::string rarity;
+
+                        if (DeathReport.DamageCauser())
+                        {
+                            if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
+                            {
+                                if (reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData())
+                                {
+                                    rarity = reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData()->GetRarity();
+                                }
+                            }
+                        }
+                        
+                        challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause(), DeathReport.Tags(), rarity);
                     }
                 }
             }
