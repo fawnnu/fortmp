@@ -73,6 +73,7 @@ patches_component::patches_component()
     {
         REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverridesInternal(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
     }
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::GetAthenaLoadoutWithOverrides_Hook);
     
     if (GetEngineVersionEasy() > 421)
     {
@@ -516,6 +517,57 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
     {
         return PRIVATE_GetAthenaLoadoutWithOverrides(PlayerController, OutLoadout);
     }
+}
+
+FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(AFortPlayerControllerAthena* PlayerController, PVOID A1, PVOID A2)
+{
+    // Get aircraft index in enum
+    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+    
+    // Only execute the code on prelobby
+    if ((*GWorld)->GameState()->GamePhase() < Aircraft)
+    {
+        // Clear
+        for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
+        {
+            CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
+            CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
+        }
+    
+        PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
+        PlayerController->CustomizationLoadout().ItemWraps().Free();
+
+        // Copy the loadout
+        FFortAthenaLoadout* CustomizationLoadoutCopy = static_cast<FFortAthenaLoadout*>(malloc(FFortAthenaLoadout::GetStructSize()));
+        memcpy(CustomizationLoadoutCopy, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+
+        FFortAthenaLoadout* OutLoadout = GetAthenaLoadoutWithOverrides(PlayerController, A1, A2);
+        
+        memcpy(OutLoadout, CustomizationLoadoutCopy, FFortAthenaLoadout::GetStructSize());
+        free(CustomizationLoadoutCopy);
+
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"CharacterVariantChannels"))
+        {
+            // Apply variants
+            for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
+            {
+                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
+            }
+        }
+
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"ItemWraps"))
+        {
+            // Apply wraps
+            player_component::apply_wraps(OutLoadout, PlayerController->EraPlayerInfo().PendingWrapsData);
+        }
+            
+        return OutLoadout;
+    }
+    else
+    {
+        return GetAthenaLoadoutWithOverrides(PlayerController, A1, A2);
+    } 
 }
 
 APawn* patches_component_hook::SpawnActor_Pawn_Hook(UWorld* Self, UObject* Class, FVector& Location, FRotator& Rotation, const FActorSpawnParameters& Params)

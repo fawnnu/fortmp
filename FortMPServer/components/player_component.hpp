@@ -128,6 +128,7 @@ struct FEraPlayerInfo
     bool bPendingKick;
     bool bProfileReady;
     std::vector<std::pair<nlohmann::json, UObject*>> PendingVariantsData;
+    nlohmann::json PendingWrapsData;
     std::wstring PlayerPlatform;
     std::wstring AccountId;
     FDamageDealtMapValue DamageDealtTracker;
@@ -207,6 +208,7 @@ public:
     static void initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor);
     static EDamageCauser get_damage_causer(FGameplayTagContainer& Tags);
     static void apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json VariantData, UObject* ItemVariantIsUsedFor);
+    static void apply_wraps(FFortAthenaLoadout* Loadout, nlohmann::json WrapsData);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;

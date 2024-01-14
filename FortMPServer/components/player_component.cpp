@@ -1659,35 +1659,9 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             {
                                 nlohmann::json wraps = locker["wraps"];
 
-                                if (wraps.is_array())
-                                {
-                                    for (auto& elem : wraps.items())
-                                    {
-                                        if (elem.value().is_null())
-                                        {
-                                            continue;
-                                        }
-
-                                        if (elem.value().is_string())
-                                        {
-                                            std::string wrap = elem.value();
-
-                                            if (wrap.find(":") != std::string::npos)
-                                            {
-                                                wrap = wrap.substr(wrap.find(":") + 1);
-                                                TO_WSTRING(wrap, wWrap);
-
-                                                if (UAthenaItemWrapDefinition* WrapItem = FindObject<UAthenaItemWrapDefinition>(wWrap.c_str(), false, true))
-                                                {
-                                                    if (WrapItem->IsA(UAthenaItemWrapDefinition::StaticClass()))
-                                                    {
-                                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().ItemWraps().Add(WrapItem);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PendingWrapsData = wraps;
+                                    
+                                apply_wraps(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), wraps);
                             }
                         }
 
@@ -2420,6 +2394,39 @@ void player_component::apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json
     }
 }
 
+void player_component::apply_wraps(FFortAthenaLoadout* Loadout, nlohmann::json WrapsData)
+{
+    if (WrapsData.is_array())
+    {
+        for (auto& elem : WrapsData.items())
+        {
+            if (elem.value().is_null())
+            {
+                continue;
+            }
+
+            if (elem.value().is_string())
+            {
+                std::string wrap = elem.value();
+
+                if (wrap.find(":") != std::string::npos)
+                {
+                    wrap = wrap.substr(wrap.find(":") + 1);
+                    TO_WSTRING(wrap, wWrap);
+
+                    if (UAthenaItemWrapDefinition* WrapItem = FindObject<UAthenaItemWrapDefinition>(wWrap.c_str(), false, true))
+                    {
+                        if (WrapItem->IsA(UAthenaItemWrapDefinition::StaticClass()))
+                        {
+                            Loadout->ItemWraps().Add(WrapItem);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UObject*, P);
@@ -2764,11 +2771,24 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
 
-        // Due to long level loading times and de-synchronization on Project Era Festival/Drake Event, also apply character parts using ServerChoosePart
+        // Apply pickaxe
+        if (UAthenaPickaxeItemDefinition* Pickaxe = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe())
+        {
+            if (UFortWorldItem* PickaxeWorldItem = inventory_component::get_pickaxe(NewPlayer))
+            {
+                if (PickaxeWorldItem->ItemEntry().ItemDefinition() != Pickaxe->WeaponDefinition())
+                {
+                    // Find and remove default pickaxe
+                    inventory_component::remove_item(NewPlayer, PickaxeWorldItem->ItemEntry().ItemGuid(), 1, false);
+
+                    // Add pickaxe
+                    inventory_component::add_item(NewPlayer, Pickaxe->WeaponDefinition(), 1);
+                }
+            }
+        }
+        
         if (era_mutators_component::IsActive("domino_event"))
         {
-            NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomizationNonNative(NewPlayer->Pawn());
-
             // Kick player if joining when the event has already started
             if ((*GWorld)->AuthorityGameMode()->bMatchHasStarted())
             {

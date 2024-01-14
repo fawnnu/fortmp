@@ -238,6 +238,22 @@ void TArray<FMcpVariantChannelInfo>::Free()
     Data = nullptr;
 }
 
+void TArray<UAthenaDanceItemDefinition*>::Free()
+{
+    Count = 0;
+    Max = 0;
+    FMemory_Free(Data);
+    Data = nullptr;
+}
+
+void TArray<UAthenaItemWrapDefinition*>::Free()
+{
+    Count = 0;
+    Max = 0;
+    FMemory_Free(Data);
+    Data = nullptr;
+}
+
 FCollisionQueryParams::FCollisionQueryParams(FName TagName, bool bTraceComplex, AActor* ActorToIgnore)
 {
     constexpr FName EmptyStatId = FName();
