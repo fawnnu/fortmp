@@ -39,4 +39,8 @@ namespace interact_component_hooks
 
     // Called when a player interacts with an actor
     DEFINE_FUNCTION_HOOK(void, InteractionComponent_ServerAttemptInteract, (UActorComponent* InteractionComponent, FFrame& StackFrame));
+
+    // Called by ServerAttemptInteract
+    DEFINE_FUNCTION_HOOK(bool, BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, (void* Interface, FInteractionType& InteractionType))
+    inline int InterfaceToOwnerOffset;
 }

@@ -17,13 +17,18 @@ interact_component::interact_component()
     REGISTER_UFUNCTION_DETOUR(interact_component_hooks::PlayerController_ServerAttemptInteract, L"/Script/FortniteGame.FortPlayerController.ServerAttemptInteract", interact_component_hooks::PlayerController_ServerAttemptInteract_Hook);
     REGISTER_UFUNCTION_DETOUR(interact_component_hooks::InteractionComponent_ServerAttemptInteract, L"/Script/FortniteGame.FortControllerComponent_Interaction.ServerAttemptInteract", interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook);
 
+    REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 80 3A 02 48 8B FA 48 8B D9 0F 85 ? ? ? ? 48 89 6C 24 ? 48 89 74 24 ? 48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ?"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
+    if (const uintptr_t address = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ? 0F B6 E8 C0 E0 04 48 8B CF 08 83 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
+    {
+        interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(address + 3);
+    }
+    
     DetourTransactionCommit();
 }
 
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type)
 {
     static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
-    static UObject* vending_machine_class = FindObject(L"/Script/FortniteGame.BuildingItemCollectorActor");
     static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
 
     if (log_component::enable_debug_logs)
@@ -51,11 +56,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
             // This is supposed to mislead the hackers when they try to cheat. If someone gets kicked for this reason, that means they attempted to use an insta-revive cheat.
             player_controller->ClientReturnToMainMenu(L"AFortPlayerPawn::DBNOInteractionCollisionProfile : No DBNOInteractionCollisionProfile. Failed to get finished hero soundwave.");
         }
-    }
-    else if (receiving_actor->IsA(vending_machine_class))
-    {
-        // Handle any interactions with vending machines
-        handle_vending_machine_interaction(player_controller, reinterpret_cast<ABuildingItemCollectorActor*>(receiving_actor));
     }
     else if (receiving_actor->IsA(AFortAthenaVehicle::StaticClass(log_component::enable_debug_logs)))
     {
@@ -205,13 +205,16 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                 deposit_item_instance != nullptr || deposit_amount == 0)
             {
                 // Pay the item cost
-                if (deposit_item_instance != nullptr && deposit_amount != 0)
+                if (GetFortniteVersionEasy() < 7.0)
                 {
-                    if (deposit_item_instance->ItemEntry().Count() < deposit_amount)
+                    if (deposit_item_instance != nullptr && deposit_amount != 0)
                     {
-                        spdlog::warn(L"Player '{}' tried to buy from vending machines without enough materials.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                        if (deposit_item_instance->ItemEntry().Count() < deposit_amount)
+                        {
+                            spdlog::warn(L"Player '{}' tried to buy from vending machines without enough materials.", player_controller->MyPlayerInfo()->PlayerName().c_str());
                             
-                        return;
+                            return;
+                        }
                     }
                 }
                 
@@ -233,9 +236,12 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                 }
 
                 // If a new pickup has been spawned, charge the player with the price
-                if (deposit_item_instance != nullptr && deposit_amount != 0)
+                if (GetFortniteVersionEasy() < 7.0)
                 {
-                    inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                    if (deposit_item_instance != nullptr && deposit_amount != 0)
+                    {
+                        inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                    }
                 }
 
                 // Send event
@@ -552,6 +558,36 @@ void interact_component::handle_fireworks_interaction(AFortPlayerController* pla
         // Send interaction event
         challenges_component::SendFireworksInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller), firework, firework->QuestBackendObjectiveName());
     }
+}
+
+bool interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook(void* Interface, FInteractionType& InteractionType)
+{
+    const bool ReturnValue = BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract(Interface, InteractionType);
+    
+    if (ReturnValue)
+    {
+        AFortPlayerPawn* PlayerPawn = InteractionType.RequestingPawn().Get();
+
+        if (!memory_manager::is_bad_read_pointer(PlayerPawn) && PlayerPawn)
+        {
+            AFortPlayerController* PlayerController = PlayerPawn->Controller();
+
+            if (!memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+            {
+                AActor* Owner = reinterpret_cast<AActor*>(reinterpret_cast<uintptr_t>(Interface) + InterfaceToOwnerOffset);
+
+                if (Owner)
+                {
+                    if (ABuildingItemCollectorActor* Vending = Owner->Cast<ABuildingItemCollectorActor>())
+                    {
+                        interact_component::handle_vending_machine_interaction(PlayerController, Vending);
+                    }
+                }
+            }
+        }
+    }
+
+    return ReturnValue;
 }
 
 void interact_component_hooks::PlayerController_ServerAttemptInteract_Hook(AFortPlayerController* PlayerController, FFrame& StackFrame)

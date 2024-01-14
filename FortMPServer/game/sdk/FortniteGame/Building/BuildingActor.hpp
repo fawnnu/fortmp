@@ -152,6 +152,7 @@ public:
 class ABuildingItemCollectorActor : public ABuildingSMActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingItemCollectorActor")
     DEFINE_PROPERTY(int, StartingGoalLevel);
 
     DEFINE_PROPERTY(TArray<FCollectorUnitInfo>, ItemCollections);
@@ -165,6 +166,8 @@ public:
 
     DEFINE_PROPERTY(int, NumInteractionsAllowed);
     DEFINE_PROPERTY(int, NumInteractions);
+
+    DEFINE_BIT_PROPERTY(bool, bCurrentInteractionSuccess);
 
     int GetDepositAmount(AFortPlayerController* FortPlayerController, UFortItemDefinition* InInputItem)
     {
