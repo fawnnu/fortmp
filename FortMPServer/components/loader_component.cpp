@@ -379,6 +379,10 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 SpawnDefaultActor(*GWorld, fortmp_bp_loader);   
             }
         }
+        else
+        {
+            (*GWorld)->GameState()->GamePhase() = 2; // Warmup
+        }
         
         spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
     }
@@ -699,27 +703,30 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
     INIT_CUSTOM_FUNCTION();
 
 #ifdef _RELEASE
-    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
-    uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+        static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+        uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
 
-    if (Self->GamePhase() == Aircraft)
+    if (!era_mutators_component::IsActive("domino_event"))
     {
-        gameserver_client::Client->GameServer_Status.accepting_players = false;
-        gameserver_client::Client->SendUpdate();
-
-        player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
-
-        /*
-         * Send a match_started event to director
-         */
-        if (director_client::client)
+        if (Self->GamePhase() == Aircraft)
         {
-            director_client::client->Send(eudp_packet({
-                {"type", "match_started"},
-                {"payload", {
-                    {"starting_players", player_component::starting_players}
-                }}
-            }));
+            gameserver_client::Client->GameServer_Status.accepting_players = false;
+            gameserver_client::Client->SendUpdate();
+
+            player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+            /*
+             * Send a match_started event to director
+             */
+            if (director_client::client)
+            {
+                director_client::client->Send(eudp_packet({
+                    {"type", "match_started"},
+                    {"payload", {
+                        {"starting_players", player_component::starting_players}
+                    }}
+                }));
+            }
         }
     }
 #endif
