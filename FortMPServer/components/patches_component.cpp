@@ -537,15 +537,17 @@ FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(A
     
         PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
         PlayerController->CustomizationLoadout().ItemWraps().Free();
+        PlayerController->CustomizationLoadout().Dances().Free();
+        PlayerController->CustomizationLoadout().BannerIconId().Clear();
+        PlayerController->CustomizationLoadout().BannerColorId().Clear();
 
         // Copy the loadout
-        FFortAthenaLoadout* CustomizationLoadoutCopy = static_cast<FFortAthenaLoadout*>(malloc(FFortAthenaLoadout::GetStructSize()));
+        FFortAthenaLoadout* CustomizationLoadoutCopy = static_cast<FFortAthenaLoadout*>(alloca(FFortAthenaLoadout::GetStructSize()));
         memcpy(CustomizationLoadoutCopy, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
 
         FFortAthenaLoadout* OutLoadout = GetAthenaLoadoutWithOverrides(PlayerController, A1, A2);
         
         memcpy(OutLoadout, CustomizationLoadoutCopy, FFortAthenaLoadout::GetStructSize());
-        free(CustomizationLoadoutCopy);
 
         if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"CharacterVariantChannels"))
         {

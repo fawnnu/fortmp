@@ -2239,11 +2239,6 @@ void player_component::initialize_player_banner_icon(AFortPlayerController* Targ
         
         TO_WSTRING(BannerIcon, wBannerIcon);
 
-        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerIconId"))
-        {
-            static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerIconId() = wBannerIcon;
-        }
-
         if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
         {
             if (STATIC_HASPROPERTY(PlayerState, Banner))
@@ -2278,11 +2273,6 @@ void player_component::initialize_player_banner_color(AFortPlayerController* Tar
         BannerColor = BannerColor.substr(BannerColor.find(":") + 1);
         
         TO_WSTRING(BannerColor, wBannerColor);
-
-        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerColorId"))
-        {
-            static_cast<AFortPlayerControllerAthena*>(TargetPlayerController)->CustomizationLoadout().BannerColorId() = wBannerColor;
-        }
     
         if (AFortPlayerStateAthena* PlayerState = TargetPlayerController->PlayerState())
         {

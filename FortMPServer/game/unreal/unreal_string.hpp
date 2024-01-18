@@ -61,6 +61,13 @@ struct FString : private TArray<wchar_t>
     {
         return Data && Num() > 0;
     }
+
+    void Clear()
+    {
+        Count = 0;
+        Max = 0;
+        Data = nullptr;
+    }
 };
 
 struct FName
