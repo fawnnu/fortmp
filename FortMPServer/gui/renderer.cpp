@@ -151,7 +151,6 @@ void renderer::CreateNewWindow()
     IMAGE_ICON,
     256, 256,
     LR_DEFAULTCOLOR));
-    SendMessageA(WindowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hIcon));
     SendMessageA(WindowHandle, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hIcon));
 
     // Dark mode
