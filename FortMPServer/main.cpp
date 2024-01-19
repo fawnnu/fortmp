@@ -47,6 +47,9 @@ void Setup()
     // Pre init UE functions
     unreal_manager::pre_init();
     
+    // Pre-start patches
+    patches_component::pre_init();
+    
     // Create director_client
     new director_client();
 
@@ -98,6 +101,9 @@ void Setup()
                 {
                     *GIsServer = true;
                 }
+
+                // Revert patches
+                patches_component::revert_pre_init();
                 
                 // Initialize FMP blueprint support
                 new blueprint_component();

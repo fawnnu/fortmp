@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_win32.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "../resource.h"
 #include "../components/config_manager.hpp"
 #include "../components/loader_component.hpp"
 #include "../components/elimination_component.hpp"
@@ -20,6 +21,92 @@
 #include "../components/shell_component.hpp"
 #include "../components/director_client.hpp"
 #include "../utils/stb_image.h"
+
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
+namespace ImGui {
+
+    bool BufferingBar(const char* label, float value,  const ImVec2& size_arg, const ImU32& bg_col, const ImU32& fg_col, ImVec2 position) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if (window->SkipItems)
+            return false;
+
+        ImGuiContext& g = *GImGui;
+        const ImGuiStyle& style = g.Style;
+        const ImGuiID id = window->GetID(label);
+
+        ImVec2 pos = position;
+        ImVec2 size = size_arg;
+        size.x -= style.FramePadding.x * 2;
+
+        const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+        ItemSize(bb, style.FramePadding.y);
+        if (!ItemAdd(bb, id))
+            return false;
+
+        // Render
+        const float circleStart = size.x * 0.7f;
+        const float circleEnd = size.x;
+        const float circleWidth = circleEnd - circleStart;
+
+        window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart, bb.Max.y), bg_col);
+        window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart*value, bb.Max.y), fg_col);
+
+        const float t = g.Time;
+        const float r = size.y / 2;
+        const float speed = 1.5f;
+
+        const float a = speed*0;
+        const float b = speed*0.333f;
+        const float c = speed*0.666f;
+
+        const float o1 = (circleWidth+r) * (t+a - speed * (int)((t+a) / speed)) / speed;
+        const float o2 = (circleWidth+r) * (t+b - speed * (int)((t+b) / speed)) / speed;
+        const float o3 = (circleWidth+r) * (t+c - speed * (int)((t+c) / speed)) / speed;
+
+        window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o1, bb.Min.y + r), r, bg_col);
+        window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o2, bb.Min.y + r), r, bg_col);
+        window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o3, bb.Min.y + r), r, bg_col);
+    }
+
+    bool Spinner(const char* label, float radius, int thickness, const ImU32& color,ImVec2 position) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if (window->SkipItems)
+            return false;
+
+        ImGuiContext& g = *GImGui;
+        const ImGuiStyle& style = g.Style;
+        const ImGuiID id = window->GetID(label);
+
+        ImVec2 pos = position;
+        ImVec2 size((radius )*2, (radius + style.FramePadding.y)*2);
+
+        const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+        ItemSize(bb, style.FramePadding.y);
+        if (!ItemAdd(bb, id))
+            return false;
+
+        // Render
+        window->DrawList->PathClear();
+
+        int num_segments = 30;
+        int start = abs(ImSin(g.Time*1.8f)*(num_segments-5));
+
+        const float a_min = IM_PI*2.0f * ((float)start) / (float)num_segments;
+        const float a_max = IM_PI*2.0f * ((float)num_segments-3) / (float)num_segments;
+
+        const ImVec2 centre = ImVec2(pos.x+radius, pos.y+radius+style.FramePadding.y);
+
+        for (int i = 0; i < num_segments; i++) {
+            const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
+            window->DrawList->PathLineTo(ImVec2(centre.x + ImCos(a+g.Time*8) * radius,
+                                                centre.y + ImSin(a+g.Time*8) * radius));
+        }
+
+        window->DrawList->PathStroke(color, false, thickness);
+    }
+
+}
 
 renderer::renderer()
 {
@@ -59,7 +146,18 @@ void renderer::CreateNewWindow()
     ShowWindow(WindowHandle, SW_SHOWDEFAULT);
     UpdateWindow(WindowHandle);
 
-    IMGUI_CHECKVERSION();
+    HICON hIcon = static_cast<HICON>(::LoadImage(reinterpret_cast<HINSTANCE>(&__ImageBase),
+    MAKEINTRESOURCE(IDI_ICON1),
+    IMAGE_ICON,
+    256, 256,
+    LR_DEFAULTCOLOR));
+    SendMessageA(WindowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hIcon));
+    SendMessageA(WindowHandle, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hIcon));
+
+    // Dark mode
+    BOOL UseDarkMode = true;
+    DwmSetWindowAttribute(WindowHandle, 20, &UseDarkMode, sizeof UseDarkMode);
+    
     ImGui::CreateContext();
     
     auto& IO = ImGui::GetIO();
@@ -70,7 +168,7 @@ void renderer::CreateNewWindow()
 
     auto* Colors = Style.Colors;
     Colors[ImGuiCol_Text]                   = ImVec4(1.0f, 1.0f, 1.0f, 0.87f);
-    Colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 0.94f);
+    Colors[ImGuiCol_WindowBg]               = ImVec4(0.058f, 0.05f, 0.07f, 0.94f);
     Colors[ImGuiCol_FrameBg]                = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
     Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.38f, 0.38f, 0.39f, 0.40f);
     Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.36f, 0.36f, 0.36f, 0.67f);
@@ -87,13 +185,13 @@ void renderer::CreateNewWindow()
     Colors[ImGuiCol_Separator]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
     Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.23f, 0.23f, 0.23f, 0.78f);
     Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
-    Colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.86f);
-    Colors[ImGuiCol_TabHovered]             = ImVec4(0.35f, 0.35f, 0.35f, 0.80f);
-    Colors[ImGuiCol_TabActive]              = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
+    Colors[ImGuiCol_Tab]                    = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+    Colors[ImGuiCol_TabHovered]             = ImVec4(0.163f, 0.160f, 0.20f, 0.80f);
+    Colors[ImGuiCol_TabActive]              = ImVec4(0.163f, 0.160f, 0.20f, 1.00f);
     
     ImGui_ImplWin32_Init(WindowHandle);
     ImGui_ImplDX11_Init(pDevice, pDeviceContext);
-
+    
     ImVec4 ClearColor = ImVec4(0.f, 0.f, 0.f, 1.00f);
     
     // Render
@@ -131,10 +229,16 @@ void renderer::CreateNewWindow()
         {
             if (ImGui::Begin("LoadingWindow", reinterpret_cast<bool*>(true), ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize))
             {
-                ImGui::SetCursorPosX(IO.DisplaySize.x * .5 - ImGui::CalcTextSize("FortMP is loading...").x * .5);
-                ImGui::SetCursorPosY(IO.DisplaySize.y * .5 - ImGui::CalcTextSize("FortMP is loading...").y);
+                ImGui::SetCursorPosX(IO.DisplaySize.x * .5 - ImGui::CalcTextSize("FortMP is loading").x * .5);
+                ImGui::SetCursorPosY(IO.DisplaySize.y * .5 - ImGui::CalcTextSize("FortMP is loading").y * 2.25);
                 
-                ImGui::Text("FortMP is loading...");
+                ImGui::Text("FortMP is loading");
+
+                float thickness = 4;
+                float radius = 11;
+                const ImU32 col = ImGui::GetColorU32(ImVec4(0.34f, 0.34f, 0.34f, 1.00f));
+                ImVec2 spinner_pos = ImVec2(IO.DisplaySize.x * .5 - radius+thickness/2, IO.DisplaySize.y * .5);
+                ImGui::Spinner("##spinner", radius, thickness, col, spinner_pos);
             }
 
             ImGui::End();

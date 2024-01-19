@@ -9,6 +9,7 @@
 #include "player_component.hpp"
 #include "replication_component.hpp"
 #include "creative_component.hpp"
+#include "qos_component.hpp"
 
 net_component::net_component()
 {
@@ -44,12 +45,33 @@ net_component::net_component()
 
 void net_component::pre_init()
 {
-    INIT_POINTER(CreateNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d", { 0xe8, 0x100, 0x100, 0x100 , 0x0 }, 1));
-    INIT_POINTER(FindNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d",{0xe8, 0x100, 0x100, 0x100 , 0x0}, 1, false));
-    INIT_POINTER(InitListen, memory_manager::find_function_by_string(L"Failed to init net driver ListenURL: %s: %s"));
-    INIT_POINTER(SetWorld, memory_manager::find_function_by_string(L"Demo playback failed: %s", { 0xE8 }, 1));
-    INIT_POINTER(FlushDormancy, memory_manager::find_function_by_string(L"FlushDormancy: %s. Connection: %s"));
-    INIT_POINTER(NetConnection__Close, memory_manager::find_function_by_string(L"UNetConnection::Close: %s, Channels: %i, Time: %s"));
+    std::vector<async_wrapper*> async_initializers;
+
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(CreateNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d", { 0xe8, 0x100, 0x100, 0x100 , 0x0 }, 1));
+    }));async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FindNamedNetDriver, memory_manager::find_function_by_string(L"PlayReplay: failed to create demo net d",{0xe8, 0x100, 0x100, 0x100 , 0x0}, 1, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(InitListen, memory_manager::find_function_by_string(L"Failed to init net driver ListenURL: %s: %s"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SetWorld, memory_manager::find_function_by_string(L"Demo playback failed: %s", { 0xE8 }, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FlushDormancy, memory_manager::find_function_by_string(L"FlushDormancy: %s. Connection: %s"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(NetConnection__Close, memory_manager::find_function_by_string(L"UNetConnection::Close: %s, Channels: %i, Time: %s"));
+    }));
+
+    async_wrapper::wait_for_wrappers(async_initializers);
 }
 
 bool net_component::listen(FURL in_url)

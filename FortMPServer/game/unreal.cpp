@@ -102,59 +102,149 @@ void unreal_manager::pre_init()
 
 unreal_manager::unreal_manager()
 {
-    INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
-    INIT_POINTER(FindFunctionByName, memory_manager::find_function_by_string(L"CallFunctionByNameWithArguments: Name not found", { 0xE8 }, 1, false));
-    INIT_POINTER(FindPropertyByName, memory_manager::find_pattern("E8 ? ? ? ? 49 89 ? ? ? ? ? 49 8B ? ? ? ? ? 48 85 C9 74 33 48 85 DB 74 2E 48 8B 01 48 8B D3 ? 8B ? 30 FF 90 ? ? ? ? 49 8B ? ? ? ? ? 49 8B ? ? ? ? ? 48 8B ? 10", true, 1));
+    std::vector<async_wrapper*> async_initializers;
+
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FindFunctionByName, memory_manager::find_function_by_string(L"CallFunctionByNameWithArguments: Name not found", { 0xE8 }, 1, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FindPropertyByName, memory_manager::find_pattern("E8 ? ? ? ? 49 89 ? ? ? ? ? 49 8B ? ? ? ? ? 48 85 C9 74 33 48 85 DB 74 2E 48 8B 01 48 8B D3 ? 8B ? 30 FF 90 ? ? ? ? 49 8B ? ? ? ? ? 49 8B ? ? ? ? ? 48 8B ? 10", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(StaticConstructObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8C 24 ? ? ? ? 48 8B D8 48 89 48 28 40 88 70 30 48 8B 4C 24", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(StaticConstructObject, memory_manager::find_function_by_string(L"STAT_ConstructObject"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SpawnActor, memory_manager::find_pattern("40 53 56 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 0F 28 1D ? ? ? ? 0F 57 D2 48 8B B4 24 ? ? ? ? 0F 28 CB"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GWorld, memory_manager::find_pattern("48 8B 1D ? ? ? ? 48 85 DB 74 3B 41",true, 3));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"Failed to determine if OSS is server in PIE, OSS re", { 0x48, 0x8b, 0x1d }, 3));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 B0 ? ? ?"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", { 0xE8 }, 1, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_pattern("E8 ? ? ? ? 8B 45 48 85 C0 7E 3F 4C 8D 55 38 45 33 C9 ", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GenericArray_Remove, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) ?
+           memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) :
+           memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) ?
+           memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) :
+           memory_manager::find_pattern("48 85 C9 0F 84 ? ? ? ? 56 48 83 EC 70 4C 8B 4A 78 41 8B F0 8B 82 ? ? ? ? 45 8B 41 3C 89 44 24 64"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(Step, memory_manager::find_pattern("E8 ? ? ? ? EB ? 4C 8B 82 ? ? ? ? 49 8B 40", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(Get, memory_manager::find_pattern("E8 ? ? ? ? 0F 10 73 10 48 8D 53 20 48 8B F8 48 8D 4C 24 ? E8 ? ? ? ?", true, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_function_by_string(L"Failed to find PlayerStart", {0xe8}, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 48 85 D2 74 1A 8B 52 0C 89 11"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("48 89 74 24 ? 57 48 83 EC 30 48 8B F1 48 85 D2 0F 84 ? ? ? ?"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GNatives, memory_manager::find_pattern("48 8D 05 ? ? ? ? B9 ? ? ? ? 0F 1F 40 00 66 0F 1F 84 00 ? ? ? ?", true, 3));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(SRand, memory_manager::find_pattern("69 0D ? ? ? ? ? ? ? ? F3 0F 10 05 ? ? ? ? F3 0F 11 44 24 ? 81 C1 ? ? ? ? 89 0D ? ? ? ? 33 4C 24 08 81 E1 ? ? ? ? 31 4C 24 08 F3 0F 10 44 24 ?"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 30 4C 89 64 24"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 20 4C 89 64 24 ? 4D 8B F8"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(TryLoadMips, memory_manager::find_pattern("8B D6 4D 03 C6 48 8B CD E8 ? ? ? ? 84 C0", true, 9));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"Loading non-streamed mips from an external bulk file.  This is not desireable.  File %s"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"TryLoadMips failed for %s, NumMipsCached: %d, LoadableMips: %d, FirstMipToLoad: %d"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(Parse__CommandInternal, memory_manager::find_function_by_string(TEXT("DEMOSPEED"), {0xe8}, 1, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(Parse__TokenInternal, memory_manager::find_function_by_string(TEXT("You must specify a speed in the form of a float"), {0xe8}, 1));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(GIsClient, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28", true, 21));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("40 53 57 41 56 48 83 EC 20 4C 8B 74 24 ? 33 FF 48 89 79 08 48 8B D9 48 89 79 40 48 89 79 48 48 89 79 60 48 89 79 68 44 88 49 11 89 79 18 48 89 11 40 88 79 10"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(LineTraceMultiByChannel, memory_manager::find_pattern("48 83 EC 48 48 8D 05 ? ? ? ? 48 89 44 24 ? 48 8B 84 24 ? ? ? ? 48 89 44 24 ? 48 8B 44 24 ? 48 89 44 24 ? 8B 44 24 70 89 44 24 20 E8 ? ? ? ? 48 83 C4 48 C3"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 53 41 55 41 56 48 83 EC 20 33 DB 4C 8B F2 4C 8B E9 39 5A 08 7E 7A 48 89 74 24 ? 33 F6"));
+    }));
+    async_wrapper::wait_for_wrappers(async_initializers);
     
-    INIT_POINTER(StaticConstructObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8C 24 ? ? ? ? 48 8B D8 48 89 48 28 40 88 70 30 48 8B 4C 24", true, 1));
-    INIT_POINTER(StaticConstructObject, memory_manager::find_function_by_string(L"STAT_ConstructObject"));
-    
-    INIT_POINTER(SpawnActor, memory_manager::find_pattern("40 53 56 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 0F 28 1D ? ? ? ? 0F 57 D2 48 8B B4 24 ? ? ? ? 0F 28 CB"));
-    
-    INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
-    INIT_POINTER(GWorld, memory_manager::find_pattern("48 8B 1D ? ? ? ? 48 85 DB 74 3B 41",true, 3));
-    INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"Failed to determine if OSS is server in PIE, OSS re", { 0x48, 0x8b, 0x1d }, 3));
-    INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
-
-    INIT_POINTER(ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 B0 ? ? ?"));
-
-    INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", { 0xE8 }, 1, false));
-    INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_pattern("E8 ? ? ? ? 8B 45 48 85 C0 7E 3F 4C 8D 55 38 45 33 C9 ", true, 1));
-    
-    INIT_POINTER(GenericArray_Remove, memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) ?
-        memory_manager::find_pattern("E8 ? ? ? ? 4C 8B C6 48 8B D7 48 8B CB E8 ? ? ? ? 83 F8 FF", true, 1) :
-        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) ?
-        memory_manager::find_pattern("E8 ? ? ? ? 4D 8B 75 78 33 ED 8B 47 08 BB ? ? ? ? 45 8B 7E 3C", true, 1) :
-        memory_manager::find_pattern("48 85 C9 0F 84 ? ? ? ? 56 48 83 EC 70 4C 8B 4A 78 41 8B F0 8B 82 ? ? ? ? 45 8B 41 3C 89 44 24 64"));
-    
-    INIT_POINTER(Step, memory_manager::find_pattern("E8 ? ? ? ? EB ? 4C 8B 82 ? ? ? ? 49 8B 40", true, 1));
-
-    INIT_POINTER(Get, memory_manager::find_pattern("E8 ? ? ? ? 0F 10 73 10 48 8D 53 20 48 8B F8 48 8D 4C 24 ? E8 ? ? ? ?", true, 1));
-
-    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_function_by_string(L"Failed to find PlayerStart", {0xe8}, 1));
-    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 48 85 D2 74 1A 8B 52 0C 89 11"));
-    INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("48 89 74 24 ? 57 48 83 EC 30 48 8B F1 48 85 D2 0F 84 ? ? ? ?"));
-
-    INIT_POINTER(GNatives, memory_manager::find_pattern("48 8D 05 ? ? ? ? B9 ? ? ? ? 0F 1F 40 00 66 0F 1F 84 00 ? ? ? ?", true, 3));
-    
-    INIT_POINTER(SRand, memory_manager::find_pattern("69 0D ? ? ? ? ? ? ? ? F3 0F 10 05 ? ? ? ? F3 0F 11 44 24 ? 81 C1 ? ? ? ? 89 0D ? ? ? ? 33 4C 24 08 81 E1 ? ? ? ? 31 4C 24 08 F3 0F 10 44 24 ?"));
-
-    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 30 4C 89 64 24"));
-    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("40 53 55 56 57 41 57 48 83 EC 20 4C 89 64 24 ? 4D 8B F8"));
-    INIT_POINTER(TryLoadMips, memory_manager::find_pattern("8B D6 4D 03 C6 48 8B CD E8 ? ? ? ? 84 C0", true, 9));
-    INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"Loading non-streamed mips from an external bulk file.  This is not desireable.  File %s"));
-    INIT_POINTER(TryLoadMips, memory_manager::find_function_by_string(L"TryLoadMips failed for %s, NumMipsCached: %d, LoadableMips: %d, FirstMipToLoad: %d"));
-
-    INIT_POINTER(CreateDefaultObject_Internal, *(void**)(reinterpret_cast<uintptr_t>(FindObject(L"/Script/CoreUObject.Default__PackageMap")->VTable) - 8));
-
-    INIT_POINTER(Parse__CommandInternal, memory_manager::find_function_by_string(TEXT("DEMOSPEED"), {0xe8}, 1, false));
-    INIT_POINTER(Parse__TokenInternal, memory_manager::find_function_by_string(TEXT("You must specify a speed in the form of a float"), {0xe8}, 1));
-
-    INIT_POINTER(GIsClient, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28", true, 21));
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);
-    INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("40 53 57 41 56 48 83 EC 20 4C 8B 74 24 ? 33 FF 48 89 79 08 48 8B D9 48 89 79 40 48 89 79 48 48 89 79 60 48 89 79 68 44 88 49 11 89 79 18 48 89 11 40 88 79 10"));
-    INIT_POINTER(LineTraceMultiByChannel, memory_manager::find_pattern("48 83 EC 48 48 8D 05 ? ? ? ? 48 89 44 24 ? 48 8B 84 24 ? ? ? ? 48 89 44 24 ? 48 8B 44 24 ? 48 89 44 24 ? 8B 44 24 70 89 44 24 20 E8 ? ? ? ? 48 83 C4 48 C3"));
-    INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 53 41 55 41 56 48 83 EC 20 33 DB 4C 8B F2 4C 8B E9 39 5A 08 7E 7A 48 89 74 24 ? 33 F6"));
+
+    while (!FindObject(L"/Script/CoreUObject.Default__PackageMap"))
+    {
+        Sleep(1000 / 60);
+    }
+    INIT_POINTER(CreateDefaultObject_Internal, *(void**)(reinterpret_cast<uintptr_t>(FindObject(L"/Script/CoreUObject.Default__PackageMap")->VTable) - 8));
     
     if (const uintptr_t LastHitchSig = memory_manager::find_pattern("8B 88 ? ? ? ? 89 8B ? ? ? ? F2 0F 11 B3 ? ? ? ? 48 8B 5C 24 ? 0F 28 74 24 ? 48 83 C4 30"))
     {

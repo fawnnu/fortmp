@@ -299,6 +299,7 @@
     <ClInclude Include="game\unreal\unreal_string.hpp" />
     <ClInclude Include="gui\renderer.hpp" />
     <ClInclude Include="include.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="utils\Containers.hpp" />
     <ClInclude Include="utils\dll_utils.hpp" />
     <ClInclude Include="utils\hook.hpp" />
@@ -479,6 +480,12 @@
   <ItemGroup>
     <Content Include="resources\pakchunkEra621-WindowsClient.pak" />
     <Content Include="resources\pakchunkEra740-WindowsClient.pak" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\fmp_icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

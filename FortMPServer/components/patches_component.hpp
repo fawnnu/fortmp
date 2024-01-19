@@ -15,6 +15,41 @@ class patches_component
 {
 public:
     patches_component();
+
+    static void pre_init();
+
+    // Anti tampering kicks in after this function is called. Here we revert every patch applied in pre_init
+    static void revert_pre_init();
+
+    struct FEraPatchInfo
+    {
+        uintptr_t Address;
+        PVOID Bytes;
+        SIZE_T Size;
+
+        void ParseBytes()
+        {
+            Bytes = malloc(Size);
+            memcpy(Bytes, reinterpret_cast<PVOID>(Address), Size);
+        }
+
+        void Apply() const
+        {
+            DWORD OldProtect, NewProtect;
+            VirtualProtect(reinterpret_cast<PVOID>(Address), 4096, PAGE_EXECUTE_READWRITE, &OldProtect);
+
+            memcpy(reinterpret_cast<PVOID>(Address), Bytes, Size);
+            
+            VirtualProtect(reinterpret_cast<PVOID>(Address), 4096, OldProtect, &NewProtect);
+        }
+
+        void Free() const
+        {
+            free(Bytes);
+        }
+    };
+    
+    inline static std::vector<FEraPatchInfo> temporary_patches;
 };
 
 namespace patches_component_hook
