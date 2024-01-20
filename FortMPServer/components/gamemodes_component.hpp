@@ -26,6 +26,8 @@ public:
     static void OnServerMapInfoReady(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
     
     static void GetRandomLootPackageData(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame, void* ReturnValue);
+    
+    static void LoadAssets(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 
     static void SetShield(AFortGameModeAthena* FortGameModeAthena, FFrame& StackFrame);
 };  
