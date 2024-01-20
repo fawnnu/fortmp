@@ -117,6 +117,11 @@ struct FName
         
         return converter.to_bytes(ToString());
     }
+
+    FORCEINLINE const wchar_t* c_str()
+    {
+        return ToString().c_str();   
+    }
     
     int ComparisonIndex;
     int Number;

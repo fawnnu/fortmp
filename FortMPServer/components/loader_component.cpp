@@ -156,6 +156,20 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
+        // Load every asset in /Game/Athena/Items/Cosmetics
+        TArray<FAssetData> OutAssets;
+        if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Cosmetics"), OutAssets, true, false))
+        {
+            TArrayManager Assets = OutAssets;
+            for (FAssetData& Asset : Assets)
+            {
+                LoadObject(Asset.ObjectPath().c_str());
+            }
+
+            // Log
+            spdlog::info(L"loader_component::start_match loaded {} cosmetic assets.", Assets.Num());
+        }
+        
         REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations_C.SwapPOI", loader_component_hooks::SwapPOI_Hook);
         
         if (in_playlist == nullptr)

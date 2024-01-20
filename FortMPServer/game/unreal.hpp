@@ -348,6 +348,12 @@ T* FindObject(const wchar_t* ObjectName, bool bLoadObject = false, bool bUseAnyP
     return reinterpret_cast<T*>(Object);
 }
 
+template<typename T = UObject>
+T* LoadObject(const wchar_t* ObjectName)
+{
+    return reinterpret_cast<T*>(StaticLoadObject(nullptr, nullptr, ObjectName, nullptr, 0, nullptr, true));
+}
+
 class UProperty : public UObject
 {
 public:

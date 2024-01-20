@@ -26,9 +26,9 @@ struct FAssetData
 class IAssetRegistry : public UObject
 {
 public:
-    bool GetAssetsByPath(void* Self, FName PackagePath, TArray<FAssetData>& OutAssetData, bool bRecursive, bool bIncludeOnlyOnDiskAssets)
+    bool GetAssetsByPath(FName PackagePath, TArray<FAssetData>& OutAssetData, bool bRecursive, bool bIncludeOnlyOnDiskAssets)
     {
-        return reinterpret_cast<bool (*)(void*, FName, TArray<FAssetData>&, bool, bool)>(VTable[4])(Self, PackagePath, OutAssetData, bRecursive, bIncludeOnlyOnDiskAssets);
+        return reinterpret_cast<bool (*)(void*, FName, TArray<FAssetData>&, bool, bool)>(VTable[4])(this, PackagePath, OutAssetData, bRecursive, bIncludeOnlyOnDiskAssets);
     }
 };
 

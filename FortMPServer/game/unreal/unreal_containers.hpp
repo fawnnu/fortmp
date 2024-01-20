@@ -519,6 +519,12 @@ public:
         ElementSize = ArraySize;
     }
 
+	TArrayManager(TArray<T>& ArrayRef)
+    {
+	    Array = &ArrayRef;
+    	ElementSize = T::GetStructSize();
+    }
+
     FORCEINLINE T& operator[](int Idx)
     {
         auto& TArr = *reinterpret_cast<TArray<Struct>*>(Array);
