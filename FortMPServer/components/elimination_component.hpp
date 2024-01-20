@@ -8,6 +8,7 @@ public:
     static uint8_t to_death_cause(AFortPlayerStateAthena* player_state, FGameplayTagContainer gameplay_tags, bool was_dbno);
 
     static int get_placement(AFortPlayerController* PlayerController);
+    static void send_placement(AFortPlayerController* PlayerController, int Placement);
 
     static void NotifyWon(UObject* Object, UObject* Function, void* Params);
 

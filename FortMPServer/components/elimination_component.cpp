@@ -7,6 +7,7 @@
 #include "era_mutators_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
 #include "player_component.hpp"
@@ -115,6 +116,35 @@ int elimination_component::get_placement(AFortPlayerController* PlayerController
     }
     
     return 0;
+}
+
+void elimination_component::send_placement(AFortPlayerController* PlayerController, int Placement)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    const std::string account_id = player_component::get_account_id(PlayerController);
+
+    if (account_id.size() > 0)
+    {
+        nlohmann::json parameters {
+            {"value", Placement}
+        };
+        
+        gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "placement", parameters);
+
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info("Sent placement event in channel '{}'. Placement value: {}.", "player:v2:" + account_id, Placement);
+        }
+    }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"Invalid account_id while sending event.");
+        }
+    }
 }
 
 void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
@@ -412,16 +442,38 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         {
             if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
             {
+                // Ignore placement for
+                std::vector<AFortPlayerController*> IgnoreList;
+                
                 // Send placement for the whole team
                 if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
                 {
                     for (AController* TeamMember : TeamInfo->TeamMembers())
                     {
+                        // Add to ignore list
+                        IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
+                        
                         // Send summary
                         challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
 
                         // Set placement
                         static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
+                    }
+                }
+
+                if (placement - 1 > 0)
+                {
+                    // Send placement for everyone else who is in a still valid team EXCEPT the players in the ignore list
+                    for (AFortTeamInfo* TeamInfo : team_component::get_alive_teams_list())
+                    {
+                        for (AController* TeamMember : TeamInfo->TeamMembers())
+                        {
+                            if (std::find(IgnoreList.begin(), IgnoreList.end(), reinterpret_cast<AFortPlayerController*>(TeamMember)) == IgnoreList.end())
+                            {
+                                // Send placement
+                                elimination_component::send_placement(reinterpret_cast<AFortPlayerController*>(TeamMember), placement - 1);
+                            }
+                        }
                     }
                 }
             }
