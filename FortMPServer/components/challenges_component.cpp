@@ -943,6 +943,9 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.DanceLocation.Generic.01", "battlepass_dance_chain_athena_scavengerhunt_locations_a"},
                 {"Athena.Quests.DanceLocation.Generic.02", "battlepass_dance_chain_athena_scavengerhunt_locations_b"},
                 {"Athena.Quests.DanceLocation.Generic.03", "battlepass_dance_chain_athena_scavengerhunt_locations_c"},
+                {"Athena.Quests.DanceLocation.Generic.11", "battlepass_dance_chain_athena_scavengerhunt_locations_02_a"},
+                {"Athena.Quests.DanceLocation.Generic.12", "battlepass_dance_chain_athena_scavengerhunt_locations_02_b"},
+                {"Athena.Quests.DanceLocation.Generic.13", "battlepass_dance_chain_athena_scavengerhunt_locations_02_c"},
                 {"EraEvent.FortmasDanceArea.01", "FDF_dance_athena_christmas_tree_01"}
             };
 
