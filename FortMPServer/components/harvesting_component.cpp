@@ -36,6 +36,11 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
                     {
                         static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage += damage;
+                        if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"EnemyStructureDamageCallback"))
+                        {
+                            UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"EnemyStructureDamageCallback");
+                        }
+                        UKismetSystemLibrary::K2_SetTimer(instigated_by, L"EnemyStructureDamageCallback", 5.0, false);
                     }
                 }
             }
