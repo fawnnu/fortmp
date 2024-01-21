@@ -705,6 +705,36 @@ void loader_component::handle_cl_specific_additions()
 
 void loader_component::OnMapInfoLoaded()
 {
+    // handle editing/other mutators
+    if (STATIC_HASPROPERTY((*GWorld)->GameState(), DefaultAllowNeutralWallEditing))
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info("loader_component::start_match: Pre-check DefaultAllowNeutralWallEditing: {}", (*GWorld)->GameState()->DefaultAllowNeutralWallEditing());
+        }
+        
+        if (era_mutators_component::IsActive("neutral_edit"))
+        {
+            (*GWorld)->GameState()->DefaultAllowNeutralWallEditing() = 1.0;       
+        }
+        else
+        {
+            (*GWorld)->GameState()->DefaultAllowNeutralWallEditing() = 0.0;       
+        }
+
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info("loader_component::start_match: Post-check DefaultAllowNeutralWallEditing: {}", (*GWorld)->GameState()->DefaultAllowNeutralWallEditing());
+        }
+    }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info("loader_component::start_match: DefaultAllowNeutralWallEditing is not a valid property.");
+        }
+    }
+    
     // Implement llamas
     initialize_llamas();
 
