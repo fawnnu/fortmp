@@ -776,11 +776,11 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                     {
                         Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Wood"));
                     }
-                    else if (item_definition == WoodItemData)
+                    else if (item_definition == StoneItemData)
                     {
                         Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Stone"));
                     }
-                    else if (item_definition == WoodItemData)
+                    else if (item_definition == MetalItemData)
                     {
                         Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Metal"));
                     }
