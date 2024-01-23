@@ -156,6 +156,12 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 MaxStackSize = item_definition->MaxStackSize();
             }
 
+            int MaxStackSizeOverride;
+            if (get_override_max_stack_size_for(item_definition, &MaxStackSizeOverride))
+            {
+                MaxStackSize = MaxStackSizeOverride;
+            }
+
             if (MaxStackSize - replicated_entry.Count() > 0)
             {
                 // Update entry count
@@ -698,6 +704,156 @@ void inventory_component::safe_update_materials_used(AFortPlayerController* play
             static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.MaterialsUsed += item_count;
         }
     }
+}
+
+bool inventory_component::get_override_max_stack_size_for(UFortItemDefinition* item_definition, int* OutResult)
+{
+    static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+    static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+    static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+    if (item_definition == nullptr)
+    {
+        return false;
+    }
+    
+    if (item_definition == WoodItemData)
+    {
+        static int Override = get_override_max_stack_size_for_material(item_definition);
+
+        if (OutResult)
+        {
+            *OutResult = Override;
+        }
+
+        return true;
+    }
+    if (item_definition == StoneItemData)
+    {
+        static int Override = get_override_max_stack_size_for_material(item_definition);
+
+        if (OutResult)
+        {
+            *OutResult = Override;
+        }
+
+        return true;
+    }
+    if (item_definition == MetalItemData)
+    {
+        static int Override = get_override_max_stack_size_for_material(item_definition);
+
+        if (OutResult)
+        {
+            *OutResult = Override;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+int inventory_component::get_override_max_stack_size_for_material(UFortItemDefinition* item_definition)
+{
+    static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+    static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+    static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+
+    if (item_definition)
+    {
+        // Get the playlist's game data
+        if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
+        {
+            // Row to look up for in GameData
+            std::wstring Row;
+        
+            if (STATIC_HASPROPERTY(Playlist, MaxSquadSize))
+            {
+                if (Playlist->MaxSquadSize() == 1)
+                {
+                    if (item_definition == WoodItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Wood"));
+                    }
+                    else if (item_definition == WoodItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Stone"));
+                    }
+                    else if (item_definition == WoodItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Solos.Metal"));
+                    }
+                }
+                else if (Playlist->MaxSquadSize() == 2)
+                {
+                    if (item_definition == WoodItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Duos.Wood"));
+                    }
+                    else if (item_definition == StoneItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Duos.Stone"));
+                    }
+                    else if (item_definition == MetalItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Duos.Metal"));
+                    }
+                }
+                else if (Playlist->MaxSquadSize() > 2)
+                {
+                    if (item_definition == WoodItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Squads.Wood"));
+                    }
+                    else if (item_definition == StoneItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Squads.Stone"));
+                    }
+                    else if (item_definition == MetalItemData)
+                    {
+                        Row = std::wstring(TEXT("Default.MaxStack.Resources.Squads.Metal"));
+                    }
+                }
+            }
+
+            if (Row.length() > 0)
+            {
+                UCurveTable* GameData = nullptr;
+
+                if (STATIC_HASPROPERTY(Playlist, GameData))
+                {
+                    GameData = Playlist->GameData().Get();
+                }
+
+                if (GameData == nullptr)
+                {
+                    GameData = FindObject<UCurveTable>(TEXT("/Game/Athena/Balance/DataTables/AthenaGameData.AthenaGameData"));
+                }
+                    
+                if (GameData)
+                {
+                    auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameData) + 0x30);
+
+                    // Get the amount of materials to give from CurveTable
+                    if (CurveTable.Contains(FName(Row.c_str())))
+                    {
+                        int Value = FSimpleCurve::GetClass() ?
+                            static_cast<FSimpleCurve*>(CurveTable[Row.c_str()].Value)->Keys()[0].Value() :
+                            static_cast<FRichCurve*>(CurveTable[Row.c_str()].Value)->Keys()[0].Value();
+
+                        return Value;
+                    }
+                    else
+                    {
+                        spdlog::error(L"inventory_component::get_override_max_stack_size_for: Couldn't find Row '{}' in CurveTable '{}'.", Row.c_str(), UKismetSystemLibrary::GetPathName(GameData).c_str());
+                    }
+                }
+            }
+        }
+    }
+    
+    return -1;
 }
 
 void inventory_component::UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame)

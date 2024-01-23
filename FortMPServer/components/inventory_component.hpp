@@ -16,6 +16,8 @@ public:
     static UFortWorldItem* get_pickaxe(AFortPlayerController* player_controller);
     static void safe_update_materials_gathered(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count);
     static void safe_update_materials_used(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count);
+    static bool get_override_max_stack_size_for(UFortItemDefinition* item_definition, int* OutResult);
+    static int get_override_max_stack_size_for_material(UFortItemDefinition* item_definition);
     
     static void UpdateWeaponLoadedAmmo(AFortWeapon* FortWeapon, FFrame& StackFrame);
 };

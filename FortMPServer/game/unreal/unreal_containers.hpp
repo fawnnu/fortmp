@@ -462,6 +462,18 @@ public:
             }
         }
     }
+
+	FORCEINLINE bool Contains(Key key)
+    {
+    	for (auto Element : *this)
+    	{
+    		if (Element.Element.Key == key)
+    		{
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 };
 
 struct Struct
