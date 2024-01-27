@@ -102,6 +102,7 @@ public:
     DEFINE_PROPERTY(uint8_t, TeamIndex);
     DEFINE_PROPERTY(uint8_t, SquadId);
     DEFINE_PROPERTY(int, KillScore);
+    DEFINE_PROPERTY(int, TeamKillScore);
     DEFINE_PROPERTY(bool, bShouldUpdateReplicatedPing);
     DEFINE_PROPERTY(uint8_t, Ping);
     DEFINE_PROPERTY(FUniqueNetIdRepl, PartyOwnerUniqueId);
@@ -128,6 +129,24 @@ public:
     {
         STATIC_FINDFUNCTION(OnRep_SquadId)
         Call(Function_OnRep_SquadId);
+    }
+
+    void OnRep_TeamKillScore()
+    {
+        STATIC_FINDFUNCTION(OnRep_TeamKillScore)
+        Call(Function_OnRep_TeamKillScore);
+    }
+
+    void OnRep_Kills()
+    {
+        STATIC_FINDFUNCTION(OnRep_Kills)
+        Call(Function_OnRep_Kills);
+    }
+
+    void ClientReportTeamKill(int TeamKills)
+    {
+        STATIC_FINDFUNCTION(ClientReportTeamKill)
+        Call(Function_ClientReportTeamKill, TeamKills);
     }
     
     void ClientReportKill(AFortPlayerStateAthena* Player)

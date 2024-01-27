@@ -218,8 +218,48 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
             if (DeathReport.KillerPlayerState()->TeamIndex() != VictimPlayerController->PlayerState()->TeamIndex())
             {
                 // Credit elimination if not on the same team
-                DeathReport.KillerPlayerState()->ClientReportKill(VictimPlayerController->PlayerState());
                 DeathReport.KillerPlayerState()->KillScore()++;
+                DeathReport.KillerPlayerState()->OnRep_Kills();
+                DeathReport.KillerPlayerState()->ClientReportKill(VictimPlayerController->PlayerState());
+
+                // Bump team kills for the entire team
+                if (DeathReport.KillerPawn())
+                {
+                    if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
+                    {
+                        if (AFortTeamInfo* TeamInfo = team_component::find_team(KillerPlayerController))
+                        {
+                            for (AController* TeamMember : TeamInfo->TeamMembers())
+                            {
+                                if (!memory_manager::is_bad_read_pointer(TeamMember) &&
+                                    TeamMember &&
+                                    !memory_manager::is_bad_read_pointer(reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState()) &&
+                                    reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState())
+                                {
+                                    reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState()->TeamKillScore()++;
+                                    reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState()->OnRep_TeamKillScore();
+                                    reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState()->ClientReportTeamKill(reinterpret_cast<AFortPlayerController*>(TeamMember)->PlayerState()->TeamKillScore());
+                                }
+                            }
+                        }
+                    }
+                
+                    // Update StatManager.AthenaKills
+                    if (STATIC_HASPROPERTY(DeathReport.KillerPawn(), ClientObservedStats))
+                    {
+                        TArrayManager ObservedStats = static_cast<AFortPlayerPawn*>(DeathReport.KillerPawn())->ClientObservedStats().ObservedStats();
+                        for (FFortClientObservedStat& Stat : ObservedStats)
+                        {
+                            if (Stat.StatName() == TEXT("AthenaKills"))
+                            {
+                                Stat.StatValue() = DeathReport.KillerPlayerState()->KillScore();
+
+                                // Mark for replication
+                                static_cast<AFortPlayerPawn*>(DeathReport.KillerPawn())->ClientObservedStats().MarkItemDirty(Stat);
+                            }
+                        }
+                    }
+                }
 
                 nlohmann::json server_config = config_manager::get_server_config();
 

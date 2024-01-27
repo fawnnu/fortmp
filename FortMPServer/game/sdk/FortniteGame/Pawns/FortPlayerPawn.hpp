@@ -157,6 +157,20 @@ public:
     }
 };
 
+struct FFortClientObservedStat : FFastArraySerializerItem
+{
+    DEFINE_STRUCT_PROPERTY(FName, StatName);
+    DEFINE_STRUCT_PROPERTY(int32, StatValue);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortClientObservedStat");
+};
+
+struct FFortClientObservedStatArray : FFastArraySerializer
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FFortClientObservedStat>, ObservedStats);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortClientObservedStatArray");
+};
 
 class AFortPlayerPawn : public AFortPawn
 {
@@ -170,6 +184,7 @@ public:
     DEFINE_PROPERTY(UObject*, AnimBPOverride);
     DEFINE_PROPERTY(uint8, PreviousStasisMode);
     DEFINE_PROPERTY(FFortAthenaLoadout, CustomizationLoadout);
+    DEFINE_PROPERTY(FFortClientObservedStatArray, ClientObservedStats);
 
     void OnRep_AnimBPOverride()
     {
