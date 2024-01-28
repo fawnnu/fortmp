@@ -147,10 +147,34 @@ public:
     }
 };
 
-class AFortProjectileAthena : public AActor
+class AFortProjectileBase : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortProjectileBase");
+};
+
+class AFortProjectileAthena : public AFortProjectileBase
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortProjectileAthena");
 
     DEFINE_PROPERTY(FVector, FireStartLoc);
+};
+
+class AB_Prj_Athena_GasGrenade_C : public AFortProjectileBase
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/GasGrenade/B_Prj_Athena_GasGrenade.B_Prj_Athena_GasGrenade_C")
+};
+
+class AB_Prj_Athena_Grenade_Base_C : public AFortProjectileBase
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/Grenade/B_Prj_Athena_Grenade_Base.B_Prj_Athena_Grenade_Base_C")
+};
+
+class AB_Prj_Athena_StickyGrenade_C : public AFortProjectileBase
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/StickyGrenade/B_Prj_Athena_StickyGrenade.B_Prj_Athena_StickyGrenade_C")
 };

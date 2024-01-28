@@ -43,6 +43,12 @@ void challenges_component::Initialize()
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/Basketball/Minigame/B_BasketballHoopWithMinigame.B_BasketballHoopWithMinigame_C.BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature", challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook);   
         REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C.PidgeonShot", challenges_component_hooks::PidgeonShot_Hook);   
     }
+    if (GetEngineVersionEasy() == 422)
+    {
+        FindObject(L"/Game/Abilities/Toys/IcePuck/Shared/B_Toy_IcePuck_Base.B_Toy_IcePuck_Base_C", true);
+
+        REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Toys/IcePuck/Shared/B_Toy_IcePuck_Base.B_Toy_IcePuck_Base_C.KillPuck", challenges_component_hooks::KillPuck_Hook);
+    }
 
     {
         if (auto Function = FindFunctionByName(FindObject(L"/Game/Athena/PlayerPawn_Athena_Generic.PlayerPawn_Athena_Generic_C"), L"GameplayCue.Shield.PotionConsumed", 1))
@@ -540,7 +546,7 @@ void challenges_component::SendGnomeInteraction(AFortPlayerController* Interacti
                 {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:gnome", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:chilly-gnome", parameters);
         }
         else
         {
@@ -2031,6 +2037,34 @@ void challenges_component::SendFireworksInteraction(AFortPlayerControllerAthena*
     }
 }
 
+void challenges_component::SendIcePuckInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:ice-puck", parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
+}
+
 void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     CHECK_PAST_WARMUP()
@@ -2244,6 +2278,23 @@ void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObj
             if (Platform4Pawn && Platform4Pawn->Controller())
             {
                 challenges_component::SendDiscoBallInteraction(Platform4Pawn->Controller());
+            }
+        }
+    }
+}
+
+void challenges_component_hooks::KillPuck_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    AB_Toy_IcePuck_Base_C* IcePuck = reinterpret_cast<AB_Toy_IcePuck_Base_C*>(Object);
+
+    if (IcePuck && IcePuck->Owner() && IcePuck->Owner()->Owner())
+    {
+        if (AFortPlayerControllerAthena* OwningPC = IcePuck->Owner()->Owner()->Cast<AFortPlayerControllerAthena>())
+        {
+            if (IcePuck->TotalDistanceTraveled() >= 15000.0)
+            {
+                // Send interaction
+                challenges_component::SendIcePuckInteraction(OwningPC);
             }
         }
     }
