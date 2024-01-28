@@ -100,6 +100,7 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::Server_SetCanEditCreativeIsland, L"/Script/FortniteGame.FortPlayerStateAthena.Server_SetCanEditCreativeIsland", player_component_hooks::Server_SetCanEditCreativeIsland_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     
     if (GetEngineVersionEasy() < 420)
@@ -3193,4 +3194,57 @@ void player_component_hooks::ServerThankBusDriver_Hook(AFortPlayerControllerAthe
 
     // Notify backend
     challenges_component::SendThankBusDriverInteraction(Self);
+}
+
+void player_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerStateAthena* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(bool, bCanEdit);   
+    GET_PARAMETER(TArray<FString>, WhiteList);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request...");
+    }
+
+    if (creative_component::is_creative_enabled())
+    {
+        if (AFortVolume* Volume = (*GWorld)->GameState()->VolumeManager()->GetVolumeForPlayerState(Self))
+        {
+            for (const auto Component : Volume->BlueprintCreatedComponents())
+            {
+                if (Component)
+                {
+                    if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                    {
+                        UFortLevelSaveComponent* LevelSaveComponent = reinterpret_cast<UFortLevelSaveComponent*>(Component);
+
+                        // Change permissions
+                        LevelSaveComponent->PlotPermissions().Permission() = bCanEdit;
+                        
+                        // Recreate WhiteList array
+                        TArrayManager WhiteListArray = TArrayManager(&LevelSaveComponent->PlotPermissions().WhiteList(), sizeof FString);
+                        WhiteListArray.Clear(FindPropertyByName(LevelSaveComponent->PlotPermissions().GetClass(), TEXT("WhiteList")));
+                        for (FString& WhitelistElement : WhiteList)
+                        {
+                            LevelSaveComponent->PlotPermissions().WhiteList().Add(std::wstring(WhitelistElement.c_str()));
+                        }
+
+                        LevelSaveComponent->OnRep_PlotPermissionsChanged();
+
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"Changed plot permissions for {}. New permission: '{}', WhiteList.Num: {}", Self->GetName().c_str(), LevelSaveComponent->PlotPermissions().Permission() ? L"Public" : L"Private", LevelSaveComponent->PlotPermissions().WhiteList().Num());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request, but server isn't in Creative mode.");
+        }
+    }
 }
