@@ -847,6 +847,7 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                     else
                     {
                         spdlog::error(L"inventory_component::get_override_max_stack_size_for: Couldn't find Row '{}' in CurveTable '{}'.", Row.c_str(), UKismetSystemLibrary::GetPathName(GameData).c_str());
+                        return item_definition->MaxStackSize();
                     }
                 }
             }

@@ -92,7 +92,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         return nullptr;
     }
     
-    static UObject* fort_pickup_class = FindObject(L"/Script/FortniteGame.FortPickupAthena");
+    static UObject* fort_pickup_class = AFortPickupAthena::StaticClass();
     
     if (pickup_class == nullptr)
     {
@@ -532,8 +532,6 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
     AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(Object);
     
     // Filter overlap capsule
-    static UObject* fort_pickup_class = FindObject<UObject>(L"/Script/FortniteGame.FortPickupAthena");
-
     if (OtherActor)
     {
         if (OtherActor->IsA(ABGA_RiftPortal_Athena::StaticClass()))
@@ -626,7 +624,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 challenges_component::SendFlamingHoopInteraction(PlayerPawn->Controller(), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor)->ObjBackendName());
             }
         }
-        else if (OtherActor->IsA(fort_pickup_class))
+        else if (OtherActor->IsA(AFortPickup::StaticClass()))
         {
             // Cast overlap capsule to FortPickup instance
             AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
