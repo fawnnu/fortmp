@@ -255,9 +255,11 @@ void vehicles_component_hooks::ServerRequestSeatChange_Hook(AFortPlayerControlle
         }
     }
     
-    // First entry is always pickaxe
-    auto replicated_entries = TArrayManager<FFortItemEntry>(&FortPlayerController->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-    FortPlayerController->ServerExecuteInventoryItem(replicated_entries[0].ItemGuid());
+    // Equip Pickaxe
+    if (auto pickaxe = inventory_component::get_pickaxe(FortPlayerController))
+    {
+        FortPlayerController->ServerExecuteInventoryItem(pickaxe->ItemEntry().ItemGuid());   
+    }
     
     return ServerRequestSeatChange(FortPlayerController, StackFrame);   
 }
