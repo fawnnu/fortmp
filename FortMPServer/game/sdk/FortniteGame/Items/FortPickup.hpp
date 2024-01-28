@@ -15,6 +15,8 @@ struct FFortPickupLocationData
 class AFortPickup : public AActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPickup")
+    
     DEFINE_PROPERTY(bool, bServerStoppedSimulation);
     DEFINE_PROPERTY(bool, bRandomRotation);
     DEFINE_PROPERTY(bool, bPickedUp);
