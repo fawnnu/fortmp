@@ -123,6 +123,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         handle_fireworks_interaction(player_controller, reinterpret_cast<ABP_FrozenFireworkLauncher_Parent*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_Quest_GniceGnomes_Parent_C::StaticClass()))
+    {
+        handle_gnome_interaction(player_controller, reinterpret_cast<AProp_Quest_GniceGnomes_Parent_C*>(receiving_actor));
+    }
     else if (receiving_actor->IsA(AProp_QuestObject_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
     {
         // Handle any interactions with battle stars

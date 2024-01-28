@@ -18,6 +18,8 @@ enum class EDamageCauser : uint8_t
     HeavySniper,
     BoltSniper,
     Grenade,
+    Clinger,
+    StinkGrenade,
     SMG,
     SuppressedSMG,
     GrenadeLauncher,
@@ -61,6 +63,8 @@ struct FDamageDealtMapValue
     int HeavySniperDamage;
     int HuntingSniperDamage;
     int GrenadeDamage;
+    int ClingerDamage;
+    int StinkGrenadeDamage;
     int SMGDamage;
     int GrenadeLauncherDamage;
     int RPGDamage;
@@ -163,6 +167,8 @@ public:
     static void HeavySniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void BoltSniperDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void GrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void StinkGrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void ClingerDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void SMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void GrenadeLauncherDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void RPGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);

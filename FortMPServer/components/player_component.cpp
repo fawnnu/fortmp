@@ -136,6 +136,8 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(BoltSniperDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HuntingSniperDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(GrenadeDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(StinkGrenadeDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(ClingerDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(SMGDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(GrenadeLauncherDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(RPGDamageCallback, AFortPlayerController::StaticClass());
@@ -671,8 +673,56 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:grenade", payload);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
+        }
+    }
+}
+
+void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "stink_bomb"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage = 0;
+        }
+    }
+}
+
+void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "clinger"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage = 0;
         }
     }
 }
@@ -1073,6 +1123,20 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
             UKismetSystemLibrary::K2_ClearTimer(Self, L"GrenadeDamageCallback");
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::StinkGrenade:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"StinkGrenadeDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"StinkGrenadeDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"StinkGrenadeDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::Clinger:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"ClingerDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"ClingerDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"ClingerDamageCallback", 1.0, false);
         break;
     case EDamageCauser::SMG:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SMGDamageCallback"))
@@ -2141,10 +2205,6 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         Value.AssaultRifleDamage += Damage;
                         HandleDebouncedDamage(Instigator, EDamageCauser::AssaultRifle);
                         break;
-                    case EDamageCauser::Grenade:
-                        Value.GrenadeDamage += Damage;
-                        HandleDebouncedDamage(Instigator, EDamageCauser::GrenadeLauncher);
-                        break;
                     case EDamageCauser::SMG:
                         {
                             if (static_cast<AFortWeapon*>(DamageCauser)->IsSuppressed())
@@ -2999,6 +3059,24 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
             {
                 FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner());
             }
+        }
+        else if (DamageCauser->IsA(AB_Prj_Athena_GasGrenade_C::StaticClass()))
+        {
+            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+            Value.StinkGrenadeDamage += Damage;
+            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::StinkGrenade);
+        }
+        else if (DamageCauser->IsA(AB_Prj_Athena_StickyGrenade_C::StaticClass()))
+        {
+            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+            Value.ClingerDamage += Damage;
+            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Clinger);
+        }
+        else if (DamageCauser->IsA(AB_Prj_Athena_Grenade_Base_C::StaticClass()))
+        {
+            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+            Value.GrenadeDamage += Damage;
+            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Grenade);
         }
 
         if (FortWeapon)

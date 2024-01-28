@@ -187,6 +187,15 @@ public:
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
 
+class AB_Toy_IcePuck_Base_C : public AActor
+{
+public:
+    DEFINE_PROPERTY(AFortPlayerController*, OwningPC);
+    DEFINE_PROPERTY(float, TotalDistanceTraveled);
+    DEFINE_PROPERTY(FVector, PrevLoc);
+    DEFINE_PROPERTY(FVector, SpawnLoc);
+};
+
 class AProp_MountainSummit_QuestInteractable_Parent : public AActor
 {
 public:

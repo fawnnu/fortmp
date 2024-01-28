@@ -84,6 +84,7 @@ public:
     static void SendPlaneInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     static void SendBoogieBombInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     static void SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective);
+    static void SendIcePuckInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 
@@ -106,6 +107,7 @@ namespace challenges_component_hooks
     DEFINE_FUNCTION_HOOK(void, BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, PidgeonShot, (UObject* Object, UObject* Function, void* Params))
+    DEFINE_FUNCTION_HOOK(void, KillPuck, (UObject* Object, UObject* Function, void* Params))
     DEFINE_FUNCTION_HOOK(void, BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, Athena_GiveQuestUpdateToPlayers, (UObject* Context, FFrame& StackFrame, void* Param))
 }
