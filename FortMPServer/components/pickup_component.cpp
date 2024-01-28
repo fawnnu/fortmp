@@ -131,6 +131,9 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
         }
     }
 
+    // OnRep the entry
+    fort_pickup->OnRep_PrimaryPickupItemEntry();
+
     if (STATIC_HASPROPERTY(fort_pickup, bServerStoppedSimulation))
     {
         if (fort_pickup->bServerStoppedSimulation())
