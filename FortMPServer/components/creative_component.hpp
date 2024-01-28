@@ -54,6 +54,7 @@ namespace creative_component_hooks
     DEFINE_FUNCTION_HOOK(bool, SaveArrayToFile, (TArray<uint8>& Self, const TCHAR* FileName, void* FileManager, uint32 WriteFlags))
     DEFINE_FUNCTION_HOOK(bool, LoadFileToArray, (TArray<uint8>& Self, const TCHAR* FileName, uint32 WriteFlags))
     DEFINE_FUNCTION_HOOK(void, SetTeamForPlayer, (AFortMinigame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex));
+    DEFINE_FUNCTION_HOOK(void, Server_SetCanEditCreativeIsland, (AFortPlayerStateAthena* Self, FFrame& StackFrame));
     inline int SaveOutLevelRecord_Index;
 }
 

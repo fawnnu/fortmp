@@ -303,9 +303,6 @@ namespace player_component_hooks
 
     // Reimplement bus thank challenge
     DEFINE_FUNCTION_HOOK(void, ServerThankBusDriver, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
-
-    // Creative island permissions
-    DEFINE_FUNCTION_HOOK(void, Server_SetCanEditCreativeIsland, (AFortPlayerStateAthena* Self, FFrame& StackFrame));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

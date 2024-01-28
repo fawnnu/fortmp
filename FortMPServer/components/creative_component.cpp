@@ -38,6 +38,7 @@ creative_component::creative_component()
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::SetTeamForPlayer, memory_manager::find_pattern("48 89 6C 24 ? 56 48 83 EC 20 80 B9 ? ? ? ? ? 41 0F B6 F0 48 8B EA 75 6E 48 8B 01 FF 90 ? ? ? ? 48 85 C0 74 60"), creative_component_hooks::SetTeamForPlayer_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ResetMyCurrentCreativePlot, L"/Script/FortniteGame.FortPlayerControllerAthena.ResetMyCurrentCreativePlot", creative_component_hooks::ResetMyCurrentCreativePlot_Hook);
+    REGISTER_UFUNCTION_DETOUR(creative_component_hooks::Server_SetCanEditCreativeIsland, L"/Script/FortniteGame.FortPlayerStateAthena.Server_SetCanEditCreativeIsland", creative_component_hooks::Server_SetCanEditCreativeIsland_Hook);
     INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
 
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 0F B6 F8 44 89 75 EF 44 39 75 F3 74 0B 33 D2 48 8D 4D E7 E8 ? ? ? ?"), creative_component_hooks::SaveArrayToFile);
@@ -843,6 +844,59 @@ void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object, UObject
             {
                 inventory_component::add_item(PlayerController, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/Prototype/WID_CreativeTool.WID_CreativeTool"), 1);
             }
+        }
+    }
+}
+
+void creative_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerStateAthena* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(bool, bCanEdit);   
+    GET_PARAMETER(TArray<FString>, WhiteList);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request...");
+    }
+
+    if (creative_component::is_creative_enabled())
+    {
+        if (AFortVolume* Volume = (*GWorld)->GameState()->VolumeManager()->GetVolumeForPlayerState(Self))
+        {
+            for (const auto Component : Volume->BlueprintCreatedComponents())
+            {
+                if (Component)
+                {
+                    if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                    {
+                        UFortLevelSaveComponent* LevelSaveComponent = reinterpret_cast<UFortLevelSaveComponent*>(Component);
+
+                        // Change permissions
+                        LevelSaveComponent->PlotPermissions().Permission() = bCanEdit;
+                        
+                        // Recreate WhiteList array
+                        TArrayManager WhiteListArray = TArrayManager(&LevelSaveComponent->PlotPermissions().WhiteList(), sizeof FString);
+                        WhiteListArray.Clear(FindPropertyByName(LevelSaveComponent->PlotPermissions().GetClass(), TEXT("WhiteList")));
+                        for (FString& WhitelistElement : WhiteList)
+                        {
+                            LevelSaveComponent->PlotPermissions().WhiteList().Add(std::wstring(WhitelistElement.c_str()));
+                        }
+
+                        LevelSaveComponent->OnRep_PlotPermissionsChanged();
+
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"Changed plot permissions for {}. New permission: '{}', WhiteList.Num: {}", Self->GetName().c_str(), LevelSaveComponent->PlotPermissions().Permission() ? L"Public" : L"Private", LevelSaveComponent->PlotPermissions().WhiteList().Num());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request, but server isn't in Creative mode.");
         }
     }
 }
