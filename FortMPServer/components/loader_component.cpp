@@ -166,9 +166,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 LoadObject(Asset.ObjectPath().c_str());
             }
 
-            // Load custom cosmetic assets
-            FindObject(L"/Game/Athena/Items/Cosmetics/Characters/CID_FMP_001_Athena_Commando_M_Sinkrate.CID_FMP_001_Athena_Commando_M_Sinkrate", true, false);
-            
             // Log
             spdlog::info(L"loader_component::start_match loaded {} cosmetic assets.", Assets.Num());
         }
