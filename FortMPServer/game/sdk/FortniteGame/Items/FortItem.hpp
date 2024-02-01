@@ -7,6 +7,8 @@ class UFortItemDefinition;
 class UFortItem : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortItem");
+    
     UFortItemDefinition* GetItemDefinitionBP()
     {
         STATIC_FINDFUNCTION(GetItemDefinitionBP)
@@ -39,6 +41,8 @@ public:
 class UFortWorldItem : public UFortItem
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortWorldItem");
+    
     DEFINE_PROPERTY(FFortItemEntry, ItemEntry);
 };
 

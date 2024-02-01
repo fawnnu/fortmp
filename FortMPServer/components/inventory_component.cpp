@@ -126,6 +126,24 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Create a world item from the item definition
     UFortWorldItem* world_item = reinterpret_cast<UFortWorldItem*>(item_definition->CreateTemporaryItemInstanceBP(item_count, 1));
 
+    int MaxStackSize;
+
+    // On chapter 2 MaxStackSize is a FScalableFloat. To avoid confusion within the UFortItemDefinition class, use this function instead
+    if (static UFunction* GetMaxStackSize = FindObject<UFunction>(L"/Script/FortniteGame.FortItem.GetMaxStackSize"))
+    {
+        MaxStackSize = world_item->GetMaxStackSize(player_controller->Pawn()->AbilitySystemComponent());
+    }
+    else
+    {
+        MaxStackSize = item_definition->MaxStackSize();
+    }
+
+    int MaxStackSizeOverride;
+    if (get_override_max_stack_size_for(item_definition, &MaxStackSizeOverride))
+    {
+        MaxStackSize = MaxStackSizeOverride;
+    }
+    
     for (int i = 0; i < replicated_entries.Num(); i++)
     {
         // Get both replicated entry and item instance at the index
@@ -144,23 +162,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             }
             
             const int last_count = replicated_entry.Count();
-            int MaxStackSize;
-
-            // On chapter 2 MaxStackSize is a FScalableFloat. To avoid confusion within the UFortItemDefinition class, use this function instead
-            if (static UFunction* GetMaxStackSize = FindObject<UFunction>(L"/Script/FortniteGame.FortItem.GetMaxStackSize"))
-            {
-                MaxStackSize = item_instance->GetMaxStackSize(player_controller->Pawn()->AbilitySystemComponent());
-            }
-            else
-            {
-                MaxStackSize = item_definition->MaxStackSize();
-            }
-
-            int MaxStackSizeOverride;
-            if (get_override_max_stack_size_for(item_definition, &MaxStackSizeOverride))
-            {
-                MaxStackSize = MaxStackSizeOverride;
-            }
 
             if (MaxStackSize - replicated_entry.Count() > 0)
             {
@@ -214,6 +215,23 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
 
+    if (item_count > MaxStackSize)
+    {
+        int rest_of_item_count = item_count - MaxStackSize;
+        world_item->ItemEntry().Count() = MaxStackSize;
+
+        if (rest_of_item_count > 0)
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::warn(L"inventory_component::add_item: Attempted to give more than MaxStackSize allows. Dropping the unwanted items.");
+            }
+            
+            // Spawn item as pickup
+            pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), rest_of_item_count, 0, true, nullptr, {}, player_controller->Pawn());
+        }
+    }
+    
     if (loaded_ammo)
     {
         // Update loaded ammo in item entry
@@ -238,6 +256,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         }
     }
 
+    
     // Check the item type see if it's eligible for a challenge
     challenges_component::HandleItemAdded(player_controller, world_item->ItemEntry().ItemDefinition());
     

@@ -644,6 +644,27 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 }
                 else if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
                 {
+                    // If the item is found inventory and the count is >= MaxStackSize, don't proceed auto pickup.
+                    if (UFortItem* fort_item = inventory_component::get_inventory_item_by_definition(PlayerPawn->Controller(), fort_pickup->PrimaryPickupItemEntry().ItemDefinition()))
+                    {
+                        if (UFortWorldItem* fort_world_item = fort_item->Cast<UFortWorldItem>())
+                        {
+                            if (int item_count = fort_world_item->ItemEntry().Count())
+                            {
+                                int MaxStackSize = fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->MaxStackSize();
+                                inventory_component::get_override_max_stack_size_for(fort_pickup->PrimaryPickupItemEntry().ItemDefinition(), &MaxStackSize);
+                        
+                                if (item_count >= MaxStackSize)
+                                {
+                                    if (log_component::enable_debug_logs)
+                                    {
+                                        spdlog::warn(L"OnCapsuleBeginOverlap_Hook: Inventory item count bigger than MaxStackSize, not picking up the item.");
+                                    }
+                                    return;
+                                }
+                            }      
+                        }
+                    }
                     // Pickup item automatically if it is not currently being tossed
                     pickup_component::handle_pickup(fort_pickup, PlayerPawn);
                 }
