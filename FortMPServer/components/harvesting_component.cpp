@@ -134,12 +134,16 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 Count = FSimpleCurve::GetClass() ?
                     static_cast<FSimpleCurve*>(CurveTable[building_actor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value() :
                     static_cast<FRichCurve*>(CurveTable[building_actor->BuildingResourceAmountOverride().RowName].Value)->Keys()[0].Value();
-
+                
                 // Don't give mats for weakspot if damage > health before actor death (Weakspots give a 2x bonus so divide by 2)
                 if (damage > building_actor->GetHealth() + damage) damage = building_actor->GetHealth() + damage;
-                
-                Count = round(Count / (round(building_actor->GetMaxHealth() / damage)));
 
+                // Calculate the amount of materials to give per hit
+                Count = round((Count / building_actor->GetMaxHealth()) * damage);
+                
+                // Bonus varying from 0% to 15%
+                Count += round(UKismetMathLibrary::RandomFloatInRange(0, 0.15)*Count);
+                
                 if (Count <= 0) return;
                 
                 if (Count > 0)
