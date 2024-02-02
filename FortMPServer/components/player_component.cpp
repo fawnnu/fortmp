@@ -2530,7 +2530,7 @@ bool player_component::get_bonus_pellet_data(UFortGameplayAbility_RangedWeapon* 
         {
             if (AActor* Actor = SingleTargetHit->HitResult().Actor().Get())
             {
-                if (AFortPawn* HitPawn = Actor->Cast<AFortPawn>())
+                if (AFortPawn* HitPawn = Actor->Cast<AFortPlayerPawnAthena>())
                 {
                     bSuccessful = true;
                     
