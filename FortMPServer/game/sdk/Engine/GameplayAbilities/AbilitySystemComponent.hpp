@@ -152,10 +152,30 @@ public:
     }
 };
 
-struct FFortGameplayAbilityTargetData_SingleTargetHit
+struct FGameplayAbilityTargetData
 {
-    DEFINE_STRUCT_PROPERTY(bool, bHitReplaced);
+    void** VTable;
+};
+
+struct FGameplayAbilityTargetData_SingleTargetHit : FGameplayAbilityTargetData
+{
     DEFINE_STRUCT_PROPERTY(FHitResult, HitResult);
     
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayAbilityTargetData_SingleTargetHit");
+};
+
+struct FFortGameplayAbilityTargetData_SingleTargetHit : FGameplayAbilityTargetData_SingleTargetHit
+{
+    FFortGameplayAbilityTargetData_SingleTargetHit(int InCartridgeID, int InWeaponInfo)
+    {
+        CartridgeID() = InCartridgeID;
+        WeaponInfo() = InWeaponInfo;
+    }
+    
+    DEFINE_STRUCT_PROPERTY(int, CartridgeID);
+    DEFINE_STRUCT_PROPERTY(int, WeaponInfo);
+    DEFINE_STRUCT_PROPERTY(bool, bHitReplaced);
+    
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayAbilityTargetData_SingleTargetHit");
+    UE_OVERLOAD_NEW_OPERATOR();
 };

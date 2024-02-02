@@ -2481,6 +2481,74 @@ void player_component::apply_wraps(FFortAthenaLoadout* Loadout, nlohmann::json W
     }
 }
 
+void player_component::apply_bonus_pellets(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility,
+    FGameplayAbilityTargetDataHandle& InData)
+{
+    // Shotgun or pellets gun
+    if (InData.GetData().Num() > 1)
+    {
+        FEraPelletInfo BonusPelletsTemplate = FEraPelletInfo();
+        if (get_bonus_pellet_data(RangedWeaponAbility, InData, BonusPelletsTemplate))
+        {
+            if (BonusPelletsTemplate.NumPelletsHit > 0 && BonusPelletsTemplate.NumPelletsHit < 3)
+            {
+                // For each pellet to add
+                for (int i = 0; i < 3 - BonusPelletsTemplate.NumPelletsHit; i++)
+                {
+                    FFortGameplayAbilityTargetData_SingleTargetHit* NewPelletHit = new FFortGameplayAbilityTargetData_SingleTargetHit(BonusPelletsTemplate.CartridgeID, BonusPelletsTemplate.WeaponInfo);
+                    FVector TraceEnd = BonusPelletsTemplate.PawnToHit->K2_GetActorLocation();
+                    FVector TraceStart = TraceEnd + BonusPelletsTemplate.PawnToHit->RootComponent()->GetForwardVector() * 10;
+
+                    // Params
+                    TArray<FHitResult> HitResults;
+                    static FName WeaponTrace = FName(TEXT("WeaponTrace"));
+                    FCollisionResponseParams CollisionResponseParams = FCollisionResponseParams();
+                    FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams(WeaponTrace, true, RangedWeaponAbility->GetAvatarActorFromActorInfo());
+        
+                    // Line trace
+                    if ((*GWorld)->LineTraceMultiByChannel(HitResults, TraceStart, TraceEnd, FCC_Trace_Weapon, CollisionQueryParams, CollisionResponseParams))
+                    {
+                        if (HitResults.Num() == 1)
+                        {
+                            memcpy(&NewPelletHit->HitResult(), &HitResults[0], FHitResult::GetStructSize());
+                            InData.GetData().Add(TSharedPtr(NewPelletHit, false));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool player_component::get_bonus_pellet_data(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility,
+    FGameplayAbilityTargetDataHandle& InData, FEraPelletInfo& PelletInfo)
+{
+    bool bSuccessful = false;
+    for (uint8 i = 0; i < InData.GetData().Num() && i < 255; ++i)
+    {
+        if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
+        {
+            if (AActor* Actor = SingleTargetHit->HitResult().Actor().Get())
+            {
+                if (AFortPawn* HitPawn = Actor->Cast<AFortPawn>())
+                {
+                    bSuccessful = true;
+                    
+                    if (!PelletInfo.PawnToHit)
+                    {
+                        PelletInfo.PawnToHit = HitPawn;
+                        PelletInfo.WeaponInfo = SingleTargetHit->WeaponInfo();
+                        PelletInfo.CartridgeID = SingleTargetHit->CartridgeID();
+                    }
+
+                    PelletInfo.NumPelletsHit++;
+                }
+            }
+        }
+    }
+    return bSuccessful;
+}
+
 void player_component_hooks::ServerAcknowledgePossession_Hook(APlayerController* PlayerController, FFrame& StackFrame)
 {
     GET_PARAMETER(UObject*, P);
@@ -3001,6 +3069,11 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
                     }
                 }
             }
+        }
+
+        // Bonus pellet
+        {
+            player_component::apply_bonus_pellets(RangedWeaponAbility, InData);
         }
     
         return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);

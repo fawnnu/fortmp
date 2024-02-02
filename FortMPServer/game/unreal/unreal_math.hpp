@@ -14,6 +14,16 @@ struct FVector
         return FVector(X - V.X, Y - V.Y, Z - V.Z);
     }
 
+    FORCEINLINE FVector operator+(const FVector& V) const
+    {
+        return FVector(X + V.X, Y + V.Y, Z + V.Z);
+    }
+
+    FORCEINLINE FVector operator*(float InX) const
+    {
+        return FVector(X * InX, Y * InX, Z * InX);
+    }
+
     FORCEINLINE float operator|(const FVector& V) const
     {
         return X*V.X + Y*V.Y + Z*V.Z;
@@ -42,6 +52,16 @@ struct FVector
     FORCEINLINE std::wstring ToUnicodeString() const
     {
         return std::to_wstring(X) + L" " + std::to_wstring(Y) + L" " + std::to_wstring(Z);
+    }
+
+    FORCEINLINE operator const char*() const
+    {
+        return ToAnsiString().c_str();
+    }
+
+    FORCEINLINE operator const wchar_t*() const
+    {
+        return ToUnicodeString().c_str();
     }
         
     // Vector's X component

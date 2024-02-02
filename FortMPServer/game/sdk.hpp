@@ -116,6 +116,14 @@
         return Block;\
     }
 
+#define UE_OVERLOAD_NEW_OPERATOR()\
+    FORCEINLINE void* operator new(size_t)\
+    {\
+        auto Block = FMemory_Malloc(GetStructSize(), 0);\
+        InitializeStruct(GetClass(), Block, 1);\
+        return Block;\
+    }
+
 #define DEFINE_STRUCT_PROPERTY(PropertyType, PropertyName)                                                                      \
     PropertyType##& PropertyName##()                                                                                            \
     {                                                                                                                           \

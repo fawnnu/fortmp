@@ -45,6 +45,20 @@ public:
         return Call<FVector>(Function_K2_GetComponentLocation);
     }
     
+    FVector GetSocketLocation(FName InSocketName)
+    {
+        STATIC_FINDFUNCTION(GetSocketLocation)
+
+        return Call<FVector>(Function_GetSocketLocation, InSocketName);
+    }
+    
+    FVector GetForwardVector()
+    {
+        STATIC_FINDFUNCTION(GetForwardVector)
+
+        return Call<FVector>(Function_GetForwardVector);
+    }
+    
     void K2_SetWorldLocation(FVector Translation, bool bSweep, bool bTeleport, FHitResult* OutHitResult)
     {
         STATIC_FINDFUNCTION(K2_SetWorldLocation)

@@ -24,6 +24,9 @@ inline UEngine** GEngine;
 // Find UProperty/FProperty by FName
 inline void* (*FindPropertyByName)(UObject* InClass, FName PropertyToFind);
 
+// Initialize struct
+inline void (*InitializeStruct)(void*, void*, int32_t);
+
 // Find UFunction by FName
 inline UObject* (*FindFunctionByName)(UObject* InObject, FName FunctionToFind, int);
 
@@ -519,13 +522,76 @@ struct TWeakObjectPtr : FWeakObjectPtr
     }
 };
 
+class FReferenceControllerBase
+{
+public:
+    virtual void DestroyObject() = 0;
+
+    virtual ~FReferenceControllerBase()
+    {
+    }
+    
+    int32_t SharedReferenceCount;
+    int32_t WeakReferenceCount;
+};
+
+template <typename ObjectType, typename DeleterType>
+class TReferenceControllerWithDeleter : private DeleterType, public FReferenceControllerBase
+{
+public:
+    TReferenceControllerWithDeleter(ObjectType* InObject) :
+        Object(InObject)
+    {
+    }
+    
+    void DestroyObject() override
+    {
+        (*static_cast<DeleterType*>(this))(Object);
+    }
+    
+    TReferenceControllerWithDeleter(const TReferenceControllerWithDeleter&) = delete;
+    TReferenceControllerWithDeleter& operator=(const TReferenceControllerWithDeleter&) = delete;
+    
+    ObjectType* Object;
+};
+
+namespace SharedPointerInternals
+{
+    template <typename Type>
+    struct DefaultDeleter
+    {
+        FORCEINLINE void operator()(Type* Object) const
+        {
+        }
+    };
+
+    /** Creates a reference controller which just calls delete */
+    template <typename ObjectType>
+    FReferenceControllerBase* NewDefaultReferenceController(ObjectType* Object)
+    {
+        return new TReferenceControllerWithDeleter<ObjectType, DefaultDeleter<ObjectType>>(Object);
+    }
+}
+
+class FSharedReferencer
+{
+public:
+    FReferenceControllerBase* ReferenceController;
+};
+
 template <typename T>
 struct TSharedPtr
 {
     T* Object;
+    FSharedReferencer SharedReferenceCount;
 
-    int32_t SharedReferenceCount;
-    int32_t WeakReferenceCount;
+    TSharedPtr() = default;
+
+    TSharedPtr(T* InObject, bool _)
+        : Object(InObject), SharedReferenceCount(SharedPointerInternals::NewDefaultReferenceController( InObject ))
+    {
+        
+    }
 
     T* Get()
     { 

@@ -5,8 +5,6 @@
 #include "looting_component.hpp"
 #include "player_component.hpp"
 
-#define FCC_Trace_Weapon 20
-
 anticheat_component::anticheat_component()
 {
     Initialize();

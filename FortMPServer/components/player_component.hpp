@@ -144,6 +144,23 @@ struct FEraPlayerInfo
     std::vector<FGameplayTag> CurrentPOIList;
 };
 
+// Struct that keeps information about a shotgun pellet. We need this data to make
+struct FEraPelletInfo
+{
+    FEraPelletInfo()
+    {
+        CartridgeID = 0;
+        WeaponInfo = 0;
+        PawnToHit = nullptr;
+        NumPelletsHit = 0;
+    }
+    
+    int CartridgeID;
+    int WeaponInfo;
+    AFortPawn* PawnToHit;
+    int NumPelletsHit;
+};
+
 class player_component
 {
 public:
@@ -215,6 +232,8 @@ public:
     static EDamageCauser get_damage_causer(FGameplayTagContainer& Tags);
     static void apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json VariantData, UObject* ItemVariantIsUsedFor);
     static void apply_wraps(FFortAthenaLoadout* Loadout, nlohmann::json WrapsData);
+    static void apply_bonus_pellets(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData);
+    static bool get_bonus_pellet_data(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FEraPelletInfo& PelletInfo);
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;

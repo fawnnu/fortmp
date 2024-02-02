@@ -323,6 +323,16 @@ public:
         
         return Default__KismetMathLibrary->Call<int>(FunctionObject);
     }
+
+    static int RandomInteger(int Max)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.RandomInteger")
+        
+        return Default__KismetMathLibrary->Call<int>(FunctionObject, Max);
+    }
     
     static bool RandomBoolWithWeight(float Weight)
     {
