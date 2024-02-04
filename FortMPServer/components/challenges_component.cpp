@@ -2065,6 +2065,50 @@ void challenges_component::SendIcePuckInteraction(AFortPlayerControllerAthena* I
     }
 }
 
+void challenges_component::SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
+{
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        
+        // Convert FName to std::string
+        std::string sObjective = POI.TagName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            static std::map<std::string, std::string> ObjectivesMap = {
+                {"Athena.Quests.Location.ExplorerOutposts.A", "battlepass_visit_athena_expeditionoutpost_a"},
+                {"Athena.Quests.Location.ExplorerOutposts.B", "battlepass_visit_athena_expeditionoutpost_b"},
+                {"Athena.Quests.Location.ExplorerOutposts.C", "battlepass_visit_athena_expeditionoutpost_c"},
+                {"Athena.Quests.Location.ExplorerOutposts.D", "battlepass_visit_athena_expeditionoutpost_d"},
+                {"Athena.Quests.Location.ExplorerOutposts.E", "battlepass_visit_athena_expeditionoutpost_e"},
+                {"Athena.Quests.Location.ExplorerOutposts.F", "battlepass_visit_athena_expeditionoutpost_f"},
+                {"Athena.Quests.Location.ExplorerOutposts.G", "battlepass_visit_athena_expeditionoutpost_g"}
+            };
+
+            if (ObjectivesMap.contains(sObjective))
+            {
+                nlohmann::json parameters{
+                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", ObjectivesMap[sObjective]}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:outpost", parameters);
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    } 
+}
+
 void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     CHECK_PAST_WARMUP()

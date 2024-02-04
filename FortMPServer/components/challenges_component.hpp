@@ -85,6 +85,7 @@ public:
     static void SendBoogieBombInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     static void SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective);
     static void SendIcePuckInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 
