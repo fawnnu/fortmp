@@ -1085,6 +1085,10 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     {
                         challenges_component::SendBoogieBombInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController));
                     }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/RiftItem/Athena_Rift_Item.Athena_Rift_Item"))
+                    {
+                        challenges_component::SendRiftInteraction(PlayerController);
+                    }
                     else // Check if it's a building resource
                     {
                         inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);

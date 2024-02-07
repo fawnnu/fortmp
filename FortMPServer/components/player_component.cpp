@@ -3131,23 +3131,26 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FortWeapon = static_cast<AFortWeapon*>(DamageCauser->Owner());
             }
         }
-        else if (DamageCauser->IsA(AB_Prj_Athena_GasGrenade_C::StaticClass()))
+        else if (Self->IsA(APlayerPawn_Athena_C::StaticClass()) && Self != InstigatedBy->Pawn())
         {
-            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
-            Value.StinkGrenadeDamage += Damage;
-            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::StinkGrenade);
-        }
-        else if (DamageCauser->IsA(AB_Prj_Athena_StickyGrenade_C::StaticClass()))
-        {
-            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
-            Value.ClingerDamage += Damage;
-            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Clinger);
-        }
-        else if (DamageCauser->IsA(AB_Prj_Athena_Grenade_Base_C::StaticClass()))
-        {
-            FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
-            Value.GrenadeDamage += Damage;
-            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Grenade);
+            if (DamageCauser->IsA(AB_Prj_Athena_GasGrenade_C::StaticClass()))
+            {
+                FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+                Value.StinkGrenadeDamage += Damage;
+                player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::StinkGrenade);
+            }
+            else if (DamageCauser->IsA(AB_Prj_Athena_StickyGrenade_C::StaticClass()))
+            {
+                FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+                Value.ClingerDamage += Damage;
+                player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Clinger);
+            }
+            else if (DamageCauser->IsA(AB_Prj_Athena_Grenade_Base_C::StaticClass()))
+            {
+                FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+                Value.GrenadeDamage += Damage;
+                player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Grenade);
+            }
         }
 
         if (FortWeapon)

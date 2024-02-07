@@ -1,7 +1,9 @@
 ﻿#include "include.hpp"
 #include "vehicles_component.hpp"
 
+#include "challenges_component.hpp"
 #include "inventory_component.hpp"
+#include "loader_component.hpp"
 
 vehicles_component::vehicles_component()
 {
@@ -37,6 +39,8 @@ vehicles_component::vehicles_component()
     
     // Hook the last call in EquipAbilityWeapon
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
+
+    REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/DrivableVehicles/Biplane/Blueprints/FerretVehicle.FerretVehicle_C.OnDamaged", vehicles_component_hooks::OnDamaged_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -329,4 +333,23 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
     }
 
     return ServerFireActorInCannon(Weapon, StackFrame);
+}
+
+void vehicles_component_hooks::OnDamaged_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    GET_PROCESS_EVENT_PARAMETER(AController*, EventInstigator);
+
+    if (AFortAthenaVehicle* Vehicle = Object->Cast<AFortAthenaVehicle>())
+    {
+        if (AFortAthenaFerretVehicle* FerretVehicle = Vehicle->Cast<AFortAthenaFerretVehicle>())
+        {
+            if (FerretVehicle->GetHealth() <= 0)
+            {
+                if (FerretVehicle->IsFlying())
+                {
+                    challenges_component::SendDestroyPlaneInteraction(reinterpret_cast<AFortPlayerController*>(EventInstigator));
+                }
+            }
+        }
+    }
 }

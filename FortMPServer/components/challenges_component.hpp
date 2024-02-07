@@ -68,6 +68,8 @@ public:
     static void SendGooseEggInteraction(AFortPlayerController* InteractingController, AProp_FMP_GooseEgg_Interactable* GooseEgg, FName Objective);
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
+    static void SendRiftInteraction(AFortPlayerController* InteractingController);
+    static void SendDestroyPlaneInteraction(AFortPlayerController* InteractingController);
     static void SendTrapInteraction(AFortPlayerController* InteractingController);
     static void SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective);
     static void SendSpotlightDanceInteraction(AFortPlayerController* InteractingController, AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective);

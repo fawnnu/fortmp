@@ -37,6 +37,25 @@ void loader_component::pre_init()
     DetourTransactionCommit();
 }
 
+void loader_component::load_asset(FName Path, FName InAssetName)
+{
+    TArray<FAssetData> OutAssets;
+    if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(Path, OutAssets, true, false))
+    {
+        TArrayManager Assets = OutAssets;
+        for (FAssetData& Asset : Assets)
+        {
+            if (Asset.PackageName() == InAssetName)
+            {
+                LoadObject(Asset.ObjectPath().c_str());
+            }
+        }
+
+        // Log
+        spdlog::info(L"loader_component::load_assets_at loaded {} assets.", Assets.Num());
+    }
+}
+
 loader_component::loader_component()
 {
     AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");

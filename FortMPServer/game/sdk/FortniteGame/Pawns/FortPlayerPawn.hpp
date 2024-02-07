@@ -312,6 +312,13 @@ public:
         return Call<AFortPlayerPawn*>(Function_GetPawnAtSeat, SeatIdx);
     }
 
+    float GetHealth()
+    {
+        STATIC_FINDFUNCTION(GetHealth)
+
+        return Call<float>(Function_GetHealth);
+    }
+
     void OnRep_GravityMultiplier()
     {
         STATIC_FINDFUNCTION(OnRep_GravityMultiplier)
@@ -341,7 +348,18 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerPawnAthena");
 };
 
-class AFortAthenaFerretVehicle : public AFortAthenaVehicle
+class AFortAthenaDoghouseVehicle : public AFortAthenaVehicle
+{
+public:
+    bool IsFlying()
+    {
+        STATIC_FINDFUNCTION(IsFlying)
+
+        return Call<bool>(Function_IsFlying);
+    }
+};
+
+class AFortAthenaFerretVehicle : public AFortAthenaDoghouseVehicle
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaFerretVehicle")

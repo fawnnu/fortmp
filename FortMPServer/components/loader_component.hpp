@@ -6,6 +6,7 @@ public:
     loader_component();
     static void pre_init();
 
+    static void load_asset(FName Path, FName Asset);
     static void start_match(UFortPlaylistAthena* in_playlist = nullptr);
     static void handle_unloaded_foundations();
     static bool initialize_playlist(UFortPlaylistAthena* in_playlist);
