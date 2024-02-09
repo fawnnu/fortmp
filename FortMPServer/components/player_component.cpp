@@ -252,7 +252,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                     Self->EraPlayerInfo().PositionNotChangedCount = 0;
                 }
 
-                if (!era_mutators_component::IsActive("domino_event"))
+                if (creative_component::is_creative_enabled())
                 {
                     // 5 minutes, kick
                     if (Self->EraPlayerInfo().PositionNotChangedCount >= 300)
