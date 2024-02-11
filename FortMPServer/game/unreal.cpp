@@ -135,17 +135,11 @@ unreal_manager::unreal_manager()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(GWorld, memory_manager::find_function_by_string(L"UEngine::TickDeferredCommands took %.02", {0x48, 0x8b, 0x1d}, 3));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
         INIT_POINTER(GWorld, memory_manager::find_pattern("48 8B 1D ? ? ? ? 48 85 DB 74 3B 41",true, 3));
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"Failed to determine if OSS is server in PIE, OSS re", { 0x48, 0x8b, 0x1d }, 3));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
         INIT_POINTER(GEngine, memory_manager::find_function_by_string(L"STAT_FEngineLoop_UpdateTimeAndHandleMax", { 0x48 }, 3, false));
     }));
     async_initializers.push_back(new async_wrapper([&]
@@ -155,9 +149,6 @@ unreal_manager::unreal_manager()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_function_by_string(L"STAT_FortInfluenceMap", { 0xE8 }, 1, false));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
         INIT_POINTER(FastArraySerializer_MarkArrayDirty, memory_manager::find_pattern("E8 ? ? ? ? 8B 45 48 85 C0 7E 3F 4C 8D 55 38 45 33 C9 ", true, 1));
     }));
     async_initializers.push_back(new async_wrapper([&]
@@ -179,13 +170,7 @@ unreal_manager::unreal_manager()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_function_by_string(L"Failed to find PlayerStart", {0xe8}, 1));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
         INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 48 85 D2 74 1A 8B 52 0C 89 11"));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
         INIT_POINTER(SetFWeakObjectPtr, memory_manager::find_pattern("48 89 74 24 ? 57 48 83 EC 30 48 8B F1 48 85 D2 0F 84 ? ? ? ?"));
     }));
     async_initializers.push_back(new async_wrapper([&]

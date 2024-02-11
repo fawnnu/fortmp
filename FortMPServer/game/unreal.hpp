@@ -79,7 +79,7 @@ inline UObject* (*CreateDefaultObject_Internal)(UObject* SelfClass);
 inline void (*NetConnection__Close)(class UNetConnection* Self);
 
 // Construct a struct
-inline void (*ConstructUScriptStruct)(UObject** OutStruct, struct FStructParams* Params);
+inline void (*ConstructUScriptStruct)(UObject** OutStruct, void* Params);
 
 // Construct collision parameters
 inline void* (*FCollisionQueryParams__Ctor)(struct FCollisionQueryParams*, FName TraceTag, FName StatId, bool bTraceComplex, class AActor* IgnoreActor);
@@ -103,6 +103,7 @@ namespace CoreOffsets
     inline DWORD ByteOffset;
     inline DWORD FieldMask;
     inline DWORD Script;
+    inline DWORD StructPropertyParamsOffset;
 }
 
 namespace NetworkOffsets
@@ -868,31 +869,66 @@ struct FBoolPropertyParams
     void           (*SetBitFunc)(void* Obj);
 };
 
-struct FStructPropertyParams
+namespace UE_419_422_TEMPLATE
 {
-    EPropertyClass   Type;
-    const char*      NameUTF8;
-    int     ObjectFlags;
-    uintptr_t   PropertyFlags;
-    int            ArrayDim;
-    const char*      RepNotifyFuncUTF8;
-    int            Offset;
-    UObject* (*ScriptStructFunc)();
-};
+    struct FStructPropertyParams
+    {
+        EPropertyClass   Type;
+        const char*      NameUTF8;
+        int     ObjectFlags;
+        uintptr_t   PropertyFlags;
+        int            ArrayDim;
+        const char*      RepNotifyFuncUTF8;
+        int            Offset;
+        UObject* (*ScriptStructFunc)();
+    };
 
-struct FStructParams
+    struct FStructParams
+    {
+        UObject* (*OuterFunc)();
+        UObject* (*SuperFunc)();
+        void* (*StructOpsFunc)();
+        const char* NameUTF8;
+        int ObjectFlags;
+        int StructFlags;
+        SIZE_T SizeOf;
+        SIZE_T AlignOf;
+        void** PropertyArray;
+        int NumProperties;
+    };
+}
+
+namespace UE_423_425_TEMPLATE
 {
-    UObject* (*OuterFunc)();
-    UObject* (*SuperFunc)();
-    void* (*StructOpsFunc)();
-    const char* NameUTF8;
-    int ObjectFlags;
-    int StructFlags;
-    SIZE_T SizeOf;
-    SIZE_T AlignOf;
-    void** PropertyArray;
-    int NumProperties;
-};
+    struct FStructPropertyParams
+    {
+        const char*      NameUTF8;
+        const char*      RepNotifyFuncUTF8;
+        uintptr_t   PropertyFlags;
+        EPropertyClass Type;
+        int     ObjectFlags;
+        int            ArrayDim;
+        int            Offset;
+        UObject* (*ScriptStructFunc)();
+    };
+
+    struct FStructParams
+    {
+        UObject* (*OuterFunc)();
+        UObject* (*SuperFunc)();
+        void* (*StructOpsFunc)();
+        const char* NameUTF8;
+        SIZE_T SizeOf;
+        SIZE_T AlignOf;
+        void** PropertyArray;
+        int NumProperties;
+        int ObjectFlags;
+        int StructFlags;
+    };
+}
+
+#define INITIALIZE_CUSTOM_PROPERTY_OFFSET(Template, Struct, Property)\
+    Struct##Info::Property##Offset = offsetof(Template::Struct, Property);
 
 // Spawn an actor
 inline class AActor* (*SpawnActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, const FActorSpawnParameters& Params);

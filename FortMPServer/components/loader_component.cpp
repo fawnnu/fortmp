@@ -444,7 +444,7 @@ void loader_component::handle_unloaded_foundations()
 
     for (ABuildingFoundation* BuildingFoundation : BuildingFoundations)
     {
-        if (!BuildingFoundation->bFoundationEnabled())
+        if (!BuildingFoundation->HasProperty(TEXT("bFoundationEnabled")) || !BuildingFoundation->bFoundationEnabled())
         {
             try
             {

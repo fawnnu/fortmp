@@ -8,8 +8,18 @@ customproperties_component::customproperties_component()
 {
     if (FMemory_Malloc && ConstructUScriptStruct)
     {
-        CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo);
-        CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo);
+        if (GetEngineVersionEasy() < 423)
+        {
+            CoreOffsets::StructPropertyParamsOffset = offsetof(UE_419_422_TEMPLATE::FStructPropertyParams, Offset);   
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_419_422_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_419_422_TEMPLATE);
+        }
+        else
+        {
+            CoreOffsets::StructPropertyParamsOffset = offsetof(UE_423_425_TEMPLATE::FStructPropertyParams, Offset);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_423_425_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_423_425_TEMPLATE);
+        }
         
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
@@ -101,13 +111,10 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
             // Process offsets for different kinds of structs
             if (CustomPropertyData.ConstructData)
             {
-                if (*reinterpret_cast<EPropertyClass*>(reinterpret_cast<uintptr_t>(CustomPropertyData.ConstructData)) == EPropertyClass::Struct)
-                {
-                    static_cast<FStructPropertyParams*>(CustomPropertyData.ConstructData)->Offset = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize);
-                    *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize) += CustomPropertyData.PropertySize;
-                    
-                    spdlog::info(L"customproperties_component_hooks::ConstructUProperty_Hook [{}] updated class size [{:x}] for custom property creation [{}].", CustomPropertyData.ClassName.c_str(), *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize), CustomPropertyData.PropertyName.c_str());
-                }
+                *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(CustomPropertyData.ConstructData) + CoreOffsets::StructPropertyParamsOffset) = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize);
+                *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize) += CustomPropertyData.PropertySize;
+                
+                spdlog::info(L"customproperties_component_hooks::ConstructUProperty_Hook [{}] updated class size [{:x}] for custom property creation [{}].", CustomPropertyData.ClassName.c_str(), *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(NewClass) + CoreOffsets::StructSize), CustomPropertyData.PropertyName.c_str());
             }
             
             spdlog::info(L"Applied property [{}] to {}. PropertyNum: {}", CustomPropertyData.PropertyName.c_str(), CustomPropertyData.ClassName.c_str(), PropertyNum);

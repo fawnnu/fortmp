@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#define CREATE_CUSTOM_PROPERTY_CONTAINER(Class, FullClassPath, ContainerName)\
+#define CREATE_CUSTOM_PROPERTY_CONTAINER(Class, FullClassPath, ContainerName, Template)\
 auto Construct##ContainerName = []() -> UObject*\
         {\
             static UObject* ContainerName = nullptr;\
             if (!ContainerName)\
             {\
-                FStructParams StructParams;\
-                ZeroMemory(&StructParams, sizeof FStructParams);\
+                Template::FStructParams StructParams;\
+                ZeroMemory(&StructParams, sizeof Template::FStructParams);\
                 StructParams.OuterFunc = []\
                 {\
                     return FindObject(TEXT("/Script/FortniteGame"));  \
@@ -31,8 +31,8 @@ auto Construct##ContainerName = []() -> UObject*\
             return ContainerName;\
         };\
         \
-FStructPropertyParams* ContainerName##Property = new FStructPropertyParams;\
-ZeroMemory(ContainerName##Property, sizeof FStructPropertyParams);\
+Template::FStructPropertyParams* ContainerName##Property = new Template::FStructPropertyParams;\
+ZeroMemory(ContainerName##Property, sizeof Template::FStructPropertyParams);\
 ContainerName##Property->Type = EPropertyClass::Struct;\
 ContainerName##Property->NameUTF8 = #ContainerName;\
 ContainerName##Property->ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;\
