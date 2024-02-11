@@ -360,6 +360,14 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 {"weapon", "pistol"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
@@ -384,6 +392,14 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                 {"weapon", "hand_cannon"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage = 0;
@@ -408,6 +424,14 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 {"weapon", "pump_shotgun"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage = 0;
@@ -432,6 +456,14 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                 {"weapon", "tactical_shotgun"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage = 0;
@@ -456,6 +488,14 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 {"weapon", "heavy_shotgun"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage = 0;
@@ -480,6 +520,14 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                 {"weapon", "shotgun"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage = 0;
@@ -504,6 +552,14 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 {"weapon", "assault_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
@@ -528,6 +584,14 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
                 {"weapon", "burst_assault_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage = 0;
@@ -552,6 +616,14 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
                 {"weapon", "silenced_assault_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage = 0;
@@ -576,6 +648,14 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                 {"weapon", "sniper"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
@@ -600,6 +680,14 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
                 {"weapon", "heavy_sniper_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage = 0;
@@ -624,6 +712,14 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 {"weapon", "bolt_action_sniper_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage = 0;
@@ -648,6 +744,14 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
                 {"weapon", "hunting_rifle"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage = 0;
@@ -672,6 +776,14 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 {"weapon", "grenade"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
@@ -696,6 +808,14 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
                 {"weapon", "stink_bomb"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage = 0;
@@ -720,6 +840,14 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
                 {"weapon", "clinger"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage = 0;
@@ -744,6 +872,14 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 {"weapon", "smg"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage = 0;
@@ -768,6 +904,14 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
                 {"weapon", "grenade_launcher"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage = 0;
@@ -792,6 +936,14 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
                 {"weapon", "rpg"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage = 0;
@@ -816,6 +968,14 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
                 {"weapon", "suppressed_smg"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage = 0;
@@ -840,6 +1000,14 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
                 {"weapon", "suppressed_pistol"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage = 0;
@@ -864,6 +1032,14 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
                 {"weapon", "minigun"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage = 0;
@@ -888,6 +1064,14 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 {"weapon", "lmg"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage = 0;
@@ -912,6 +1096,14 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
                 {"weapon", "enemy_building"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
@@ -936,6 +1128,14 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
                 {"weapon", "pickaxe"},
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage}
             };
+
+            if (Self->Pawn()->HasFunction(L"IsInVehicle"))
+            {
+                if (Self->Pawn()->IsInVehicle())
+                {
+                    payload["meta"]["in_vehicle"] = true;
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage = 0;

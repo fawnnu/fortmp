@@ -1050,6 +1050,18 @@ void inventory_component_hooks::ServerRemoveInventoryItem_Hook(AFortPlayerContro
         {
             spdlog::info(L"inventory_component_hooks::ServerRemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
         }
+
+        if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())
+        {
+            if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Traps/TID_Floor_Player_Campfire_Athena.TID_Floor_Player_Campfire_Athena"))
+            {
+                challenges_component::SendPlaceEvent(PlayerController, "campfire");
+            }
+            else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Traps/TID_Floor_Player_Launch_Pad_Athena.TID_Floor_Player_Launch_Pad_Athena"))
+            {
+                challenges_component::SendPlaceEvent(PlayerController, "launchpad");
+            }
+        }
         
         inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
     }
