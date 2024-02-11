@@ -347,9 +347,10 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -379,9 +380,10 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -411,9 +413,10 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -443,9 +446,10 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
 {
     INIT_CUSTOM_FUNCTION();
     
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -475,9 +479,10 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -507,9 +512,10 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -539,9 +545,10 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -571,9 +578,10 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -603,9 +611,10 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -635,9 +644,10 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -667,9 +677,10 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -699,9 +710,10 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -731,9 +743,10 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -763,9 +776,10 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -795,9 +809,10 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -827,9 +842,10 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -859,9 +875,10 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -891,9 +908,10 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -923,9 +941,10 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -955,9 +974,10 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -987,9 +1007,10 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -1019,9 +1040,10 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
-    if (Self)
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -1051,9 +1073,10 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -1083,9 +1106,10 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
@@ -1115,9 +1139,10 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 {
     INIT_CUSTOM_FUNCTION();
 
+    CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (Self)
+
+    if (Self && Self->Pawn())
     {
         std::string account_id = get_account_id(Self);
 
