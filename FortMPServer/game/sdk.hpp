@@ -20,6 +20,17 @@
         return !!(*byte_value & *reinterpret_cast<uint8_t*>(__int64(native_property) + CoreOffsets::FieldMask));                                                                      \
     }
 
+#define DEFINE_STRUCT_BIT_PROPERTY(PropertyType, PropertyName)                                                                                                             \
+    PropertyType PropertyName##()                                                                                                                                \
+    {                                                                                                                                                               \
+        static void* native_property = FindPropertyByName(GetClass(), #PropertyName);                                                                              \
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);                                       \
+                                                                                                                                                                    \
+        auto byte_value = reinterpret_cast<PropertyType*>(__int64(this) + native_property_offset) + *reinterpret_cast<uint8_t*>(__int64(native_property) + CoreOffsets::ByteOffset);   \
+                                                                                                                                                                    \
+        return !!(*byte_value & *reinterpret_cast<uint8_t*>(__int64(native_property) + CoreOffsets::FieldMask));                                                                      \
+    }
+
 #define DEFINE_PROPERTY_BY_OFFSET(PropertyType, PropertyName, PropertyOffset)         \
     PropertyType##& PropertyName##()                                                  \
     {                                                                                 \

@@ -105,7 +105,7 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
                                 if (ModifierItemDefinition->Cast<UFortGameplayModifierItemDefinition>())
                                 {
                                     TArrayManager<FFortGameplayEffectDeliveryInfo> PersistentGameplayEffects = TArrayManager<FFortGameplayEffectDeliveryInfo>(&ModifierItemDefinition->PersistentGameplayEffects(), FFortGameplayEffectDeliveryInfo::GetStructSize());
-
+                                    
                                     for (FFortGameplayEffectDeliveryInfo& PersistentGameplayEffect : PersistentGameplayEffects)
                                     {
                                         // Loop through the gameplay effects
@@ -113,22 +113,26 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
 
                                         for (FGameplayEffectApplicationInfo& GameplayEffect : GameplayEffects)
                                         {
-                                            if (UAbilitySystemComponent* ASC = PlayerPawn->AbilitySystemComponent())
+                                            // Check if the gameplay effect is meant to be applied to pawns
+                                            if (PersistentGameplayEffect.DeliveryRequirements().bApplyToPlayerPawns())
                                             {
-                                                if (UObject* GameplayEffectClass = GameplayEffect.GameplayEffect().Get())
+                                                if (UAbilitySystemComponent* ASC = PlayerPawn->AbilitySystemComponent())
                                                 {
-                                                    if (UObject* GameplayEffectDefaultObj = CreateDefaultObject<UObject>(GameplayEffectClass))
+                                                    if (UObject* GameplayEffectClass = GameplayEffect.GameplayEffect().Get())
                                                     {
-                                                        if (UGameplayEffect* GameplayEffectCast = GameplayEffectDefaultObj->Cast<UGameplayEffect>())
+                                                        if (UObject* GameplayEffectDefaultObj = CreateDefaultObject<UObject>(GameplayEffectClass))
                                                         {
-                                                            FGameplayEffectSpecHandle Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(GameplayEffectCast, PlayerPawn, PlayerPawn, GameplayEffect.Level());
-
-                                                            Spec.AddSourceObject(PlayerPawn);
-                                                            ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
-
-                                                            if (log_component::enable_debug_logs)
+                                                            if (UGameplayEffect* GameplayEffectCast = GameplayEffectDefaultObj->Cast<UGameplayEffect>())
                                                             {
-                                                                spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                                FGameplayEffectSpecHandle Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(GameplayEffectCast, PlayerPawn, PlayerPawn, GameplayEffect.Level());
+
+                                                                Spec.AddSourceObject(PlayerPawn);
+                                                                ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
+
+                                                                if (log_component::enable_debug_logs)
+                                                                {
+                                                                    spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                                }
                                                             }
                                                         }
                                                     }

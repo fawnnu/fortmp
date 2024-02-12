@@ -56,9 +56,19 @@ struct FGameplayEffectApplicationInfo
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameplayEffectApplicationInfo")
 };
 
+struct FFortDeliveryInfoRequirementsFilter
+{
+    DEFINE_STRUCT_BIT_PROPERTY(bool, bApplyToPlayerPawns);
+    DEFINE_STRUCT_BIT_PROPERTY(bool, bApplyToAIPawns);
+    DEFINE_STRUCT_BIT_PROPERTY(bool, bApplyToBuildingActors);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortDeliveryInfoRequirementsFilter")
+};
+
 struct FFortGameplayEffectDeliveryInfo
 {
     DEFINE_STRUCT_PROPERTY(TArray<FGameplayEffectApplicationInfo>, GameplayEffects);
+    DEFINE_STRUCT_PROPERTY(FFortDeliveryInfoRequirementsFilter,  DeliveryRequirements);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayEffectDeliveryInfo")
 };

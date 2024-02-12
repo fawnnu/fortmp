@@ -20,6 +20,7 @@
 #include "../components/player_component.hpp"
 #include "../components/shell_component.hpp"
 #include "../components/director_client.hpp"
+#include "../components/inventory_component.hpp"
 #include "../utils/stb_image.h"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -351,6 +352,55 @@ void renderer::CreateNewWindow()
                                 for (auto actor : geode_scripters)
                                 {
                                     static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
+                                }
+                            }
+
+                            if (ImGui::Button("Start End Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> nightnight_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_NightNight_Scripting::StaticClass());
+                                
+                                for (auto actor : nightnight_scripters)
+                                {
+                                    static_cast<ABP_NightNight_Scripting*>(actor)->StartEvent();
+                                }
+
+                                for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+                                {
+                                    UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                                    if (Connection->PlayerController() == nullptr || Connection->PlayerController()->Pawn() == nullptr)
+                                    {
+                                        continue;
+                                    }
+
+                                    auto pickaxe = inventory_component::get_pickaxe(Connection->PlayerController())->Cast<UFortWorldItem>();
+
+                                    if (pickaxe)
+                                    {
+                                        inventory_component::remove_item(Connection->PlayerController(), pickaxe->ItemEntry().ItemGuid(), 1, false, false);   
+                                    }
+                                }
+                            }
+
+                            if (ImGui::Button("Start Unvaulting Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> snow_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_SnowScripting::StaticClass());
+                                
+                                for (auto actor : snow_scripters)
+                                {
+                                    static_cast<ABP_SnowScripting*>(actor)->SnowStart();
+                                }
+
+                                for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+                                {
+                                    UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                                    if (Connection->PlayerController() == nullptr || Connection->PlayerController()->Pawn() == nullptr)
+                                    {
+                                        continue;
+                                    }
+
+                                    inventory_component::clear_primary_inventory(Connection->PlayerController(), false);
                                 }
                             }
 

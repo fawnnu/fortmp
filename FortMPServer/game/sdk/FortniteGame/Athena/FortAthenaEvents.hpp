@@ -107,11 +107,60 @@ public:
     }
 };
 
+class ABP_SnowScripting : public AActor
+{
+public:
+
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/White/BP_SnowScripting.BP_SnowScripting_C")
+    
+    void SnowStart()
+    {
+        STATIC_FINDFUNCTION(SnowStart)
+
+        Call(Function_SnowStart);
+    }
+};
+
+class ABP_NightNight_Scripting : public AActor
+{
+public:
+
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/NightNight/BP_NightNight_Scripting.BP_NightNight_Scripting_C")
+    
+    void StartEvent()
+    {
+        STATIC_FINDFUNCTION(StartEvent)
+
+        Call(Function_StartEvent);
+    }
+
+    void WarmUpStart()
+    {
+        STATIC_FINDFUNCTION(WarmUpStart)
+
+        Call(Function_WarmUpStart);
+    }
+    
+    void LoadNightNightLevel()
+    {
+        STATIC_FINDFUNCTION(LoadNightNightLevel)
+
+        Call(Function_LoadNightNightLevel);
+    }
+
+    void StartEventMutator()
+    {
+        STATIC_FINDFUNCTION(StartEventMutator)
+
+        Call(Function_StartEventMutator);
+    }
+};
+
 class ACUBE_Simple_C : public AActor
 {
 public:
     DEFINE_PROPERTY(float, CrackProgress);
-    DEFINE_PROPERTY(float, DrainAmount); // Default = 0. Goes from 0.0 to 1.0f;
+    DEFINE_PROPERTY(float, DrainAmount); // Default = 0. Varies from 0.0 to 1.0f;
     DEFINE_PROPERTY(float, SnappedDrainAmount);
     DEFINE_PROPERTY(bool, DrainActive);
 
