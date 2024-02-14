@@ -238,7 +238,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 bExists_bEnableCreativeMode = in_playlist->HasProperty(TEXT("bEnableCreativeMode"));
             }
             
-            if (in_playlist == nullptr || GetFortniteVersionEasy() >= 8 && bExists_bEnableCreativeMode && in_playlist->bEnableCreativeMode() == true)
+            if (in_playlist == nullptr)
             {
                 // Use default playlist if none specified or if it's creative (Disabled starting from v8.00 due to a lot of functionality being stripped)
                 in_playlist = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playlist_DefaultSolo.Playlist_DefaultSolo");

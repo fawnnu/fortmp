@@ -63,6 +63,16 @@ era_mutators_component::era_mutators_component()
         }
     });
     
+    new era_mutator("era_festival_live", [](LPVOID)
+    {
+        TArray<AActor*> domino_scripters = UGameplayStatics::GetAllActorsOfClass((*GWorld), Adomino_scripting_C::StaticClass());
+                                
+        for (auto actor : domino_scripters)
+        {
+            static_cast<Adomino_scripting_C*>(actor)->StartEvent();
+        }
+    });
+    
     new era_mutator("butterfly_begin", [](LPVOID)
     {
         // 1 hour storm formation
