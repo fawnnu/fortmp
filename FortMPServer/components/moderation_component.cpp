@@ -1600,4 +1600,20 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
     }
 }
 
+void moderation_component_hooks::PreLogin_Hook(AFortGameModeAthena* Self, FString& Options, FString& Address, FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+    PreLogin(Self, Options, Address, UniqueId, ErrorMessage);
 
+    if (era_mutators_component::IsActive("domino_event"))
+    {
+        if (ErrorMessage.IsValid())
+        {
+            if (ErrorMessage == std::wstring(TEXT("Match has started")))
+            {
+                ErrorMessage.Clear();
+
+                spdlog::info("moderation_component_hooks::PreLogin_Hook: Ignoring 'Match has started' in 'domino_event'.");
+            }
+        }
+    }
+}
