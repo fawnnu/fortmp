@@ -3134,16 +3134,9 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
                 }
             }
         }
+
         
-        if (era_mutators_component::IsActive("domino_event"))
-        {
-            // Kick player if joining when the event has already started
-            if ((*GWorld)->AuthorityGameMode()->bMatchHasStarted())
-            {
-                NewPlayer->ClientReturnToMainMenu(L"Project Era Festival has already started. Sorry!");
-            }
-        }
-        else
+        if (!era_mutators_component::IsActive("domino_event"))
         {
             // Apply backpack, if specified
             player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));   

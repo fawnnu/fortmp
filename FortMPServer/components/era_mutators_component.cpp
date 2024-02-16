@@ -4,8 +4,10 @@
 #include "challenges_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
+#include "director_client.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
+#include "player_component.hpp"
 #include "storm_component.hpp"
 
 era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callback)
@@ -70,6 +72,27 @@ era_mutators_component::era_mutators_component()
         for (auto actor : domino_scripters)
         {
             static_cast<Adomino_scripting_C*>(actor)->StartEvent();
+        }
+    });
+
+    new era_mutator("era_festival_close", [](LPVOID)
+    {
+        gameserver_client::Client->GameServer_Status.accepting_players = false;
+        gameserver_client::Client->SendUpdate();
+
+        player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+        /*
+         * Send a match_started event to director
+         */
+        if (director_client::client)
+        {
+            director_client::client->Send(eudp_packet({
+                {"type", "match_started"},
+                {"payload", {
+                    {"starting_players", player_component::starting_players}
+                }}
+            }));
         }
     });
     
