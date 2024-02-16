@@ -347,29 +347,32 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Potentially could be moved to server_config on a later date.
         UKismetSystemLibrary::ExecuteConsoleCommand(L"ApplyContentKeyChain keychain");
 
+        if (!era_mutators_component::IsActive("domino_event"))
+        {
 #ifdef _RELEASE
-        // Only on public servers
-        /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
-        {
-            // Notify era services
-            gameserver_client::Client->GameServer_Status.accepting_players = false;
-            gameserver_client::Client->GameServer_Status.status = "ready";
-            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-            gameserver_client::Client->SendUpdate();
-        }
-        else*/ // Run different code on private
-        {
-            gameserver_client::Client->GameServer_Status.accepting_players = true;
-            gameserver_client::Client->GameServer_Status.status = "online";
-            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-            gameserver_client::Client->SendUpdate(); 
-        }
+            // Only on public servers
+            /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
+            {
+                // Notify era services
+                gameserver_client::Client->GameServer_Status.accepting_players = false;
+                gameserver_client::Client->GameServer_Status.status = "ready";
+                gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+                gameserver_client::Client->SendUpdate();
+            }
+            else*/ // Run different code on private
+            {
+                gameserver_client::Client->GameServer_Status.accepting_players = true;
+                gameserver_client::Client->GameServer_Status.status = "online";
+                gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+                gameserver_client::Client->SendUpdate(); 
+            }
 
-        /*
-         * Tell the director the gameserver is ready
-         */
-        director_client::send_ready_event();
+            /*
+             * Tell the director the gameserver is ready
+             */
+            director_client::send_ready_event();
 #endif
+        }
         
         // Set default floating island location on season 6
         if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
