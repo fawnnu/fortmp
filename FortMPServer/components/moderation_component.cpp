@@ -23,7 +23,8 @@ moderation_component::moderation_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
-    REGISTER_FUNCTION_DETOUR(moderation_component_hooks::Login, memory_manager::find_function_by_string(L"Login: Couldn't spawn player controller of class %s"), moderation_component_hooks::Login_Hook);    
+    REGISTER_FUNCTION_DETOUR(moderation_component_hooks::Login, memory_manager::find_function_by_string(L"Login: Couldn't spawn player controller of class %s"), moderation_component_hooks::Login_Hook);
+    REGISTER_FUNCTION_DETOUR(moderation_component_hooks::PreLogin, memory_manager::find_function_by_string(L"Match has started", {}, 0, true, true, false, true), moderation_component_hooks::PreLogin_Hook);
     REGISTER_UFUNCTION_DETOUR(moderation_component_hooks::ServerCheat, L"/Script/FortniteGame.FortPlayerController.ServerCheat", moderation_component_hooks::ServerCheat_Hook);
     
     DetourTransactionCommit();
