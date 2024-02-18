@@ -74,6 +74,12 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/FortnightLetters/Prop_QuestInteractable_Letters_Parent.Prop_QuestInteractable_Letters_Parent_C");
 };
 
+class AProp_QuestInteractable_GoldBalloon_Parent_C : public ABuildingSMActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/GoldBalloons/Prop_QuestInteractable_GoldBalloon_Parent.Prop_QuestInteractable_GoldBalloon_Parent_C");
+};
+
 class AProp_Quest_GniceGnomes_Parent_C : public ABuildingSMActor
 {
 public:

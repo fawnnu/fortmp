@@ -2178,21 +2178,19 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             // set the ability in the newly created struct
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
-                if (!era_mutators_component::IsActive("domino_event"))
-                {
-                    new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
+                if (era_mutators_component::IsActive("domino_event")) return;
                 
-                    // Notify backend that we're dancing
-                    challenges_component::SendSprayInteraction(player_controller);
-                }
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
+                
+                // Notify backend that we're dancing
+                challenges_component::SendSprayInteraction(player_controller);
             }
             else if (dance_asset->IsA(UAthenaToyItemDefinition::StaticClass()))
             {
-                if (!era_mutators_component::IsActive("domino_event"))
-                {
-                    auto toy_asset = static_cast<UAthenaToyItemDefinition*>(dance_asset);
-                    new_ability_spec.Ability = CreateDefaultObject<UObject>(toy_asset->ToySpawnAbility().Get());
-                }
+                if (era_mutators_component::IsActive("domino_event")) return;
+                
+                auto toy_asset = static_cast<UAthenaToyItemDefinition*>(dance_asset);
+                new_ability_spec.Ability = CreateDefaultObject<UObject>(toy_asset->ToySpawnAbility().Get());
             }
             else
             {
