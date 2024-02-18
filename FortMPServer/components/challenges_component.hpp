@@ -65,6 +65,7 @@ public:
     static void SendJewelInteraction(AFortPlayerController* InteractingController);
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendFlamingHoopInteraction(AFortPlayerController* InteractingController, AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName Objective);
+    static void SendPopGoldenBalloonInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_GoldBalloon_Parent_C* GoldenBalloon, FName BackendObjectiveName);
     static void SendGooseEggInteraction(AFortPlayerController* InteractingController, AProp_FMP_GooseEgg_Interactable* GooseEgg, FName Objective);
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);

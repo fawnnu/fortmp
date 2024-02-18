@@ -53,22 +53,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 {
                     if (instigated_by->Pawn())
                     {
-                        std::string account_id = player_component::get_account_id(instigated_by);
-
-                        if (account_id.size() > 0)
-                        {
-                            nlohmann::json Payload{
-                                                            {"x", instigated_by->Pawn()->K2_GetActorLocation().X},
-                                                            {"y", instigated_by->Pawn()->K2_GetActorLocation().Y}
-                            };
-
-                            if (log_component::enable_debug_logs)
-                            {
-                                spdlog::info("harvesting_component::handle_building_damaged sending interaction:pop-golden-balloon");
-                            }
-
-                            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pop-golden-balloon", Payload);
-                        }
+                        challenges_component::SendPopGoldenBalloonInteraction(instigated_by, building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>(), building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>()->ObjBackendName());
                     }
                 }   
             }

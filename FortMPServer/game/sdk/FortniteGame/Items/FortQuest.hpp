@@ -77,6 +77,7 @@ public:
 class AProp_QuestInteractable_GoldBalloon_Parent_C : public ABuildingSMActor
 {
 public:
+    DEFINE_PROPERTY(FName, ObjBackendName);
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/GoldBalloons/Prop_QuestInteractable_GoldBalloon_Parent.Prop_QuestInteractable_GoldBalloon_Parent_C");
 };
 
