@@ -17,6 +17,13 @@ public:
         return Call<float>(Function_GetRange);
     }
 
+    bool UseScopeTargeting()
+    {
+        STATIC_FINDFUNCTION(UseScopeTargeting)
+
+        return Call<bool>(Function_UseScopeTargeting);
+    }
+    
     int GetLocalMagazineAmmoCount()
     {
         STATIC_FINDFUNCTION(GetLocalMagazineAmmoCount)
