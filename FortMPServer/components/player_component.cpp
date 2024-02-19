@@ -416,17 +416,6 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
-
-            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
-            {
-                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
-                {
-                    if (CurrentWeapon->UseScopeTargeting())
-                    {
-                        payload["meta"]["scoped"] = true;
-                    }
-                }
-            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage = 0;
@@ -691,6 +680,17 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
+            {
+                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
+                {
+                    if (CurrentWeapon->UseScopeTargeting())
+                    {
+                        payload["meta"]["scoped"] = true;
+                    }
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
@@ -724,6 +724,17 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
+            {
+                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
+                {
+                    if (CurrentWeapon->UseScopeTargeting())
+                    {
+                        payload["meta"]["scoped"] = true;
+                    }
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage = 0;
@@ -755,6 +766,17 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
+            {
+                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
+                {
+                    if (CurrentWeapon->UseScopeTargeting())
+                    {
+                        payload["meta"]["scoped"] = true;
+                    }
                 }
             }
             
