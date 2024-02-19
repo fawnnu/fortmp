@@ -69,6 +69,8 @@ public:
     static void SendGooseEggInteraction(AFortPlayerController* InteractingController, AProp_FMP_GooseEgg_Interactable* GooseEgg, FName Objective);
     static void SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal);
+    static void SendInteractionEvent(AFortPlayerController* InteractingController, std::string event_type);
+    static void SendInteractionEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName);
     static void SendRiftInteraction(AFortPlayerController* InteractingController);
     static void SendDestroyPlaneInteraction(AFortPlayerController* InteractingController);
     static void SendTrapInteraction(AFortPlayerController* InteractingController);

@@ -1061,6 +1061,14 @@ void inventory_component_hooks::ServerRemoveInventoryItem_Hook(AFortPlayerContro
             {
                 challenges_component::SendPlaceEvent(PlayerController, "launchpad");
             }
+            else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Traps/TID_ContextTrap_Athena.TID_ContextTrap_Athena"))
+            {
+                challenges_component::SendPlaceEvent(PlayerController, "trap");
+            }
+            else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Traps/TID_Floor_MountedTurret_Athena.TID_Floor_MountedTurret_Athena"))
+            {
+                challenges_component::SendPlaceEvent(PlayerController, "turret");
+            }
         }
         
         inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
@@ -1100,6 +1108,10 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/RiftItem/Athena_Rift_Item.Athena_Rift_Item"))
                     {
                         challenges_component::SendRiftInteraction(PlayerController);
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SneakySnowman/Athena_SneakySnowman.Athena_SneakySnowman"))
+                    {
+                        challenges_component::SendInteractionEvent(PlayerController, "interaction:snowman");
                     }
                     else // Check if it's a building resource
                     {

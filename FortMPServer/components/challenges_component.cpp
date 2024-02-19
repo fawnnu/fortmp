@@ -952,6 +952,9 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.DanceLocation.Generic.11", "battlepass_dance_chain_athena_scavengerhunt_locations_02_a"},
                 {"Athena.Quests.DanceLocation.Generic.12", "battlepass_dance_chain_athena_scavengerhunt_locations_02_b"},
                 {"Athena.Quests.DanceLocation.Generic.13", "battlepass_dance_chain_athena_scavengerhunt_locations_02_c"},
+                  {"Athena.Quests.DanceLocation.Generic.21", "battlepass_dance_chain_athena_scavengerhunt_locations_03_a"},
+                  {"Athena.Quests.DanceLocation.Generic.22", "battlepass_dance_chain_athena_scavengerhunt_locations_03_b"},
+                  {"Athena.Quests.DanceLocation.Generic.23", "battlepass_dance_chain_athena_scavengerhunt_locations_03_c"},
                 {"EraEvent.FortmasDanceArea.01", "FDF_dance_athena_christmas_tree_01"}
             };
 
@@ -1511,21 +1514,29 @@ void challenges_component::SendGolfInteraction(AFortPlayerController* Interactin
 
 void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal)
 {
+    if (RiftPortal)
+    {
+        SendInteractionEvent(InteractingController, "interaction:rift");
+    }   
+}
+
+void challenges_component::SendInteractionEvent(AFortPlayerController* InteractingController, std::string event_type)
+{
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
-    if (InteractingController && RiftPortal)
+     
+    if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
-        
+         
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
-                {"x", RiftPortal->K2_GetActorLocation().X},
-                {"y", RiftPortal->K2_GetActorLocation().Y}
+                     {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
             };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:rift", parameters);
+             
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
         }
         else
         {
@@ -1534,10 +1545,10 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
                 spdlog::error(L"Invalid account_id while sending event.");
             }
         }
-    }   
+    }     
 }
 
-void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController)
+void challenges_component::SendInteractionEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -1546,14 +1557,18 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
     {
         std::string account_id = player_component::get_account_id(InteractingController);
         
+        // Convert FName to std::string
+        std::string sObjective = ObjBackendName.sToString();
+        
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:rift", parameters);
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
         }
         else
         {
@@ -1563,6 +1578,11 @@ void challenges_component::SendRiftInteraction(AFortPlayerController* Interactin
             }
         }
     }  
+}
+
+void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController)
+{
+    SendInteractionEvent(InteractingController, "interaction:rift");
 }
 
 void challenges_component::SendDestroyPlaneInteraction(AFortPlayerController* InteractingController)
