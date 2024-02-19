@@ -2141,6 +2141,54 @@ void challenges_component::SendIcePuckInteraction(AFortPlayerControllerAthena* I
     }
 }
 
+void challenges_component::SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
+{
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        
+        // Convert FName to std::string
+        std::string sObjective = POI.TagName.sToString();
+        
+        if (account_id.size() > 0)
+        {
+            static std::map<std::string, std::string> ObjectivesMap = {
+                {"Athena.Quests.Location.Waterfall.01", "overtime_battlepass_visit_different_waterfalls_01"},
+                {"Athena.Quests.Location.Waterfall.02", "overtime_battlepass_visit_different_waterfalls_02"},
+                {"Athena.Quests.Location.Waterfall.03", "overtime_battlepass_visit_different_waterfalls_03"},
+                {"Athena.Quests.Location.Waterfall.04", "overtime_battlepass_visit_different_waterfalls_04"},
+                {"Athena.Quests.Location.Waterfall.05", "overtime_battlepass_visit_different_waterfalls_05"},
+                {"Athena.Quests.Location.Waterfall.06", "overtime_battlepass_visit_different_waterfalls_06"},
+                {"Athena.Quests.Location.Waterfall.07", "overtime_battlepass_visit_different_waterfalls_07"},
+                {"Athena.Quests.Location.Waterfall.08", "overtime_battlepass_visit_different_waterfalls_08"},
+                {"Athena.Quests.Location.Waterfall.09", "overtime_battlepass_visit_different_waterfalls_09"},
+                {"Athena.Quests.Location.Waterfall.10", "overtime_battlepass_visit_different_waterfalls_10"},
+                {"Athena.Quests.Location.Waterfall.11", "overtime_battlepass_visit_different_waterfalls_11"}
+            };
+
+            if (ObjectivesMap.contains(sObjective))
+            {
+                nlohmann::json parameters{
+                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", ObjectivesMap[sObjective]}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:waterfall", parameters);
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    } 
+}
+
 void challenges_component::SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
 {
     CHECK_CREATIVE()

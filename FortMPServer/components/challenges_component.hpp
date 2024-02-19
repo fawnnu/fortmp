@@ -90,6 +90,7 @@ public:
     static void SendBoogieBombInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
     static void SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective);
     static void SendIcePuckInteraction(AFortPlayerControllerAthena* InteractingPlayerController);
+    static void SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI);
     static void SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI);
     static void SendPlaceEvent(AFortPlayerController* InteractingPlayerController, std::string Type);
     
