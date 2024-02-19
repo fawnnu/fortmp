@@ -383,6 +383,18 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
+            {
+                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
+                {
+                    if (CurrentWeapon->UseScopeTargeting())
+                    {
+                        spdlog::info(L"scoped weapon");
+                        payload["meta"]["scoped"] = true;
+                    }
+                }
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
@@ -579,6 +591,18 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+            
+            if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
+            {
+                if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
+                {
+                    if (CurrentWeapon->UseScopeTargeting())
+                    {
+                        spdlog::info(L"scoped weapon");
+                        payload["meta"]["scoped"] = true;
+                    }
                 }
             }
             
