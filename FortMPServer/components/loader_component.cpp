@@ -347,8 +347,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Potentially could be moved to server_config on a later date.
         UKismetSystemLibrary::ExecuteConsoleCommand(L"ApplyContentKeyChain keychain");
 
-        if (!era_mutators_component::IsActive("domino_event"))
-        {
 #ifdef _RELEASE
             // Only on public servers
             /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
@@ -372,7 +370,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
              */
             director_client::send_ready_event();
 #endif
-        }
         
         // Set default floating island location on season 6
         if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)

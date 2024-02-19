@@ -49,34 +49,6 @@ moderation_component::moderation_component()
             spdlog::info("Registered custom matchmaking code: {}", matchcode.c_str());
         }
     }
-
-    // This is a temporary solution for the gameserver being very well optimized and loading too fast.
-    if (era_mutators_component::IsActive("domino_event"))
-    {
-#ifdef _RELEASE
-        // Only on public servers
-        /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
-        {
-            // Notify era services
-            gameserver_client::Client->GameServer_Status.accepting_players = false;
-            gameserver_client::Client->GameServer_Status.status = "ready";
-            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-            gameserver_client::Client->SendUpdate();
-        }
-        else*/ // Run different code on private
-        {
-            gameserver_client::Client->GameServer_Status.accepting_players = true;
-            gameserver_client::Client->GameServer_Status.status = "online";
-            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-            gameserver_client::Client->SendUpdate(); 
-        }
-
-        /*
-         * Tell the director the gameserver is ready
-         */
-        director_client::send_ready_event();
-#endif   
-    }
 }
 
 AFortPlayerController* moderation_component::get_player_by_name(FString InPlayerName)
