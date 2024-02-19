@@ -1104,6 +1104,14 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/DanceGrenade/Athena_DanceGrenade.Athena_DanceGrenade"))
                     {
                         challenges_component::SendBoogieBombInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController));
+
+                        // Temporary solution (remove for s8)
+                        challenges_component::SendGrenadeHitInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController), "boogie_bomb");
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/ThrownConsumables/IceGrenade/Athena_IceGrenade.Athena_IceGrenade"))
+                    {
+                        // Temporary solution (remove for s8)
+                        challenges_component::SendGrenadeHitInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController), "chiller_grenade");
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/RiftItem/Athena_Rift_Item.Athena_Rift_Item"))
                     {

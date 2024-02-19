@@ -218,6 +218,14 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
 
             // Progress land challenges
             challenges_component::SendLandingEvent(Self->Controller(), Self);
+
+            // Temporary, auto-complete some challenges
+            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "wailing_woods");
+            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "retail_row");
+            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "paradise_palms");
+
+            challenges_component::SendBiplaneTimedTrialInteraction(Self->Controller(), "complete_timed_trial_stormwing_01");
+            challenges_component::SendBiplaneTimedTrialInteraction(Self->Controller(), "complete_timed_trial_stormwing_02");
         }
     }
 }

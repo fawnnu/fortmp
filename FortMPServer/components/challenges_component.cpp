@@ -2141,6 +2141,75 @@ void challenges_component::SendIcePuckInteraction(AFortPlayerControllerAthena* I
     }
 }
 
+void challenges_component::SendBiplaneTimedTrialInteraction(AFortPlayerController* InteractingPlayerController, std::string BackendObj)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                        {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                        {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                        {"objective", BackendObj}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:timed-stormwing-trial", parameters);
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info("challenges_component::SendBiplaneTimedTrialInteraction: sent interaction:timed-stormwing-trial event with payload {}", parameters.dump().c_str());
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
+}
+
+void challenges_component::SendShootingGalleryInteraction(AFortPlayerController* controller, std::string location)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (controller && controller->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(controller);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                    {"x", controller->Pawn()->K2_GetActorLocation().X},
+                    {"y", controller->Pawn()->K2_GetActorLocation().Y},
+                    {"score", 5},
+                {"location", location}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shooting-gallery", parameters);
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info("challenges_component::SendShootingGalleryInteraction: sent interaction:shooting-gallery event with payload {}", parameters.dump().c_str());
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
+}
+
 void challenges_component::SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
 {
     CHECK_CREATIVE()
@@ -2231,6 +2300,40 @@ void challenges_component::SendExplorerOutpostInteraction(AFortPlayerControllerA
             }
         }
     } 
+}
+
+void challenges_component::SendGrenadeHitInteraction(AFortPlayerControllerAthena* InteractingPlayerController, std::string type)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (InteractingPlayerController && InteractingPlayerController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+    
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                        {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                        {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                        {"type", type}
+            };
+    
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:hit", parameters);
+    
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info("challenges_component::SendGrenadeHitInteraction: sent interaction:hit event with payload {}", parameters.dump().c_str());
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
 }
 
 void challenges_component::SendPlaceEvent(AFortPlayerController* InteractingPlayerController, std::string Type)
