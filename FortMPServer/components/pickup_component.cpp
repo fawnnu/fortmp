@@ -530,6 +530,8 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
 
     // Cast to pawn
     AFortPlayerPawn* PlayerPawn = reinterpret_cast<AFortPlayerPawn*>(Object);
+
+    if (PlayerPawn == nullptr || memory_manager::is_bad_read_pointer(PlayerPawn)) return;
     
     // Filter overlap capsule
     if (OtherActor)
@@ -629,6 +631,8 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             // Cast overlap capsule to FortPickup instance
             AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(OtherActor);
 
+            if (fort_pickup == nullptr) return;
+            
             // Filter pickup classes
             static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
             static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
@@ -644,26 +648,29 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 }
                 else if (fort_pickup->PickupLocationData().CombineTarget() == nullptr)
                 {
-                    // If the item is found inventory and the count is >= MaxStackSize, don't proceed auto pickup.
-                    if (UFortItem* fort_item = inventory_component::get_inventory_item_by_definition(PlayerPawn->Controller(), fort_pickup->PrimaryPickupItemEntry().ItemDefinition()))
+                    if (PlayerPawn->Controller() && !memory_manager::is_bad_read_pointer(PlayerPawn->Controller()))
                     {
-                        if (UFortWorldItem* fort_world_item = fort_item->Cast<UFortWorldItem>())
+                        // If the item is found inventory and the count is >= MaxStackSize, don't proceed auto pickup.
+                        if (UFortItem* fort_item = inventory_component::get_inventory_item_by_definition(PlayerPawn->Controller(), fort_pickup->PrimaryPickupItemEntry().ItemDefinition()))
                         {
-                            if (int item_count = fort_world_item->ItemEntry().Count())
+                            if (UFortWorldItem* fort_world_item = fort_item->Cast<UFortWorldItem>())
                             {
-                                int MaxStackSize = fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->MaxStackSize();
-                                inventory_component::get_override_max_stack_size_for(fort_pickup->PrimaryPickupItemEntry().ItemDefinition(), &MaxStackSize);
-                        
-                                if (item_count >= MaxStackSize)
+                                if (int item_count = fort_world_item->ItemEntry().Count())
                                 {
-                                    if (log_component::enable_debug_logs)
+                                    int MaxStackSize = fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->MaxStackSize();
+                                    inventory_component::get_override_max_stack_size_for(fort_pickup->PrimaryPickupItemEntry().ItemDefinition(), &MaxStackSize);
+                        
+                                    if (item_count >= MaxStackSize)
                                     {
-                                        spdlog::warn(L"OnCapsuleBeginOverlap_Hook: Inventory item count bigger than MaxStackSize, not picking up the item.");
+                                        if (log_component::enable_debug_logs)
+                                        {
+                                            spdlog::warn(L"OnCapsuleBeginOverlap_Hook: Inventory item count bigger than MaxStackSize, not picking up the item.");
+                                        }
+                                        return;
                                     }
-                                    return;
-                                }
-                            }      
-                        }
+                                }      
+                            }
+                        }   
                     }
                     // Pickup item automatically if it is not currently being tossed
                     pickup_component::handle_pickup(fort_pickup, PlayerPawn);

@@ -496,15 +496,18 @@ UFortItem* inventory_component::get_inventory_item_by_guid(AFortPlayerController
 
 UFortItem* inventory_component::get_inventory_item_by_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
 {
-    if (player_controller->WorldInventory())
+    if (player_controller && !memory_manager::is_bad_read_pointer(player_controller))
     {
-        for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
+        if (player_controller->WorldInventory())
         {
-            if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition() == item_definition)
+            for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
             {
-                return ItemInstance;
+                if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition() == item_definition)
+                {
+                    return ItemInstance;
+                }
             }
-        }
+        }   
     }
     
     return nullptr;    

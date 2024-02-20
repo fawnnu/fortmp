@@ -86,6 +86,8 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
 {
     if (AFortPlayerPawnAthena* PlayerPawn = player_pawn->Cast<AFortPlayerPawnAthena>())
     {
+        if (memory_manager::is_bad_read_pointer(PlayerPawn)) return;
+        
         // Get playlist
         if (UFortPlaylistAthena* Playlist = GetPlaylistEasy())
         {
