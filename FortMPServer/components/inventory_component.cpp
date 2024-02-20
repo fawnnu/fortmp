@@ -180,10 +180,13 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 {
                     if (is_inventory_full(player_controller, 5) || !has_item_type(player_controller, item_definition))
                     {
-                        // Spawn item as pickup
-                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo(), true, nullptr, {}, player_controller->Pawn());
+                        if (player_controller->Pawn())
+                        {
+                            // Spawn item as pickup
+                            pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), last_count + item_count - MaxStackSize, replicated_entry.LoadedAmmo(), true, nullptr, {}, player_controller->Pawn());
 
-                        return nullptr;
+                            return nullptr;   
+                        }
                     }
 
                     // Spawn a new item
