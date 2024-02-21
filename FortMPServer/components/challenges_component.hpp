@@ -108,6 +108,7 @@ struct progression_entry
     std::string challenge;
     std::string objective;
     int value;
+    int delta;
     std::string player;
 };
 

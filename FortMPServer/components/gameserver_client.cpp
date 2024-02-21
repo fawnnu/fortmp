@@ -404,6 +404,14 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                             new_entry->objective = objective;
                             new_entry->value = value;
                             new_entry->player = AccountID;
+                            new_entry->delta = 0;
+                            try
+                            {
+                                new_entry->delta = JsonPayloadData["delta"];
+                            }
+                            catch (nlohmann::json::exception& err)
+                            {
+                            }
 
                             challenges_progression_queue.push_back(new_entry);
                         }

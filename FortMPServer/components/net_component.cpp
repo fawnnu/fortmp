@@ -203,6 +203,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
             std::string challenge = challenges_progression->challenge;
             std::string objective = challenges_progression->objective;
             int value = challenges_progression->value;
+            int delta = challenges_progression->delta;
             std::string AccountID = challenges_progression->player;
         
             TO_WSTRING(AccountID, wAccountID);
@@ -240,6 +241,15 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                             {
                                 bQuestAlreadyExists = true;
                                 ObjectiveStat.StatValue() = value;
+
+                                if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), StatDelta))
+                                {
+                                    ObjectiveStat.StatDelta() = delta;
+                                }
+                                if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
+                                {
+                                    ObjectiveStat.CurrentStage() = -1;
+                                }
                             
                                 break;
                             }
@@ -252,6 +262,15 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                             NewObjectiveStat->Quest() = QuestItemDefinition;
                             NewObjectiveStat->BackendName() = wObjective.c_str();
                             NewObjectiveStat->StatValue() = value;
+
+                            if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), StatDelta))
+                            {
+                                NewObjectiveStat->StatDelta() = delta;
+                            }
+                            if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
+                            {
+                                NewObjectiveStat->CurrentStage() = -1;
+                            }
 
                             // Send live progression to client
                             UpdatedObjectiveStats.Add(NewObjectiveStat);

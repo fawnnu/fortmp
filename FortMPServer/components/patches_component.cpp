@@ -548,19 +548,26 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
         }
     
         PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
+        PlayerController->CustomizationLoadout().ItemWraps().Free();
+        PlayerController->CustomizationLoadout().Dances().Free();
+        PlayerController->CustomizationLoadout().BannerIconId().Clear();
+        PlayerController->CustomizationLoadout().BannerColorId().Clear();
     
         memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
 
         if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
         {
             // Apply variants
-            if (STATIC_HASPROPERTY(PlayerController, EraPlayerInfo))
+            for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
             {
-                for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
-                {
-                    player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
-                }
+                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
             }
+        }
+
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"ItemWraps"))
+        {
+            // Apply wraps
+            player_component::apply_wraps(OutLoadout, PlayerController->EraPlayerInfo().PendingWrapsData);
         }
             
         return OutLoadout;

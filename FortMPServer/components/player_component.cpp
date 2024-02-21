@@ -390,7 +390,6 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 {
                     if (CurrentWeapon->UseScopeTargeting())
                     {
-                        spdlog::info(L"scoped weapon");
                         payload["meta"]["scoped"] = true;
                     }
                 }
@@ -600,7 +599,6 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 {
                     if (CurrentWeapon->UseScopeTargeting())
                     {
-                        spdlog::info(L"scoped weapon");
                         payload["meta"]["scoped"] = true;
                     }
                 }
