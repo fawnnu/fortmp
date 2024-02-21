@@ -111,10 +111,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     {
         handle_doorbell_interaction(player_controller, reinterpret_cast<AProp_Athena_Doorbell_Interactable_C*>(receiving_actor));
     }
-    else if (receiving_actor->IsA(AProp_FMP_GooseEgg_Interactable::StaticClass()))
-    {
-        handle_gooseegg_interaction(player_controller, reinterpret_cast<AProp_FMP_GooseEgg_Interactable*>(receiving_actor));
-    }
     else if (receiving_actor->IsA(AProp_QuestInteractable_Noms_Base::StaticClass()))
     {
         handle_noms_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Noms_Base*>(receiving_actor));
@@ -170,11 +166,11 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         // Send progression for this challenge
         if (building_container->SearchLootTierGroup() == L"Loot_Treasure")
         {
-            challenges_component::SendChestEvent(player_controller, building_container);
+            challenges_component::SendCustomEvent(player_controller, "event:chest");
         }
         else if (building_container->SearchLootTierGroup() == L"Loot_Ammo")
         {
-            challenges_component::SendAmmoEvent(player_controller, building_container);
+            challenges_component::SendCustomEvent(player_controller, "event:ammo");
         }
     }
 }
@@ -249,8 +245,8 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                 }
 
                 // Send event
-                challenges_component::SendVendingMachineInteraction(player_controller, static_cast<AB_Athena_VendingMachine_C*>(vending_machine));
-
+                challenges_component::SendCustomEvent(player_controller, "interaction:vending");
+                
                 // Destroy vending if needed
                 STATIC_HASPROPERTY(vending_machine, NumInteractionsAllowed);
                 STATIC_HASPROPERTY(vending_machine, NumInteractions);
@@ -305,7 +301,7 @@ void interact_component::handle_shoppingcart_interaction(AFortPlayerController* 
         spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending shopping cart interaction.");
     }
     
-    challenges_component::SendShoppingCartInteraction(player_controller);
+    challenges_component::SendCustomEvent(player_controller, "interaction:cart");
 }
 
 void interact_component::handle_plane_interaction(AFortPlayerController* player_controller,
@@ -316,7 +312,7 @@ void interact_component::handle_plane_interaction(AFortPlayerController* player_
         spdlog::info(L"interact_component::handle_plane_interaction is sending plane interaction.");
     }
     
-    challenges_component::SendPlaneInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller));
+    challenges_component::SendCustomEvent(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller), "interaction:use-plane");
 }
 
 void interact_component::handle_llama_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
@@ -325,8 +321,8 @@ void interact_component::handle_llama_interaction(AFortPlayerController* player_
     {
         spdlog::info(L"interact_component::handle_llama_interaction is sending llama interaction.");
     }
-    
-    challenges_component::SendLlamaEvent(player_controller, supply_drop);
+
+    challenges_component::SendCustomEvent(player_controller, "event:llama");
 }
 
 void interact_component::handle_supplydrop_interaction(AFortPlayerController* player_controller, AFortAthenaSupplyDrop* supply_drop)
@@ -336,7 +332,7 @@ void interact_component::handle_supplydrop_interaction(AFortPlayerController* pl
         spdlog::info(L"interact_component::handle_supplydrop_interaction is sending supplydrop interaction.");
     }
     
-    challenges_component::SendSupplyDropEvent(player_controller, supply_drop);
+    challenges_component::SendCustomEvent(player_controller, "event:supply");
 }
 
 void interact_component::handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter)
@@ -349,7 +345,7 @@ void interact_component::handle_letter_interaction(AFortPlayerController* player
     if (letter->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendLetterInteraction(player_controller, letter, letter->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:letter", letter->QuestBackendObjectiveName());
     }
 }
 
@@ -363,7 +359,7 @@ void interact_component::handle_gnome_interaction(AFortPlayerController* player_
     if (gnome->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendGnomeInteraction(player_controller, gnome, gnome->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:chilly-gnome", gnome->QuestBackendObjectiveName());
     }
 }
 
@@ -377,7 +373,7 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
     if (battlestar->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:star", battlestar->QuestBackendObjectiveName());
     }
 }
 
@@ -391,7 +387,7 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
     if (battlestar->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendBattleStarInteraction(player_controller, battlestar, battlestar->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:star", battlestar->QuestBackendObjectiveName());
     }
 }
 
@@ -403,7 +399,7 @@ void interact_component::handle_hoprock_interaction(AFortPlayerController* playe
     }
     
     // Send interaction event
-    challenges_component::SendHopRockInteraction(player_controller, hoprock);
+    challenges_component::SendCustomEvent(player_controller, "interaction:hop-rock");
 }
 
 void interact_component::handle_apple_interaction(AFortPlayerController* player_controller, ACBGA_HealthSmall_C* apple)
@@ -414,7 +410,7 @@ void interact_component::handle_apple_interaction(AFortPlayerController* player_
     }
     
     // Send interaction event
-    challenges_component::SendAppleInteraction(player_controller, apple);
+    challenges_component::SendCustomEvent(player_controller, "interaction:apple");
 }
 
 void interact_component::handle_mushroom_interaction(AFortPlayerController* player_controller, ACBGA_ShieldsSmall_C* mushroom)
@@ -425,7 +421,7 @@ void interact_component::handle_mushroom_interaction(AFortPlayerController* play
     }
     
     // Send interaction event
-    challenges_component::SendMushroomInteraction(player_controller, mushroom);
+    challenges_component::SendCustomEvent(player_controller, "interaction:mushroom");
 }
 
 void interact_component::handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck)
@@ -438,21 +434,7 @@ void interact_component::handle_rubberduck_interaction(AFortPlayerController* pl
     if (rubberduck->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendRubberDuckInteraction(player_controller, rubberduck, rubberduck->QuestBackendObjectiveName());
-    }
-}
-
-void interact_component::handle_gooseegg_interaction(AFortPlayerController* player_controller, AProp_FMP_GooseEgg_Interactable* goose_egg)
-{
-    if (log_component::enable_debug_logs)
-    {
-        spdlog::info(L"interact_component::handle_gooseegg_interaction is sending goose egg interaction.");
-    }
-    
-    if (goose_egg->HasProperty(L"QuestBackendObjectiveName"))
-    {
-        // Send interaction event
-        challenges_component::SendGooseEggInteraction(player_controller, goose_egg, goose_egg->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:rubber-duck", rubberduck->QuestBackendObjectiveName());
     }
 }
 
@@ -466,7 +448,7 @@ void interact_component::handle_lightningbolt_interaction(AFortPlayerController*
     if (lightningbolt->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendLightningBoltInteraction(player_controller, lightningbolt, lightningbolt->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:lightningbolt", lightningbolt->QuestBackendObjectiveName());
     }
 }
 
@@ -481,7 +463,7 @@ void interact_component::handle_jigsaw_puzzle_interaction(AFortPlayerController*
     if (jigsawpuzzle->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendJigsawPuzzleInteraction(player_controller, jigsawpuzzle, jigsawpuzzle->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:jigsaw-puzzle", jigsawpuzzle->QuestBackendObjectiveName());
     } 
 }
 
@@ -499,7 +481,7 @@ void interact_component::handle_doorbell_interaction(AFortPlayerController* play
         spdlog::info(L"interact_component::handle_doorbell_interaction: sending interaction:doorbell-poi with objective {}.", doorbell->ObjBackendName().ToString().c_str());
     }
     
-    challenges_component::SendDoorbellPOIInteraction(player_controller, doorbell->ObjBackendName());
+    challenges_component::SendCustomEventWithObjective(player_controller, "interaction:doorbell-poi", doorbell->ObjBackendName());
     
     if (UBoxComponent* BoxComponent = doorbell->InsideHouseOverlap())
     {
@@ -529,7 +511,7 @@ void interact_component::handle_doorbell_interaction(AFortPlayerController* play
         // Send interaction event for instigator
         if (Result.Num() > 0)
         {
-            challenges_component::SendDoorbellInteraction(player_controller);
+            challenges_component::SendCustomEvent(player_controller, "interaction:doorbell");
         }
     }
 }
@@ -545,7 +527,7 @@ void interact_component::handle_noms_interaction(AFortPlayerController* player_c
     if (noms->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendLetterInteraction(player_controller, noms, noms->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:letter", noms->QuestBackendObjectiveName());
     }
 }
 
@@ -560,7 +542,7 @@ void interact_component::handle_fireworks_interaction(AFortPlayerController* pla
     if (firework->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendFireworksInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(player_controller), firework, firework->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:firework", firework->QuestBackendObjectiveName());
     }
 }
 

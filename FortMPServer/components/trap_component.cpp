@@ -50,7 +50,7 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FVe
     
     AFortPlayerControllerAthena* player_controller = static_cast<AFortPlayerControllerAthena*>(static_cast<AFortPlayerPawn*>(FortDecoTool->GetOwner())->Controller());
 
-    challenges_component::SendTrapInteraction(player_controller);
+    challenges_component::SendCustomEvent(player_controller, "interaction:placed-trap");
 }
 
 ABuildingActor* trap_component::CreateBuilding(AFortPlayerController* BuildingOwner, UObject** Class, FVector* Location, FRotator* Rotation)

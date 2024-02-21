@@ -1105,27 +1105,19 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TowerGrenade/Athena_TowerGrenade.Athena_TowerGrenade") ||
                         reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SuperTowerGrenade/Levels/PortAFort_A/Athena_SuperTowerGrenade_A.Athena_SuperTowerGrenade_A") )
                     {
-                        challenges_component::SendPortAFortInteraction(PlayerController);
+                        challenges_component::SendCustomEvent(PlayerController, "interaction:port-a-fort");
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/DanceGrenade/Athena_DanceGrenade.Athena_DanceGrenade"))
                     {
-                        challenges_component::SendBoogieBombInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController));
-
-                        // Temporary solution (remove for s8)
-                        challenges_component::SendGrenadeHitInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController), "boogie_bomb");
-                    }
-                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/ThrownConsumables/IceGrenade/Athena_IceGrenade.Athena_IceGrenade"))
-                    {
-                        // Temporary solution (remove for s8)
-                        challenges_component::SendGrenadeHitInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(PlayerController), "chiller_grenade");
+                        challenges_component::SendCustomEvent(PlayerController, "interaction:boogie-bomb");
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/RiftItem/Athena_Rift_Item.Athena_Rift_Item"))
                     {
-                        challenges_component::SendRiftInteraction(PlayerController);
+                        challenges_component::SendCustomEvent(PlayerController, "interaction:rift");
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SneakySnowman/Athena_SneakySnowman.Athena_SneakySnowman"))
                     {
-                        challenges_component::SendInteractionEvent(PlayerController, "interaction:snowman");
+                        challenges_component::SendCustomEvent(PlayerController, "interaction:snowman");
                     }
                     else // Check if it's a building resource
                     {

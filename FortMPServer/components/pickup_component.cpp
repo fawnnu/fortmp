@@ -542,7 +542,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             {
                 if (PlayerPawn->Controller())
                 {
-                    challenges_component::SendRiftInteraction(PlayerPawn->Controller(), static_cast<ABGA_RiftPortal_Athena*>(OtherActor));
+                    challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:rift");
                 }
             }
         }
@@ -563,7 +563,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             // Don't allow self
             if (PlayerPawn->Controller() != static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()))
             {
-                challenges_component::SendSnowballInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()));
+                challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:snowball");
             }
         }
         else if (OtherActor->IsA(ABA_QuestInteractable_StormCenter_Single::StaticClass()))
@@ -574,7 +574,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 {
                     if (!static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor)->PlayersWhoHaveTouchedThisCenter().Find(PlayerPawn->Controller()->PlayerState()))
                     {
-                        challenges_component::SendStormCenterInteraction(PlayerPawn->Controller(), static_cast<ABA_QuestInteractable_StormCenter_Single*>(OtherActor));
+                        challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:storm-center");
                     }
                 }
             }
@@ -583,7 +583,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         {
             if (PlayerPawn->Controller())
             {
-                challenges_component::SendLaunchPadInteraction(PlayerPawn->Controller(), static_cast<ATrap_Floor_Player_Launch_Pad_C*>(OtherActor));
+                challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:launchpad");
             }
         }
         else if (OtherActor->IsA(AProp_MountainSummit_QuestInteractable_Parent::StaticClass()))
@@ -592,7 +592,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             {
                 if (PlayerPawn->Controller())
                 {
-                    challenges_component::SendLocationInteraction(PlayerPawn->Controller(), static_cast<AProp_MountainSummit_QuestInteractable_Parent*>(OtherActor), static_cast<AProp_MountainSummit_QuestInteractable_Parent*>(OtherActor)->QuestBackendObjectiveName());
+                    challenges_component::SendCustomEventWithObjective(PlayerPawn->Controller(), "interaction:location", static_cast<AProp_MountainSummit_QuestInteractable_Parent*>(OtherActor)->QuestBackendObjectiveName());
                 }
             }
         }
@@ -600,30 +600,14 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         {
             if (PlayerPawn->Controller())
             {
-                challenges_component::SendSkyDiveRingInteraction(PlayerPawn->Controller(), static_cast<AProp_SkydiveRings_QuestInteractable*>(OtherActor));
-            }
-        }
-        else if (OtherActor->IsA(Afortmp_golden_ring_quest::StaticClass()))
-        {
-            if (PlayerPawn->Controller())
-            {
-                if (PlayerPawn->IsInVehicle())
-                {
-                    if (PlayerPawn->GetVehicle() != nullptr)
-                    {
-                        if (PlayerPawn->GetVehicle()->IsA(AFortAthenaFerretVehicle::StaticClass()))
-                        {
-                            challenges_component::SendGoldenRingBiplaneInteraction(PlayerPawn->Controller(), static_cast<Afortmp_golden_ring_quest*>(OtherActor), static_cast<Afortmp_golden_ring_quest*>(OtherActor)->ObjectiveQuestName());      
-                        }   
-                    }
-                }
+                challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:ring");
             }
         }
         else if (OtherActor->IsA(AActor_QuestObject_Touch_FlamingHoops_Parent::StaticClass()))
         {
             if (PlayerPawn->Controller() && PlayerPawn->IsInVehicle())
             {
-                challenges_component::SendFlamingHoopInteraction(PlayerPawn->Controller(), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor), static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor)->ObjBackendName());
+                challenges_component::SendCustomEventWithObjective(PlayerPawn->Controller(), "interaction:flaming-ring", static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor)->ObjBackendName());
             }
         }
         else if (OtherActor->IsA(AFortPickup::StaticClass()))

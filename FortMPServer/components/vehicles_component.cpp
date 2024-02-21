@@ -347,7 +347,7 @@ void vehicles_component_hooks::OnDamaged_Hook(UObject* Object, UObject* Function
             {
                 if (FerretVehicle->IsFlying())
                 {
-                    challenges_component::SendDestroyPlaneInteraction(reinterpret_cast<AFortPlayerController*>(EventInstigator));
+                    challenges_component::SendCustomEvent(reinterpret_cast<AFortPlayerController*>(EventInstigator), "interaction:destroy-plane");
                 }
             }
         }

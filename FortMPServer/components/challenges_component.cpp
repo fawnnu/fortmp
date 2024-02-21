@@ -65,146 +65,6 @@ void challenges_component::Initialize()
     REGISTER_SCRIPT_FUNCTION_HOOK(L"/Game/Athena/Items/QuestInteractables/AthenaQuestFunctionLibrary.AthenaQuestFunctionLibrary_C.Athena_GiveQuestUpdateToPlayers", challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook, true);
 }
 
-void challenges_component::SendChestEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && TargetContainer)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            std::map<std::string, std::string> parameters{
-                {"x", std::to_string(TargetContainer->K2_GetActorLocation().X)},
-                {"y", std::to_string(TargetContainer->K2_GetActorLocation().Y)}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:chest", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendSupplyDropEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* SupplyDrop)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && SupplyDrop)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            std::map<std::string, std::string> parameters{
-                {"x", std::to_string(SupplyDrop->K2_GetActorLocation().X)},
-                {"y", std::to_string(SupplyDrop->K2_GetActorLocation().Y)}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:supply", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendAmmoEvent(AFortPlayerController* InteractingController, ABuildingContainer* TargetContainer)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && TargetContainer)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            std::map<std::string, std::string> parameters{
-                {"x", std::to_string(TargetContainer->K2_GetActorLocation().X)},
-                {"y", std::to_string(TargetContainer->K2_GetActorLocation().Y)}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:ammo", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendLandingEvent(AFortPlayerController* OwnerPC, AFortPlayerPawn* Self)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (OwnerPC && Self)
-    {
-        std::string account_id = player_component::get_account_id(OwnerPC);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters {
-                {"x", Self->K2_GetActorLocation().X},
-                {"y", Self->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:landing", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendLlamaEvent(AFortPlayerController* InteractingController, AFortAthenaSupplyDrop* Llama)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && Llama)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            std::map<std::string, std::string> parameters{
-                {"x", std::to_string(Llama->K2_GetActorLocation().X)},
-                {"y", std::to_string(Llama->K2_GetActorLocation().Y)}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "event:llama", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
 {
     CHECK_PAST_WARMUP()
@@ -494,425 +354,6 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
     }
 }
 
-void challenges_component::SendLetterInteraction(AFortPlayerController* InteractingController, AActor* Letter, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && Letter)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", Letter->K2_GetActorLocation().X},
-                {"y", Letter->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:letter", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendGnomeInteraction(AFortPlayerController* InteractingController, AProp_Quest_GniceGnomes_Parent_C* Gnome, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && Gnome)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", Gnome->K2_GetActorLocation().X},
-                {"y", Gnome->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:chilly-gnome", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestObject_Interactable_Parent_C* BattleStar, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && BattleStar)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", BattleStar->K2_GetActorLocation().X},
-                {"y", BattleStar->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:star", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendBattleStarInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_HiddenStar_Parent_C* BattleStar, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && BattleStar)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", BattleStar->K2_GetActorLocation().X},
-                {"y", BattleStar->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:star", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendPortAFortInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:port-a-fort", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendHopRockInteraction(AFortPlayerController* InteractingController, ACBGA_LowGravity_UsingJump_C* HopRock)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && HopRock)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", HopRock->K2_GetActorLocation().X},
-                    {"y", HopRock->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:hop-rock", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendAppleInteraction(AFortPlayerController* InteractingController, ACBGA_HealthSmall_C* Apple)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && Apple)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", Apple->K2_GetActorLocation().X},
-                    {"y", Apple->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:apple", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendMushroomInteraction(AFortPlayerController* InteractingController, ACBGA_ShieldsSmall_C* Mushroom)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && Mushroom)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", Mushroom->K2_GetActorLocation().X},
-                    {"y", Mushroom->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:mushroom", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendStormCenterInteraction(AFortPlayerController* InteractingController, ABA_QuestInteractable_StormCenter_Single* StormCenter)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && StormCenter)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", StormCenter->K2_GetActorLocation().X},
-                {"y", StormCenter->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:storm-center", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendLocationInteraction(AFortPlayerController* InteractingController, AProp_MountainSummit_QuestInteractable_Parent* LocationProp, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && LocationProp)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", LocationProp->K2_GetActorLocation().X},
-                {"y", LocationProp->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:location", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendSkyDiveRingInteraction(AFortPlayerController* InteractingController, AProp_SkydiveRings_QuestInteractable* SkydiveRing)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && SkydiveRing)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", SkydiveRing->K2_GetActorLocation().X},
-                {"y", SkydiveRing->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:ring", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
-void challenges_component::SendGoldenRingBiplaneInteraction(AFortPlayerController* InteractingController, Afortmp_golden_ring_quest* SkydiveRing, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-
-    if (InteractingController && SkydiveRing)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            // Convert FName to std::string
-            std::string sObjective = Objective.sToString();
-
-            nlohmann::json parameters{
-                                {"x", SkydiveRing->K2_GetActorLocation().X},
-                                {"y", SkydiveRing->K2_GetActorLocation().Y},
-                                {"objective", sObjective}
-            };
-            
-                
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:plane-rings", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    } 
-}
-
-void challenges_component::SendGooseEggInteraction(AFortPlayerController* InteractingController, AProp_FMP_GooseEgg_Interactable* GooseEgg, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    
-    if (InteractingController && GooseEgg)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                        {"x", GooseEgg->K2_GetActorLocation().X},
-                        {"y", GooseEgg->K2_GetActorLocation().Y},
-                        {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:goose-egg", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendLaunchPadInteraction(AFortPlayerController* InteractingController, ATrap_Floor_Player_Launch_Pad_C* LaunchPad)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && LaunchPad)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", LaunchPad->K2_GetActorLocation().X},
-                {"y", LaunchPad->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:launchpad", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
 {
     CHECK_PAST_WARMUP()
@@ -970,170 +411,6 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
             }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:dance", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendCandyCaneVisitInteraction(AFortPlayerController* InteractingController, FName CurrentEraPOI)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"z", InteractingController->Pawn()->K2_GetActorLocation().Z}
-            };
-
-            static std::map<std::string, std::string> POITagToObjectivesMap = {
-                {"Era.CandyCane.01", "FDF_visit_athena_giant_candy_cane_01"},
-                {"Era.CandyCane.02", "FDF_visit_athena_giant_candy_cane_02"},
-                {"Era.CandyCane.03", "FDF_visit_athena_giant_candy_cane_03"},
-                {"Era.CandyCane.04", "FDF_visit_athena_giant_candy_cane_04"}
-            };
-
-            if (POITagToObjectivesMap.contains(CurrentEraPOI.sToString()))
-            {
-                std::string Objective = POITagToObjectivesMap[CurrentEraPOI.sToString()];
-
-                // Add objective key!
-                parameters["objective"] = Objective;
-            }
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:candy-cane", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendSprayInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:spray", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendVendingMachineInteraction(AFortPlayerController* InteractingController, AB_Athena_VendingMachine_C* VendingMachine)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && VendingMachine)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", VendingMachine->K2_GetActorLocation().X},
-                {"y", VendingMachine->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:vending", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendRubberDuckInteraction(AFortPlayerController* InteractingController, AProp_QuestInteractable_RubberDuckies_Parent_C* RubberDuck, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && RubberDuck)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", RubberDuck->K2_GetActorLocation().X},
-                {"y", RubberDuck->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:rubber-duck", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendLightningBoltInteraction(AFortPlayerController* InteractingController, AProp_QuestActor_FloatingLightningBolt_Parent_C* LightningBolt, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && LightningBolt)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", LightningBolt->K2_GetActorLocation().X},
-                {"y", LightningBolt->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:lightningbolt", parameters);
         }
         else
         {
@@ -1263,158 +540,6 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
     }
 }
 
-void challenges_component::SendDiscoBallInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:disco-ball", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendShoppingCartInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:cart", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendPitchGoalInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:goal", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
-void challenges_component::SendBasketBallHoopInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:basket", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
-void challenges_component::SendClayPidgeonInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pigeon", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
 void challenges_component::SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
 {
     CHECK_PAST_WARMUP()
@@ -1452,88 +577,30 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
     }  
 }
 
-void challenges_component::SendJewelInteraction(AFortPlayerController* InteractingController)
+void challenges_component::SendCustomEvent(AFortPlayerController* InteractingController, std::string event_type)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
+
+    float x_location = 0.0f;
+    float y_location = 0.0f;
+
+    // If the pawn exists, apply the location. Otherwise keep it as 0 for both axis, for interactions such as thanking the bus driver.
+    if (AFortPlayerPawn* player_pawn = InteractingController->Pawn())
+    {
+        x_location = player_pawn->K2_GetActorLocation().X;
+        y_location = player_pawn->K2_GetActorLocation().X;
+    }
     
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:jewel", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendGolfInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:golf", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController, ABGA_RiftPortal_Athena* RiftPortal)
-{
-    if (RiftPortal)
-    {
-        SendInteractionEvent(InteractingController, "interaction:rift");
-    }   
-}
-
-void challenges_component::SendInteractionEvent(AFortPlayerController* InteractingController, std::string event_type)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-     
-    if (InteractingController && InteractingController->Pawn())
+    if (InteractingController)
     {
         std::string account_id = player_component::get_account_id(InteractingController);
          
         if (account_id.size() > 0)
         {
             nlohmann::json parameters{
-                     {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
+                     {"x", x_location},
+                     {"y", y_location}
             };
              
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
@@ -1548,7 +615,7 @@ void challenges_component::SendInteractionEvent(AFortPlayerController* Interacti
     }     
 }
 
-void challenges_component::SendInteractionEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName)
+void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -1578,133 +645,6 @@ void challenges_component::SendInteractionEventWithObjective(AFortPlayerControll
             }
         }
     }  
-}
-
-void challenges_component::SendRiftInteraction(AFortPlayerController* InteractingController)
-{
-    SendInteractionEvent(InteractingController, "interaction:rift");
-}
-
-void challenges_component::SendDestroyPlaneInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:destroy-plane", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendTrapInteraction(AFortPlayerController* InteractingController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && InteractingController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                        {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                        {"y", InteractingController->Pawn()->K2_GetActorLocation().Y}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:placed-trap", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendJigsawPuzzleInteraction(AFortPlayerController* InteractingController,
-    AProp_QuestInteractable_Jigsaw_Parent* JigsawPuzzle, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && JigsawPuzzle)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", JigsawPuzzle->K2_GetActorLocation().X},
-                    {"y", JigsawPuzzle->K2_GetActorLocation().Y},
-                    {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:jigsaw-puzzle", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendSpotlightDanceInteraction(AFortPlayerController* InteractingController,
-    AStreet_Light_Spotlight_AthenaQuest_C* StreetLight, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && StreetLight)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-
-        // Convert FName to std::string
-        std::string sObjective = Objective.sToString();
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", StreetLight->K2_GetActorLocation().X},
-                {"y", StreetLight->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:streetlight-dance", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
 }
 
 void challenges_component::SendPickupInteraction(AFortPlayerController* InteractingPlayerController,
@@ -1826,34 +766,6 @@ void challenges_component::SendNomsSignInteraction(AFortPlayerController* Intera
     } 
 }
 
-void challenges_component::SendSpookyMistInteraction(AFortPlayerController* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-   if (InteractingPlayerController && InteractingPlayerController->Pawn())
-   {
-       std::string account_id = player_component::get_account_id(InteractingPlayerController);
-        
-       if (account_id.size() > 0)
-       {
-           nlohmann::json parameters{
-               {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-               {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-           };
-            
-           gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shadow-stone", parameters);
-       }
-       else
-       {
-           if (log_component::enable_debug_logs)
-           {
-               spdlog::error(L"Invalid account_id while sending event.");
-           }
-       }
-   }   
-}
-
 void challenges_component::SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance)
 {
     CHECK_PAST_WARMUP()
@@ -1881,333 +793,6 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
             }
         }
     }   
-}
-
-void challenges_component::SendSnowballInteraction(AFortPlayerController* InteractingPlayerController)
-{
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-         
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:snowball", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendDoorbellInteraction(AFortPlayerController* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-         
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:doorbell", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendDoorbellPOIInteraction(AFortPlayerController* InteractingPlayerController, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        std::string sObjective = Objective.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:doorbell-poi", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }   
-}
-
-void challenges_component::SendThankBusDriverInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController)
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters
-            {
-                {"x", 0.0},
-                {"y", 0.0}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:bus-thank-you", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendZiplineInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController)
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:zipline", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendPlaneInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController)
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:use-plane", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendBoogieBombInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController)
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:boogie-bomb", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendFireworksInteraction(AFortPlayerControllerAthena* InteractingPlayerController, ABP_FrozenFireworkLauncher_Parent* firework, FName Objective)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController)
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        std::string sObjective = Objective.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", firework->K2_GetActorLocation().X},
-                {"y", firework->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:firework", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendIcePuckInteraction(AFortPlayerControllerAthena* InteractingPlayerController)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:ice-puck", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendBiplaneTimedTrialInteraction(AFortPlayerController* InteractingPlayerController, std::string BackendObj)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                        {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                        {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                        {"objective", BackendObj}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:timed-stormwing-trial", parameters);
-
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::info("challenges_component::SendBiplaneTimedTrialInteraction: sent interaction:timed-stormwing-trial event with payload {}", parameters.dump().c_str());
-            }
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
-}
-
-void challenges_component::SendShootingGalleryInteraction(AFortPlayerController* controller, std::string location)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-
-    if (controller && controller->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(controller);
-
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", controller->Pawn()->K2_GetActorLocation().X},
-                    {"y", controller->Pawn()->K2_GetActorLocation().Y},
-                    {"score", 5},
-                {"location", location}
-            };
-
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shooting-gallery", parameters);
-
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::info("challenges_component::SendShootingGalleryInteraction: sent interaction:shooting-gallery event with payload {}", parameters.dump().c_str());
-            }
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }
 }
 
 void challenges_component::SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
@@ -2389,7 +974,7 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
             }
 
             // Send event
-            SendJewelInteraction(InteractingPlayerController);
+            SendCustomEvent(InteractingPlayerController, "interaction:jewel");
         }
     }
 
@@ -2404,75 +989,9 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
             }
 
             // Send event
-            SendSpookyMistInteraction(InteractingPlayerController);
+            SendCustomEvent(InteractingPlayerController, "interact:shadow-stone");
         }
     }
-}
-
-void challenges_component::SendFlamingHoopInteraction(AFortPlayerController* InteractingController,
-    AActor_QuestObject_Touch_FlamingHoops_Parent* FlamingHoop, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && FlamingHoop)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", FlamingHoop->K2_GetActorLocation().X},
-                {"y", FlamingHoop->K2_GetActorLocation().Y},
-                {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:flaming-ring", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
-}
-
-void challenges_component::SendPopGoldenBalloonInteraction(AFortPlayerController* InteractingController,
-    AProp_QuestInteractable_GoldBalloon_Parent_C* GoldenBalloon, FName BackendObjectiveName)
-{
-    CHECK_PAST_WARMUP()
-    CHECK_CREATIVE()
-    
-    if (InteractingController && GoldenBalloon)
-    {
-        std::string account_id = player_component::get_account_id(InteractingController);
-        
-        // Convert FName to std::string
-        std::string sObjective = BackendObjectiveName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            nlohmann::json parameters{
-                    {"x", GoldenBalloon->K2_GetActorLocation().X},
-                    {"y", GoldenBalloon->K2_GetActorLocation().Y},
-                    {"objective", sObjective}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pop-golden-balloon", parameters);
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    }  
 }
 
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
@@ -2490,7 +1009,7 @@ void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEv
         {
             if (STATIC_HASPROPERTY(SoccerGame, BackendObjName))
             {
-                challenges_component::SendPitchGoalInteraction(SoccerGame->PlayerWhoScored()->Controller(), SoccerGame->BackendObjName());
+                challenges_component::SendCustomEventWithObjective(SoccerGame->PlayerWhoScored()->Controller(), "interaction:goal", SoccerGame->BackendObjName());
             } 
         }
     }
@@ -2511,7 +1030,7 @@ void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEv
         {
             if (STATIC_HASPROPERTY(SoccerGame, BackendObjName))
             {
-                challenges_component::SendPitchGoalInteraction(SoccerGame->PlayerWhoScored()->Controller(), SoccerGame->BackendObjName());
+                challenges_component::SendCustomEventWithObjective(SoccerGame->PlayerWhoScored()->Controller(), "interaction:goal", SoccerGame->BackendObjName());
             }
         }
     }
@@ -2536,7 +1055,7 @@ void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEven
             {
                 if (STATIC_HASPROPERTY(GolfGame, ObjectiveBackendName))
                 {
-                    challenges_component::SendGolfInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), GolfGame->ObjectiveBackendName());
+                    challenges_component::SendCustomEventWithObjective(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), "interaction:golf",GolfGame->ObjectiveBackendName());
                 }
             }
         }
@@ -2558,7 +1077,7 @@ void challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEve
         {
             if (STATIC_HASPROPERTY(BasketBallGame, ObjBackendName))
             {
-                challenges_component::SendBasketBallHoopInteraction(BasketBallGame->PC_That_Scored(), BasketBallGame->ObjBackendName());
+                challenges_component::SendCustomEventWithObjective(BasketBallGame->PC_That_Scored(), "interaction:basket", BasketBallGame->ObjBackendName());
             }
         }
     }
@@ -2579,7 +1098,7 @@ void challenges_component_hooks::PidgeonShot_Hook(UObject* Object, UObject* Func
     {
         if (STATIC_HASPROPERTY(ClayPidgeonLauncher, ObjBackendName))
         {
-            challenges_component::SendClayPidgeonInteraction(InstigatedBy, ClayPidgeonLauncher->ObjBackendName());
+            challenges_component::SendCustomEventWithObjective(InstigatedBy, "interaction:pigeon", ClayPidgeonLauncher->ObjBackendName());
         }
     }
 }
@@ -2594,28 +1113,28 @@ void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObj
         {
             if (Platform1Pawn && Platform1Pawn->Controller())
             {
-                challenges_component::SendDiscoBallInteraction(Platform1Pawn->Controller());
+                challenges_component::SendCustomEvent(Platform1Pawn->Controller(), "interaction:disco-ball");
             }
         }
         for (auto Platform2Pawn : DancePlatform->Platform2_Pawns())
         {
             if (Platform2Pawn && Platform2Pawn->Controller())
             {
-                challenges_component::SendDiscoBallInteraction(Platform2Pawn->Controller());
+                challenges_component::SendCustomEvent(Platform2Pawn->Controller(), "interaction:disco-ball");
             }
         }
         for (auto Platform3Pawn : DancePlatform->Platform3_Pawns())
         {
             if (Platform3Pawn && Platform3Pawn->Controller())
             {
-                challenges_component::SendDiscoBallInteraction(Platform3Pawn->Controller());
+                challenges_component::SendCustomEvent(Platform3Pawn->Controller(), "interaction:disco-ball");
             }
         }
         for (auto Platform4Pawn : DancePlatform->Platform4_Pawns())
         {
             if (Platform4Pawn && Platform4Pawn->Controller())
             {
-                challenges_component::SendDiscoBallInteraction(Platform4Pawn->Controller());
+                challenges_component::SendCustomEvent(Platform4Pawn->Controller(), "interaction:disco-ball");
             }
         }
     }
@@ -2632,7 +1151,7 @@ void challenges_component_hooks::KillPuck_Hook(UObject* Object, UObject* Functio
             if (IcePuck->TotalDistanceTraveled() >= 15000.0)
             {
                 // Send interaction
-                challenges_component::SendIcePuckInteraction(OwningPC);
+                challenges_component::SendCustomEvent(OwningPC, "interaction:ice-puck");
             }
         }
     }

@@ -41,7 +41,7 @@ void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
     
     if (event == L"EraEvent.CandyCane")
     {
-        challenges_component::SendCandyCaneVisitInteraction(static_cast<AFortPlayerController*>(player_controller), event_data.c_str());   
+        // Do nothing as this was a custom challenge and it is outdated
     }
     else if (event == L"EraEvent.FortmasDanceAreaEnter")
     {
@@ -57,7 +57,6 @@ void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
         }
         
         static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().CurrentPOIList.push_back(FGameplayTag(event_data.c_str()));
-        spdlog::info(L"Player entering fortmas dance area");
     }
     else if (event == L"EraEvent.FortmasDanceAreaExit")
     {
@@ -69,26 +68,6 @@ void blueprint_component::SendEventFMP(UObject* Self, FFrame& StackFrame)
             {
                 std::erase(player_info.CurrentPOIList, player_info.CurrentPOIList[i]);
                 spdlog::info(L"Player exiting fortmas dance area");
-            }
-        }
-    }
-    else if (event == L"Domino.RefreshCosmetics")
-    {
-        auto player = static_cast<AFortPlayerControllerAthena*>(player_controller);
-
-        if (player && !memory_manager::is_bad_read_pointer(player))
-        {
-            if (player->Pawn() && !memory_manager::is_bad_read_pointer(player->Pawn()))
-            {
-                if (player->Pawn()->PlayerState() && !memory_manager::is_bad_read_pointer(player->Pawn()->PlayerState()))
-                {
-                    if (log_component::enable_debug_logs)
-                    {
-                        spdlog::info(L"Applying cosmetics manually [Domino.RefreshCosmetics]");
-                    }
-                    
-                    player->Pawn()->PlayerState()->ApplyCharacterCustomizationNonNative(player->Pawn());
-                }
             }
         }
     }

@@ -217,15 +217,7 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
             }
 
             // Progress land challenges
-            challenges_component::SendLandingEvent(Self->Controller(), Self);
-
-            // Temporary, auto-complete some challenges
-            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "wailing_woods");
-            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "retail_row");
-            challenges_component::SendShootingGalleryInteraction(Self->Controller(), "paradise_palms");
-
-            challenges_component::SendBiplaneTimedTrialInteraction(Self->Controller(), "complete_timed_trial_stormwing_01");
-            challenges_component::SendBiplaneTimedTrialInteraction(Self->Controller(), "complete_timed_trial_stormwing_02");
+            challenges_component::SendCustomEvent(Self->Controller(), "event:landing");
         }
     }
 }
@@ -2231,7 +2223,7 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                     {
                         if (Owner->HasProperty(TEXT("ObjectiveBackendName")))
                         {
-                            challenges_component::SendSpotlightDanceInteraction(player_controller, static_cast<AStreet_Light_Spotlight_AthenaQuest_C*>(Owner), static_cast<AStreet_Light_Spotlight_AthenaQuest_C*>(Owner)->ObjectiveBackendName());
+                            challenges_component::SendCustomEventWithObjective(player_controller, "interaction:streetlight-dance",  static_cast<AStreet_Light_Spotlight_AthenaQuest_C*>(Owner)->ObjectiveBackendName());
                         }
                     }
                 }
@@ -2247,12 +2239,10 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                 new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
                 
                 // Notify backend that we're dancing
-                challenges_component::SendSprayInteraction(player_controller);
+                challenges_component::SendCustomEvent(player_controller, "interaction:spray");
             }
             else if (dance_asset->IsA(UAthenaToyItemDefinition::StaticClass()))
             {
-                if (era_mutators_component::IsActive("domino_event")) return;
-                
                 auto toy_asset = static_cast<UAthenaToyItemDefinition*>(dance_asset);
                 new_ability_spec.Ability = CreateDefaultObject<UObject>(toy_asset->ToySpawnAbility().Get());
             }
@@ -3105,7 +3095,7 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
             // Send backend event (notify that player used zipline)
             if (!memory_manager::is_bad_read_pointer(FortPlayerPawn->Controller()) && FortPlayerPawn->Controller())
             {
-                challenges_component::SendZiplineInteraction(reinterpret_cast<AFortPlayerControllerAthena*>(FortPlayerPawn->Controller()));
+                challenges_component::SendCustomEvent(reinterpret_cast<AFortPlayerControllerAthena*>(FortPlayerPawn->Controller()), "interaction:zipline");
             }
         }
     }
@@ -3618,5 +3608,5 @@ void player_component_hooks::ServerThankBusDriver_Hook(AFortPlayerControllerAthe
     ServerThankBusDriver(Self, StackFrame);
 
     // Notify backend
-    challenges_component::SendThankBusDriverInteraction(Self);
+    challenges_component::SendCustomEvent(Self, "interaction:bus-thank-you");
 }

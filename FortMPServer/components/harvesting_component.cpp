@@ -53,7 +53,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 {
                     if (instigated_by->Pawn())
                     {
-                        challenges_component::SendPopGoldenBalloonInteraction(instigated_by, building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>(), building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>()->ObjBackendName());
+                        challenges_component::SendCustomEventWithObjective(instigated_by, "interaction:pop-golden-balloon", building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>()->ObjBackendName());
                     }
                 }   
             }
