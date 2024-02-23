@@ -252,7 +252,8 @@ public:
 
     FVector CalculateLootSpawnLocation()
     {
-        FVector ForwardVector = GetActorRightVector();
+        FVector ActorRightVector = GetActorRightVector();
+        FVector ActorUpVector = GetActorUpVector();
         FVector LootAdjustmentVector;
 
         if (STATIC_HASPROPERTY(this, LootSpawnLocation_Athena))
@@ -264,23 +265,12 @@ public:
             LootAdjustmentVector = LootSpawnLocation();
         }
 
-        FVector right_vector = UKismetMathLibrary::GetRightVector(K2_GetActorRotation());
-        right_vector.X *= LootAdjustmentVector.X;
-        right_vector.Z *= LootAdjustmentVector.Y;
-
-        FVector UpVector = GetActorUpVector();
-        UpVector.X *= std::clamp(LootAdjustmentVector.X, 1.f, 999.f);
-        UpVector.Y *= std::clamp(LootAdjustmentVector.Y, 1.f, 999.f);
-        UpVector.Z *= std::clamp(LootAdjustmentVector.Z, 1.f, 999.f);
-
-        right_vector.X += UpVector.X;
-        right_vector.Y += UpVector.Y;
-        right_vector.Z += UpVector.Z;
-
-        FVector FinalLocation = this->K2_GetActorLocation();
-        FinalLocation.X += right_vector.X;
-        FinalLocation.Y += right_vector.Y;
-        FinalLocation.Z += right_vector.Z;
+        FVector FinalLocation = K2_GetActorLocation();
+        ActorUpVector = ActorUpVector * LootAdjustmentVector.Z;
+        ActorRightVector = ActorRightVector * LootAdjustmentVector.Y;
+        
+        FinalLocation = FinalLocation + ActorUpVector;
+        FinalLocation = FinalLocation + ActorRightVector;
 
         return FinalLocation;
     }

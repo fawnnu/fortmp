@@ -550,7 +550,7 @@ void loader_component::spawn_floor_loot(UObject* Class, FName LootTier)
         
     for (AActor* floor_loot_actor : floor_loot_actors)
     {
-        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(LootTier);
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::pick_loot(LootTier);
 
         ABuildingContainer* floor_loot_container = static_cast<ABuildingContainer*>(floor_loot_actor);
         
@@ -776,6 +776,9 @@ void loader_component::OnMapInfoLoaded()
 
     // Butterfly event storm mutator
     era_mutators_component::Execute("butterfly_begin", nullptr);
+
+    // Mark world as ready
+    UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
@@ -1045,9 +1048,6 @@ void loader_component_hooks::GetCalendarEventInformation_Hook(UObject* WorldCont
 
 void loader_component_hooks::AFortGameModeAthena_BeginPlay_Hook(AFortGameModeAthena* Target)
 {
-    // Mark world as ready
-    UKismetSystemLibrary::SetBoolPropertyByName(Target, L"bWorldIsReady", true);
-
     AFortGameModeAthena_BeginPlay(Target);
 }
 

@@ -146,7 +146,7 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         FVector LootSpawnLocation = building_container->CalculateLootSpawnLocation();
         
         // Generate and spawn the loot
-        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
+        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::pick_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
 
         for (const auto& [ item_definition, count ] : loot_to_spawn)
         {

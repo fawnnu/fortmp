@@ -38,7 +38,7 @@ public:
     };
 
     // Picks loot for a given tier group name
-    static std::map<UFortItemDefinition*, int> spawn_loot(FName loot_category);
+    static std::map<UFortItemDefinition*, int> pick_loot(FName loot_category);
 
     // Convert a tier group name to an athena one
     static FName redirect_tier_group(FName InTierGroup);

@@ -137,6 +137,13 @@ public:
         
         Call(Function_OnServerReady);
     }
+
+    bool IsMapInfoInitialized()
+    {
+        STATIC_FINDFUNCTION(IsMapInfoInitialized)
+        
+        return Call<bool>(Function_IsMapInfoInitialized);
+    }
     
     void SwapButterflyEventPOIs()
     {

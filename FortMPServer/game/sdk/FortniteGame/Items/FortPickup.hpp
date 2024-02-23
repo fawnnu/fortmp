@@ -6,8 +6,10 @@ struct FFortPickupLocationData
     DEFINE_STRUCT_PROPERTY(uint8_t, TossState);
     DEFINE_STRUCT_PROPERTY(FVector, FinalTossRestLocation);
     DEFINE_STRUCT_PROPERTY(float, FlyTime);
+    DEFINE_STRUCT_PROPERTY(FVector, LootFinalPosition);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, ItemOwner);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, PickupTarget);
+    DEFINE_STRUCT_PROPERTY(FGuid, PickupGuid);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPickupLocationData");
 };
@@ -21,8 +23,10 @@ public:
     DEFINE_PROPERTY(bool, bRandomRotation);
     DEFINE_PROPERTY(bool, bPickedUp);
 
+    DEFINE_PROPERTY(UFortWorldItem*, PrimaryPickupDummyItem);
     DEFINE_PROPERTY(TWeakObjectPtr<AActor>, PickupEffectBlueprint);
     DEFINE_PROPERTY(FFortItemEntry, PrimaryPickupItemEntry);
+    DEFINE_PROPERTY(TArray<struct FFortItemEntry>, MultiItemPickupEntries);
     DEFINE_PROPERTY(FFortPickupLocationData, PickupLocationData);
 
     DEFINE_PROPERTY(class UProjectileMovementComponent*, MovementComponent);

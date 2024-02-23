@@ -31,7 +31,7 @@ looting_component::looting_component()
     parse_loot_pool_changes();
 }
 
-std::map<UFortItemDefinition*, int> looting_component::spawn_loot(FName loot_category)
+std::map<UFortItemDefinition*, int> looting_component::pick_loot(FName loot_category)
 {
     UObject* loot_tier_data = get_loot_tier_data();
     UObject* loot_tier_packages = get_loot_tier_packages();
@@ -982,7 +982,7 @@ void looting_component_hooks::PickLootDrops_Hook(TArray<FFortItemEntry>* OutLoot
         spdlog::error(L"looting_component_hooks::PickLootDrops_Hook failed: invalid OutLootToDrop");
     }
 
-    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::spawn_loot(TierGroupName);
+    std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::pick_loot(TierGroupName);
 
     for (const auto& [item_definition, count] : loot_to_spawn)
     {
