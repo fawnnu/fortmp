@@ -237,6 +237,9 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingContainer");
     DEFINE_PROPERTY(FName, SearchLootTierGroup);
     DEFINE_PROPERTY(FVector, LootSpawnLocation_Athena);
+    DEFINE_PROPERTY(FRotator, LootTossDirection_Athena);
+    DEFINE_PROPERTY(float, LootTossSpeed_Athena);
+    DEFINE_PROPERTY(float, LootTossConeHalfAngle_Athena);
     DEFINE_PROPERTY(FVector, LootSpawnLocation);
     DEFINE_PROPERTY(FFortSearchBounceData, SearchBounceData);
     

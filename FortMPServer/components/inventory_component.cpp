@@ -365,9 +365,17 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
                         }
                     }
                 }
+
+                FVector pickup_spawn_offset = player_controller->Pawn()->GetActorForwardVector() * 25;
                 
                 // Spawn dropped item as pickup
-                pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation(), item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo(), true, nullptr, GenericAttributeValues, player_controller->Pawn());
+                auto new_pickup = pickup_component::spawn_pickup(replicated_entry.ItemDefinition(), player_controller->Pawn()->K2_GetActorLocation() + pickup_spawn_offset, item_count > 0 ? item_count : replicated_entry.Count(), replicated_entry.LoadedAmmo(), false, nullptr, GenericAttributeValues, player_controller->Pawn());
+
+                if (new_pickup)
+                {
+                    // Custom directional tossing
+                    pickup_component::toss_pickup(new_pickup, player_controller->Pawn(), FRotator(65, 0, 0), 15, 600);
+                }
             }
 
             if (STATIC_HASPROPERTY(world_item_definition, bPersistInInventoryWhenFinalStackEmpty))

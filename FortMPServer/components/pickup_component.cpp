@@ -159,9 +159,9 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     return fort_pickup;
 }
 
-void pickup_component::toss_pickup(AFortPickup* fort_pickup, ABuildingActor* container, FRotator toss_direction, float toss_angle, float toss_speed)
+void pickup_component::toss_pickup(AFortPickup* fort_pickup, AActor* from_actor, FRotator toss_direction, float toss_angle, float toss_speed)
 {
-    if (fort_pickup == nullptr || container == nullptr)
+    if (fort_pickup == nullptr || from_actor == nullptr)
     {
         spdlog::error(L"pickup_component::toss_pickup failed: invalid parameters.");
         
@@ -169,15 +169,15 @@ void pickup_component::toss_pickup(AFortPickup* fort_pickup, ABuildingActor* con
     }
 
     // prevent blocking the pickup
-    fort_pickup->TouchCapsule()->MoveIgnoreActors().Add(container);
+    fort_pickup->TouchCapsule()->MoveIgnoreActors().Add(from_actor);
     
     // First of all, start replicating movement
     UKismetSystemLibrary::SetBoolPropertyByName(fort_pickup, L"bReplicateMovement", true);
 
     // Convert the toss direction to a vector
-    FRotator TossDirection_Rotator(container->K2_GetActorRotation().Pitch + toss_direction.Pitch,
-        container->K2_GetActorRotation().Yaw + toss_direction.Yaw,
-        container->K2_GetActorRotation().Roll + toss_direction.Roll);
+    FRotator TossDirection_Rotator(from_actor->K2_GetActorRotation().Pitch + toss_direction.Pitch,
+        from_actor->K2_GetActorRotation().Yaw + toss_direction.Yaw,
+        from_actor->K2_GetActorRotation().Roll + toss_direction.Roll);
 
     FVector TossDirection = UKismetMathLibrary::Conv_RotatorToVector(TossDirection_Rotator);
 

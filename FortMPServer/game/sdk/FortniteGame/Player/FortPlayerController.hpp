@@ -182,7 +182,8 @@ public:
     DEFINE_PROPERTY(AFortInventory*, WorldInventory);
     DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveToyInstances);
-
+    DEFINE_PROPERTY(TArray<class AActor*>, ActiveSprayInstances);
+    
     class UFortQuestManager* GetQuestManager(uint8_t SubGame)
     {
         STATIC_FINDFUNCTION(GetQuestManager)

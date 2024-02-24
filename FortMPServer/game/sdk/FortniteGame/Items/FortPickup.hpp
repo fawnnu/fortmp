@@ -7,6 +7,7 @@ struct FFortPickupLocationData
     DEFINE_STRUCT_PROPERTY(FVector, FinalTossRestLocation);
     DEFINE_STRUCT_PROPERTY(float, FlyTime);
     DEFINE_STRUCT_PROPERTY(FVector, LootFinalPosition);
+    DEFINE_STRUCT_PROPERTY(FVector, StartDirection);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, ItemOwner);
     DEFINE_STRUCT_PROPERTY(AFortPawn*, PickupTarget);
     DEFINE_STRUCT_PROPERTY(FGuid, PickupGuid);

@@ -7,7 +7,7 @@ public:
     
     static AFortPickup* spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count, int loaded_ammo = 0, bool bToss = true, UObject* pickup_class = nullptr, std::vector<float> GenericAttributeValues = {}, AFortPawn* PawnWhoDroppedPickup = nullptr);
 
-    static void toss_pickup(AFortPickup* fort_pickup, ABuildingActor* from_container, FRotator toss_direction, float toss_angle, float toss_speed);
+    static void toss_pickup(AFortPickup* fort_pickup, AActor* from_actor, FRotator toss_direction, float toss_angle, float toss_speed);
 
     static void handle_pickup(AFortPickup* pickup, AFortPlayerPawn* PlayerPawn);
 
