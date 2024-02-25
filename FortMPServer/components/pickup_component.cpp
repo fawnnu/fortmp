@@ -194,7 +194,10 @@ void pickup_component::toss_pickup(AFortPickup* fort_pickup, AActor* from_actor,
         fort_pickup->MovementComponent()->Velocity().Z * fort_pickup->MovementComponent()->Velocity().Z);
 
     // Now setup the pickup
-    fort_pickup->bTossedFromContainer() = true;
+    if (from_actor->IsA(ABuildingContainer::StaticClass()))
+    {
+        fort_pickup->bTossedFromContainer() = true;   
+    }
 
     if (STATIC_HASPROPERTY(fort_pickup, bCombinePickupsWhenTossCompletes))
     {
@@ -291,7 +294,7 @@ void pickup_component::handle_pickup_combination(AFortPickup* Pickup)
     TArray<AActor*> Result;
 
     // Check for Sphere overlap
-    UKismetSystemLibrary::SphereOverlapActors(*GWorld, Pickup->K2_GetActorLocation(), 128.f, ObjectTypes, AFortPickupAthena::StaticClass(), ActorsToIgnore, &Result);
+    UKismetSystemLibrary::SphereOverlapActors(*GWorld, Pickup->K2_GetActorLocation(), 256.f, ObjectTypes, AFortPickupAthena::StaticClass(), ActorsToIgnore, &Result);
 
     if (Result.Num() > 0)
     {
