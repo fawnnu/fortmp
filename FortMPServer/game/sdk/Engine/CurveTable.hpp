@@ -3,7 +3,16 @@
 class UCurveTable : public UObject
 {
 public:
-    
+    DEFINE_STATIC_CLASS(L"/Script/Engine.CurveTable");
+};
+
+
+class UCompositeCurveTable : public UCurveTable
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.CompositeCurveTable");
+
+    DEFINE_PROPERTY(TArray<UCurveTable*>, ParentTables);
 };
 
 struct FSimpleCurveKey

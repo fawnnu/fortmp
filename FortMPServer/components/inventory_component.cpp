@@ -853,7 +853,8 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
             if (Row.length() > 0)
             {
                 UCurveTable* GameData = nullptr;
-
+                UCurveTable* GameDataOverride = nullptr;
+                
                 if (STATIC_HASPROPERTY(Playlist, GameData))
                 {
                     GameData = Playlist->GameData().Get();
@@ -863,10 +864,20 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                 {
                     GameData = FindObject<UCurveTable>(TEXT("/Game/Athena/Balance/DataTables/AthenaGameData.AthenaGameData"));
                 }
-                    
-                if (GameData)
+                
+                if (GameData->IsA(UCompositeCurveTable::StaticClass()))
                 {
-                    auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameData) + 0x30);
+                    // Index 1 contains the override curvetable on usual
+                    GameDataOverride = GameData->Cast<UCompositeCurveTable>()->ParentTables()[1];
+                }
+                else
+                {
+                    GameDataOverride = GameData;
+                }
+                    
+                if (GameDataOverride)
+                {
+                    auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameDataOverride) + 0x30);
 
                     // Get the amount of materials to give from CurveTable
                     if (CurveTable.Contains(FName(Row.c_str())))
@@ -879,7 +890,7 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                     }
                     else
                     {
-                        spdlog::error(L"inventory_component::get_override_max_stack_size_for: Couldn't find Row '{}' in CurveTable '{}'.", Row.c_str(), UKismetSystemLibrary::GetPathName(GameData).c_str());
+                        spdlog::error(L"inventory_component::get_override_max_stack_size_for: Couldn't find Row '{}' in CurveTable '{}'.", Row.c_str(), UKismetSystemLibrary::GetPathName(GameDataOverride).c_str());
                         return item_definition->MaxStackSize();
                     }
                 }
