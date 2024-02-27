@@ -33,11 +33,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
 {
     if (building_actor != nullptr)
     {
-        static UObject* BuildingSMActor_Class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
-        static UObject* FortWeapon_Class = FindObject(L"/Script/FortniteGame.FortWeapon");
-        static UObject* FortWeaponMeleeItemDefinition_Class = FindObject(L"/Script/FortniteGame.FortWeaponMeleeItemDefinition");
-    
-        if (building_actor->IsA(BuildingSMActor_Class))
+        if (building_actor->IsA(ABuildingSMActor::StaticClass()))
         {
             // Track damage inflicted to building actors
             static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
@@ -76,8 +72,8 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
             
             // Make sure a player is damaging the building with their pickaxe
             if (building_actor->AttributeInitLevelSource() != 1 &&
-                damage_causer->IsA(FortWeapon_Class) &&
-                static_cast<AFortWeapon*>(damage_causer)->WeaponData()->IsA(FortWeaponMeleeItemDefinition_Class))
+                damage_causer->IsA(AFortWeapon::StaticClass()) &&
+                static_cast<AFortWeapon*>(damage_causer)->WeaponData()->IsA(UFortWeaponMeleeItemDefinition::StaticClass()))
             {
                 const bool bIsWeakSpot = damage == 100;
 
