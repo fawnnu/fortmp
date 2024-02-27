@@ -104,7 +104,7 @@ era_mutators_component::era_mutators_component()
 
     new era_mutator("domino_event", [](LPVOID)
     {
-        // TODO ; Domino is the codename for Reality Collapse Event aka Drake Event
+        // Do nothing
     });
     
     new era_mutator("butterfly_end", [](LPVOID)

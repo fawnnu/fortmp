@@ -8,12 +8,28 @@
 
 harvesting_component::harvesting_component()
 {
-    REGISTER_PROCESS_EVENT_DETOUR( FindObject(L"/Script/FortniteGame.FortPawn.NetMulticast_Athena_BatchedDamageCues") ? 
-        L"/Script/FortniteGame.FortPawn.NetMulticast_Athena_BatchedDamageCues" :
-        L"/Script/FortniteGame.FortPlayerPawnAthena.NetMulticast_Athena_BatchedDamageCues" , harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook);
+
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    REGISTER_FUNCTION_DETOUR(harvesting_component_hooks::OnBuildingDamaged, memory_manager::find_function_by_string(L"Player %s reported hitting weak spot on building %s, but none found!"), harvesting_component_hooks::OnBuildingDamaged_Hook);
+    
+    DetourTransactionCommit();
 }
 
-void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage, FVector hit_location)
+void harvesting_component_hooks::OnBuildingDamaged_Hook(ABuildingActor* BuildingActor, float Damage, __int64 a3, __int64 a4, UObject* Instigatedby, AActor* DamagedBy)
+{
+    // Call the original func
+    OnBuildingDamaged(BuildingActor, Damage, a3, a4, Instigatedby, DamagedBy);
+
+    // Safety checks
+    if (Instigatedby == nullptr || memory_manager::is_bad_read_pointer(Instigatedby) || Instigatedby->Cast<AFortPlayerController>() == nullptr || DamagedBy == nullptr ||  memory_manager::is_bad_read_pointer(DamagedBy))
+        return;
+
+    harvesting_component::handle_building_damaged(BuildingActor->Cast<ABuildingSMActor>(), Instigatedby->Cast<AFortPlayerController>(), DamagedBy, Damage);
+}
+
+void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage)
 {
     if (building_actor != nullptr)
     {
@@ -121,22 +137,6 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                         OverrideResourceRates = current_playlist->ResourceRates().Get();
                     }
                 }
-
-                // Make sure noone is cheating by calling the func on a far away object
-                if (AFortPlayerPawn* damage_causing_pawn = instigated_by->Pawn())
-                {
-                    FVector building_actor_location = building_actor->K2_GetActorLocation();
-                    FVector pawn_location = damage_causing_pawn->K2_GetActorLocation();
-                    
-                    float distance_from_hit_location = sqrtf((hit_location.X - pawn_location.X) * (hit_location.X - pawn_location.X) +
-                                                (hit_location.Y - pawn_location.Y) * (hit_location.Y - pawn_location.Y) +
-                                                (hit_location.Z - pawn_location.Z) * (hit_location.Z - pawn_location.Z));
-                    
-                    if (distance_from_hit_location > 1000)
-                    {
-                        return;
-                    }
-                }
                 
                 auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(__int64(OverrideResourceRates ?
                     OverrideResourceRates :
@@ -185,61 +185,6 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                         // update gathered materials
                         inventory_component::safe_update_materials_gathered(instigated_by, ResourceItemDefinition, Count);
                     }
-                }
-            }
-        }
-    }
-}
-
-void harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook(UObject* Object, UObject* Function, void* Params)
-{
-    AActor* HitActor = nullptr;
-    float Magnitude = 0.f;
-    FVector HitLocation = FVector();
-    
-    if (FindPropertyByName(Function, L"BatchData"))
-    {
-        GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues, BatchData);
-
-        HitActor = BatchData.HitActor();
-        Magnitude = BatchData.Magnitude();
-        HitLocation = BatchData.Location();
-    }
-    else
-    {
-        GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues_Shared, SharedData);
-        GET_PROCESS_EVENT_PARAMETER(FAthenaBatchedDamageGameplayCues_NonShared, NonSharedData);
-
-        HitActor = NonSharedData.HitActor();
-        Magnitude = SharedData.Magnitude();
-        HitLocation = SharedData.Location();
-    }
-    
-    // Get owner controller
-    AFortPlayerController* player_controller = reinterpret_cast<AFortPlayerPawn*>(Object)->Controller();
-
-    // Safety check
-    if (memory_manager::is_bad_read_pointer(player_controller) || player_controller == nullptr)
-    {
-        spdlog::error(L"harvesting_component_hooks::NetMulticast_Athena_BatchedDamageCues_Hook: Invalid PlayerController");
-        return;
-    }
-
-    // Filter by building actors
-    static UObject* building_actor_class = FindObject(L"/Script/FortniteGame.BuildingSMActor");
-    
-    if (HitActor)
-    {
-        if (HitActor->IsA(building_actor_class))
-        {
-            if (player_controller->Pawn())
-            {
-                if (player_controller->Pawn()->CurrentWeapon())
-                {
-                    ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(HitActor);
-        
-                    // Handle harvesting materials if we have a building actor and weapon
-                    harvesting_component::handle_building_damaged(building_actor, player_controller, player_controller->Pawn()->CurrentWeapon(), Magnitude, HitLocation);
                 }
             }
         }
