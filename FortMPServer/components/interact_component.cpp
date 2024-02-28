@@ -18,6 +18,13 @@ interact_component::interact_component()
     REGISTER_UFUNCTION_DETOUR(interact_component_hooks::InteractionComponent_ServerAttemptInteract, L"/Script/FortniteGame.FortControllerComponent_Interaction.ServerAttemptInteract", interact_component_hooks::InteractionComponent_ServerAttemptInteract_Hook);
 
     REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 80 3A 02 48 8B FA 48 8B D9 0F 85 ? ? ? ? 48 89 6C 24 ? 48 89 74 24 ? 48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ?"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
+
+    if (!interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract)
+    {
+        REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 40 32 FF 48 8B F2 80 3A 02 48 8B D9 0F 85 ? ? ? ? 8B 81 ? ? ? ? 85 C0 78 1A 39 81 ? ? ? ? 7C 12 32 C0 48 8B 5C 24 ? 48 8B 74 24 ? 48 83 C4 30"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
+    }
+    
+
     if (const uintptr_t address = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ? 0F B6 E8 C0 E0 04 48 8B CF 08 83 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
     {
         interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(address + 3);
