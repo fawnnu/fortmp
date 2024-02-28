@@ -879,6 +879,22 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                 {
                     auto CurveTable = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameDataOverride) + 0x30);
 
+                    if (CurveTable.Contains(FName(Row.c_str())) == false)
+                    {
+                        if (item_definition == WoodItemData)
+                        {
+                            Row = std::wstring(TEXT("Default.MaxStack.Resources.Wood"));
+                        }
+                        else if (item_definition == StoneItemData)
+                        {
+                            Row = std::wstring(TEXT("Default.MaxStack.Resources.Stone"));
+                        }
+                        else if (item_definition == MetalItemData)
+                        {
+                            Row = std::wstring(TEXT("Default.MaxStack.Resources.Metal"));
+                        }
+                    }
+                    
                     // Get the amount of materials to give from CurveTable
                     if (CurveTable.Contains(FName(Row.c_str())))
                     {
