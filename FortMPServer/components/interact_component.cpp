@@ -24,10 +24,13 @@ interact_component::interact_component()
         REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 40 32 FF 48 8B F2 80 3A 02 48 8B D9 0F 85 ? ? ? ? 8B 81 ? ? ? ? 85 C0 78 1A 39 81 ? ? ? ? 7C 12 32 C0 48 8B 5C 24 ? 48 8B 74 24 ? 48 83 C4 30"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
     }
     
-
-    if (const uintptr_t address = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ? 0F B6 E8 C0 E0 04 48 8B CF 08 83 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
+    if (const uintptr_t InterfaceToOwnerAddr = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ? 0F B6 E8 C0 E0 04 48 8B CF 08 83 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
     {
-        interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(address + 3);
+        interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(InterfaceToOwnerAddr + 3);
+    }
+    else if (const uintptr_t InterfaceToOwnerAddr = memory_manager::find_pattern("48 8D A9 ? ? ? ? 48 8B CD E8 ? ? ? ? 0F B6 F8 84 C0 74 06 FF 83 ? ? ? ? 80 A3 ? ? ? ? ? 40 0F B6 CF C0 E1 04 08 8B ? ? ? ? 48 8B CE E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CD 48 8B F0 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
+    {
+        interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(InterfaceToOwnerAddr + 3);
     }
     
     DetourTransactionCommit();
