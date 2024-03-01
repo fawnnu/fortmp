@@ -21,6 +21,11 @@ namespace vehicles_component_hooks
 
     // sync vehicles
     DEFINE_FUNCTION_HOOK(void, ServerUpdatePhysicsParams, (AActor* Vehicle, FFrame& StackFrame));
+
+    DEFINE_FUNCTION_HOOK(void, ServerUpdateTowhook, (class AFortOctopusVehicle* Vehicle, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, UpdateAttachState, (AFortOctopusVehicle* OctopusVehicle, TWeakObjectPtr<UPrimitiveComponent>& WeakComponent, FVector& WorldLocation, FVector& WorldNormal));
 }
 
 inline void (*SetWorldLocationAndRotation)(USceneComponent* RootComponent, FVector& NewLocation, FQuat& NewRotation, bool bSweep, void* OutSweepHitResult, int ETeleportType);
+inline void (*FBodyInstance_GetUnrealWorldTransform)(FBodyInstance* BodyInstance, FTransform*, bool, bool);
+inline void (*OctopusTowhookUpdateState);

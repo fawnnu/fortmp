@@ -272,6 +272,15 @@ uintptr_t memory_manager::get_function_end(uintptr_t function_start)
 	}
 }
 
+void* memory_manager::get_virtual_function(UObject* obj, uint32_t offset)
+{
+	if (obj)
+	{
+		return (*(void**)(__int64(obj->VTable) + offset));
+	}
+	return nullptr;
+}
+
 std::vector<uintptr_t> memory_manager::get_all_calls_in_function(uintptr_t function_start)
 {
 	std::vector<uintptr_t> calls_list;

@@ -38,6 +38,15 @@ struct FReplicatedPhysicsPawnState
     unsigned char UnknownData01[0x6];      
 };
 
+struct FNetTowhookAttachState
+{
+    DEFINE_STRUCT_PROPERTY(UPrimitiveComponent*, Component);
+    DEFINE_STRUCT_PROPERTY(struct FVector, LocalLocation); 
+    DEFINE_STRUCT_PROPERTY(struct FVector, LocalNormal);
+
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.NetTowhookAttachState");
+};
+
 class UCharacterMovementComponent : public UObject
 {
 public:
@@ -163,6 +172,11 @@ struct FFortClientObservedStat : FFastArraySerializerItem
     DEFINE_STRUCT_PROPERTY(int32, StatValue);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortClientObservedStat");
+};
+
+struct FBodyInstance
+{
+    DEFINE_STRUCT_CLASS(L"/Script/Engine.BodyInstance");
 };
 
 struct FFortClientObservedStatArray : FFastArraySerializer
@@ -331,6 +345,28 @@ class AShoppingCartVehicleSK : public AFortAthenaVehicle
 {
 public:
     DEFINE_CLASS(L"/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C")
+};
+
+class AFortOctopusVehicle : public AFortAthenaVehicle
+{
+public:
+    DEFINE_CLASS(L"/Script/FortniteGame.FortOctopusVehicle")
+
+    DEFINE_PROPERTY(FNetTowhookAttachState, ReplicatedAttachState);
+    
+    bool IsTowhookAttached()
+    {
+        STATIC_FINDFUNCTION(IsTowhookAttached)
+
+        return Call<bool>(Function_IsTowhookAttached);
+    }
+
+    void OnRep_ReplicatedAttachState()
+    {
+        STATIC_FINDFUNCTION(OnRep_ReplicatedAttachState)
+        
+        Call(Function_OnRep_ReplicatedAttachState);
+    }
 };
 
 class AFortPlayerPawnAthena : public AFortPlayerPawn

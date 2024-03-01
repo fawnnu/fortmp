@@ -621,13 +621,9 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
             if (fort_pickup == nullptr) return;
             
             // Filter pickup classes
-            static UFortItemDefinition* ammo_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortAmmoItemDefinition");
-            static UFortItemDefinition* resource_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortResourceItemDefinition");
-            static UFortItemDefinition* trap_definition = FindObject<UFortItemDefinition>(L"/Script/FortniteGame.FortTrapItemDefinition");
-        
-            if (fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(ammo_definition) ||
-                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(resource_definition) ||
-                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(trap_definition))
+            if (fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(UFortAmmoItemDefinition::StaticClass()) ||
+                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(UFortResourceItemDefinition::StaticClass()) ||
+                fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(UFortTrapItemDefinition::StaticClass()))
             {
                 if (fort_pickup->PawnWhoDroppedPickup() != nullptr && fort_pickup->PickupLocationData().TossState() != 2)
                 {

@@ -164,6 +164,25 @@ public:
     }
 };
 
+class UFortResourceItemDefinition : public UFortWorldItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortResourceItemDefinition")
+};
+
+class UFortAmmoItemDefinition : public UFortWorldItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAmmoItemDefinition")
+};
+
+class UFortTrapItemDefinition : public UFortWorldItemDefinition
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortTrapItemDefinition")
+};
+
+
 class UFortWeaponItemDefinition : public UFortWorldItemDefinition
 {
 public:

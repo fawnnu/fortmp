@@ -36,6 +36,7 @@ vehicles_component::vehicles_component()
     
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 55 53 56 57 41 56 41 57 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 C7 41 0F 10 00 4C 8B 7D 77 48 8B D9 48 8B 89 ? ? ? ? 45 0F B6 F1 0F 29 45 87 49 8B F8"));
     INIT_POINTER(SetWorldLocationAndRotation, memory_manager::find_pattern("40 53 55 56 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 41 0F 10 00 4C 8B B4 24 ? ? ? ?"));
+    INIT_POINTER(FBodyInstance_GetUnrealWorldTransform, memory_manager::find_pattern("4C 8B DC 45 88 4B 20 45 88 43 18 53 48 83 EC 50 0F 28 05 ? ? ? ? 49 8D 43 18 49 89 43 E8 48 8B DA 0F 11 02 49 8D 43 20 0F 28 0D ? ? ? ? 49 89 43 F0 49 8D 43 D8 0F 11 4A 10 0F 28 05 ? ? ? ? "));
     
     // Hook the last call in EquipAbilityWeapon
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
@@ -52,8 +53,68 @@ vehicles_component::vehicles_component()
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortAthenaVehicle.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerUpdatePhysicsParams", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerUpdatePhysicsParams, L"/Script/FortniteGame.FortPhysicsPawn.ServerMove", vehicles_component_hooks::ServerUpdatePhysicsParams_Hook);
+
+    // Ballers universal hook CR. wiktorwiktor12
+    auto FortAttachableProjectileUpdateState = memory_manager::find_function_by_string(L"&AFortAttachableProjectileBase::OnAttachedToEndPlayed");
+
+    if (FortAttachableProjectileUpdateState)
+    {
+        static auto dFortAttachableProjectileBase = FindObject(L"/Script/FortniteGame.Default__FortAttachableProjectileBase");
+        static auto dFortOctopusTowhookAttachableProjectile = FindObject(L"/Script/FortniteGame.Default__FortOctopusTowhookAttachableProjectile");
+        
+        FortAttachableProjectileUpdateState = memory_manager::get_function_start(FortAttachableProjectileUpdateState);
+        
+        int UpdateStateIndex = 0;
     
+        for (int i = 0; i < 9999; i++)
+        {
+            if (dFortAttachableProjectileBase->VTable[i] == reinterpret_cast<LPVOID>(FortAttachableProjectileUpdateState))
+            {
+                UpdateStateIndex = i * 8;
+        
+                break;
+            }
+        }
+        OctopusTowhookUpdateState = *(void**)(__int64(dFortOctopusTowhookAttachableProjectile->VTable) + UpdateStateIndex);
+        auto strippedCalls = memory_manager::get_all_stripped_calls_in_function_wiktor(memory_manager::get_function_start(reinterpret_cast<uintptr_t>(OctopusTowhookUpdateState)));
+        if (strippedCalls.size() > 0)
+        {
+            auto UpdateAttachState = strippedCalls[0];
+
+            if (UpdateAttachState)
+            {
+                REGISTER_CALL_DETOUR_WITH_ADDRESS(UpdateAttachState, vehicles_component_hooks::UpdateAttachState_Hook);   
+            }
+        }
+        
+    }
     DetourTransactionCommit();
+}
+
+void vehicles_component_hooks::UpdateAttachState_Hook(AFortOctopusVehicle* OctopusVehicle, TWeakObjectPtr<UPrimitiveComponent>& WeakComponent, FVector& WorldLocation, FVector& WorldNormal)
+{
+    // Credit wiktorwiktor12 and ruby
+    UPrimitiveComponent* Component = WeakComponent.Get();
+    if (Component)
+    {
+        typedef FBodyInstance* (__fastcall *GetBodyInstanceType)(UPrimitiveComponent*, FName, __int64);
+        
+        void* result = memory_manager::get_virtual_function(Component, 0x668);
+        GetBodyInstanceType GetBodyInstance = reinterpret_cast<GetBodyInstanceType>(result);
+
+        FBodyInstance* BodyInstance = GetBodyInstance(Component, FName(L""), true);
+
+        if (BodyInstance)
+        {
+            FTransform WorldTransform{};
+            FBodyInstance_GetUnrealWorldTransform(BodyInstance, &WorldTransform, true, false);
+            
+            OctopusVehicle->ReplicatedAttachState().Component() = Component;
+            OctopusVehicle->ReplicatedAttachState().LocalLocation()  = UKismetMathLibrary::InverseTransformLocation(WorldTransform, WorldLocation);
+
+            OctopusVehicle->OnRep_ReplicatedAttachState();
+        }
+    }
 }
 
 void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAthenaVehicleSpawner* Target)

@@ -8,7 +8,9 @@ struct FInteractionType
 {
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AFortPlayerController>, RequestingPlayerController);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AFortPlayerPawn>, RequestingPawn);
-
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, OptionalObjectData);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, InteractComponent);
+    
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.InteractionType")  
 };
 

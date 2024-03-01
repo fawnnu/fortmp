@@ -264,6 +264,16 @@ public:
         return Default__KismetMathLibrary->Call<FVector>(FunctionObject, InDir, ConeHalfAngle);
     }
 
+    static FVector InverseTransformLocation(FTransform& T, FVector& Location)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.InverseTransformLocation")
+        
+        return Default__KismetMathLibrary->Call<FVector>(FunctionObject, T, Location);
+    }
+
     static FVector Add_VectorVector(FVector A, FVector B)
     {
         // Static function to use default object

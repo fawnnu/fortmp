@@ -38,21 +38,18 @@ interact_component::interact_component()
 
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type)
 {
-    static UObject* building_container_class = FindObject(L"/Script/FortniteGame.BuildingContainer");
-    static UObject* player_pawn_class = FindObject(L"/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C");
-
     if (log_component::enable_debug_logs)
     {
         // Log receiving actor
         spdlog::info(L"handle_interaction called on receiving_actor: {}", UKismetSystemLibrary::GetPathName(receiving_actor).c_str());
     }
 
-    if (receiving_actor->IsA(building_container_class))
+    if (receiving_actor->IsA(ABuildingContainer::StaticClass()))
     {
         // Handle any interactions with building containers
         handle_container_interaction(player_controller, reinterpret_cast<ABuildingContainer*>(receiving_actor));
     }
-    else if (receiving_actor->IsA(player_pawn_class))
+    else if (receiving_actor->IsA(APlayerPawn_Athena_C::StaticClass()))
     {
         // 2 = LongInteraction, might stop insta-revive cheats considering they probably call AttemptInteract with interaction type as 0 (NoInteraction).
         if (interaction_type == 2)
