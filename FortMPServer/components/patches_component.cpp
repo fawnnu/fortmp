@@ -317,7 +317,43 @@ char patches_component_hook::ReservationCheck_Hook(UObject* a1, long long a2, ch
 
 void patches_component::pre_init()
 {
-    if (GetCL() == 5046157)
+    if (GetCL() == 6165369)
+    {
+        if (const uintptr_t PatchAddress = memory_manager::find_pattern("0F 85 ? ? ? ? 48 8D 05 ? ? ? ? 4C 89 7D D0 48 89 45 E0 48 8D 4C 24 ? 48 8D 05 ? ? ? ? 48 89 75 E8 33 D2 48 89 45 C0 4C 89 7C 24 ? 48 C7 44 24 ? ? ? ? ? E8 ? ? ? ? 4C 8B 74 24"))
+        {
+            {
+                DWORD OldProtect, NewProtect;
+                VirtualProtect(reinterpret_cast<PVOID>(PatchAddress), 2, PAGE_EXECUTE_READWRITE, &OldProtect);
+
+                constexpr uint8_t ReplacementBytes[] = {0x0F, 0x84};
+
+                FEraPatchInfo PatchInfo;
+                PatchInfo.Address = PatchAddress;
+                PatchInfo.Size = 2;
+                PatchInfo.ParseBytes();
+                temporary_patches.push_back(PatchInfo);
+            
+                memcpy(reinterpret_cast<PVOID>(PatchAddress), ReplacementBytes, 2);
+        
+                VirtualProtect(reinterpret_cast<PVOID>(PatchAddress), 2, OldProtect, &NewProtect);
+            }
+
+            {
+                DWORD OldProtect, NewProtect;
+                VirtualProtect(reinterpret_cast<PVOID>(PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2)), 4096, PAGE_EXECUTE_READWRITE, &OldProtect);
+
+                FEraPatchInfo PatchInfo;
+                PatchInfo.Address = PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2);
+                PatchInfo.Size = 0x123;
+                PatchInfo.ParseBytes();
+                temporary_patches.push_back(PatchInfo);
+                memset(reinterpret_cast<PVOID>(PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2)), 0x90, 0x123);
+        
+                VirtualProtect(reinterpret_cast<PVOID>(PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2)), 0x123, OldProtect, &NewProtect);
+            }
+        }
+    }
+    else if (GetCL() == 5046157)
     {
         // Patch loading flow functions
         if (const uintptr_t PatchAddress = memory_manager::find_pattern("0F 85 ? ? ? ? 48 8D 55 80 4C 89 7D A0 B9 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 10 48 8D 0D ? ? ? ? 48 89 78 08 48 89 08 EB 03 49 8B C7"))
