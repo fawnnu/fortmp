@@ -46,6 +46,8 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
 
     DEFINE_FUNCTION_HOOK(UObject*, GetGameSessionClass, (AGameModeBase* GameMode, UObject* GameSessionClass));
+
+    DEFINE_FUNCTION_HOOK(bool, ShouldSpawnVehicleInternal, (AFortGameModeAthena* GameMode, UObject* VehicleClass));
     
     DEFINE_FUNCTION_HOOK(void, BuildingFoundation_PostUpdate, (ABuildingFoundation* BuildingFoundation, uint8_t State, void* ReservedValues));
     

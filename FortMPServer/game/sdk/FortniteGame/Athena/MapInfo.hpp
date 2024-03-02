@@ -62,25 +62,4 @@ public:
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMaxSpawnPercent);
 
     DEFINE_PROPERTY(FScalableFloat, SafeZoneStartDelay);
-
-    void HandleVehicleSpawnRate()
-    {
-        if (STATIC_HASPROPERTY(this, VehicleClassDetails))
-        {
-            TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
-
-            for (auto vehicle : athena_vehicles)
-            {
-                /*for (auto detail : VehicleClassDetails())
-                {
-                    auto vehclass = detail.VehicleClass().Get();
-                    if (vehclass)
-                    {
-                        spdlog::info(L"yo sigma2");
-                    }
-                }*/
-            }   
-        }
-                            
-    }
 };
