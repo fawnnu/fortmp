@@ -90,7 +90,7 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetCalendarEventInformation, memory_manager::find_function_by_string(L"GetCalendarEventInformation(%s) called without an event manager"), loader_component_hooks::GetCalendarEventInformation_Hook);
-    
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetGameSessionClass, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 83 B9 ? ? ? ? ? 48 8B DA 48 8B F9 74 41 E8 ? ? ? ? 48 85 C0 74 37 48 8B 97 ? ? ? ? 4C 8D 40 30 48 63 40 38 3B 42 38 7F 23 48 8B C8 48 8B 42 30 4C 39 04 C8 75 16 48 85 D2"), loader_component_hooks::GetGameSessionClass_Hook);
     DetourTransactionCommit();
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
@@ -102,8 +102,20 @@ loader_component::loader_component()
     }
 }
 
+UObject* loader_component_hooks::GetGameSessionClass_Hook(AGameModeBase* GameMode, UObject* GameSessionClass)
+{
+    if (GameMode->IsA(AFortGameModeAthena::StaticClass()))
+    {
+        return AFortGameSessionDedicatedAthena::StaticClass();
+    }
+    else
+    {
+        return AFortGameSessionDedicated::StaticClass();
+    }
+}
+
 void loader_component_hooks::BuildingFoundation_PostUpdate_Hook(ABuildingFoundation* BuildingFoundation, uint8_t State,
-    void* ReservedValues)
+                                                                void* ReservedValues)
 {
     // CL specific fix due to offset use on property
     try
