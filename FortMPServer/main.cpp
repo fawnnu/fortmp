@@ -38,6 +38,7 @@
 #include "components/era_mutators_component.hpp"
 #include "components/fort_mutators_component.hpp"
 #include "components/gui_manager.hpp"
+#include "components/ssl_bypass_component.hpp"
 
 #include "gui/renderer.hpp"
 #include "utils/webhook_manager.hpp"
@@ -46,6 +47,10 @@ void Setup()
 {
     // Pre init UE functions
     unreal_manager::pre_init();
+
+    ssl_bypass_component::redirect_url = ("http://mcp.erafn.local:4000/");
+    
+    new ssl_bypass_component();
     
     // Pre-start patches
     patches_component::pre_init();

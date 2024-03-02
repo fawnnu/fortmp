@@ -130,6 +130,13 @@ public:
 
         return Call<AFortGameplayMutator*>(Function_GetMutatorByClass, ContextActor, MutatorClass);
     }
+
+    bool ShouldSpawnVehicle(class AFortAthenaVehicle* VehicleClass)
+    {
+        STATIC_FINDFUNCTION(ShouldSpawnVehicle)
+
+        return Call<bool>(Function_ShouldSpawnVehicle, VehicleClass);
+    }
     // Custom event
     void OnServerReady()
     {
@@ -257,6 +264,7 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaVehicleSpawner")
 
     DEFINE_PROPERTY(TSoftObjectPtr<class UFortVehicleItemDefinition>, FortVehicleItemDef);
+    DEFINE_PROPERTY(AFortAthenaVehicle*, SpawnedVehicle);
     
     void SpawnVehicle()
     {

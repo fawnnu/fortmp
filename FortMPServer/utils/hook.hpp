@@ -119,6 +119,21 @@
                                                                             \
     ReturnType FunctionName##_Hook FunctionDefinition;
 
+class VectoredExceptionHook
+{
+public:
+    inline static unsigned __int64 oldfunc;
+    inline static unsigned __int64 hookfunc;
+    inline static DWORD Protection;
+    inline static PVOID Handle;
+
+    static void StartHook(unsigned __int64 oldfunction, unsigned __int64 hookfunction);
+
+    static void DisableHook();
+    
+    static long __stdcall Handler(EXCEPTION_POINTERS* Info);
+};
+
 class hook_manager
 {
 public:

@@ -35,7 +35,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"), patches_component_hook::ReplicateActor_Hook);
 
     // Hook cURL functions, used by attackers
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
+    //REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
     
     // Prevent players from having no pawn
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 48 89 44 24 ? 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF"), patches_component_hook::SpawnActor_Pawn);
@@ -63,7 +63,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetNetMode, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28"), patches_component_hook::GetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_pattern("40 53 48 81 EC ? ? ? ? 48 83 79 ? ? 48 8B D9 74 0E B8 ? ? ? ? 48 81 C4 ? ? ? ? 5B"), patches_component_hook::WorldGetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_function_by_string(L"not creating navigation on clients", {0xe8}, 1), patches_component_hook::WorldGetNetMode_Hook);
-
+    
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::NotifyAcceptingConnection, memory_manager::find_function_by_string(L"NotifyAcceptingConnection: Client refused"), patches_component_hook::NotifyAcceptingConnection_Hook);
@@ -74,6 +74,9 @@ patches_component::patches_component()
         REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverridesInternal(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
     }
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::GetAthenaLoadoutWithOverrides_Hook);
+
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::ReservationCheck, memory_manager::find_function_by_string(L"No reservation in game."), patches_component_hook::ReservationCheck_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::McpTempCheck, memory_manager::find_pattern("48 83 EC ? 48 81 C1 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 ? F6 80 ? ? ? ? ? 74 ? 48 8B 10 48 8B C8"), patches_component_hook::McpTempCheck_Hook);
     
     if (GetEngineVersionEasy() > 421)
     {
@@ -102,6 +105,10 @@ patches_component::patches_component()
             spdlog::error(L"Failed to patch FortGameMode's SpawnDefaultPawnFor.");
         }
     }
+    auto string = reinterpret_cast<uint8*>(memory_manager::find_function_by_string(L"MCP-Profile: Dispatching request to %s", {0x0F, 0x84}, 0, false, false, true));
+            
+    auto bytes = string;
+    bytes[1] = 0x85;
     
     {
 #ifdef _RELEASE
@@ -246,26 +253,6 @@ patches_component::patches_component()
         {
             spdlog::error(L"Failed to patch UFortLocalPlayer::SpawnPlayActor, pattern not found");
         }
-
-        // patch reservations (Only on below 1.11)
-
-        if (GetEngineVersionEasy() < 419)
-        {
-            if (const uintptr_t target_address = memory_manager::find_pattern("0F 84 ? ? ? ? 48 85 DB 0F 84 ? ? ? ? 48 8B 8B ? ? ? ? 48 85"))
-            {
-                DWORD old_protect, new_protect;
-            
-                VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, PAGE_EXECUTE_READWRITE, &old_protect);
-            
-                reinterpret_cast<char*>(target_address)[1] = 0x85;
-                        
-                VirtualProtect(reinterpret_cast<LPVOID>(target_address), 2, old_protect, &new_protect);
-            }
-            else
-            {
-                spdlog::error(L"Failed to fix reservations, pattern not found");
-            }
-        }
     }
 
     {
@@ -315,6 +302,17 @@ patches_component::patches_component()
     }
     
     DetourTransactionCommit();
+}
+
+bool patches_component_hook::McpTempCheck_Hook(UObject* a1)
+{
+    return true;
+}
+
+char patches_component_hook::ReservationCheck_Hook(UObject* a1, long long a2, char a3, long long* a4)
+{
+    spdlog::info(L"patching reservation check");
+    return 0;
 }
 
 void patches_component::pre_init()

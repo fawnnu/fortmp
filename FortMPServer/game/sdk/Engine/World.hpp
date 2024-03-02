@@ -73,7 +73,7 @@ public:
 class UWorld : public UObject
 {
 public:
-    DEFINE_PROPERTY(AFortGameStateAthena*, GameState);
+    DEFINE_PROPERTY(class AFortGameStateAthena*, GameState);
     DEFINE_PROPERTY(class AFortGameModeAthena*, AuthorityGameMode);
 
     DEFINE_PROPERTY(UNetDriver*, NetDriver);

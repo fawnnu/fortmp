@@ -252,6 +252,7 @@ public:
     DEFINE_PROPERTY(uint8_t, GamePhase);
     DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
     DEFINE_PROPERTY(bool, bIsLargeTeamGame);
+    DEFINE_PROPERTY(bool, bPlaylistDataIsLoaded);
     
     DEFINE_PROPERTY(UFortPlaylistAthena*, CurrentPlaylistData);
     DEFINE_PROPERTY(int, CurrentPlaylistId);

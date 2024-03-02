@@ -121,6 +121,8 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
 {
     AFortAthenaVehicleSpawner_BeginPlay(Target);
 
+    if (Target->HasProperty(L"SpawnedVehicle") && Target->SpawnedVehicle() == nullptr) return;
+    
     UObject* vehicle_class = Target->GetVehicleClass();
     if (!vehicle_class) return;
     

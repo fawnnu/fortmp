@@ -1,4 +1,9 @@
 ﻿#pragma once
+#include "../FortGameMode.hpp"
+#include "../../Engine/World.hpp"
+#include "../../Engine/GameplayAbilities/AbilitySystemComponent.hpp"
+#include "../../Engine/Kismet/GameplayStatics.hpp"
+#include "../../Engine/Kismet/KismetLibrary.hpp"
 
 struct FFortSupplyDropSubPhaseData
 {
@@ -23,7 +28,7 @@ struct FFortSupplyDropGamePhaseData
 
 struct FVehicleClassDetails
 {
-    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<class UObject>, VehicleClass);
+    DEFINE_STRUCT_PROPERTY(TSoftObjectPtr<AFortAthenaVehicle>, VehicleClass);
     DEFINE_STRUCT_PROPERTY(FScalableFloat, VehicleMinSpawnPercent);
     DEFINE_STRUCT_PROPERTY(FScalableFloat, VehicleMaxSpawnPercent);
     
@@ -57,4 +62,25 @@ public:
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMaxSpawnPercent);
 
     DEFINE_PROPERTY(FScalableFloat, SafeZoneStartDelay);
+
+    void HandleVehicleSpawnRate()
+    {
+        if (STATIC_HASPROPERTY(this, VehicleClassDetails))
+        {
+            TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
+
+            for (auto vehicle : athena_vehicles)
+            {
+                /*for (auto detail : VehicleClassDetails())
+                {
+                    auto vehclass = detail.VehicleClass().Get();
+                    if (vehclass)
+                    {
+                        spdlog::info(L"yo sigma2");
+                    }
+                }*/
+            }   
+        }
+                            
+    }
 };

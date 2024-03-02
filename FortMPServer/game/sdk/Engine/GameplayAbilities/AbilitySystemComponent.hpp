@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "../../Engine/CurveTable.hpp"
+#include "../../FortniteGame/Abilities/FortAbility.hpp"
 
 class UGameplayAbility;
 
