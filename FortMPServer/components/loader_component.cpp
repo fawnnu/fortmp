@@ -90,8 +90,8 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetCalendarEventInformation, memory_manager::find_function_by_string(L"GetCalendarEventInformation(%s) called without an event manager"), loader_component_hooks::GetCalendarEventInformation_Hook);
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetGameSessionClass, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 83 B9 ? ? ? ? ? 48 8B DA 48 8B F9 74 41 E8 ? ? ? ? 48 85 C0 74 37 48 8B 97 ? ? ? ? 4C 8D 40 30 48 63 40 38 3B 42 38 7F 23 48 8B C8 48 8B 42 30 4C 39 04 C8 75 16 48 85 D2"), loader_component_hooks::GetGameSessionClass_Hook);
-
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::NotifyStatEvent, memory_manager::find_pattern("4C 8B DC 49 89 5B 08 57 48 83 EC 60 33 C0 49 8D 53 B8 49 8B D8 49 89 43 B8 4D 8D 43 D8 49 89 43 C0 49 89 43 C8 49 8B F9 49 89 43 D0 49 89 43 D8 49 89 43 E0 49 89 43 E8 49 89 43 F0 E8 ? ? ? ? 48 8B D3 48 8D 4C 24 ? E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ?"), loader_component_hooks::NotifyStatEvent_Hook);
+    
     INIT_POINTER(loader_component_hooks::ShouldSpawnVehicleInternal, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 50 48 8B B9 ? ? ? ? 48 8B DA 48 85 FF 0F 84 ? ? ? ? E8 ? ? ? ? 48 8B 57 10 4C 8D 40 30 48 63 40 38 3B 42 38 0F 8F ? ? ? ? 48 8B C8 48 8B 42 30 4C 39 04 C8 0F 85 ? ? ? ? 80 BF ? ? ? ? ? 75 07 B0 01"));
     DetourTransactionCommit();
 
@@ -104,15 +104,13 @@ loader_component::loader_component()
     }
 }
 
-UObject* loader_component_hooks::GetGameSessionClass_Hook(AGameModeBase* GameMode, UObject* GameSessionClass)
+void loader_component_hooks::NotifyStatEvent_Hook(UObject* QuestManager, UObject* Controller, FGameplayTagContainer a3, FGameplayTagContainer a4)
 {
-    if (GameMode->IsA(AFortGameModeAthena::StaticClass()))
+    spdlog::info(L"NotifyStatEvent on quest manager {}", QuestManager->GetName().c_str());
+
+    for (auto tag : a3.GameplayTags)
     {
-        return AFortGameSessionDedicatedAthena::StaticClass();
-    }
-    else
-    {
-        return AFortGameSessionDedicated::StaticClass();
+        spdlog::info(tag.TagName.c_str());
     }
 }
 

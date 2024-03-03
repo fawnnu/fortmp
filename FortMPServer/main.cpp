@@ -47,10 +47,6 @@ void Setup()
 {
     // Pre init UE functions
     unreal_manager::pre_init();
-
-    ssl_bypass_component::redirect_url = ("http://mcp.erafn.local:4000/");
-    
-    new ssl_bypass_component();
     
     // Pre-start patches
     patches_component::pre_init();
@@ -172,7 +168,7 @@ void Setup()
             
             Sleep(500);
         }
-    } 
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
