@@ -3,6 +3,7 @@
 struct FFortQuestObjectiveStatTableRow
 {
     DEFINE_STRUCT_PROPERTY(FString, TargetTags);
+    DEFINE_STRUCT_PROPERTY(FString, SourceTags);
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortQuestObjectiveStatTableRow");
 };
@@ -28,7 +29,8 @@ struct FFortUpdatedObjectiveStat
     DEFINE_STRUCT_PROPERTY(int, StatValue);
     DEFINE_STRUCT_PROPERTY(int, StatDelta);
     DEFINE_STRUCT_PROPERTY(int, CurrentStage);
-    
+
+    OVERLOAD_NEW_OPERATOR();
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortUpdatedObjectiveStat")
 };
 

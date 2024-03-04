@@ -422,6 +422,15 @@ public:
         
         return Default__KismetStringLibrary->Call<bool>(FunctionObject, A, B);
     }
+
+    static bool EndsWith(FString SourceString, FString InSuffix, uint8 SearchCase)
+    {
+        static UKismetStringLibrary* Default__KismetStringLibrary = FindObject<UKismetStringLibrary>(L"/Script/Engine.Default__KismetStringLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetStringLibrary.EndsWith")
+        
+        return Default__KismetStringLibrary->Call<bool>(FunctionObject, SourceString, InSuffix, SearchCase);
+    }
 };
 
 class UFortKismetLibrary : public UObject

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../Items/FortQuest.hpp"
 #include "sdk/FortniteGame/Athena/FortCreative.hpp"
 
 class UNetConnection;
@@ -437,6 +438,36 @@ public:
         memcpy(&Params, &HUDReason, 0x18);
         
         ProcessEvent(this, Function_ClientHideScreenWhileRespawning, &Params);
+    }
+
+    void Client_DisplayQuestUpdate_Self(FFortUpdatedObjectiveStat* ObjectiveUpdated)
+    {
+        STATIC_FINDFUNCTION(Client_DisplayQuestUpdate_Self)
+
+if (Function_Client_DisplayQuestUpdate_Self == nullptr)
+{
+    return;
+}
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_Client_DisplayQuestUpdate_Self) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        memcpy(Params, Function_Client_DisplayQuestUpdate_Self, FFortUpdatedObjectiveStat::GetStructSize());
+
+        // ProcessEvent
+        ProcessEvent(this, Function_Client_DisplayQuestUpdate_Self, Params);
     }
     
     void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, FAthenaRewardResult* Result)
