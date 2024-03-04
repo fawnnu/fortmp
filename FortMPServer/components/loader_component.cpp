@@ -104,23 +104,13 @@ loader_component::loader_component()
     }
 }
 
-void loader_component_hooks::NotifyStatEvent_Hook(UObject* QuestManager, UObject* Controller, FGameplayTagContainer a3, FGameplayTagContainer a4)
+void loader_component_hooks::NotifyStatEvent_Hook(UObject* QuestManager, AFortPlayerController* Controller, FGameplayTagContainer a3, FGameplayTagContainer a4)
 {
-    spdlog::info(L"NotifyStatEvent on quest manager {}", QuestManager->GetName().c_str());
-
-    auto Map = *reinterpret_cast<TMap<FName, FFortQuestObjectiveStatTableRow*>*>(__int64(FindObject(L"/Game/Athena/Items/Quests/AthenaObjectiveStatTable.AthenaObjectiveStatTable", true, false)) + 0x30);
-
     for (auto tag : a3.GameplayTags)
     {
-        for (auto Element : Map.Elements)
+        if (tag.TagName == L"Athena.Quests.Guyser")
         {
-            if (UKismetStringLibrary::EndsWith(Element.Element.Value->SourceTags(), tag.TagName.c_str(), 1))
-            {
-                spdlog::info(L"Found row {}", Element.Element.Key.c_str());
-                
-                Controller->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Self()
-                break;
-            }
+            challenges_component::SendCustomEvent(Controller, "interaction:geyser");
         }
     }
 }
