@@ -709,7 +709,10 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.PirateCamp.04", "battlepass_visit_athena_piratecamp_04"},
                 {"Athena.Quests.Location.PirateCamp.05", "battlepass_visit_athena_piratecamp_05"},
                 {"Athena.Quests.Location.PirateCamp.06", "battlepass_visit_athena_piratecamp_06"},
-                {"Athena.Quests.Location.PirateCamp.07", "battlepass_visit_athena_piratecamp_07"}
+                {"Athena.Quests.Location.PirateCamp.07", "battlepass_visit_athena_piratecamp_07"},
+                {"Athena.Quests.Location.GiantFace.Desert", "battlepass_visit_athena_location_cliff_face_desert"},
+                {"Athena.Quests.Location.GiantFace.Jungle", "battlepass_visit_athena_location_cliff_face_jungle"},
+                {"Athena.Quests.Location.GiantFace.Snow", "battlepass_visit_athena_location_cliff_face_snow"}
             };
 
             if (ObjectivesMap.contains(sObjective))
