@@ -333,10 +333,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                             }
                     
                             // Notify backend
-                            challenges_component::SendCorruptedAreaInteraction(Self, Tag);
-                            challenges_component::SendNomsSignInteraction(Self, Tag);
-                            challenges_component::SendExplorerOutpostInteraction(Self, Tag);
-                            challenges_component::SendVisitWaterfallInteraction(Self, Tag);
+                            challenges_component::SendVisitInteraction(Self, Tag);
                             challenges_component::SendPOIInteraction(Self, Tag.TagName);
                         }
                     }

@@ -38,11 +38,8 @@ public:
     static void SendCustomEvent(AFortPlayerController* InteractingController, std::string event_type);
     static void SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
-    static void SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
-    static void SendNomsSignInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
+    static void SendVisitInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
-    static void SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI);
-    static void SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI);
     static void SendGrenadeHitInteraction(AFortPlayerControllerAthena* InteractingPlayerController,std::string type);
     static void SendPlaceEvent(AFortPlayerController* InteractingPlayerController, std::string Type);
     

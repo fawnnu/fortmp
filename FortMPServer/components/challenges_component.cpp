@@ -688,7 +688,7 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
     }  
 }
 
-void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* InteractingPlayerController,
+void challenges_component::SendVisitInteraction(AFortPlayerController* InteractingPlayerController,
     FGameplayTag POI)
 {
     CHECK_CREATIVE()
@@ -703,13 +703,13 @@ void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* I
         if (account_id.size() > 0)
         {
             static std::map<std::string, std::string> ObjectivesMap = {
-                {"Athena.Location.Meta.SevenSeals.01", "battlepass_visit_athena_location_seal_01"},
-                {"Athena.Location.Meta.SevenSeals.02", "battlepass_visit_athena_location_seal_02"},
-                {"Athena.Location.Meta.SevenSeals.03", "battlepass_visit_athena_location_seal_03"},
-                {"Athena.Location.Meta.SevenSeals.04", "battlepass_visit_athena_location_seal_04"},
-                {"Athena.Location.Meta.SevenSeals.05", "battlepass_visit_athena_location_seal_05"},
-                {"Athena.Location.Meta.SevenSeals.06", "battlepass_visit_athena_location_seal_06"},
-                {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"}
+                {"Athena.Quests.Location.PirateCamp.01", "battlepass_visit_athena_piratecamp_01"},
+                {"Athena.Quests.Location.PirateCamp.02", "battlepass_visit_athena_piratecamp_02"},
+                {"Athena.Quests.Location.PirateCamp.03", "battlepass_visit_athena_piratecamp_03"},
+                {"Athena.Quests.Location.PirateCamp.04", "battlepass_visit_athena_piratecamp_04"},
+                {"Athena.Quests.Location.PirateCamp.05", "battlepass_visit_athena_piratecamp_05"},
+                {"Athena.Quests.Location.PirateCamp.06", "battlepass_visit_athena_piratecamp_06"},
+                {"Athena.Quests.Location.PirateCamp.07", "battlepass_visit_athena_piratecamp_07"}
             };
 
             if (ObjectivesMap.contains(sObjective))
@@ -720,40 +720,7 @@ void challenges_component::SendCorruptedAreaInteraction(AFortPlayerController* I
                     {"objective", ObjectivesMap[sObjective]}
                 };
             
-                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:corrupted-area", parameters);
-            }
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    } 
-}
-
-void challenges_component::SendNomsSignInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI)
-{
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-        
-        // Convert FName to std::string
-        std::string sObjective = POI.TagName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            if (sObjective == "Athena.Location.Visit.Quest.NOMS")
-            {
-                nlohmann::json parameters{
-                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y}
-                };
-            
-                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:noms", parameters);
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:visit", parameters);
             }
         }
         else
@@ -793,98 +760,6 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
             }
         }
     }   
-}
-
-void challenges_component::SendVisitWaterfallInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
-{
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-        
-        // Convert FName to std::string
-        std::string sObjective = POI.TagName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            static std::map<std::string, std::string> ObjectivesMap = {
-                {"Athena.Quests.Location.Waterfall.01", "overtime_battlepass_visit_different_waterfalls_01"},
-                {"Athena.Quests.Location.Waterfall.02", "overtime_battlepass_visit_different_waterfalls_02"},
-                {"Athena.Quests.Location.Waterfall.03", "overtime_battlepass_visit_different_waterfalls_03"},
-                {"Athena.Quests.Location.Waterfall.04", "overtime_battlepass_visit_different_waterfalls_04"},
-                {"Athena.Quests.Location.Waterfall.05", "overtime_battlepass_visit_different_waterfalls_05"},
-                {"Athena.Quests.Location.Waterfall.06", "overtime_battlepass_visit_different_waterfalls_06"},
-                {"Athena.Quests.Location.Waterfall.07", "overtime_battlepass_visit_different_waterfalls_07"},
-                {"Athena.Quests.Location.Waterfall.08", "overtime_battlepass_visit_different_waterfalls_08"},
-                {"Athena.Quests.Location.Waterfall.09", "overtime_battlepass_visit_different_waterfalls_09"},
-                {"Athena.Quests.Location.Waterfall.10", "overtime_battlepass_visit_different_waterfalls_10"},
-                {"Athena.Quests.Location.Waterfall.11", "overtime_battlepass_visit_different_waterfalls_11"}
-            };
-
-            if (ObjectivesMap.contains(sObjective))
-            {
-                nlohmann::json parameters{
-                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                    {"objective", ObjectivesMap[sObjective]}
-                };
-            
-                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:waterfall", parameters);
-            }
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    } 
-}
-
-void challenges_component::SendExplorerOutpostInteraction(AFortPlayerControllerAthena* InteractingPlayerController, FGameplayTag POI)
-{
-    CHECK_CREATIVE()
-    
-    if (InteractingPlayerController && InteractingPlayerController->Pawn())
-    {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
-        
-        // Convert FName to std::string
-        std::string sObjective = POI.TagName.sToString();
-        
-        if (account_id.size() > 0)
-        {
-            static std::map<std::string, std::string> ObjectivesMap = {
-                {"Athena.Quests.Location.ExplorerOutposts.A", "battlepass_visit_athena_expeditionoutpost_a"},
-                {"Athena.Quests.Location.ExplorerOutposts.B", "battlepass_visit_athena_expeditionoutpost_b"},
-                {"Athena.Quests.Location.ExplorerOutposts.C", "battlepass_visit_athena_expeditionoutpost_c"},
-                {"Athena.Quests.Location.ExplorerOutposts.D", "battlepass_visit_athena_expeditionoutpost_d"},
-                {"Athena.Quests.Location.ExplorerOutposts.E", "battlepass_visit_athena_expeditionoutpost_e"},
-                {"Athena.Quests.Location.ExplorerOutposts.F", "battlepass_visit_athena_expeditionoutpost_f"},
-                {"Athena.Quests.Location.ExplorerOutposts.G", "battlepass_visit_athena_expeditionoutpost_g"}
-            };
-
-            if (ObjectivesMap.contains(sObjective))
-            {
-                nlohmann::json parameters{
-                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                    {"objective", ObjectivesMap[sObjective]}
-                };
-            
-                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:outpost", parameters);
-            }
-        }
-        else
-        {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::error(L"Invalid account_id while sending event.");
-            }
-        }
-    } 
 }
 
 void challenges_component::SendGrenadeHitInteraction(AFortPlayerControllerAthena* InteractingPlayerController, std::string type)
