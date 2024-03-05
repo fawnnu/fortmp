@@ -272,6 +272,9 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                                 NewObjectiveStat->CurrentStage() = -1;
                             }
 
+                            // todo: add implementation for party assist
+                            PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Self(NewObjectiveStat);
+                            
                             // Send live progression to client
                             UpdatedObjectiveStats.Add(NewObjectiveStat);
                         }

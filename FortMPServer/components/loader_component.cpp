@@ -104,13 +104,16 @@ loader_component::loader_component()
     }
 }
 
-void loader_component_hooks::NotifyStatEvent_Hook(UObject* QuestManager, AFortPlayerController* Controller, FGameplayTagContainer a3, FGameplayTagContainer a4)
+void loader_component_hooks::NotifyStatEvent_Hook(UFortQuestManager* QuestManager, UObject* ContextObject, FGameplayTagContainer SourceTags, FGameplayTagContainer ContextTags)
 {
-    for (auto tag : a3.GameplayTags)
+    for (auto tag : SourceTags.GameplayTags)
     {
         if (tag.TagName == L"Athena.Quests.Guyser")
         {
-            challenges_component::SendCustomEvent(Controller, "interaction:geyser");
+            if (auto player_controller = player_component::get_player_by_quest_manager(QuestManager))
+            {
+                challenges_component::SendCustomEvent(player_controller, "interaction:geyser");   
+            }
         }
     }
 }

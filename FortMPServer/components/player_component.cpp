@@ -2367,6 +2367,28 @@ AFortPlayerController* player_component::get_player_by_account_id(std::wstring i
     return nullptr;   
 }
 
+
+AFortPlayerController* player_component::get_player_by_quest_manager(UFortQuestManager* quest_manager)
+{
+    if (*GWorld && (*GWorld)->NetDriver())
+    {
+        for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+        {
+            if (Connection)
+            {
+                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                {
+                    if (Connection->PlayerController()->GetQuestManager(1) == quest_manager)
+                    {
+                        return Connection->PlayerController();
+                    }
+                }
+            }
+        }
+    }
+    return nullptr;   
+}
+
 void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, int Damage, FName BoneName)
 {
     if (Instigator)

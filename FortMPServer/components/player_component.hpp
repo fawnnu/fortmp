@@ -224,6 +224,7 @@ public:
     static std::string get_account_id(AFortPlayerController* target_player_controller);
     static std::string get_account_id_from_unique_id(FUniqueNetIdRepl& UniqueId);
     static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);
+    static AFortPlayerController* get_player_by_quest_manager(UFortQuestManager* quest_manager);
     static void handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, int Damage, FName BoneName);
     static uint8_t convert_quick_chat_index_to_message(uint8_t Index);
     static void initialize_player_banner_icon(AFortPlayerController* TargetPlayerController, std::string BannerIcon);

@@ -4,6 +4,18 @@
 class UNetConnection;
 class UAthenaResurrectionComponent;
 
+struct FFortUpdatedObjectiveStat
+{
+    DEFINE_STRUCT_PROPERTY(class UFortQuestItemDefinition*, Quest);
+    DEFINE_STRUCT_PROPERTY(FName, BackendName);
+    DEFINE_STRUCT_PROPERTY(int, StatValue);
+    DEFINE_STRUCT_PROPERTY(int, StatDelta);
+    DEFINE_STRUCT_PROPERTY(int, CurrentStage);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortUpdatedObjectiveStat")
+};
+
 struct FInteractionType
 {
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AFortPlayerController>, RequestingPlayerController);
@@ -415,7 +427,6 @@ public:
     
     DEFINE_PROPERTY(struct FEraPlayerInfo, EraPlayerInfo);
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
-
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);
     DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
@@ -536,6 +547,36 @@ public:
 
         // ProcessEvent
         ProcessEvent(this, Function_ClientSendMatchStatsForPlayer, Params);
+    }
+
+    void Client_DisplayQuestUpdate_Self(FFortUpdatedObjectiveStat* ObjectiveUpdated)
+    {
+        STATIC_FINDFUNCTION(Client_DisplayQuestUpdate_Self)
+
+        if (Function_Client_DisplayQuestUpdate_Self == nullptr)
+        {
+            return;
+        }
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_Client_DisplayQuestUpdate_Self) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        memcpy(Params, ObjectiveUpdated, FFortUpdatedObjectiveStat::GetStructSize());
+
+        // ProcessEvent
+        ProcessEvent(this, Function_Client_DisplayQuestUpdate_Self, Params);
     }
     
     void ClientReceiveSquadQuickChatMessage(FAthenaQuickChatActiveEntry& ChatEntry, AFortPlayerController* SenderPC)
