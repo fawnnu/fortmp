@@ -2248,7 +2248,7 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
                 new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_emote_gameplay_ability());
             
                 // Notify backend that we're dancing
-                challenges_component::SendDanceInteraction(player_controller);
+                challenges_component::SendDanceInteraction(player_controller, dance_asset);
             }
         
             new_ability_spec.SourceObject = dance_asset; // set the sourceobject, in this case the emote we want to execute

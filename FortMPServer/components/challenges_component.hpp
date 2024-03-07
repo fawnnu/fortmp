@@ -32,7 +32,7 @@ public:
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags, std::string rarity);
     static void SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController);
-    static void SendDanceInteraction(AFortPlayerController* InteractingController);
+    static void SendDanceInteraction(AFortPlayerController* InteractingController, UAthenaDanceItemDefinition* EmoteAsset);
     static void SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendCustomEvent(AFortPlayerController* InteractingController, std::string event_type);

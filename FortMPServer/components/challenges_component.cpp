@@ -354,10 +354,12 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
     }
 }
 
-void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController)
+void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController, UAthenaDanceItemDefinition* EmoteAsset)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
+
+    if (EmoteAsset == nullptr) return;
     
     if (InteractingController && InteractingController->Pawn())
     {
@@ -368,7 +370,8 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
             nlohmann::json parameters{
                 {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
                 {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                {"z", InteractingController->Pawn()->K2_GetActorLocation().Z}
+                {"z", InteractingController->Pawn()->K2_GetActorLocation().Z},
+                {"asset", EmoteAsset->GetName().c_str()}
             };
 
             static std::map<std::string, std::string> POITagToObjectivesMap = {
