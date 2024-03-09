@@ -49,12 +49,19 @@ public:
     static inline std::map<std::vector<FGameplayTag>, std::string> DestroyTagsToInteractionMatch;
 };
 
+struct progression_meta
+{
+    bool assisted;
+    std::string assisted_by;
+};
+
 struct progression_entry
 {
     std::string challenge;
     std::string objective;
     int value;
     int delta;
+    progression_meta meta;
     std::string player;
 };
 
