@@ -391,6 +391,8 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                     {
                         std::string challenge = JsonPayloadData["challenge"];
                         std::string objective = JsonPayloadData["objective"];
+                        std::string assisted_by = JsonPayloadData["meta"]["assisted_by"];
+                        bool assisted = JsonPayloadData["meta"]["assisted"];
                         int value = JsonPayloadData["value"];
 
                         std::string ChannelName = VectorPayloadString[0];
@@ -404,6 +406,8 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                             new_entry->objective = objective;
                             new_entry->value = value;
                             new_entry->player = AccountID;
+                            new_entry->meta.assisted = assisted;
+                            new_entry->meta.assisted_by = assisted_by;
                             new_entry->delta = 0;
                             try
                             {

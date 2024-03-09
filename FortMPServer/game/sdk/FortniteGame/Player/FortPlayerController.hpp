@@ -3,6 +3,7 @@
 
 class UNetConnection;
 class UAthenaResurrectionComponent;
+class AFortPlayerState;
 
 struct FFortUpdatedObjectiveStat
 {
@@ -577,6 +578,40 @@ public:
 
         // ProcessEvent
         ProcessEvent(this, Function_Client_DisplayQuestUpdate_Self, Params);
+    }
+
+    void Client_DisplayQuestUpdate_Assist(FFortUpdatedObjectiveStat* ObjectiveUpdated, AFortPlayerState* QuestOwner, AFortPlayerState* AssistingPlayer)
+    {
+        STATIC_FINDFUNCTION(Client_DisplayQuestUpdate_Assist)
+
+        // GET PARAMS SIZE
+        int16_t parms_size = 0;
+        std::vector<int> PropertyOffsets; // Index 0 = ObjectiveUpdated, Index 1 = QuestOwner, Index 2 = AssistingPlayer
+            
+        for (UObject* Property = *reinterpret_cast<UObject**>(__int64(Function_Client_DisplayQuestUpdate_Assist) + CoreOffsets::Children); Property; Property = *reinterpret_cast<UObject**>(__int64(Property) + CoreOffsets::Next))
+        {
+            int offset = *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::Offset_Internal);
+
+            PropertyOffsets.push_back(offset);
+            
+            parms_size = offset + // Offset_Internal
+                *reinterpret_cast<int*>(__int64(Property) + CoreOffsets::ElementSize); // ElementSize
+        }
+
+        // Allocate params
+        PVOID Params = alloca(parms_size);
+        ZeroMemory(Params, parms_size);
+
+        // memcpy ChatEntry
+        memcpy(reinterpret_cast<FAthenaQuickChatActiveEntry*>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[0]), &ObjectiveUpdated, FAthenaQuickChatActiveEntry::GetStructSize());
+
+        // Set QuestOwner
+        *reinterpret_cast<AFortPlayerState**>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[1]) = QuestOwner;
+        // Set AssistingPlayer
+        *reinterpret_cast<AFortPlayerState**>(reinterpret_cast<uintptr_t>(Params) + PropertyOffsets[2]) = AssistingPlayer;
+        
+        // ProcessEvent
+        ProcessEvent(this, Function_Client_DisplayQuestUpdate_Assist, Params);
     }
     
     void ClientReceiveSquadQuickChatMessage(FAthenaQuickChatActiveEntry& ChatEntry, AFortPlayerController* SenderPC)

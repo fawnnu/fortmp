@@ -205,9 +205,12 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
             int value = challenges_progression->value;
             int delta = challenges_progression->delta;
             std::string AccountID = challenges_progression->player;
-        
+            bool assisted = challenges_progression->meta.assisted;
+            std::string assisted_by = challenges_progression->meta.assisted_by;
+            
             TO_WSTRING(AccountID, wAccountID);
-
+            TO_WSTRING(assisted_by, wAssisted_by);
+            
             if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wAccountID))
             {
                 if (log_component::enable_debug_logs)
@@ -272,8 +275,20 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                                 NewObjectiveStat->CurrentStage() = -1;
                             }
 
-                            // todo: add implementation for party assist
-                            PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Self(NewObjectiveStat);
+                            if (assisted)
+                            {
+                                if (auto AssistedByController = player_component::get_player_by_account_id(wAssisted_by))
+                                {
+                                    if (auto AssistedByPlayerState = AssistedByController->PlayerState())
+                                    {
+                                        PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Assist(NewObjectiveStat, PlayerController->PlayerState(), AssistedByPlayerState);      
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Self(NewObjectiveStat);   
+                            }
                             
                             // Send live progression to client
                             UpdatedObjectiveStats.Add(NewObjectiveStat);
