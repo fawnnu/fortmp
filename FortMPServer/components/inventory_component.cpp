@@ -108,6 +108,11 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
 
+    if (player_controller->Pawn() == nullptr)
+    {
+        return nullptr;
+    }
+
     if (GetEngineVersionEasy() < 421)
     {
         if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
