@@ -108,11 +108,6 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
 
-    if (player_controller->Pawn() == nullptr)
-    {
-        return nullptr;
-    }
-
     if (GetEngineVersionEasy() < 421)
     {
         if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
@@ -209,8 +204,11 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             {
                 if (!has_item_type(player_controller, item_definition))
                 {
-                    // Spawn item as pickup
-                    pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), item_count, 0, true, nullptr, {}, player_controller->Pawn());
+                    if (player_controller->Pawn())
+                    {
+                        // Spawn item as pickup
+                        pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), item_count, 0, true, nullptr, {}, player_controller->Pawn());
+                    }
 
                     return nullptr;
                 }
@@ -234,9 +232,12 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
             {
                 spdlog::warn(L"inventory_component::add_item: Attempted to give more than MaxStackSize allows. Dropping the unwanted items.");
             }
-            
-            // Spawn item as pickup
-            pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), rest_of_item_count, 0, true, nullptr, {}, player_controller->Pawn());
+
+            if (player_controller->Pawn())
+            {
+                // Spawn item as pickup
+                pickup_component::spawn_pickup(item_definition, player_controller->Pawn()->K2_GetActorLocation(), rest_of_item_count, 0, true, nullptr, {}, player_controller->Pawn());   
+            }
         }
     }
     
