@@ -93,7 +93,7 @@ patches_component::patches_component()
 
     // Patch FortGameMode spawning
     {
-        if (const uintptr_t target_address = memory_manager::find_pattern("72 41 8B 44 24 58 FF C0 89 44 24 58 E9 ? ? ? ? 48 8B 9D ? ? ? ? 48 8D 45 F0"))
+        if (const uintptr_t target_address = memory_manager::find_pattern("72 ? 8B 44 24 58 FF C0 89 44 24 58 E9 ? ? ? ?"))
         {
             DWORD new_protect, old_protect;
             VirtualProtect(reinterpret_cast<LPVOID>(target_address), 4096, PAGE_EXECUTE_READWRITE, &old_protect);
@@ -105,11 +105,7 @@ patches_component::patches_component()
             spdlog::error(L"Failed to patch FortGameMode's SpawnDefaultPawnFor.");
         }
     }
-    auto string = reinterpret_cast<uint8*>(memory_manager::find_function_by_string(L"MCP-Profile: Dispatching request to %s", {0x0F, 0x84}, 0, false, false, true));
-            
-    auto bytes = string;
-    bytes[1] = 0x85;
-    
+
     {
 #ifdef _RELEASE
         // Allow matchmaking
