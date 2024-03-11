@@ -74,6 +74,7 @@ struct FDamageDealtMapValue
     int LMGDamage;
     int StructureDamage;
     int EnemyStructureDamage;
+    int EnemyVehicleDamage;
     int HeadshotDamage;
     int PickaxeDamage;
     FSpecialDamageDealt SpecialDamage;
@@ -194,6 +195,7 @@ public:
     static void MinigunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void LMGDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void EnemyStructureDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void EnemyVehicleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void PickaxeDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void HeadshotDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);

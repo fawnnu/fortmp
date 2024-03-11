@@ -4,6 +4,8 @@
 #include "challenges_component.hpp"
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
+#include "log_component.hpp"
+#include "player_component.hpp"
 
 vehicles_component::vehicles_component()
 {
@@ -40,12 +42,11 @@ vehicles_component::vehicles_component()
     
     // Hook the last call in EquipAbilityWeapon
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortGameplayAbility.EquipAbilityWeapon", vehicles_component_hooks::EquipAbilityWeapon_Hook);
-
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/DrivableVehicles/Biplane/Blueprints/FerretVehicle.FerretVehicle_C.OnDamaged", vehicles_component_hooks::OnDamaged_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    REGISTER_FUNCTION_DETOUR(vehicles_component_hooks::OnDamaged, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 41 54 41 56 48 81 EC ? ? ? ? 48 8B 01 49 8B D9 44 0F 29 44 24 ? 4D 8B E0 44 0F 28 C1 48 8B F9 FF 90 ? ? ? ? 48 8B 83 ? ? ? ? 48 8D 35 ? ? ? ? 48 89 44 24 ? 48 8B 83 ? ? ? ? 48 89 74 24 ? 48 89 44 24 ? 48 85 C0 74 03 FF 40 08 48 8B 84 24 ? ? ? ? 4C 8D 4C 24 ? 4C 8B B4 24 ? ? ? ? 4D 8B C4"), vehicles_component_hooks::OnDamaged_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerRequestSeatChange, L"/Script/FortniteGame.FortPlayerControllerZone.ServerRequestSeatChange", vehicles_component_hooks::ServerRequestSeatChange_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerFireActorInCannon, L"/Script/FortniteGame.FortWeaponRangedMountedCannon.ServerFireActorInCannon", vehicles_component_hooks::ServerFireActorInCannon_Hook);
     REGISTER_UFUNCTION_DETOUR(vehicles_component_hooks::ServerOnExitVehicle, L"/Script/FortniteGame.FortPlayerPawn.ServerOnExitVehicle", vehicles_component_hooks::ServerOnExitVehicle_Hook);
@@ -398,20 +399,25 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
     return ServerFireActorInCannon(Weapon, StackFrame);
 }
 
-void vehicles_component_hooks::OnDamaged_Hook(UObject* Object, UObject* Function, void* Params)
+void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float Damage, FGameplayTagContainer& DamageTags, FGameplayEffectContextHandle& EffectContext, class AController* EventInstigator, class AActor* DamageCauser)
 {
-    GET_PROCESS_EVENT_PARAMETER(AController*, EventInstigator);
+    OnDamaged(Vehicle, Damage,  DamageTags, EffectContext, EventInstigator, DamageCauser);
 
-    if (AFortAthenaVehicle* Vehicle = Object->Cast<AFortAthenaVehicle>())
+    if (auto driver = Vehicle->GetDriver())
     {
-        if (AFortAthenaFerretVehicle* FerretVehicle = Vehicle->Cast<AFortAthenaFerretVehicle>())
+        AFortPlayerControllerAthena* DamageInstigator = EventInstigator->Cast<AFortPlayerControllerAthena>();
+        if (driver->PlayerState()->TeamIndex() != DamageInstigator->PlayerState()->TeamIndex())
         {
-            if (FerretVehicle->GetHealth() <= 0)
+            DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage += Damage;
+            if (UKismetSystemLibrary::K2_IsTimerActive(DamageInstigator, L"EnemyVehicleDamageCallback"))
             {
-                if (FerretVehicle->IsFlying())
-                {
-                    challenges_component::SendCustomEvent(reinterpret_cast<AFortPlayerController*>(EventInstigator), "interaction:destroy-plane");
-                }
+                UKismetSystemLibrary::K2_ClearTimer(DamageInstigator, L"EnemyVehicleDamageCallback");
+            }
+            UKismetSystemLibrary::K2_SetTimer(DamageInstigator, L"EnemyVehicleDamageCallback", 1.0, false);
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::warn(L"AFortAthenaVehicle::OnDamaged: Vehicle driven by an opponent has received damaged from {}, damage dealt is {}.", EventInstigator->Cast<AFortPlayerController>()->MyPlayerInfo()->PlayerName().c_str(), Damage);   
             }
         }
     }

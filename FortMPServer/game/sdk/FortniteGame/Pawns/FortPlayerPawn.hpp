@@ -326,6 +326,13 @@ public:
         return Call<AFortPlayerPawn*>(Function_GetPawnAtSeat, SeatIdx);
     }
 
+    AFortPlayerPawn* GetDriver()
+    {
+        STATIC_FINDFUNCTION(GetDriver)
+
+        return Call<AFortPlayerPawn*>(Function_GetDriver);
+    }
+
     float GetHealth()
     {
         STATIC_FINDFUNCTION(GetHealth)
