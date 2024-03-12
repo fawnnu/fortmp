@@ -93,7 +93,6 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySprayItem, L"/Script/FortniteGame.FortPlayerController.ServerPlaySprayItem", player_component_hooks::ServerPlaySprayItem_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::MovingEmoteStopped, L"/Script/FortniteGame.FortPawn.MovingEmoteStopped", player_component_hooks::MovingEmoteStopped_Hook);
 
-    REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerThankBusDriver, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerThankBusDriver", player_component_hooks::ServerThankBusDriver_Hook)
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerSendZiplineState, L"/Script/FortniteGame.FortPlayerPawn.ServerSendZiplineState", player_component_hooks::ServerSendZiplineState_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAddMapMarker, L"/Script/FortniteGame.AthenaMarkerComponent.ServerAddMapMarker", player_component_hooks::ServerAddMapMarker_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReturnToMainMenu, L"/Script/FortniteGame.FortPlayerController.ServerReturnToMainMenu", player_component_hooks::ServerReturnToMainMenu_Hook);
@@ -3134,17 +3133,6 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
 
         FortPlayerPawn->LaunchCharacterJump(LaunchVector, false, false, false, true);
     }
-    else
-    {
-        if (InZiplineState.bIsZiplining())
-        {
-            // Send backend event (notify that player used zipline)
-            if (!memory_manager::is_bad_read_pointer(FortPlayerPawn->Controller()) && FortPlayerPawn->Controller())
-            {
-                challenges_component::SendCustomEvent(reinterpret_cast<AFortPlayerControllerAthena*>(FortPlayerPawn->Controller()), "interaction:zipline");
-            }
-        }
-    }
 }
 
 void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController* FortPlayerController)
@@ -3646,13 +3634,4 @@ void player_component_hooks::PopAnimBPOverride_Hook(AFortPlayerPawn* Self, int P
         Self->AnimBPOverride() = nullptr;
         Self->OnRep_AnimBPOverride();
     }
-}
-
-void player_component_hooks::ServerThankBusDriver_Hook(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
-{
-    // Native func
-    ServerThankBusDriver(Self, StackFrame);
-
-    // Notify backend
-    challenges_component::SendCustomEvent(Self, "interaction:bus-thank-you");
 }

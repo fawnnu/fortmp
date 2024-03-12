@@ -322,9 +322,6 @@ namespace player_component_hooks
 
     // Reimplement AGID anim bp functionality
     DEFINE_FUNCTION_HOOK(void, PopAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
-
-    // Reimplement bus thank challenge
-    DEFINE_FUNCTION_HOOK(void, ServerThankBusDriver, (AFortPlayerControllerAthena* Self, FFrame& StackFrame));
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

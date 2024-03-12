@@ -45,7 +45,7 @@ namespace loader_component_hooks
     
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
 
-    DEFINE_FUNCTION_HOOK(void, NotifyStatEvent, (UFortQuestManager* QuestManager, UObject* ContextObject, FGameplayTagContainer SourceTags, FGameplayTagContainer ContextTags));
+    DEFINE_FUNCTION_HOOK(void, NotifyCustomStatEvent, (UFortQuestManager* QuestManager, UObject* ContextObject, FGameplayTagContainer SourceTags, FGameplayTagContainer ContextTags));
     
     DEFINE_FUNCTION_HOOK(UObject*, GetGameSessionClass, (AGameModeBase* GameMode, UObject* GameSessionClass));
 
