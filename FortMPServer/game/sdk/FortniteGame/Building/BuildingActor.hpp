@@ -391,20 +391,35 @@ public:
 class ABuildingGameplayActorSpawnChip : public ABuildingActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingGameplayActorSpawnChip")
+    
     DEFINE_PROPERTY(AFortPlayerController*, OwnerPlayerController);
     DEFINE_PROPERTY(AFortPlayerStateAthena*, OwnerPlayerState);
     DEFINE_PROPERTY(uint8_t, OwnerTeam);
+    DEFINE_PROPERTY(uint8_t, SquadId);
+    DEFINE_PROPERTY(int, UnHide);
+    DEFINE_PROPERTY(bool, bAutoAcquireSpawnChip);
     DEFINE_PROPERTY(FUniqueNetIdRepl, OwnerPlayerId);
 
     DEFINE_PROPERTY(FRebootCardReplicatedState, RebootCardReplicatedState);
+
+    void OnRep_RebootCardReplicatedState()
+    {
+        STATIC_FINDFUNCTION(OnRep_RebootCardReplicatedState)
+        
+        Call(Function_OnRep_RebootCardReplicatedState);
+    }
 };
 
 class ABuildingGameplayActorSpawnMachine : public ABuildingActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingGameplayActorSpawnMachine")
+    
     DEFINE_PROPERTY(AActor*, ResurrectLocation);
     DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
-
+    DEFINE_PROPERTY(FMarkerID, ResurrectionChipMarkerID);
+    
     void SetSpawnMachineState(uint8_t NewState)
     {
         STATIC_FINDFUNCTION(SetSpawnMachineState)

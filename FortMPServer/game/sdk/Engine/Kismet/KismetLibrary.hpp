@@ -437,6 +437,15 @@ class UFortKismetLibrary : public UObject
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortKismetLibrary")
+
+    static uint8_t GetActorTeam(class AActor* Actor)
+    {
+        static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortKismetLibrary.GetActorTeam")
+        
+        return Default__FortKismetLibrary->Call<uint8_t>(FunctionObject, Actor);
+    }
     
     static bool EqualEqual_UniqueNetIdReplUniqueNetIdRepl(FUniqueNetIdRepl A, FUniqueNetIdRepl B)
     {

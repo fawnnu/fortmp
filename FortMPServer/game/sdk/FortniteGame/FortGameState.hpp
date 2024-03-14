@@ -23,6 +23,16 @@ struct FGameMemberInfo : FFastArraySerializerItem
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfo");
 };
 
+struct FSpawnMachineRepData : FFastArraySerializerItem
+{
+    DEFINE_STRUCT_PROPERTY(FVector, Location);
+    DEFINE_STRUCT_PROPERTY(uint8_t, SpawnMachineState);
+    DEFINE_STRUCT_PROPERTY(float, SpawnMachineCooldownStartTime);
+    DEFINE_STRUCT_PROPERTY(float, SpawnMachineCooldownEndTime);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfo");
+};
+
 struct FActiveGameplayModifierHandle
 {
 public:
@@ -169,6 +179,15 @@ struct FGameMemberInfoArray : FFastArraySerializer
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfoArray");
 };
 
+struct FSpawnMachineRepDataArray : FFastArraySerializer
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FSpawnMachineRepData>, SpawnMachineRepDataArray);
+    DEFINE_STRUCT_PROPERTY(AFortGameStateAthena*, OwningGameState);
+    
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.GameMemberInfoArray");
+};
+
 struct FSpecialActorSingleStatData
 {
     DEFINE_STRUCT_PROPERTY(uint8, StatType);
@@ -259,6 +278,7 @@ public:
     DEFINE_PROPERTY(FPlaylistPropertyArray, CurrentPlaylistInfo);
 
     DEFINE_PROPERTY(FGameMemberInfoArray, GameMemberInfoArray);
+    DEFINE_PROPERTY(FSpawnMachineRepDataArray, SpawnMachineRepData);
 
     DEFINE_PROPERTY(int, TotalPlayers);
     DEFINE_PROPERTY(int, PlayersLeft);

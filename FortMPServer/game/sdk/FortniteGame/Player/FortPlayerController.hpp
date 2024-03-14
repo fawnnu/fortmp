@@ -17,6 +17,17 @@ struct FFortUpdatedObjectiveStat
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortUpdatedObjectiveStat")
 };
 
+struct FFortResurrectionData
+{
+    DEFINE_STRUCT_PROPERTY(bool, bResurrectionChipAvailable);
+    DEFINE_STRUCT_PROPERTY(float, ResurrectionExpirationTime);
+    DEFINE_STRUCT_PROPERTY(float, ResurrectionExpirationLength);
+    DEFINE_STRUCT_PROPERTY(FVector, WorldLocation);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortResurrectionData")
+};
+
 struct FInteractionType
 {
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<AFortPlayerController>, RequestingPlayerController);
@@ -198,6 +209,7 @@ public:
     DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveToyInstances);
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveSprayInstances);
+    DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
     
     class UFortQuestManager* GetQuestManager(uint8_t SubGame)
     {
@@ -710,7 +722,17 @@ struct FFortPlayerDeathReport
 class UAthenaResurrectionComponent : public UObject
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaResurrectionComponent");
+    
     DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
+    DEFINE_PROPERTY(FMarkerID, ResurrectionMachineMarkerID);
+    
+    void OnRep_PlayerIdsForResurrection()
+    {
+        STATIC_FINDFUNCTION(OnRep_PlayerIdsForResurrection)
+
+        Call(Function_OnRep_PlayerIdsForResurrection);
+    }
 };
 
 class AAthena_PlayerController_C : public AFortPlayerControllerAthena

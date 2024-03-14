@@ -114,6 +114,7 @@ public:
     DEFINE_PROPERTY(int, NumRejoins);
     DEFINE_PROPERTY(FPlayerBannerInfo, Banner);
     DEFINE_PROPERTY(int, TotalPlayerScore);
+    DEFINE_PROPERTY(FFortResurrectionData, ResurrectionChipAvailable);
     
     void OnRep_ReplicatedTeamMemberState()
     {
