@@ -9,16 +9,10 @@ reboot_component::reboot_component()
     DetourUpdateThread(GetCurrentThread());
     
     INIT_POINTER(AddToAlivePlayerList, memory_manager::find_function_by_string(L"FortGameModeAthena: Player [%s] PostLog", { 0xE8, 0x100, 0x100, 0x100, 0xFF}, 1, false));
-
-    auto strippedCalls = memory_manager::get_all_stripped_calls_in_function_wiktor(memory_manager::get_function_start(memory_manager::find_function_by_string(L"[SCM] ABuildingGameplayActorSpawnMachine::ServerOnAttemptInteract - Start Rebooting")));
-    if (strippedCalls.size() > 0)
+    
+    if (const uintptr_t TargetInstruction = memory_manager::find_pattern("48 8D 05 ? ? ? ? 33 F6 48 89 44 24 ? 49 8B CE 49 8B 06 89 74 24 60 FF 90 ? ? ? ? 4C 8B A4 24 ? ? ? ? 48 8B 88 ? ? ? ? 48 85 C9 74 09 "))
     {
-        auto SpawnPawnsOnReboot = strippedCalls[1];
-
-        if (SpawnPawnsOnReboot)
-        {
-            REGISTER_CALL_DETOUR_WITH_ADDRESS(SpawnPawnsOnReboot, reboot_component_hooks::SpawnPawnsOnReboot_Hook);   
-        }
+        memory_manager::lea_hook(TargetInstruction, reinterpret_cast<uintptr_t>(reboot_component_hooks::SpawnPawnsOnReboot_Hook));
     }
 
     DetourTransactionCommit();

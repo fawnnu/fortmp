@@ -22,6 +22,20 @@ inline void* (*FMemory_Malloc)(int32 Size, int32 Alignment);
 #define NumBitsPerDWORDLogTwo ((int32)5)
 
 
+
+template<typename ReferencedType>
+FORCEINLINE ReferencedType* IfAThenAElseB(ReferencedType* A,ReferencedType* B)
+{
+    const __int64 IntA = reinterpret_cast<__int64>(A);
+    const __int64 IntB = reinterpret_cast<__int64>(B);
+
+    // Compute a mask which has all bits set if IntA is zero, and no bits set if it's non-zero.
+    const __int64 MaskB = -(!IntA);
+
+    return reinterpret_cast<ReferencedType*>(IntA | (MaskB & IntB));
+}
+
+
 namespace UE
 {
     static FORCEINLINE uint32 CountLeadingZeros(uint32 Value)
@@ -296,6 +310,15 @@ namespace UE
             ElementType* SecondaryData;
 
         public:
+
+            ElementType* GetInlineElements() const
+            {
+                return (ElementType*)InlineData;
+            }
+            FORCEINLINE ElementType* GetAllocation() const
+            {
+                return IfAThenAElseB<ElementType>(SecondaryData,GetInlineElements());
+            }
 
             FORCEINLINE int32 NumInlineBytes() const
             {
@@ -651,6 +674,16 @@ namespace UE
                 Set(i, false, true);
             }
         }
+        FORCEINLINE uint32* GetData()
+        {
+            return (uint32*)Data.GetAllocation();
+        }
+        FORCEINLINE void Reset()
+        {
+            memset(GetData(), 0, FMath::DivideAndRoundUp(NumBits, NumBitsPerDWORD) * sizeof(uint32));
+
+            NumBits = 0;
+        }
     };
 
     template <typename ElementType>
@@ -706,6 +739,15 @@ namespace UE
         int32 NumFreeIndices;
 
     public:
+
+        void Reset()
+        {
+            Data.Reset();
+            FirstFreeIndex = -1;
+            NumFreeIndices = 0;
+            AllocationFlags.Reset();
+        }
+        
         class FBaseIterator
         {
         private:
@@ -813,11 +855,6 @@ namespace UE
         FORCEINLINE bool IsIndexValid(int32 IndexToCheck) const
         {
             return AllocationFlags.IsSet(IndexToCheck);
-        }
-
-        FORCEINLINE void Reset() const
-        {
-            return;
         }
         
         FORCEINLINE bool RemoveAt(const int32 IndexToRemove)

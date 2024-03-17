@@ -255,6 +255,12 @@ struct FMath : FGenericPlatformMath
     {
         return A*A;
     }
+
+    template <class T>
+    static FORCEINLINE T DivideAndRoundUp(T Dividend, T Divisor)
+    {
+        return (Dividend + Divisor - 1) / Divisor;
+    }
 };
 
 struct FVector2D

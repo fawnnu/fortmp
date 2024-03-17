@@ -170,7 +170,7 @@ public:
 class AFortPlayerStart : public AActor
 {
 public:
-    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerState")
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerStart")
 };
 
 class AFortPlayerStartCreative : public AFortPlayerStart
