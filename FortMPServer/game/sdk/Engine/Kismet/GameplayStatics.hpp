@@ -13,7 +13,7 @@ class UGameplayStatics : public UObject
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/Engine.GameplayStatics");;
-    static APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
+    static class APlayerController* GetPlayerController(UWorld* WorldContextObject, int PlayerIndex)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
 

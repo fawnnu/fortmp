@@ -1,4 +1,8 @@
 ﻿#pragma once
+#include "../FortGameState.hpp"
+#include "../../Engine/World.hpp"
+#include "sdk/FortniteGame/Athena/FortCreative.hpp"
+#include "sdk/Engine/Kismet/GameplayStatics.hpp"
 
 class AGameSession : public UObject
 {
@@ -81,6 +85,32 @@ public:
     DEFINE_PROPERTY(AGameSession*, FortGameSession);
     DEFINE_PROPERTY(float, AbilityRefireHitchCooldown);
     DEFINE_PROPERTY_BY_OFFSET(float, LastHitch, CoreOffsets::LastHitch);
+
+    static AActor* GetClosestPlayerStart(FVector Location)
+    {
+        TArray<AActor*> FortPlayerStartArray = UGameplayStatics::GetAllActorsOfClass(*GWorld, AFortPlayerStart::StaticClass());
+
+        float ClosestDist = FLT_MAX;
+        AFortPlayerStart* ClosestPlayerStart = nullptr;
+        
+        for (auto actor : FortPlayerStartArray)
+        {
+            auto FortPlayerStart = actor->Cast<AFortPlayerStart>();
+            if (!FortPlayerStart) continue;
+
+            auto FortPlayerStartLocation = FortPlayerStart->K2_GetActorLocation();
+            if (!FortPlayerStartLocation.X && !FortPlayerStartLocation.Y && !FortPlayerStartLocation.Z) continue;
+
+            int Dist = float(sqrtf(powf(FortPlayerStartLocation.X - Location.X, 2.0) + powf(FortPlayerStartLocation.Y - Location.Y, 2.0) + powf(FortPlayerStartLocation.Z - Location.Z, 2.0))) / 100.f;
+            if (Dist < ClosestDist)
+            {
+                ClosestDist = Dist;
+                ClosestPlayerStart = FortPlayerStart;
+            }
+        }
+        
+        return ClosestPlayerStart;
+    }
 };
 
 class AFortGameModeZone : public AFortGameMode

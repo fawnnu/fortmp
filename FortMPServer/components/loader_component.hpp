@@ -16,6 +16,7 @@ public:
     static void initialize_vending_machines();
     static void initialize_llamas();
     static void initialize_bga();
+    static void initialize_reboot_vans();
     static void handle_duplicated_foundations();
     static void handle_cl_specific_additions();
 

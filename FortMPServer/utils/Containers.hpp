@@ -815,6 +815,11 @@ namespace UE
             return AllocationFlags.IsSet(IndexToCheck);
         }
 
+        FORCEINLINE void Reset() const
+        {
+            return;
+        }
+        
         FORCEINLINE bool RemoveAt(const int32 IndexToRemove)
         {
             if (IndexToRemove >= 0 && IndexToRemove < Data.Num() && AllocationFlags.IsSet(IndexToRemove))

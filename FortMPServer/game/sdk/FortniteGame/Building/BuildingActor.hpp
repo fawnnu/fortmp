@@ -419,6 +419,15 @@ public:
     DEFINE_PROPERTY(AActor*, ResurrectLocation);
     DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
     DEFINE_PROPERTY(FMarkerID, ResurrectionChipMarkerID);
+    DEFINE_PROPERTY(AFortPlayerControllerAthena*, InstigatorPC);
+    DEFINE_PROPERTY(uint8_t, SquadId);
+
+    bool RebootPlayersInAir()
+    {
+        STATIC_FINDFUNCTION(RebootPlayersInAir)
+
+        return Call<bool>(Function_RebootPlayersInAir);
+    }
     
     void SetSpawnMachineState(uint8_t NewState)
     {

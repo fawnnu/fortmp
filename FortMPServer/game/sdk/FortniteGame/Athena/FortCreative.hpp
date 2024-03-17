@@ -167,7 +167,13 @@ public:
     }
 };
 
-class AFortPlayerStartCreative : public AActor
+class AFortPlayerStart : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerState")
+};
+
+class AFortPlayerStartCreative : public AFortPlayerStart
 {
 public:
     DEFINE_PROPERTY(int, PortalIndex);

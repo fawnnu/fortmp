@@ -5,6 +5,7 @@ class APlayerState : public AActor
 public:
     DEFINE_PROPERTY(FUniqueNetIdRepl, UniqueId);
     DEFINE_PROPERTY(int, PlayerID);
+    DEFINE_PROPERTY(APawn*, PawnPrivate);
 };
 
 class AFortPlayerState : public APlayerState
@@ -114,7 +115,69 @@ public:
     DEFINE_PROPERTY(int, NumRejoins);
     DEFINE_PROPERTY(FPlayerBannerInfo, Banner);
     DEFINE_PROPERTY(int, TotalPlayerScore);
+    DEFINE_PROPERTY(bool, bResurrectingNow);
+    DEFINE_PROPERTY(int, RebootCounter);
     DEFINE_PROPERTY(FFortResurrectionData, ResurrectionChipAvailable);
+
+    void InitializeActiveTeam()
+    {
+        auto GameState = (*GWorld)->GameState();
+        if (!GameState) return;
+
+        auto Pad = GameState->GetTeamsArrayContainer();
+
+        if (!Pad)
+        {
+            spdlog::info(L"Not initializing active team array!");
+            return;
+        }
+
+        // todo optimize
+
+        TWeakObjectPtr<AFortPlayerStateAthena> WeakPlayerState = this;
+
+        if (Pad->TeamsArray.Num() > 0 && Pad->TeamsArray.IsIndexValid(TeamIndex()))
+        {
+            auto& TeamArray = Pad->TeamsArray[TeamIndex()];
+            if (TeamArray.ElementData.Num() <= 0)
+                TeamArray.ElementData.Reset();
+
+            TeamArray.ElementData.Add(WeakPlayerState);
+        }
+        else
+        {
+            Pad->TeamsArray.Reset();
+            for (int i = 0; i < 100; i++)
+                Pad->TeamsArray.Add({});
+
+            auto& TeamArray = Pad->TeamsArray[TeamIndex()];
+            if (TeamArray.ElementData.Num() <= 0)
+                TeamArray.ElementData.Reset();
+
+            TeamArray.ElementData.Add(WeakPlayerState);
+        }
+
+        if (Pad->SquadsArray.Num() > 0 && Pad->SquadsArray.IsIndexValid(SquadId()))
+        {
+            auto& SquadArray = Pad->SquadsArray[SquadId()];
+            if (SquadArray.ElementData.Num() <= 0)
+                SquadArray.ElementData.Reset();
+
+            SquadArray.ElementData.Add(WeakPlayerState);
+        }
+        else
+        {
+            Pad->SquadsArray.Reset();
+            for (int i = 0; i < 100; i++)
+                Pad->SquadsArray.Add({});
+
+            auto& SquadArray = Pad->SquadsArray[SquadId()];
+            if (SquadArray.ElementData.Num() <= 0)
+                SquadArray.ElementData.Reset();
+
+            SquadArray.ElementData.Add(WeakPlayerState);
+        }
+    }
     
     void OnRep_ReplicatedTeamMemberState()
     {
@@ -130,6 +193,12 @@ public:
     {
         STATIC_FINDFUNCTION(OnRep_SquadId)
         Call(Function_OnRep_SquadId);
+    }
+
+    void OnRep_RebootCounter()
+    {
+        STATIC_FINDFUNCTION(OnRep_RebootCounter)
+        Call(Function_OnRep_RebootCounter);
     }
 
     void OnRep_TeamKillScore()

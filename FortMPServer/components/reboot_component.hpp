@@ -13,5 +13,10 @@ public:
     static bool should_spawn_reboot_card(AFortPlayerControllerAthena* player_controller);
 };
 
+namespace reboot_component_hooks
+{
+    DEFINE_FUNCTION_HOOK(AFortPlayerPawnAthena*, SpawnPawnsOnReboot, (ABuildingGameplayActorSpawnMachine* SpawnMachine));
+};
+
 // Add back to alive players list
 inline void (*AddToAlivePlayerList)(UObject* GameMode, UObject* PlayerController);

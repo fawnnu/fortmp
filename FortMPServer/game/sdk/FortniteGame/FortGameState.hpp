@@ -252,6 +252,12 @@ public:
     DEFINE_PROPERTY(struct FSpecialActorRepDataArray, SpecialActorRepList);
 };
 
+struct TeamsArrayContainer
+{
+    UE::TSparseArray<UE::TArray<TWeakObjectPtr<AFortPlayerStateAthena>>> TeamsArray{};
+    UE::TSparseArray<UE::TArray<TWeakObjectPtr<AFortPlayerStateAthena>>> SquadsArray{};
+};
+
 class AFortGameStateAthena : public AFortGameState
 {
 public:
@@ -292,6 +298,16 @@ public:
 
     DEFINE_PROPERTY(class AFortSpecialActorReplicationInfo*, SpecialActorData);
 
+    DEFINE_PROPERTY(uint8_t, FriendlyFireType);
+    
+    TeamsArrayContainer* GetTeamsArrayContainer()
+    {
+        static void* native_property = FindPropertyByName(this->Class, L"FriendlyFireType");                                          
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);   
+
+        return (TeamsArrayContainer*)(__int64(this) + (native_property_offset + 0x5));
+    }
+    
     void ChangeBattleBusCosmetic(UFortItemDefinition* BusCosmetic)
     {
         if (STATIC_HASPROPERTY(this, DefaultBattleBus))

@@ -691,6 +691,20 @@ void loader_component::initialize_bga()
     }
 }
 
+void loader_component::initialize_reboot_vans()
+{
+    TArray<ABuildingGameplayActorSpawnMachine*> AllSpawnMachines = UGameplayStatics::GetAllActorsOfClass<ABuildingGameplayActorSpawnMachine>(*GWorld, ABuildingGameplayActorSpawnMachine::StaticClass());
+    
+    for (int i = 0; i < AllSpawnMachines.Num(); ++i)
+    {
+        auto SpawnMachine = AllSpawnMachines[i];
+        auto FortPlayerStart = AFortGameMode::GetClosestPlayerStart(SpawnMachine->K2_GetActorLocation());
+        SpawnMachine->ResurrectLocation() = FortPlayerStart;
+    }
+
+    spdlog::info(L"Setup reboot vans!");
+}
+
 void loader_component::handle_duplicated_foundations()
 {
     // DEPRECATED
@@ -805,6 +819,8 @@ void loader_component::OnMapInfoLoaded()
     // Implement llamas
     initialize_llamas();
 
+    initialize_reboot_vans();
+    
     // Butterfly event storm mutator
     era_mutators_component::Execute("butterfly_begin", nullptr);
 

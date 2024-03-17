@@ -196,6 +196,8 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
 
         // Mark last item for replication
         (*GWorld)->GameState()->GameMemberInfoArray().MarkItemDirty((*GWorld)->GameState()->GameMemberInfoArray().Members()[(*GWorld)->GameState()->GameMemberInfoArray().Members().Num() - 1]);
+
+        player_controller->PlayerState()->InitializeActiveTeam();
     }
 }
 

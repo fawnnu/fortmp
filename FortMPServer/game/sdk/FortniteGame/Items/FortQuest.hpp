@@ -25,7 +25,28 @@ public:
 class UFortQuestManager : public UObject
 {
 public:
-    
+
+    void GetSourceAndContextTags(struct FGameplayTagContainer* OutSourceTags, FGameplayTagContainer* OutContextTags)
+    {
+        STATIC_FINDFUNCTION(GetSourceAndContextTags)
+
+        struct 
+        {
+            FGameplayTagContainer OutSourceTags;
+            FGameplayTagContainer OutContextTags;
+        } parameters;
+        
+        ProcessEvent(this, Function_GetSourceAndContextTags, &parameters);
+
+        if (OutSourceTags)
+        {
+            *OutSourceTags = parameters.OutSourceTags;
+        }
+        if (OutContextTags)
+        {
+            *OutContextTags = parameters.OutContextTags;
+        }
+    }
 };
 
 class UFortAsyncAction_SendQuestStatEvent : public UObject

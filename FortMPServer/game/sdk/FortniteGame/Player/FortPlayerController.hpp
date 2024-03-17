@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "../FortGameState.hpp"
+#include "../../Engine/World.hpp"
 #include "sdk/FortniteGame/Athena/FortCreative.hpp"
 
 class UNetConnection;
@@ -210,6 +212,13 @@ public:
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveToyInstances);
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveSprayInstances);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
+
+    void ClientClearDeathNotification()
+    {
+        STATIC_FINDFUNCTION(ClientClearDeathNotification)
+
+        Call(Function_ClientClearDeathNotification);
+    }
     
     class UFortQuestManager* GetQuestManager(uint8_t SubGame)
     {
@@ -443,6 +452,7 @@ public:
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);
     DEFINE_PROPERTY(UAthenaMarkerComponent*, MarkerComponent);
+    DEFINE_BIT_PROPERTY(bool, bPlayerIsWaiting);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
     DEFINE_PROPERTY(bool, bDelayedTeleporting);
 
@@ -461,6 +471,13 @@ public:
         memcpy(&Params, &HUDReason, 0x18);
         
         ProcessEvent(this, Function_ClientHideScreenWhileRespawning, &Params);
+    }
+
+    void RespawnPlayerAfterDeath(bool bEnterSkydiving)
+    {
+        STATIC_FINDFUNCTION(RespawnPlayerAfterDeath)
+
+        Call(Function_RespawnPlayerAfterDeath, bEnterSkydiving);
     }
     
     void ClientSendEndBattleRoyaleMatchForPlayer(bool bSuccess, FAthenaRewardResult* Result)
