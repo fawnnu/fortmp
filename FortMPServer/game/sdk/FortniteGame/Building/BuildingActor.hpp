@@ -419,7 +419,7 @@ public:
     DEFINE_PROPERTY(AActor*, ResurrectLocation);
     DEFINE_PROPERTY(TArray<FUniqueNetIdRepl>, PlayerIdsForResurrection);
     DEFINE_PROPERTY(FMarkerID, ResurrectionChipMarkerID);
-    DEFINE_PROPERTY(AFortPlayerControllerAthena*, InstigatorPC);
+    DEFINE_PROPERTY(TWeakObjectPtr<AFortPlayerControllerAthena>, InstigatorPC);
     DEFINE_PROPERTY(uint8_t, SquadId);
 
     bool RebootPlayersInAir()

@@ -100,7 +100,7 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
-    
+    REGISTER_UFUNCTION_DETOUR(player_component_hooks::HandleStartingNewPlayer, L"/Script/Engine.GameModeBase.HandleStartingNewPlayer", player_component_hooks::HandleStartingNewPlayer_Hook);
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
@@ -156,8 +156,15 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
 }
 
-AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass,
-    FTransform SpawnPosition)
+void player_component_hooks::HandleStartingNewPlayer_Hook(AGameModeBase* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(APlayerController*, NewPlayer);
+    HandleStartingNewPlayer(Self, StackFrame);
+
+    NewPlayer->PlayerState()->InitializeActiveTeam();
+}
+
+AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass, FTransform SpawnPosition)
 {
     if (era_mutators_component::IsActive("domino_event"))
     {
@@ -2921,7 +2928,7 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
 #ifdef _RELEASE
     if (team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true) && team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false))
     {
-        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index() - 2);
     }
 #elif _TESTING
     team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);

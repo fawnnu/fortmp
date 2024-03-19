@@ -63,13 +63,10 @@ namespace UE
 
     public:
 
-        TArray() = default;
-
-        TArray(int InitMax)
-            : Count(0)
-            , MaxElements(InitMax)
+        inline TArray()
         {
-            Data = FMemory_Malloc(InitMax * sizeof(ArrayType), alignof(ArrayType));
+            Data = nullptr;
+            Count = MaxElements = 0;
         }
 
         FORCEINLINE int Num() const
@@ -90,30 +87,14 @@ namespace UE
         }
         FORCEINLINE void Reserve(const int NumElements)
         {
-            Data = Slack() >= NumElements ? Data : (ArrayType*)FMemory_Realloc(Data, (MaxElements = Count + NumElements) * sizeof(ArrayType), 0);
-        }
-        FORCEINLINE void Reset(int MinSizeAfterReset = 5)
-        {
-            MaxElements = MinSizeAfterReset;
-            Count = 0;
-
-            if (Data)
-                FMemory_Free(Data);
-
-            Data = (ArrayType*)FMemory_Malloc(MinSizeAfterReset * sizeof(ArrayType), alignof(ArrayType));
+            if (MaxElements < NumElements)
+            {
+                Data = static_cast<ArrayType*>(FMemory_Realloc(Data, NumElements * sizeof(ArrayType), 0));
+                MaxElements = NumElements;
+            }
         }
         FORCEINLINE bool RemoveSingle(const int Index)
         {
-            if (Index < Count)
-            {
-                if (Index != Count - 1)
-                    Data[Index] = Data[Count - 1];
-
-                --Count;
-
-                return true;
-            }
-            return false;
         }
         FORCEINLINE void RemoveAt(int Index, int Lenght = 1)
         {
@@ -123,11 +104,27 @@ namespace UE
                     break;
             }
         }
-        FORCEINLINE void Add(const ArrayType& InData)
+        inline int Add(const ArrayType& InData)
         {
-            Reserve(1);
+            Reserve(Count + 1);
             Data[Count] = InData;
             ++Count;
+            return Count;
+        }
+
+        inline void Reset(int MinSizeAfterReset = 0)
+        {
+            if (Data)
+            {
+                FMemory_Realloc(Data, 0, 0);
+                Data = 0;
+            }
+
+            Count = 0;
+            MaxElements = MinSizeAfterReset;
+
+            if (MaxElements > 0)
+                Data = static_cast<ArrayType*>(FMemory_Realloc(0, MaxElements * sizeof(ArrayType), 0));
         }
         FORCEINLINE void MultiAdd(int Num, ArrayType InData...)
         {
@@ -340,7 +337,7 @@ namespace UE
 
             FORCEINLINE void operator=(void* InElements)
             {
-                SecondaryData = InElements;
+                SecondaryData = (ElementType*)InElements;
             }
 
             FORCEINLINE ElementType& GetInlineElement(int32 Index)
@@ -361,7 +358,7 @@ namespace UE
             }
         };
     };
-
+    
     class TBitArray
     {
     private:
@@ -709,10 +706,11 @@ namespace UE
         {
         }
 
-        TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
+        /** This is used for legacy replication, but causes some memory issues on later seasons so its commented out*/
+        /*TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
         {
             return TSparseArrayElementOrListLink(Other.PrevFreeIndex, Other.NextFreeIndex);
-        }
+        }*/
 
         /** If the element is allocated, its value is stored here. */
         ElementType ElementData;
@@ -896,6 +894,7 @@ namespace UE
 
             int NextFree;
             int OutIndex;
+            
             if (FirstFreeIndex >= 1)
             {
                 NextFree = Data[FirstFreeIndex].NextFreeIndex;
@@ -964,18 +963,14 @@ namespace UE
     template <typename SetType>
     class TSet
     {
-    private:
-        friend TSparseArray;
-
     public:
         typedef TSetElement<SetType> ElementType;
         typedef TSparseArrayElementOrListLink<ElementType> ArrayElementType;
 
-    private:
         TSparseArray<ElementType> Elements;
 
-        mutable TInlineAllocator<1>::ForElementType<int> Hash;
-        mutable int32 HashSize;
+        TInlineAllocator<1>::ForElementType<int> Hash;
+        int HashSize;
 
     public:
         class FBaseIterator
@@ -1018,17 +1013,17 @@ namespace UE
             }
             FORCEINLINE const SetType& operator*() const
             {
-                return &((*ElementIt).Value);
+                return (*ElementIt).Value;
             }
-            FORCEINLINE SetType* operator->()
+            FORCEINLINE ElementType& operator->()
             {
-                return &((*ElementIt).Value);
+                return *ElementIt;
             }
-            FORCEINLINE const SetType* operator->() const
+            FORCEINLINE const ElementType& operator->() const
             {
-                return &(*ElementIt).Value;
+                return *ElementIt;
             }
-            FORCEINLINE const int32 GetIndex() const
+            FORCEINLINE const int GetIndex() const
             {
                 return ElementIt.GetIndex();
             }
@@ -1069,7 +1064,7 @@ namespace UE
             return Elements[Index].ElementData.Value;
         }
 
-        FORCEINLINE int32 Num() const
+        FORCEINLINE int Num() const
         {
             return Elements.Num();
         }
@@ -1089,7 +1084,7 @@ namespace UE
         {
             return Elements.GetAllocationFlags();
         }
-        FORCEINLINE bool IsIndexValid(int32 IndexToCheck) const
+        FORCEINLINE bool IsIndexValid(int IndexToCheck) const
         {
             return Elements.IsIndexValid(IndexToCheck);
         }
@@ -1105,7 +1100,7 @@ namespace UE
             }
             return false;
         }
-        FORCEINLINE const int32 Find(const SetType& ElementToLookFor) const
+        FORCEINLINE const int Find(const SetType& ElementToLookFor) const
         {
             for (auto It = this->begin(); It != this->end(); ++It)
             {
@@ -1120,23 +1115,21 @@ namespace UE
         {
             return Elements.RemoveAt(Find(ElementToRemove));
         }
-        FORCEINLINE int32 AddSingle(SetType InElement, int32 InHashIndex = 0, int32 InHashNextId = 0)
+        FORCEINLINE int AddSingle(SetType InElement, int InHashIndex = 0, int InHashNextId = 0)
         {
-            // ToDo: Check for duplication
-
             if (!this->IsValid())
                 return this->Initialize();
 
             return Elements.AddSingle({ InElement, InHashIndex, InHashNextId });
         }
-        FORCEINLINE void Initialize(const int32 NumElementsToInitWith = 5)
+        FORCEINLINE void Initialize(const int NumElementsToInitWith = 5)
         {
             if (this->IsValid())
                 return;
 
             Elements.Data.MaxElements = NumElementsToInitWith;
             Elements.Data.Count = NumElementsToInitWith;
-            Elements.Data.Data = (ArrayElementType*)(FMemory_Malloc(NumElementsToInitWith * sizeof(ElementType), alignof(ElementType)));
+            Elements.Data.Data = (ArrayElementType*)(std::malloc(NumElementsToInitWith * sizeof(ElementType)));
             for (int i = 0; i < NumElementsToInitWith; i++)
             {
                 Elements.Data.Data[i].PrevFreeIndex = i - 1;
@@ -1150,8 +1143,18 @@ namespace UE
             Elements.AllocationFlags.NumBits = NumElementsToInitWith;
             Elements.AllocationFlags.ZeroAll();
 
-            Hash = FMemory_Malloc(NumElementsToInitWith * sizeof(ElementType), alignof(ElementType));
+            Hash = std::malloc(NumElementsToInitWith * sizeof(ElementType));
             HashSize = NumElementsToInitWith * sizeof(ElementType);
+        }
+
+        FORCEINLINE void Reset()
+        {
+            Elements.Reset();
+            Hash.InlineData->Pad[0] = 0;
+            Hash.InlineData->Pad[1] = 0;
+            Hash.InlineData->Pad[2] = 0;
+            Hash.InlineData->Pad[3] = 0;
+            Hash.SecondaryData = nullptr;
         }
     };
 
@@ -1194,7 +1197,6 @@ namespace UE
     public:
         typedef TPair<KeyType, ValueType> ElementType;
 
-    private:
         TSet<ElementType> Pairs;
 
     public:
@@ -1391,5 +1393,4 @@ namespace UE
             return Object;
         }
     };
-
 }

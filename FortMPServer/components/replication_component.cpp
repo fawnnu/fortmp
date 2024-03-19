@@ -544,6 +544,8 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
 int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors)
 {
+    // Temporary solution for TSparseArray issues
+    return 0;
     NetDriver->NetTag()++;
 
     for ( int32 j = 0; j < Connection->SentTemporaries().Num(); j++ )
@@ -656,6 +658,8 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
 
 int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, FActorPriority** PriorityActors, int FinalSortedCount, int& OutUpdated)
 {
+    // Temporary solution for TSparseArray issues
+    return 0;
     int ActorUpdatesThisConnection = 0;
     int ActorUpdatesThisConnectionSent = 0;
     int FinalRelevantCount = 0;

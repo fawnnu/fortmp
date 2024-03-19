@@ -305,6 +305,8 @@ namespace player_component_hooks
     // Track trick points
     DEFINE_FUNCTION_HOOK(void, ServerAwardVehicleTrickPoints, (AFortPlayerController* Self, FFrame& StackFrame))
 
+    DEFINE_FUNCTION_HOOK(void, HandleStartingNewPlayer, (AGameModeBase* Self, FFrame& StackFrame))
+    
     // Track shield for challenges
     DEFINE_FUNCTION_HOOK(void, GameplayCue_Shield_PotionConsumed, (UObject* Self, UObject* Function, void* Params));
 

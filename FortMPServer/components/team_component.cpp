@@ -196,8 +196,6 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
 
         // Mark last item for replication
         (*GWorld)->GameState()->GameMemberInfoArray().MarkItemDirty((*GWorld)->GameState()->GameMemberInfoArray().Members()[(*GWorld)->GameState()->GameMemberInfoArray().Members().Num() - 1]);
-
-        player_controller->PlayerState()->InitializeActiveTeam();
     }
 }
 
@@ -507,9 +505,9 @@ uint8_t team_component_hooks::GetSquadIdForCurrentPlayer_Hook(void* Self, FUniqu
                         if (era_team* found_team = team_component::find_era_team(Controller, false))
                         {
                             // log
-                            spdlog::info(L"team_component_hooks::GetSquadIdForCurrentPlayer_Hook found {}'s team. Squad Id: {}.", PlayerState->GetName(), found_team->get_team_index());
+                            spdlog::info(L"team_component_hooks::GetSquadIdForCurrentPlayer_Hook found {}'s team. Squad Id: {}.", PlayerState->GetName(), found_team->get_team_index() - 2);
                             
-                            return found_team->get_team_index();
+                            return found_team->get_team_index() - 2;
                         }
                     }
                 }

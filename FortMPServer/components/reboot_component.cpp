@@ -22,7 +22,7 @@ AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuilding
 {
     spdlog::info(L"SpawnPawnsOnRebootHook");
     
-	auto InteractController = SpawnMachine->InstigatorPC();
+	auto InteractController = SpawnMachine->InstigatorPC().Get();
 	if (!InteractController) return nullptr;
 
 	auto InteractPawn = InteractController->Pawn();
