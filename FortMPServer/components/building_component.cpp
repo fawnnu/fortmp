@@ -48,8 +48,6 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
         
         if (static UEnum* EFortBuildPreviewMarkerOptionalAdjustment = FindObject<UEnum>(L"/Script/FortniteGame.EFortBuildPreviewMarkerOptionalAdjustment"))
         {
-            spdlog::info(building_owner->BuildPreviewMarkerOptionalAdjustment());
-
             if (MarkerOptionalAdjustment == EFortBuildPreviewMarkerOptionalAdjustment::FreeWallPieceOnTop)
             {
                 FVector NewBuildLocation = building_location;
