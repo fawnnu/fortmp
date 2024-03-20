@@ -560,8 +560,9 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     TWeakObjectPtr<UNetConnection> WeakConnection(Connection);
 
     const bool bLowNetBandwidth = false;
-    
-    UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
+
+    // !!! UNCOMMENT THIS OUT WHENEVER WORKING WITH LEGACY REP AGAIN
+    //UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
     
     const int MaxSortedActors = ConsiderList.size();
     
@@ -686,8 +687,9 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
 
                 // Re-implemented SetChannelActorForDestroy
                 SetChannelActorForDestroy(Channel, PriorityActors[j]->DestructionInfo);
-                
-                reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors)->Remove(PriorityActors[j]->DestructionInfo->NetGUID);
+
+                // !!! UNCOMMENT THIS OUT WHENEVER WORKING WITH LEGACY REP AGAIN
+                //reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors)->Remove(PriorityActors[j]->DestructionInfo->NetGUID);
             }
 
             continue;

@@ -137,8 +137,7 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     }
 }
 
-void interact_component::handle_container_interaction(AFortPlayerController* player_controller,
-    ABuildingContainer* building_container)
+void interact_component::handle_container_interaction(AFortPlayerController* player_controller, ABuildingContainer* building_container)
 {
     if (log_component::enable_debug_logs)
     {
@@ -184,6 +183,18 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         else if (building_container->SearchLootTierGroup() == L"Loot_Ammo")
         {
             challenges_component::SendCustomEvent(player_controller, "event:ammo");
+        }
+        else if (building_container->SearchLootTierGroup() == L"Loot_AthenaBooty")
+        {
+            static UFortGadgetItemDefinition* buried_treasure_gadget = FindObject<UFortGadgetItemDefinition>(L"/Game/Athena/Items/Gameplay/Booty/AGID_Athena_Booty.AGID_Athena_Booty", true, false);
+
+            if (buried_treasure_gadget)
+            {
+                if (auto item_instance = inventory_component::get_inventory_item_by_definition(player_controller, buried_treasure_gadget))
+                {
+                    inventory_component::remove_item(player_controller, item_instance->GetItemGuid(), 1, false, false);      
+                }
+            }
         }
     }
 }
