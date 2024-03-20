@@ -50,6 +50,13 @@ struct FCollectorUnitInfo
     }
 };
 
+enum class EFortBuildPreviewMarkerOptionalAdjustment : uint8_t
+{
+    None = 0,
+    FreeWallPieceOnTop = 1,
+    FreeWallPieceOnBottom = 2
+};
+
 class ABuildingActor : public AActor
 {
 public:

@@ -128,12 +128,11 @@ public:
 
         if (!Pad)
         {
-            spdlog::info(L"Not initializing active team array!");
+            spdlog::info(L"AFortPlayerState::InitializeActiveTeam(): Not initializing active team array! Array not found.");
             return;
         }
 
-        // todo optimize
-
+        // CREDIT: MILXNOR
         TWeakObjectPtr<AFortPlayerStateAthena> WeakPlayerState = this;
 
         if (Pad->TeamsArray.Num() > 0 && Pad->TeamsArray.IsIndexValid(TeamIndex()))

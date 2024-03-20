@@ -32,9 +32,7 @@ AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuilding
 	if (!FortPlayerStart) return nullptr;
 
 	auto GameMode = (*GWorld)->AuthorityGameMode();
-
-	auto PlayerArray = (*GWorld)->AuthorityGameMode()->AlivePlayers();
-
+    
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
     {
         auto PlayerState = NetConnection->PlayerController()->PlayerState();

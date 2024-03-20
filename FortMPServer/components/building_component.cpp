@@ -23,7 +23,7 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
-bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, uint8_t MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
+bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
 {
     if (is_building_class_valid(building_class))
     {
@@ -48,24 +48,19 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
         
         if (static UEnum* EFortBuildPreviewMarkerOptionalAdjustment = FindObject<UEnum>(L"/Script/FortniteGame.EFortBuildPreviewMarkerOptionalAdjustment"))
         {
-            switch (MarkerOptionalAdjustment)
+            spdlog::info(building_owner->BuildPreviewMarkerOptionalAdjustment());
+
+            if (MarkerOptionalAdjustment == EFortBuildPreviewMarkerOptionalAdjustment::FreeWallPieceOnTop)
             {
-            case 1:
-                {
-                    FVector NewBuildLocation = building_location;
-                    NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                    spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
-                    break;
-                }
-            case 2:
-                {
-                    FVector NewBuildLocation = building_location;
-                    NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                    spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, 0, true);
-                    break;
-                }
-            default:
-                break;
+                FVector NewBuildLocation = building_location;
+                NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
+            }
+            else if (MarkerOptionalAdjustment == EFortBuildPreviewMarkerOptionalAdjustment::FreeWallPieceOnBottom)
+            {
+                FVector NewBuildLocation = building_location;
+                NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
+                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
             }
         }
             
@@ -225,11 +220,11 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
 
     // Setup parameters for double building check
     TArray<AActor*> HoveredActors;
-    uint8_t MarkerOptionalAdjustment;
+    auto Adjustment = EFortBuildPreviewMarkerOptionalAdjustment::None;
     
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &MarkerOptionalAdjustment)) // We check if it returns 0 as it actually returns an enum: 0 means we can place the build
+    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &Adjustment)) // We check if it returns 0 as it actually returns an enum (EFortStructuralGridQueryResults): 0 means we can place the build
     {   
-        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, MarkerOptionalAdjustment))
+        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, Adjustment))
         {
             // If the build was placed, destroy all Hovered Actors
             for (AActor* HoveredActor : HoveredActors)
