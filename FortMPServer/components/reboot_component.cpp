@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "reboot_component.hpp"
 
+#include "function_component.hpp"
 #include "player_component.hpp"
 
 reboot_component::reboot_component()
@@ -15,7 +16,68 @@ reboot_component::reboot_component()
         memory_manager::lea_hook(TargetInstruction, reinterpret_cast<uintptr_t>(reboot_component_hooks::SpawnPawnsOnReboot_Hook));
     }
 
+    REGISTER_CUSTOM_UFUNCTION(OnSecondaryPlayerRebooted, ABuildingGameplayActorSpawnMachine::StaticClass());
+
     DetourTransactionCommit();
+}
+
+void reboot_component::OnSecondaryPlayerRebooted(ABuildingGameplayActorSpawnMachine* Self, FFrame& StackFrame)
+{
+    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+    {
+        for (auto player_id : Self->PlayerIdsForResurrection())
+        {
+            if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(Connection->PlayerID(), player_id))
+            {
+                auto Controller = Connection->PlayerController()->Cast<AFortPlayerControllerAthena>();
+                auto SpawnMachine = Self;
+                auto PlayerState = Controller->PlayerState();
+                
+                UKismetSystemLibrary::SetBoolPropertyByName(Controller, L"bPlayerIsWaiting", true); // TODO: Check if this bool is needed
+                Controller->ClientClearDeathNotification();
+                bool bRebootPlayersInAir = SpawnMachine->RebootPlayersInAir(); // ?
+                Controller->RespawnPlayerAfterDeath(bRebootPlayersInAir);
+
+                auto RespawnedPawn = Controller->Pawn()->Cast<AFortPlayerPawnAthena>();
+                if (!RespawnedPawn) break;
+
+                PlayerState->RebootCounter()++;
+                PlayerState->OnRep_RebootCounter();
+
+                AddToAlivePlayerList((*GWorld)->AuthorityGameMode(), Controller);
+
+                auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
+                
+                ProcessEvent(SpawnMachine,BP_OnPlayerPawnResurrected, &RespawnedPawn);
+
+                TArrayManager spawn_machine_player_ids = TArrayManager<FUniqueNetIdRepl>(&SpawnMachine->PlayerIdsForResurrection(), sizeof(FUniqueNetIdRepl));
+
+                // Cache array classes
+                static void* player_ids_for_resurrection_property = FindPropertyByName(SpawnMachine->Class, L"PlayerIdsForResurrection");
+                
+                for (int spawn_machine_player_idx = 0; spawn_machine_player_idx < spawn_machine_player_ids.Num(); spawn_machine_player_idx++)
+                {
+                    if (UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(spawn_machine_player_ids[spawn_machine_player_idx], Connection->PlayerID()))
+                    {
+                        spawn_machine_player_ids.Remove(spawn_machine_player_idx, player_ids_for_resurrection_property);
+                    }
+                }
+
+                if (spawn_machine_player_ids.Num() <= 0)
+                {
+                    spdlog::info(L"Disabling reboot van, spawned all players");
+                    
+                    auto BP_OnResurrectionCompleted = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnResurrectionCompleted");
+                    
+                    ProcessEvent(SpawnMachine,BP_OnResurrectionCompleted, nullptr);
+
+                    spawn_machine_player_ids.Clear(player_ids_for_resurrection_property);
+
+                    UKismetSystemLibrary::K2_ClearTimer(SpawnMachine, L"OnSecondaryPlayerRebooted");
+                }
+            }
+        }
+    }
 }
 
 AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawnMachine* SpawnMachine)
@@ -59,18 +121,30 @@ AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuilding
                 AddToAlivePlayerList(GameMode, Controller);
 
                 auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
-                auto BP_OnResurrectionCompleted = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnResurrectionCompleted");
-			    
+                
                 ProcessEvent(SpawnMachine,BP_OnPlayerPawnResurrected, &RespawnedPawn);
-			    
-                ProcessEvent(SpawnMachine,BP_OnResurrectionCompleted, nullptr);
 
+                TArrayManager spawn_machine_player_ids = TArrayManager<FUniqueNetIdRepl>(&SpawnMachine->PlayerIdsForResurrection(), sizeof(FUniqueNetIdRepl));
+
+                // Cache array classes
+                static void* player_ids_for_resurrection_property = FindPropertyByName(SpawnMachine->Class, L"PlayerIdsForResurrection");
+                
+                for (int spawn_machine_player_idx = 0; spawn_machine_player_idx < spawn_machine_player_ids.Num(); spawn_machine_player_idx++)
+                {
+                    if (!UFortKismetLibrary::EqualEqual_UniqueNetIdReplUniqueNetIdRepl(spawn_machine_player_ids[spawn_machine_player_idx], NetConnection->PlayerID()))
+                    {
+                        UKismetSystemLibrary::K2_SetTimer(SpawnMachine, L"OnSecondaryPlayerRebooted", 2.0, false);
+                    }
+                    else
+                    {
+                        spawn_machine_player_ids.Remove(spawn_machine_player_idx, player_ids_for_resurrection_property);
+                    }
+                }
+                
                 return RespawnedPawn;
             }
         }
     }
-
-	return nullptr;
 }
 
 void reboot_component::start_rebooting(AFortPlayerControllerAthena* player_controller,

@@ -11,6 +11,8 @@ public:
     static void reboot_player(AFortPlayerControllerAthena* player_controller, ABuildingGameplayActorSpawnMachine* spawn_machine);
 
     static bool should_spawn_reboot_card(AFortPlayerControllerAthena* player_controller);
+
+    static void OnSecondaryPlayerRebooted(ABuildingGameplayActorSpawnMachine* Self, FFrame& StackFrame);
 };
 
 namespace reboot_component_hooks
