@@ -181,17 +181,11 @@ AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* Pla
     return nullptr;
 }
 
-void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn, FFrame& StackFrame)
+void player_component_hooks::MovingEmoteStopped_Hook(AFortPawn* FortPawn)
 {
-    MovingEmoteStopped(FortPawn, StackFrame);
+    MovingEmoteStopped(FortPawn);
     
     if (!FortPawn)
-    {
-        return;
-    }
-    
-    AFortPlayerController* Controller = FortPawn->Controller();
-    if (!Controller)
     {
         return;
     }

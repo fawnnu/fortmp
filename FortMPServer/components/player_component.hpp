@@ -264,7 +264,7 @@ namespace player_component_hooks
     DEFINE_FUNCTION_HOOK(void, ServerPlaySprayItem, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
     
     // Called when a player attempts to emote
-    DEFINE_FUNCTION_HOOK(void, MovingEmoteStopped, (AFortPawn* FortPawn, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, MovingEmoteStopped, (AFortPawn* FortPawn));
     
     // Called when a player attempts to enter a ziplines
     DEFINE_FUNCTION_HOOK(void, ServerSendZiplineState, (AFortPlayerPawn* FortPlayerPawn, FFrame& StackFrame));
