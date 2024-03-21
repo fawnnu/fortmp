@@ -11,11 +11,13 @@ public:
     static void reboot_player(AFortPlayerControllerAthena* player_controller, ABuildingGameplayActorSpawnMachine* spawn_machine);
 
     static bool should_spawn_reboot_card(AFortPlayerControllerAthena* player_controller);
+
+    static void RebootPlayerWithDelay(AFortPlayerControllerAthena* player_controller, FFrame& StackFrame);
 };
 
 namespace reboot_component_hooks
 {
-    DEFINE_FUNCTION_HOOK(AFortPlayerPawnAthena*, SpawnPawnsOnReboot, (ABuildingGameplayActorSpawnMachine* SpawnMachine));
+    DEFINE_FUNCTION_HOOK(void, SpawnPawnsOnReboot, (ABuildingGameplayActorSpawnMachine* SpawnMachine));
 };
 
 // Add back to alive players list

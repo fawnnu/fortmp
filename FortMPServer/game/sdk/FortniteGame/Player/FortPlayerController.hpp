@@ -462,6 +462,13 @@ public:
 
         Call(Function_RespawnTurnCameraBackOn);
     }
+    
+    void RebootPlayerWithDelay()
+    {
+        STATIC_FINDFUNCTION(RebootPlayerWithDelay)
+
+        Call(Function_RebootPlayerWithDelay);
+    }
 
     void ClientHideScreenWhileRespawning(FText& HUDReason)
     {

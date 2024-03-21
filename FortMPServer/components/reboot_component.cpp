@@ -18,20 +18,19 @@ reboot_component::reboot_component()
     DetourTransactionCommit();
 }
 
-AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawnMachine* SpawnMachine)
+void reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawnMachine* SpawnMachine)
 {
-    spdlog::info(L"SpawnPawnsOnRebootHook");
-    
 	auto InteractController = SpawnMachine->InstigatorPC().Get();
-	if (!InteractController) return nullptr;
+	if (!InteractController) return;
 
 	auto InteractPawn = InteractController->Pawn();
-	if (!InteractPawn) return nullptr;
+	if (!InteractPawn) return;
 
 	auto FortPlayerStart = AFortGameMode::GetClosestPlayerStart(InteractPawn->K2_GetActorLocation());
-	if (!FortPlayerStart) return nullptr;
+	if (!FortPlayerStart) return;
 
-	auto GameMode = (*GWorld)->AuthorityGameMode();
+    // List of players to reboot
+    std::vector<AFortPlayerControllerAthena*> ControllersToReboot;
     
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
     {
@@ -45,28 +44,29 @@ AFortPlayerPawnAthena* reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuilding
         {
             if (PlayerState->bResurrectingNow() && !PlayerState->PawnPrivate())
             {
-                UKismetSystemLibrary::SetBoolPropertyByName(Controller, L"bPlayerIsWaiting", true); // TODO: Check if this bool is needed
-                Controller->ClientClearDeathNotification();
-                bool bRebootPlayersInAir = SpawnMachine->RebootPlayersInAir(); // ?
-                Controller->RespawnPlayerAfterDeath(bRebootPlayersInAir);
-
-                auto RespawnedPawn = Controller->Pawn()->Cast<AFortPlayerPawnAthena>();
-                if (!RespawnedPawn) return nullptr;
-
-                PlayerState->RebootCounter()++;
-                PlayerState->OnRep_RebootCounter();
-
-                AddToAlivePlayerList(GameMode, Controller);
-
-                auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
-                
-                ProcessEvent(SpawnMachine,BP_OnPlayerPawnResurrected, &RespawnedPawn);
-                
-                return RespawnedPawn;
+                Controller->EraPlayerInfo().CurrentSpawnMachine = SpawnMachine;
+                ControllersToReboot.push_back(Controller);
             }
         }
     }
-    return nullptr;
+
+    // reboot the first player
+    if (ControllersToReboot.size() > 0)
+    {
+        ControllersToReboot[0]->RebootPlayerWithDelay();
+    }
+
+    // Reboot the other players each 2 seconds
+    for (int i = 1; i < ControllersToReboot.size(); i++)
+    {
+        UKismetSystemLibrary::K2_SetTimer(ControllersToReboot[i], L"RebootPlayerWithDelay", 2.0 * i, false);
+
+        if (i + 1 == ControllersToReboot.size())
+        {
+            auto BP_OnResurrectionCompleted = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnResurrectionCompleted");
+            ProcessEvent(SpawnMachine,BP_OnResurrectionCompleted, nullptr);
+        }
+    }
 }
 
 void reboot_component::start_rebooting(AFortPlayerControllerAthena* player_controller,
@@ -205,4 +205,30 @@ bool reboot_component::should_spawn_reboot_card(AFortPlayerControllerAthena* pla
     }
 
     return alive_team_players > 1;
+}
+
+void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Controller, FFrame& StackFrame)
+{
+    if (Controller->EraPlayerInfo().CurrentSpawnMachine &&
+        Controller->PlayerState())
+    {
+        const auto SpawnMachine = Controller->EraPlayerInfo().CurrentSpawnMachine;
+        
+        UKismetSystemLibrary::SetBoolPropertyByName(Controller, L"bPlayerIsWaiting", true); // TODO: Check if this bool is needed
+        Controller->ClientClearDeathNotification();
+        bool bRebootPlayersInAir = SpawnMachine->RebootPlayersInAir(); // ?
+        Controller->RespawnPlayerAfterDeath(bRebootPlayersInAir);
+
+        auto RespawnedPawn = Controller->Pawn()->Cast<AFortPlayerPawnAthena>();
+        if (!RespawnedPawn) return;
+
+        Controller->PlayerState()->RebootCounter()++;
+        Controller->PlayerState()->OnRep_RebootCounter();
+
+        AddToAlivePlayerList((*GWorld)->AuthorityGameMode(), Controller);
+
+        auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
+                
+        ProcessEvent(SpawnMachine,BP_OnPlayerPawnResurrected, &RespawnedPawn);
+    }
 }
