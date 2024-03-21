@@ -121,6 +121,9 @@ public:
 
     void InitializeActiveTeam()
     {
+        // Don't do anything below season 8.
+        if (GetFortniteVersionEasy() < 8.0) return;
+        
         auto GameState = (*GWorld)->GameState();
         if (!GameState) return;
 

@@ -93,6 +93,12 @@ loader_component::loader_component()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::NotifyCustomStatEvent, memory_manager::find_pattern("4C 8B DC 49 89 5B 08 57 48 83 EC 60 33 C0 49 8D 53 B8 49 8B D8 49 89 43 B8 4D 8D 43 D8 49 89 43 C0 49 89 43 C8 49 8B F9 49 89 43 D0 49 89 43 D8 49 89 43 E0 49 89 43 E8 49 89 43 F0 E8 ? ? ? ? 48 8B D3 48 8D 4C 24 ? E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ?"), loader_component_hooks::NotifyCustomStatEvent_Hook);
     
     INIT_POINTER(loader_component_hooks::ShouldSpawnVehicleInternal, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 50 48 8B B9 ? ? ? ? 48 8B DA 48 85 FF 0F 84 ? ? ? ? E8 ? ? ? ? 48 8B 57 10 4C 8D 40 30 48 63 40 38 3B 42 38 0F 8F ? ? ? ? 48 8B C8 48 8B 42 30 4C 39 04 C8 0F 85 ? ? ? ? 80 BF ? ? ? ? ? 75 07 B0 01"));
+
+    if (!loader_component_hooks::ShouldSpawnVehicleInternal)
+    {
+        spdlog::error(L"Could not initialize ShouldSpawnVehicleInternal! Invalid signature.");
+    }
+    
     DetourTransactionCommit();
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
@@ -829,9 +835,12 @@ void loader_component::OnMapInfoLoaded()
 
     for (auto vehicle : athena_vehicles)
     {
-        if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
+        if (loader_component_hooks::ShouldSpawnVehicleInternal)
         {
-            vehicle->K2_DestroyActor();
+            if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
+            {
+                vehicle->K2_DestroyActor();
+            }   
         }
     }
     
@@ -1089,6 +1098,11 @@ void loader_component_hooks::GetCalendarEventInformation_Hook(UObject* WorldCont
     {
         const std::string Name = EventName->AnsiString();
 
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::warn("loader_component_hooks::GetCalendarEventInformation_Hook: Called with event flag '{}'", Name.c_str());
+        }
+        
         if (era_mutators_component::IsActive(Name))
         {
             if (bIsEventActive)
