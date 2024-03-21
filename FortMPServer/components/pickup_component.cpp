@@ -85,7 +85,7 @@ pickup_component::pickup_component()
 }
 
 AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition, FVector pickup_location, int count,
-                                            int loaded_ammo, bool bToss, UObject* pickup_class, std::vector<float> GenericAttributeValues, AFortPawn* PawnWhoDroppedPickup)
+                                            int loaded_ammo, bool bToss, UObject* pickup_class, std::vector<float> GenericAttributeValues, AActor* from_actor)
 {
     if (item_definition == nullptr)
     {
@@ -120,7 +120,14 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     fort_pickup->PrimaryPickupItemEntry().ItemDefinition() = item_definition;
     fort_pickup->PrimaryPickupItemEntry().Count() = count;
     fort_pickup->PrimaryPickupItemEntry().LoadedAmmo() = loaded_ammo;
-    fort_pickup->PawnWhoDroppedPickup() = PawnWhoDroppedPickup;
+
+    if (from_actor)
+    {
+        if (from_actor->IsA(AFortPawn::StaticClass()))
+        {
+            fort_pickup->PawnWhoDroppedPickup() = from_actor->Cast<AFortPawn>();
+        }
+    }
     
     // copy list
     for (float Value : GenericAttributeValues)
@@ -150,6 +157,16 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
 
     if (bToss == true)
     {
+        // Custom implementation for spawning the pickup in front of the player
+        if (auto PawnWhoDroppedPickup = fort_pickup->PawnWhoDroppedPickup())
+        {
+            auto forward_vec = PawnWhoDroppedPickup->GetActorForwardVector() * UKismetMathLibrary::RandomFloatInRange(420, 500);
+            auto right_vec = PawnWhoDroppedPickup->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-300, 300);
+
+            pickup_location = pickup_location + forward_vec;
+            pickup_location = pickup_location + right_vec;
+        }
+        
         // Toss pickup, prevents pickups from all spawning in the same location
         fort_pickup->TossPickup(pickup_location, nullptr, 0, true);
 

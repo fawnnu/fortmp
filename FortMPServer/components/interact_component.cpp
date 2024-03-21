@@ -157,13 +157,7 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         for (const auto& [ item_definition, count ] : loot_to_spawn)
         {
             // Spawn pickup
-            auto new_pickup = pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, looting_component::get_default_loaded_ammo(item_definition), false);
-            
-            if (new_pickup)
-            {
-                // Custom directional tossing
-                pickup_component::toss_pickup(new_pickup, building_container, FRotator(65, 90, 90), 40, 600);
-            }
+            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, looting_component::get_default_loaded_ammo(item_definition), true, nullptr, {}, building_container);
         }
 
         // Mark the container as open

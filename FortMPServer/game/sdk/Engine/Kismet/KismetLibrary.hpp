@@ -313,6 +313,16 @@ public:
         
         return Default__KismetMathLibrary->Call<int>(FunctionObject, Min, Max);
     }
+
+    static float FClamp(float Value, float Min, float Max)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.FClamp")
+        
+        return Default__KismetMathLibrary->Call<float>(FunctionObject, Value, Min, Max);
+    }
     
     static bool RandomBool()
     {
