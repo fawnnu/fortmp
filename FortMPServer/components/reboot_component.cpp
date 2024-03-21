@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "reboot_component.hpp"
 
+#include "function_component.hpp"
 #include "player_component.hpp"
 
 reboot_component::reboot_component()
@@ -14,6 +15,8 @@ reboot_component::reboot_component()
     {
         memory_manager::lea_hook(TargetInstruction, reinterpret_cast<uintptr_t>(reboot_component_hooks::SpawnPawnsOnReboot_Hook));
     }
+
+    REGISTER_CUSTOM_UFUNCTION(RebootPlayerWithDelay, AFortPlayerControllerAthena::StaticClass())
 
     DetourTransactionCommit();
 }
