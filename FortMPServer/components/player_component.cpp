@@ -12,6 +12,7 @@
 #include "inventory_component.hpp"
 #include "loader_component.hpp"
 #include "log_component.hpp"
+#include "looting_component.hpp"
 #include "moderation_component.hpp"
 #include "net_component.hpp"
 #include "replication_component.hpp"
@@ -2367,6 +2368,32 @@ std::string player_component::get_account_id_from_unique_id(FUniqueNetIdRepl& Un
     }
 
     return account_id;
+}
+
+bool player_component::is_source_tag_enabled(AFortPlayerController* controller, std::wstring Tag)
+{
+    if (UFortQuestManager* quest_manager = controller->GetQuestManager(1))
+    {
+        FGameplayTagContainer source_tags;
+        FGameplayTagContainer context_tags;
+
+        quest_manager->GetSourceAndContextTags(&source_tags, &context_tags);
+    
+        for (auto tag : source_tags.GameplayTags)
+        {
+            if (tag.TagName.c_str() == Tag)
+            {
+                return true;
+            }
+        }   
+    }
+    else
+    {
+        spdlog::error(L"is_source_tag_enabled: quest_manager is invalid.");
+    }
+
+    return false;
+        
 }
 
 AFortPlayerController* player_component::get_player_by_account_id(std::wstring in_account_id)

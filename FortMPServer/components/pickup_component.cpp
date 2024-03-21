@@ -237,6 +237,11 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
         return;
     }
 
+    if (player_component::is_source_tag_enabled(PlayerPawn->Controller(), L"Gameplay.Action.Player.BlockPickup"))
+    {
+        return;
+    }
+    
     if (FindFunctionByName(PlayerPawn->Class, TEXT("IsSkydiving"), 1))
     {
         if (PlayerPawn->IsSkydiving())
@@ -642,6 +647,7 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(UFortResourceItemDefinition::StaticClass()) ||
                 fort_pickup->PrimaryPickupItemEntry().ItemDefinition()->IsA(UFortTrapItemDefinition::StaticClass()))
             {
+                
                 if (fort_pickup->PawnWhoDroppedPickup() != nullptr && fort_pickup->PickupLocationData().TossState() != 2)
                 {
                     // Do nothing
@@ -650,6 +656,11 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 {
                     if (PlayerPawn->Controller() && !memory_manager::is_bad_read_pointer(PlayerPawn->Controller()))
                     {
+                        if (player_component::is_source_tag_enabled(PlayerPawn->Controller(), L"Gameplay.Status.AutoPickupDisabled"))
+                        {
+                            return;
+                        }
+                        
                         // If the item is found inventory and the count is >= MaxStackSize, don't proceed auto pickup.
                         if (UFortItem* fort_item = inventory_component::get_inventory_item_by_definition(PlayerPawn->Controller(), fort_pickup->PrimaryPickupItemEntry().ItemDefinition()))
                         {
