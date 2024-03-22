@@ -592,7 +592,7 @@ void challenges_component::SendCustomEvent(AFortPlayerController* InteractingCon
     if (AFortPlayerPawn* player_pawn = InteractingController->Pawn())
     {
         x_location = player_pawn->K2_GetActorLocation().X;
-        y_location = player_pawn->K2_GetActorLocation().X;
+        y_location = player_pawn->K2_GetActorLocation().Y;
     }
     
     if (InteractingController)
