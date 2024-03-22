@@ -70,6 +70,12 @@ void reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawn
             ProcessEvent(SpawnMachine,BP_OnResurrectionCompleted, nullptr);
         }
     }
+
+    if (ControllersToReboot.size() == 1)
+    {
+        auto BP_OnResurrectionCompleted = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnResurrectionCompleted");
+        ProcessEvent(SpawnMachine,BP_OnResurrectionCompleted, nullptr);
+    }
 }
 
 void reboot_component::start_rebooting(AFortPlayerControllerAthena* player_controller,
