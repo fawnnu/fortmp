@@ -35,7 +35,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"), patches_component_hook::ReplicateActor_Hook);
 
     // Hook cURL functions, used by attackers
-    //REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::CurlEasy, memory_manager::find_pattern("89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 48 83 EC 28 48 85 C9 75 08 8D 41 2B 48 83 C4 28 C3 4C"), patches_component_hook::CurlEasy_Hook);
     
     // Prevent players from having no pawn
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 48 89 44 24 ? 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF"), patches_component_hook::SpawnActor_Pawn);
