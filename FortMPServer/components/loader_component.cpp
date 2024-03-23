@@ -471,7 +471,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             (*GWorld)->GameState()->GamePhase() = 2; // Warmup
         }
         
-        spdlog::info(L"Match has started in world '{}' using playlist '{}' and listening for connections", (*GWorld)->GetName().c_str(), in_playlist->GetName().c_str());
+        spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
     }
 }
 
@@ -531,6 +531,7 @@ bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
     }
     else
     {
+        spdlog::info(L"initialize_playlist: Current Playlist: {}", in_playlist->GetName().c_str());
         if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData))
         {
             (*GWorld)->GameState()->CurrentPlaylistData() = in_playlist;
