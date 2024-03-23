@@ -3244,6 +3244,9 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         // Apply CPs
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
 
+        // Set shield to 0 each time the player gets restarted
+        NewPlayer->Pawn()->SetShield(0);
+        
         // Apply pickaxe
         if (UAthenaPickaxeItemDefinition* Pickaxe = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe())
         {
