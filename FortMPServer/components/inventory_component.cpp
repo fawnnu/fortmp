@@ -1132,6 +1132,8 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: Removing {} {} from inventory.", Count, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() ? reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
                 }
                 
+                if (Count == 0) return false;
+                
                 inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
                 
                 if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition())
