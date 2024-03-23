@@ -343,6 +343,78 @@ void era_mutator_hooks::EvaluateCurveTableRow_Hook(UCurveTable* CurveTable, FNam
 {
     static FName SiphonRowName = FName(TEXT("Default.Siphon.Enabled"));
 
+    if (GetFortniteVersionEasy() >= 8.0)
+    {
+        static FName SiphonMatsRowName = FName(TEXT("Default.Siphon.GrantMatsOnKillEnabled"));
+        static FName SiphonWoodRowName = FName(TEXT("Default.Siphon.DropWoodOnKill"));
+        static FName SiphonStoneRowName = FName(TEXT("Default.Siphon.DropStoneOnKill"));
+        static FName SiphonMetalRowName = FName(TEXT("Default.Siphon.DropMetalOnKill"));
+        
+        if (RowName == SiphonMatsRowName)
+        {
+            if (era_mutators_component::IsActive("siphon_new"))
+            {
+                if (OutResult)
+                {
+                    *OutResult = 0;
+                }
+                if (OutXY)
+                {
+                    *OutXY = 1.0;
+                }
+
+                return;
+            }
+        }
+        if (RowName == SiphonWoodRowName)
+        {
+            if (era_mutators_component::IsActive("siphon_new"))
+            {
+                if (OutResult)
+                {
+                    *OutResult = 0;
+                }
+                if (OutXY)
+                {
+                    *OutXY = 50.0;
+                }
+
+                return;
+            }
+        }
+        if (RowName == SiphonStoneRowName)
+        {
+            if (era_mutators_component::IsActive("siphon_new"))
+            {
+                if (OutResult)
+                {
+                    *OutResult = 0;
+                }
+                if (OutXY)
+                {
+                    *OutXY = 50.0;
+                }
+
+                return;
+            }
+        }
+        if (RowName == SiphonMetalRowName)
+        {
+            if (era_mutators_component::IsActive("siphon_new"))
+            {
+                if (OutResult)
+                {
+                    *OutResult = 0;
+                }
+                if (OutXY)
+                {
+                    *OutXY = 50.0;
+                }
+
+                return;
+            }
+        }
+    }
     if (RowName == SiphonRowName)
     {
         if (era_mutators_component::IsActive("siphon_new"))
