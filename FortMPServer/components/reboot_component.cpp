@@ -236,6 +236,9 @@ void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Contro
 
         AddToAlivePlayerList((*GWorld)->AuthorityGameMode(), Controller);
 
+        // Restart shield to 0 in case player originally died from fall damage.
+        RespawnedPawn->SetShield(0);
+        
         auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
                 
         ProcessEvent(SpawnMachine,BP_OnPlayerPawnResurrected, &RespawnedPawn);
