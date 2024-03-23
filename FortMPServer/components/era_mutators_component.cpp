@@ -298,6 +298,10 @@ void era_mutators_component::InitializeHooks()
 
     REGISTER_FUNCTION_DETOUR(era_mutator_hooks::EvaluateCurveTableRow, memory_manager::find_pattern("4C 8B DC 49 89 5B 20 56 48 83 EC 70 45 33 C0 0F 29 74 24 ? 44 38 05 ? ? ? ? 48 8D 05 ? ? ? ? 49 8B F1 49 89 4B C8 49 0F 45 C0 49 89 53 D0 49 89 43 08 0F 28 F2 48 85 C9"), era_mutator_hooks::EvaluateCurveTableRow_Hook);
 
+    if (!era_mutator_hooks::EvaluateCurveTableRow)
+    {
+        REGISTER_FUNCTION_DETOUR(era_mutator_hooks::EvaluateCurveTableRow, memory_manager::find_pattern("40 53 48 83 EC 30 4C 8B 44 24 ? 49 8B D9 4C 8B 4C 24 ? 0F 28 CA 48 89 4C 24 ? 48 8D 4C 24 ? 48 89 54 24 ? E8 ? ? ? ? 84 C0 0F 94 C0 88 03 48 83 C4 30 5B C3"), era_mutator_hooks::EvaluateCurveTableRow_Hook);
+    }
     DetourTransactionCommit();
 }
 
@@ -346,9 +350,9 @@ void era_mutator_hooks::EvaluateCurveTableRow_Hook(UCurveTable* CurveTable, FNam
     if (GetFortniteVersionEasy() >= 8.0)
     {
         static FName SiphonMatsRowName = FName(TEXT("Default.Siphon.GrantMatsOnKillEnabled"));
-        static FName SiphonWoodRowName = FName(TEXT("Default.Siphon.DropWoodOnKill"));
-        static FName SiphonStoneRowName = FName(TEXT("Default.Siphon.DropStoneOnKill"));
-        static FName SiphonMetalRowName = FName(TEXT("Default.Siphon.DropMetalOnKill"));
+        static FName SiphonWoodRowName = FName(TEXT("Default.Siphon.GrantWoodOnKill"));
+        static FName SiphonStoneRowName = FName(TEXT("Default.Siphon.GrantStoneOnKill"));
+        static FName SiphonMetalRowName = FName(TEXT("Default.Siphon.GrantMetalOnKill"));
         
         if (RowName == SiphonMatsRowName)
         {
