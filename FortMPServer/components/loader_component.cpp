@@ -708,7 +708,7 @@ void loader_component::initialize_reboot_vans()
         SpawnMachine->ResurrectLocation() = FortPlayerStart;
     }
 
-    spdlog::info(L"Setup reboot vans!");
+    spdlog::info(L"initialize_reboot_vans: Successfully setup reboot vans!");
 }
 
 void loader_component::handle_duplicated_foundations()
@@ -1102,7 +1102,7 @@ void loader_component_hooks::GetCalendarEventInformation_Hook(UObject* WorldCont
         {
             spdlog::warn("loader_component_hooks::GetCalendarEventInformation_Hook: Called with event flag '{}'", Name.c_str());
         }
-        
+
         if (era_mutators_component::IsActive(Name))
         {
             if (bIsEventActive)

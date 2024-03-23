@@ -251,14 +251,14 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                                 }
                                 if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
                                 {
-                                    ObjectiveStat.CurrentStage() = -1;
+                                    ObjectiveStat.CurrentStage() = delta;
                                 }
                             
                                 break;
                             }
                         }
-
-                        if (bQuestAlreadyExists == false)
+                        
+                        if (bQuestAlreadyExists == false || GetFortniteVersionEasy() >= 8.0)
                         {
                             FFortUpdatedObjectiveStat* NewObjectiveStat = reinterpret_cast<FFortUpdatedObjectiveStat*>(alloca(FFortUpdatedObjectiveStat::GetStructSize()));
                             ZeroMemory(NewObjectiveStat, FFortUpdatedObjectiveStat::GetStructSize());
@@ -272,7 +272,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                             }
                             if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
                             {
-                                NewObjectiveStat->CurrentStage() = -1;
+                                NewObjectiveStat->CurrentStage() = delta;
                             }
 
                             if (assisted)
@@ -281,7 +281,9 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                                 {
                                     if (auto AssistedByPlayerState = AssistedByController->PlayerState())
                                     {
-                                        PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Assist(NewObjectiveStat, PlayerController->PlayerState(), AssistedByPlayerState);      
+                                        // TODO: Fix the crash on the assist function
+                                        PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Self(NewObjectiveStat);
+                                        //PlayerController->Cast<AFortPlayerControllerAthena>()->Client_DisplayQuestUpdate_Assist(NewObjectiveStat, PlayerController->PlayerState(), AssistedByPlayerState);      
                                     }
                                 }
                             }
