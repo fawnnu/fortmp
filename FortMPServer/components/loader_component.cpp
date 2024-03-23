@@ -471,7 +471,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             (*GWorld)->GameState()->GamePhase() = 2; // Warmup
         }
         
-        spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
+        spdlog::info(L"Match has started in world '{}' using playlist '{}' and listening for connections", (*GWorld)->GetName().c_str(), in_playlist->GetName().c_str());
     }
 }
 
