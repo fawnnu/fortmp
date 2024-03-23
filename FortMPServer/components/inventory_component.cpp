@@ -985,8 +985,11 @@ int inventory_component_hooks::K2_RemoveItemFromPlayer_Hook(AFortPlayerControlle
         {
             spdlog::info(L"inventory_component_hooks::K2_RemoveItemFromPlayer_Hook: Removing {} {} from inventory.", AmountToRemove, ItemToRemove->ItemEntry().ItemDefinition() ? ItemToRemove->ItemEntry().ItemDefinition()->GetName().c_str() : L"NULL");
         }
-        
-        inventory_component::remove_item(PlayerController, ItemToRemove->ItemEntry().ItemGuid(), AmountToRemove, false);
+
+        if (AmountToRemove != 0)
+        {
+            inventory_component::remove_item(PlayerController, ItemToRemove->ItemEntry().ItemGuid(), AmountToRemove, false);
+        }
     }
     
     return 1;
