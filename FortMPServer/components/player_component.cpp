@@ -3245,6 +3245,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
 
         // Set shield to 0 each time the player gets restarted
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"Player restarted, bIsSkydivingFromBus: {}", NewPlayer->Pawn()->bIsSkydivingFromBus());
+        }
+        
         if (NewPlayer->Pawn()->bIsSkydivingFromBus())
         {
             NewPlayer->Pawn()->SetShield(0);
