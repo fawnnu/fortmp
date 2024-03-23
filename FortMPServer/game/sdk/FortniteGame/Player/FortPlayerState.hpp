@@ -149,7 +149,7 @@ public:
         else
         {
             Pad->TeamsArray.Reset();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 103; i++)
                 Pad->TeamsArray.Add({});
 
             auto& TeamArray = Pad->TeamsArray[TeamIndex()];
@@ -170,7 +170,7 @@ public:
         else
         {
             Pad->SquadsArray.Reset();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 103; i++)
                 Pad->SquadsArray.Add({});
 
             auto& SquadArray = Pad->SquadsArray[SquadId()];
