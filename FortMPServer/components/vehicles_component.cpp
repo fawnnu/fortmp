@@ -380,16 +380,19 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                 // Get pawn at seat 1 (inside the cannon) and shoot it
                 AFortPlayerPawn* PawnToShoot = Vehicle->GetPawnAtSeat(1);
 
-                if (PawnToShoot)
+                if (PawnToShoot && !memory_manager::is_bad_read_pointer(PawnToShoot))
                 {
                     if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
                     {
                         AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
 
-                        PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
-                        PawnToShoot->ServerOnExitVehicle();
-                        PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
-                        PushCannon->MultiCastPushCannonLaunchedPlayer();
+                        if (PushCannon && !memory_manager::is_bad_read_pointer(PushCannon))
+                        {
+                            PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
+                            PawnToShoot->ServerOnExitVehicle();
+                            PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
+                            PushCannon->MultiCastPushCannonLaunchedPlayer();   
+                        }
                     }
                 }
             }
