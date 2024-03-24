@@ -7,6 +7,7 @@
 #include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "log_component.hpp"
+#include "looting_component.hpp"
 #include "player_component.hpp"
 
 inventory_component::inventory_component()
@@ -1038,7 +1039,7 @@ void inventory_component_hooks::GiveItemToInventoryOwner_Hook(TScriptInterface<U
             spdlog::info(L"inventory_component_hooks::GiveItemToInventoryOwner_Hook: adding {} {} to inventory.", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL");
         }
         
-        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive, looting_component::get_default_loaded_ammo(ItemDefinition), {}, false);
     }
 }
 
@@ -1076,7 +1077,7 @@ void inventory_component_hooks::K2_GiveItemToPlayer_Hook(AFortPlayerController* 
             spdlog::info(L"inventory_component_hooks::K2_GiveItemToPlayer_Hook: adding {} {} to inventory.", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL");
         }
         
-        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+        inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive, looting_component::get_default_loaded_ammo(ItemDefinition), {}, bNotifyPlayer);
     }
 }
 
@@ -1095,7 +1096,7 @@ void inventory_component_hooks::K2_GiveItemToAllPlayers_Hook(UObject* WorldConte
                         spdlog::info(L"inventory_component_hooks::K2_GiveItemToAllPlayers_Hook: Adding {} {} to inventory [{}].", NumberToGive, ItemDefinition ? ItemDefinition->GetName().c_str() : L"NULL", PlayerController->GetName().c_str());
                     }
         
-                    inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive);
+                    inventory_component::add_item(PlayerController, ItemDefinition, NumberToGive, looting_component::get_default_loaded_ammo(ItemDefinition), {}, bNotifyPlayer);
                 }
             }
         }
