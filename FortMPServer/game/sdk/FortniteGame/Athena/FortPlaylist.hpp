@@ -4,7 +4,8 @@ class UFortGameplayModifierItemDefinition : public UFortItemDefinition
 {
 public:
     DEFINE_PROPERTY(TArray<struct FFortGameplayEffectDeliveryInfo>, PersistentGameplayEffects);
-
+    DEFINE_PROPERTY(TArray<struct FFortAbilitySetDeliveryInfo>, PersistentAbilitySets);
+    
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameplayModifierItemDefinition")
 };
 

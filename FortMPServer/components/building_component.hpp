@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "../game/sdk/FortniteGame/Building/BuildingActor.hpp"
 
 class building_component
 {

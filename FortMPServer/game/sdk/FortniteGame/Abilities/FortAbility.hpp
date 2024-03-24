@@ -73,6 +73,14 @@ struct FFortGameplayEffectDeliveryInfo
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayEffectDeliveryInfo")
 };
 
+struct FFortAbilitySetDeliveryInfo
+{
+    DEFINE_STRUCT_PROPERTY(TArray<TSoftObjectPtr<UObject>>, AbilitySets);
+    DEFINE_STRUCT_PROPERTY(FFortDeliveryInfoRequirementsFilter,  DeliveryRequirements);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortAbilitySetDeliveryInfo")
+};
+
 struct FGameplayAbilityTargetDataHandle
 {
     uint8 UniqueId;
@@ -176,4 +184,10 @@ struct FGameplayCueParameters
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, Instigator);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, EffectCauser);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class AActor>, SourceObject);
+};
+
+class UFortGameplayAbilityAthena_PeriodicItemGrant : public UFortGameplayAbility
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameplayAbilityAthena_PeriodicItemGrant");
 };

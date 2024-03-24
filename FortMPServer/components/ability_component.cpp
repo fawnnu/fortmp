@@ -142,6 +142,26 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
                                             }
                                         }
                                     }
+
+                                    TArrayManager<FFortAbilitySetDeliveryInfo> PersistentAbilitySets = TArrayManager<FFortAbilitySetDeliveryInfo>(&ModifierItemDefinition->PersistentAbilitySets(), FFortAbilitySetDeliveryInfo::GetStructSize());
+                                    
+                                    for (FFortAbilitySetDeliveryInfo& PersistentAbilitySet : PersistentAbilitySets)
+                                    {
+                                        if (PersistentAbilitySet.DeliveryRequirements().bApplyToPlayerPawns() == true)
+                                        {
+                                            for (auto ability_set_soft : PersistentAbilitySet.AbilitySets())
+                                            {
+                                                if (auto ability_set = ability_set_soft.Get())
+                                                {
+                                                    apply_ability_set(PlayerPawn, ability_set);
+                                                    if (log_component::enable_debug_logs)
+                                                    {
+                                                        spdlog::info(L"ability_component::apply_playlist_modifiers: Applied ability set {} to player.", ability_set->GetName().c_str());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

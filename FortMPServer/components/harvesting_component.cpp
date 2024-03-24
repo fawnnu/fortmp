@@ -176,7 +176,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     if (ResourceItemDefinition)
                     {
                         // Give the resource to the player
-                        inventory_component::add_item(instigated_by, ResourceItemDefinition, Count, 0);
+                        inventory_component::add_item(instigated_by, ResourceItemDefinition, Count, 0, {}, false);
 
                         // update gathered materials
                         inventory_component::safe_update_materials_gathered(instigated_by, ResourceItemDefinition, Count);

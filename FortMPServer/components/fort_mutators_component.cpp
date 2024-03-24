@@ -1,6 +1,9 @@
 #include "include.hpp"
 #include "fort_mutators_component.hpp"
 
+#include "function_component.hpp"
+#include "inventory_component.hpp"
+
 fort_mutators_component::fort_mutators_component()
 {
     AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
@@ -24,7 +27,7 @@ fort_mutators_component::fort_mutators_component()
     		// Hook begin play for athena mutators
     		REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortAthenaMutator_Barrier>()->VTable, BeginPlayIndex, fort_mutators_component_hooks::AFortAthenaMutator_Barrier_BeginPlay);	
     	}
-
+    	
     	// Getaway mode re-implementation
         if (const AFortAthenaExitCraftSpawner* DefaultObject = CreateDefaultObject<AFortAthenaExitCraftSpawner>())
         {
@@ -56,8 +59,82 @@ fort_mutators_component::fort_mutators_component()
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-
+	REGISTER_UFUNCTION_DETOUR(fort_mutators_component_hooks::StartItemAwardTimers, L"/Script/FortniteGame.FortGameplayAbilityAthena_PeriodicItemGrant.StartItemAwardTimers", fort_mutators_component_hooks::StartItemAwardTimers_Hook);
     DetourTransactionCommit();
+
+	if (UFortGameplayAbilityAthena_PeriodicItemGrant::StaticClass())
+	{
+		REGISTER_CUSTOM_UFUNCTION(PeriodicWoodGrant, UFortGameplayAbilityAthena_PeriodicItemGrant::StaticClass())
+		REGISTER_CUSTOM_UFUNCTION(PeriodicMetalGrant, UFortGameplayAbilityAthena_PeriodicItemGrant::StaticClass())
+		REGISTER_CUSTOM_UFUNCTION(PeriodicStoneGrant, UFortGameplayAbilityAthena_PeriodicItemGrant::StaticClass())
+	}
+}
+
+void fort_mutators_component::PeriodicWoodGrant(UFortGameplayAbilityAthena_PeriodicItemGrant* Ability,
+ 	FFrame& StackFrame)
+ {
+	static UFortItemDefinition* WoodItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/WoodItemData.WoodItemData");
+ 	auto player_pawn = Ability->GetActivatingPawn();
+ 
+ 	if (player_pawn)
+ 	{
+ 		if (auto controller = player_pawn->Controller())
+ 		{
+ 			inventory_component::add_item(controller, WoodItemData, 1, 0, {}, false);
+ 		}
+ 	}
+ }
+
+void fort_mutators_component::PeriodicStoneGrant(UFortGameplayAbilityAthena_PeriodicItemGrant* Ability,
+	FFrame& StackFrame)
+{
+	static UFortItemDefinition* StoneItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/StoneItemData.StoneItemData");
+	auto player_pawn = Ability->GetActivatingPawn();
+ 
+	if (player_pawn)
+	{
+		if (auto controller = player_pawn->Controller())
+		{
+			inventory_component::add_item(controller, StoneItemData, 1, 0, {}, false);
+		}
+	}
+}
+
+void fort_mutators_component::PeriodicMetalGrant(UFortGameplayAbilityAthena_PeriodicItemGrant* Ability,
+	FFrame& StackFrame)
+{
+	static UFortItemDefinition* MetalItemData = FindObject<UFortItemDefinition>(L"/Game/Items/ResourcePickups/MetalItemData.MetalItemData");
+	auto player_pawn = Ability->GetActivatingPawn();
+ 
+	if (player_pawn)
+	{
+		if (auto controller = player_pawn->Controller())
+		{
+			inventory_component::add_item(controller, MetalItemData, 1, 0, {}, false);
+		}
+	}
+}
+
+void fort_mutators_component_hooks::StartItemAwardTimers_Hook(UFortGameplayAbilityAthena_PeriodicItemGrant* Ability, FFrame& StackFrame)
+{
+	StartItemAwardTimers(Ability, StackFrame);
+
+	/*static void* native_property = FindPropertyByName(Ability->Class, L"ItemsToGrant");
+	static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+	auto ItemsToGrant = *reinterpret_cast<UE::TMap<FActiveItemGrantInfo, FScalableFloat*>*>(__int64(Ability) + native_property_offset);
+
+	for (auto item_to_grant : ItemsToGrant)
+	{
+		if (item_to_grant.Key().Item())
+		{
+			UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicItemGrant", item_to_grant.Value()->GetValueAtLevel(0, nullptr), true);
+		}
+	}*/
+
+	// Temporary solution
+	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicWoodGrant", 1.0f, true);
+	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicStoneGrant", 1.5f, true);
+	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicMetalGrant", 2.0f, true);
 }
 
 // Food Fight Mode hooks

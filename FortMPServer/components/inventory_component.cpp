@@ -96,7 +96,7 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
     }   
 }
 
-UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo, std::vector<float> GenericAttributeValues)
+UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count, int loaded_ammo, std::vector<float> GenericAttributeValues, bool b_notify_player)
 {
     if (item_definition == nullptr)
     {
@@ -172,6 +172,22 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 // Update instance count
                 item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
                     item_count + item_instance->ItemEntry().Count() : MaxStackSize;
+                
+                for (int p = 0; p < replicated_entry.StateValues().Num(); p++)
+                {
+                    if (replicated_entry.StateValues()[p].StateType == 2)
+                    {
+                        replicated_entry.StateValues()[p].IntValue = b_notify_player;
+                    }
+                }
+
+                for (int p = 0; p < item_instance->ItemEntry().StateValues().Num(); p++)
+                {
+                    if (item_instance->ItemEntry().StateValues()[p].StateType == 2)
+                    {
+                        item_instance->ItemEntry().StateValues()[p].IntValue = b_notify_player;
+                    }
+                }
                 
                 // Mark for replication
                 player_controller->WorldInventory()->Inventory().MarkItemDirty(replicated_entry);
@@ -275,18 +291,21 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
 
+    static void* StateValues_property = FindPropertyByName(FFortItemEntry::GetClass(), L"StateValues");
+    
     // Add to state values
-    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), FFortItemEntryStateValue::GetStructSize());
+    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), sizeof(FFortItemEntryStateValue));
 
     // Make a new state value
-    FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(FFortItemEntryStateValue::GetStructSize()));
+    FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(sizeof(FFortItemEntryStateValue)));
 
     // Initialize the newly allocated memory
-    ZeroMemory(NewStateValue, FFortItemEntryStateValue::GetStructSize());
+    ZeroMemory(NewStateValue, sizeof(FFortItemEntryStateValue));
 
     // Initialize the properties
-    NewStateValue->IntValue() = 1;
-    NewStateValue->StateType() = 2;
+    NewStateValue->IntValue = b_notify_player;
+    NewStateValue->NameValue = FName();
+    NewStateValue->StateType = 2;
 
     // Add it to the StateValues
     StateValues.Add(NewStateValue);
