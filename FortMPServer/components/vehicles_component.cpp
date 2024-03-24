@@ -388,10 +388,13 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 
                         if (PushCannon && !memory_manager::is_bad_read_pointer(PushCannon))
                         {
-                            PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
-                            PawnToShoot->ServerOnExitVehicle();
-                            PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
-                            PushCannon->MultiCastPushCannonLaunchedPlayer();   
+                            if (LaunchDir.IsValid())
+                            {
+                                PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
+                                PawnToShoot->ServerOnExitVehicle();
+                                PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
+                                PushCannon->MultiCastPushCannonLaunchedPlayer();    
+                            }
                         }
                     }
                 }

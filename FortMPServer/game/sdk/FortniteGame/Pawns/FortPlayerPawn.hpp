@@ -435,14 +435,14 @@ public:
 class AFortAthenaSKPushCannon : public AFortAthenaVehicle
 {
 public:
-    void OnPreLaunchPawn(AFortPlayerPawn* Pawn, FVector LaunchDir)
+    void OnPreLaunchPawn(AFortPlayerPawn* Pawn, FVector& LaunchDir)
     {
         STATIC_FINDFUNCTION(OnPreLaunchPawn)
 
         Call(Function_OnPreLaunchPawn, Pawn, LaunchDir);
     }
     
-    void OnLaunchPawn(AFortPlayerPawn* Pawn, FVector LaunchDir)
+    void OnLaunchPawn(AFortPlayerPawn* Pawn, FVector& LaunchDir)
     {
         STATIC_FINDFUNCTION(OnLaunchPawn)
 

@@ -173,19 +173,19 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
                     item_count + item_instance->ItemEntry().Count() : MaxStackSize;
                 
-                for (int p = 0; p < replicated_entry.StateValues().Num(); p++)
+                for (int StateID = 0; StateID < replicated_entry.StateValues().Num(); StateID++)
                 {
-                    if (replicated_entry.StateValues()[p].StateType == 2)
+                    if (replicated_entry.StateValues()[StateID].StateType == 2)
                     {
-                        replicated_entry.StateValues()[p].IntValue = b_notify_player;
+                        replicated_entry.StateValues()[StateID].IntValue = b_notify_player;
                     }
                 }
 
-                for (int p = 0; p < item_instance->ItemEntry().StateValues().Num(); p++)
+                for (int StateID = 0; StateID < item_instance->ItemEntry().StateValues().Num(); StateID++)
                 {
-                    if (item_instance->ItemEntry().StateValues()[p].StateType == 2)
+                    if (item_instance->ItemEntry().StateValues()[StateID].StateType == 2)
                     {
-                        item_instance->ItemEntry().StateValues()[p].IntValue = b_notify_player;
+                        item_instance->ItemEntry().StateValues()[StateID].IntValue = b_notify_player;
                     }
                 }
                 
