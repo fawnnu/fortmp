@@ -783,6 +783,21 @@ void loader_component::handle_cl_specific_additions()
         era_mutators_component::Execute("halloween_bus", nullptr);
         era_mutators_component::Execute("no_cube", nullptr);
     }
+
+    // Hotfix for unwanted death barrier in tilted towers shop basement on 8.51.
+    if (GetCL() == 6165369)
+    {
+        TArray<AActor*> kill_volumes = UGameplayStatics::GetAllActorsOfClass((*GWorld), AKillZVolume::StaticClass());
+                            
+        for (auto kill_volume : kill_volumes)
+        {
+            if (kill_volume->GetName() == L"KillZVolume17_208")
+            {
+                spdlog::info(L"handle_cl_specific_additions: Destroying unwanted death barrier.");
+                kill_volume->K2_DestroyActor();
+            }
+        }
+    }
     
     // Load dynamic builder class
     if (GetCL() >= 4363240)

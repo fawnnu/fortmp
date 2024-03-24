@@ -1,5 +1,17 @@
 ﻿#pragma once
 
+class AVolume : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.Volume");
+};
+
+class AKillZVolume : public AVolume
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.KillZVolume");
+};
+
 class AFortVolume : public AActor
 {
 public:

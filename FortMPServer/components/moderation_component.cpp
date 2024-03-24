@@ -359,7 +359,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\ncheat infiniteammo (Enables infinite ammo for JUST you)\ncheat vanish\ncheat god <optional_playername>\ncheat launchplayer <optional_playername> (Launches the player with a height velocity of 15 000)\ncheat givewood <optional_playername>\ncheat givestone <optional_playername>\ncheat givemetal <optional_playername>\ncheat giveresources <optional_playername>\ncheat giveammo <optional_playername>\ncheat simulatebusjump <optional_playername> (Puts the player in the sky and begins skydiving mode)\ncheat spawnpickup <item wid> <item count>\ncheat changescale <scale> (Changes your scale)\ncheat loadsummon <actor full path> (Loads an actor and spawns it on the server)\ncheat spawnchest\ncheat badass <optional player name> (Gives you Save The World guns, infinite ammo, god)\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\ncheat infiniteammo (Enables infinite ammo for JUST you)\ncheat vanish\ncheat god <optional_playername>\ncheat launchplayer <optional_playername> (Launches the player with a height velocity of 15 000)\ncheat givewood <optional_playername>\ncheat givestone <optional_playername>\ncheat givemetal <optional_playername>\ncheat giveresources <optional_playername>\ncheat giveammo <optional_playername>\ncheat simulatebusjump <optional_playername> (Puts the player in the sky and begins skydiving mode)\ncheat spawnpickup <item wid> <item count>\ncheat changescale <scale> (Changes your scale)\ncheat loadsummon <actor full path> (Loads an actor and spawns it on the server)\ncheat spawnchest\ncheat badass <optional player name> (Gives you Save The World guns, infinite ammo, god)\ncheat givegoodweapons <optional player name> (Gives you some basic BR weapons)\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -1173,6 +1173,20 @@ void moderation_component::HandleBadassCommand(const TCHAR*& InStream,
     }
 }
 
+void moderation_component::HandleGiveGoodWeapons(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    for (auto player_controller : parse_command_target_players(InStream, ExecutingPlayerController))
+    {
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Assault_Auto_Athena_R_Ore_T03.WID_Assault_Auto_Athena_R_Ore_T03", true, false), 1, 30);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_C_Ore_T03.WID_Shotgun_Standard_Athena_C_Ore_T03", true, false), 1, 30);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Sniper_Heavy_Athena_SR_Ore_T03.WID_Sniper_Heavy_Athena_SR_Ore_T03", true, false), 1, 30);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03.WID_Pistol_AutoHeavySuppressed_Athena_R_Ore_T03", true, false), 1, 30);
+        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/WID_Launcher_Rocket_Athena_R_Ore_T03.WID_Launcher_Rocket_Athena_R_Ore_T03", true, false), 1, 30);
+        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
 void moderation_component::HandleGiveAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     for (auto player_controller : parse_command_target_players(InStream, ExecutingPlayerController))
@@ -1528,6 +1542,10 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             else if (FParse::Command(&Stream, TEXT("BADASS")))
             {
                 moderation_component::HandleBadassCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("GIVEGOODWEAPONS")))
+            {
+                moderation_component::HandleGiveGoodWeapons(Stream, Self);
             }
             else if (FParse::Command(&Stream, TEXT("GIVESTONE")))
             {

@@ -281,8 +281,9 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
                 {
                     if (DistanceXY > 15000)
                     {
-                        Self->ClientReturnToMainMenu(L"[AC] Cheat detected.");
-                        spdlog::warn(L"[DEBUG] Kicked player {} for travelling {} cm on the XY axis in the last second", Self->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+                        // Comment out for now due to false positives.
+                        //Self->ClientReturnToMainMenu(L"[AC] Cheat detected.");
+                        //spdlog::warn(L"[DEBUG] Kicked player {} for travelling {} cm on the XY axis in the last second", Self->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
                     }
                     
                     if (log_component::enable_debug_logs)

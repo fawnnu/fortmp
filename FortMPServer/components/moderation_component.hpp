@@ -60,6 +60,7 @@ public:
     static void HandleGiveMetalCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveResourcesCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleBadassCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleGiveGoodWeapons(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSimulateBusJumpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleSpawnPickupCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
