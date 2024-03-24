@@ -80,6 +80,13 @@ void fort_mutators_component::PeriodicWoodGrant(UFortGameplayAbilityAthena_Perio
  	{
  		if (auto controller = player_pawn->Controller())
  		{
+ 			if (auto inventory_item = inventory_component::get_inventory_item_by_definition(controller, WoodItemData))
+ 			{
+ 				if (inventory_item->Cast<UFortWorldItem>()->ItemEntry().Count() >= WoodItemData->GetMaxStackSize())
+ 				{
+ 					return;
+ 				}
+ 			}
  			inventory_component::add_item(controller, WoodItemData, 1, 0, {}, false);
  		}
  	}
@@ -95,6 +102,13 @@ void fort_mutators_component::PeriodicStoneGrant(UFortGameplayAbilityAthena_Peri
 	{
 		if (auto controller = player_pawn->Controller())
 		{
+			if (auto inventory_item = inventory_component::get_inventory_item_by_definition(controller, StoneItemData))
+			{
+				if (inventory_item->Cast<UFortWorldItem>()->ItemEntry().Count() >= StoneItemData->GetMaxStackSize())
+				{
+					return;
+				}
+			}
 			inventory_component::add_item(controller, StoneItemData, 1, 0, {}, false);
 		}
 	}
@@ -110,6 +124,13 @@ void fort_mutators_component::PeriodicMetalGrant(UFortGameplayAbilityAthena_Peri
 	{
 		if (auto controller = player_pawn->Controller())
 		{
+			if (auto inventory_item = inventory_component::get_inventory_item_by_definition(controller, MetalItemData))
+			{
+				if (inventory_item->Cast<UFortWorldItem>()->ItemEntry().Count() >= MetalItemData->GetMaxStackSize())
+				{
+					return;
+				}
+			}
 			inventory_component::add_item(controller, MetalItemData, 1, 0, {}, false);
 		}
 	}
