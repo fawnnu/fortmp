@@ -497,7 +497,7 @@ void loader_component::handle_unloaded_foundations()
                         {
                             // Enable the foundation (DynamicFoundationType is originally StartDisabled so we gotta set this)
                             UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bFoundationEnabled"), true);
-                            UKismetSystemLibrary::SetBoolPropertyByName(BuildingFoundation, TEXT("bServerStreamedInLevel"), true);
+
                             if (STATIC_HASPROPERTY(BuildingFoundation, FoundationEnabledState))
                             {
                                 BuildingFoundation->FoundationEnabledState() = 1;
@@ -506,7 +506,6 @@ void loader_component::handle_unloaded_foundations()
                             BuildingFoundation->DynamicFoundationType() = 1;
                             BuildingFoundation->OnRep_DynamicFoundationTransform();
                             BuildingFoundation->EnableReadyForPostUpdate();
-                            BuildingFoundation->OnRep_ServerStreamedInLevel();
                             
                             spdlog::warn(L"handle_unloaded_foundations: Enabling {} (As the game did not attempt loading it)", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
                             
