@@ -237,6 +237,8 @@ void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Contro
         }
         if (!RespawnedPawn) return;
 
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsInvulnerable", false);
+        
         Controller->PlayerState()->RebootCounter()++;
         Controller->PlayerState()->OnRep_RebootCounter();
 
@@ -244,6 +246,13 @@ void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Contro
 
         // Restart shield to 0 in case player originally died from fall damage.
         RespawnedPawn->SetShield(0);
+        RespawnedPawn->SetHealth(100);
+
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bPlayedDying", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsDBNO", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsHiddenForDeath", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsDying", false);
+        UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bWasDBNOOnDeath", false);
         
         auto BP_OnPlayerPawnResurrected = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnPlayerPawnResurrected");
                 

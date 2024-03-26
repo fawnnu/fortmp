@@ -39,6 +39,8 @@ patches_component::patches_component()
     
     // Prevent players from having no pawn
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 48 89 44 24 ? 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF"), patches_component_hook::SpawnActor_Pawn);
+    REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 4C 8B E8 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF E8 ? ? ? ? 49 8B 07 48 8B D6"), patches_component_hook::SpawnActor_Pawn);
+    
     REGISTER_FUNCTION_DETOUR(patches_component_hook::SpawnDefaultPawnAtTransform_Implementation, memory_manager::find_function_by_string(L"SpawnDefaultPawnAtTransform: Couldn't spawn Pawn of type %s at %s"), patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook);
     
     // Re-implement GC checks
@@ -668,6 +670,10 @@ APawn* patches_component_hook::SpawnActor_Pawn_Hook(UWorld* Self, UObject* Class
     {
         if (APawn* ReturnValue = SpawnActor_Pawn(Self, Class, Location, Rotation, Params))
         {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"Successfully spawned a player pawn.");
+            }
             return ReturnValue;
         }
 
