@@ -222,6 +222,11 @@ public:
     }
 };
 
+class AFortAthenaMutator_Fill : public AFortAthenaMutator
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaMutator_Fill");
+};
 class AFortAthenaMutator_Barrier : public AFortAthenaMutator
 {
 public:

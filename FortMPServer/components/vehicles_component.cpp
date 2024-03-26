@@ -370,13 +370,15 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
     // Get instigator
     AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Instigator());
 
-    if (Pawn)
+    if (Pawn && !memory_manager::is_bad_read_pointer(Pawn))
     {
         if (Pawn->IsInVehicle())
         {
             // Get vehicle
             if (AFortAthenaVehicle* Vehicle = Pawn->GetVehicle())
             {
+                if (memory_manager::is_bad_read_pointer(Vehicle)) return;
+                
                 // Get pawn at seat 1 (inside the cannon) and shoot it
                 AFortPlayerPawn* PawnToShoot = Vehicle->GetPawnAtSeat(1);
 

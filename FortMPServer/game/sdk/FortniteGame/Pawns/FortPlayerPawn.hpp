@@ -435,6 +435,8 @@ public:
 class AFortAthenaSKPushCannon : public AFortAthenaVehicle
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaSKPushCannon");
+    
     void OnPreLaunchPawn(AFortPlayerPawn* Pawn, FVector& LaunchDir)
     {
         STATIC_FINDFUNCTION(OnPreLaunchPawn)
@@ -455,6 +457,4 @@ public:
 
         Call(Function_MultiCastPushCannonLaunchedPlayer);
     }
-
-    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaSKPushCannon");
 };

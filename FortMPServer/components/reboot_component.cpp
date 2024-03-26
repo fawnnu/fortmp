@@ -218,6 +218,8 @@ bool reboot_component::should_spawn_reboot_card(AFortPlayerControllerAthena* pla
 
 void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Controller, FFrame& StackFrame)
 {
+    if (!Controller || memory_manager::is_bad_read_pointer(Controller)) return;
+    
     if (Controller->EraPlayerInfo().CurrentSpawnMachine &&
         Controller->PlayerState())
     {
@@ -228,7 +230,11 @@ void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Contro
         bool bRebootPlayersInAir = SpawnMachine->RebootPlayersInAir(); // ?
         Controller->RespawnPlayerAfterDeath(bRebootPlayersInAir);
 
-        auto RespawnedPawn = Controller->Pawn()->Cast<AFortPlayerPawnAthena>();
+        AFortPlayerPawnAthena* RespawnedPawn = nullptr;
+        if (Controller->Pawn() && !memory_manager::is_bad_read_pointer(Controller->Pawn()))
+        {
+            RespawnedPawn = Controller->Pawn()->Cast<AFortPlayerPawnAthena>();;
+        }
         if (!RespawnedPawn) return;
 
         Controller->PlayerState()->RebootCounter()++;

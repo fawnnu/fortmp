@@ -227,19 +227,23 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 spdlog::info(L"loader_component::start_match loaded {} cosmetic assets.", Assets.Num());
             }
         }
+        
         // Load every asset in /Game/Athena/Items/Quests
         {
             TArray<FAssetData> OutAssets;
             if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Quests"), OutAssets, true, false))
             {
-                TArrayManager Assets = OutAssets;
-                for (FAssetData& Asset : Assets)
+                if (OutAssets.Num() > 0)
                 {
-                    LoadObject(Asset.ObjectPath().c_str());
+                    TArrayManager Assets = OutAssets; // TODO: Figure out why this crashes sometimes with except access violation reading address 0x18
+                    for (FAssetData& Asset : Assets)
+                    {
+                        LoadObject(Asset.ObjectPath().c_str());
+                    }
+                    
+                    // Log
+                    spdlog::info(L"loader_component::start_match loaded {} quest assets.", Assets.Num());
                 }
-
-                // Log
-                spdlog::info(L"loader_component::start_match loaded {} quest assets.", Assets.Num());
             }
         }
         
@@ -856,6 +860,14 @@ void loader_component::OnMapInfoLoaded()
 
     for (auto vehicle : athena_vehicles)
     {
+        if (vehicle->Class->IsA(AFortAthenaSKPushCannon::StaticClass()))
+        {
+            if (era_mutators_component::IsActive("NoCannonVehicle"))
+            {
+                vehicle->K2_DestroyActor();
+                spdlog::info(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
+            }
+        }
         if (loader_component_hooks::ShouldSpawnVehicleInternal)
         {
             if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)

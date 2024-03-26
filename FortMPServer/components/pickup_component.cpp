@@ -263,11 +263,12 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     const float DistanceXY = sqrtf((PawnLoc.X - PickupLoc.X) * (PawnLoc.X - PickupLoc.X) +
             (PawnLoc.Y - PickupLoc.Y) * (PawnLoc.Y - PickupLoc.Y));
     
-    if (DistanceXY > 2500)
+    if (DistanceXY > 3000)
     {
-        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis.", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY);
+        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle());
         
-        PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));
+        // False positives
+        //PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));   
     }
     
     // Pick it up

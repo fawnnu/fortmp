@@ -333,18 +333,20 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     
                             if (Range > 0 && VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > Range)
                             {
-                                spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+                                spdlog::warn(L"Player '{}' eliminated an enemy with a too long range ( {} ). Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), Range);
 
-                                DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                // Commented out for now due to a lot of false positives
+                                //DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
                             }
 
                             if (Range <= 0)
                             {
                                 if (VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()) > 1000)
                                 {
-                                    spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance. Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str());
+                                    spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance ( {} ). Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()));
 
-                                    DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                    // Commented out for now due to a lot of false positives
+                                    //DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
                                 }
                             }
                         }

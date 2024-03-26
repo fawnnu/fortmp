@@ -153,9 +153,12 @@ void fort_mutators_component_hooks::StartItemAwardTimers_Hook(UFortGameplayAbili
 	}*/
 
 	// Temporary solution
-	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicWoodGrant", 1.0f, true);
-	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicStoneGrant", 1.5f, true);
-	UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicMetalGrant", 2.0f, true);
+	if (fort_mutators_component::get_mutator_of_class(AFortAthenaMutator_Fill::StaticClass()))
+	{
+		UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicWoodGrant", 1.0f, true);
+		UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicStoneGrant", 1.5f, true);
+		UKismetSystemLibrary::K2_SetTimer(Ability, L"PeriodicMetalGrant", 2.0f, true);	
+	}
 }
 
 // Food Fight Mode hooks

@@ -23,6 +23,10 @@ era_mutators_component::era_mutators_component()
     {
     });
 
+    new era_mutator("NoCannonVehicle", [](LPVOID)
+    {
+    });
+    
     new era_mutator("NoVending", [](LPVOID)
     {
         TArray<AB_Athena_VendingMachine_C*> vending_machine_actors = UGameplayStatics::GetAllActorsOfClass<AB_Athena_VendingMachine_C>(*GWorld, FindObject(L"B_Athena_VendingMachine_C", false, true));
