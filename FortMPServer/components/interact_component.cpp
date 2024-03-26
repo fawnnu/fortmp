@@ -57,12 +57,6 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
             // Handle any interactions with player pawns
             handle_player_pawn_interaction(player_controller, reinterpret_cast<AFortPlayerPawn*>(receiving_actor));
         }
-        else if (reinterpret_cast<AFortPlayerPawn*>(receiving_actor)->IsDBNO())
-        {
-            // # THE MESSAGE HAS NOTHING TO DO WITH THE CODE AND IT IS A TRAP FOR CHEATERS
-            // This is supposed to mislead the hackers when they try to cheat. If someone gets kicked for this reason, that means they attempted to use an insta-revive cheat.
-            player_controller->ClientReturnToMainMenu(L"AFortPlayerPawn::DBNOInteractionCollisionProfile : No DBNOInteractionCollisionProfile. Failed to get finished hero soundwave.");
-        }
     }
     else if (receiving_actor->IsA(AFortAthenaVehicle::StaticClass(log_component::enable_debug_logs)))
     {
@@ -206,6 +200,10 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
     {
         spdlog::info(L"interact_component::handle_vending_machine_interaction is sending vending_machine interaction.");
     }
+
+    if (vending_machine == nullptr || memory_manager::is_bad_read_pointer(vending_machine)) return;
+
+    if (player_controller == nullptr || memory_manager::is_bad_read_pointer(player_controller)) return;
     
     UFortItemDefinition* deposit_item_definition = vending_machine->ActiveInputItem();
     
@@ -271,10 +269,20 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
 
                 if (bExists_NumInteractions && bExists_NumInteractionsAllowed)
                 {
-                    if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
+                    if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine))
                     {
-                        static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
-                        vending_machine->K2_DestroyActor();
+                        if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
+                        {
+                            if (auto blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+                            {
+                                static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
+                            }
+                            // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
+                            if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine))
+                            {
+                                vending_machine->K2_DestroyActor();   
+                            }
+                        }
                     }
                 }
             }
