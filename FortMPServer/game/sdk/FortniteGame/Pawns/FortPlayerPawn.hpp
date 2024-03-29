@@ -227,14 +227,14 @@ public:
 
         if (Function_ServerOnExitVehicle)
         {
-            static bool bExists_ExitForceBehavior = FindPropertyByName(Function_ServerOnExitVehicle, L"ExitForceBehavior") != nullptr;
-            UEnum* ETryExitVehicleBehavior = FindObject<UEnum>(L"/Script/FortniteGame.ETryExitVehicleBehavior");
-
-            if (bExists_ExitForceBehavior && ETryExitVehicleBehavior)
-            {
-                return Call<AFortAthenaVehicle*>(Function_ServerOnExitVehicle, ETryExitVehicleBehavior->GetEnumIndex(L"ForceAlways"));
-            }
-            else
+            //static bool bExists_ExitForceBehavior = FindPropertyByName(Function_ServerOnExitVehicle, L"ExitForceBehavior") != nullptr;
+            //UEnum* ETryExitVehicleBehavior = FindObject<UEnum>(L"/Script/FortniteGame.ETryExitVehicleBehavior");
+//
+            //if (bExists_ExitForceBehavior && ETryExitVehicleBehavior)
+            //{
+            //    return Call<AFortAthenaVehicle*>(Function_ServerOnExitVehicle, ETryExitVehicleBehavior->GetEnumIndex(L"ForceAlways"));
+            //}
+            //else
             {
                 return Call<AFortAthenaVehicle*>(Function_ServerOnExitVehicle);
             }

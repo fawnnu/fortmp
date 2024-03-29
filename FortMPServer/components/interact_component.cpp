@@ -6,6 +6,7 @@
 #include "log_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
+#include "replication_component.hpp"
 #include "reviving_component.hpp"
 #include "vehicles_component.hpp"
 
@@ -201,7 +202,7 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
         spdlog::info(L"interact_component::handle_vending_machine_interaction is sending vending_machine interaction.");
     }
 
-    if (vending_machine == nullptr || memory_manager::is_bad_read_pointer(vending_machine)) return;
+    if (vending_machine == nullptr || memory_manager::is_bad_read_pointer(vending_machine, false)) return;
 
     if (player_controller == nullptr || memory_manager::is_bad_read_pointer(player_controller)) return;
     
@@ -269,18 +270,21 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
 
                 if (bExists_NumInteractions && bExists_NumInteractionsAllowed)
                 {
-                    if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine))
+                    if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine, false))
                     {
-                        if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
+                        if (IsPendingKillPending && !IsPendingKillPending(vending_machine))
                         {
-                            if (auto blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+                            if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
                             {
-                                static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
-                            }
-                            // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
-                            if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine))
-                            {
-                                vending_machine->K2_DestroyActor();   
+                                if (auto blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+                                {
+                                    static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
+                                }
+                                // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
+                                if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine, false))
+                                {
+                                    vending_machine->K2_DestroyActor();   
+                                }
                             }
                         }
                     }
