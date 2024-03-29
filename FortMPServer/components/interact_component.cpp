@@ -2,6 +2,7 @@
 #include "interact_component.hpp"
 
 #include "challenges_component.hpp"
+#include "function_component.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
@@ -35,6 +36,8 @@ interact_component::interact_component()
     }
     
     DetourTransactionCommit();
+    
+    REGISTER_CUSTOM_UFUNCTION(DespenseOutputItems, ABuildingItemCollectorActor::StaticClass())
 }
 
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type)
@@ -234,23 +237,6 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                         }
                     }
                 }
-                
-                // Now spawn all the item entries
-                auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
-
-                for (FFortItemEntry& item_entry : OutputItemEntries)
-                {
-                    FVector LootSpawnLocation = vending_machine->K2_GetActorLocation();
-                    LootSpawnLocation.Z += vending_machine->LootSpawnLocation().Z; // Change the Z axis not to have the pickup stuck in the floor
-                    
-                    AFortPickup* new_pickup = pickup_component::spawn_pickup(item_entry.ItemDefinition(), LootSpawnLocation, item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()), false);
-
-                    if (new_pickup)
-                    {
-                        // Custom directional tossing
-                        pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
-                    }
-                }
 
                 // If a new pickup has been spawned, charge the player with the price
                 if (GetFortniteVersionEasy() < 7.0)
@@ -276,15 +262,7 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                         {
                             if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
                             {
-                                if (auto blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
-                                {
-                                    static_cast<AB_Athena_VendingMachine_C*>(vending_machine)->DoVendDeath();
-                                }
-                                // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
-                                if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine, false))
-                                {
-                                    vending_machine->K2_DestroyActor();   
-                                }
+                                UKismetSystemLibrary::K2_SetTimer(vending_machine, L"DespenseOutputItems", vending_machine->DespensingDelayTime(), false);
                             }
                         }
                     }
@@ -573,6 +551,51 @@ void interact_component::handle_fireworks_interaction(AFortPlayerController* pla
     {
         // Send interaction event
         challenges_component::SendCustomEventWithObjective(player_controller, "interaction:firework", firework->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vending_machine, FFrame& StackFrame)
+{
+    // Another safety check just in case anything has changed during the dispense delay.
+    if (IsPendingKillPending(vending_machine)) return;
+    
+    UFortItemDefinition* deposit_item_definition = vending_machine->ActiveInputItem();
+    
+    // now get the item collection that takes the current deposit item
+    auto ItemCollections = TArrayManager<FCollectorUnitInfo>(&vending_machine->ItemCollections(), FCollectorUnitInfo::GetStructSize());
+
+    for (int i = 0; i < ItemCollections.Num(); i++)
+    {
+        if (ItemCollections[i].InputItem() == deposit_item_definition)
+        {
+            // Now spawn all the item entries
+            auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
+
+            for (FFortItemEntry& item_entry : OutputItemEntries)
+            {
+                FVector LootSpawnLocation = vending_machine->K2_GetActorLocation();
+                LootSpawnLocation.Z += vending_machine->LootSpawnLocation().Z; // Change the Z axis not to have the pickup stuck in the floor
+                    
+                AFortPickup* new_pickup = pickup_component::spawn_pickup(item_entry.ItemDefinition(), LootSpawnLocation, item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()), false);
+
+                if (new_pickup)
+                {
+                    // Custom directional tossing
+                    pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
+                }
+            }
+
+            if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+            {
+                 blueprint_vending_machine->DoVendDeath();
+            }
+            
+            // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
+            if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine, false))
+            {
+                vending_machine->K2_DestroyActor();   
+            }
+        }
     }
 }
 

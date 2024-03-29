@@ -52,8 +52,10 @@ public:
     static void HandleToggleKeepInventoryCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleReviveCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleToggleInfiniteAmmoCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandleTeleportAllCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleVanishCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
+    static void HandlePOITeleportCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleLaunchPlayerCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveWoodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);
     static void HandleGiveStoneCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController);

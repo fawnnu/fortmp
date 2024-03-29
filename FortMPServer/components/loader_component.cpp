@@ -315,9 +315,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Handle foundations
         handle_unloaded_foundations();
-        
-        // initialize vending machines
-        initialize_vending_machines();
 
         // initialize BGAs
         initialize_bga();
@@ -865,7 +862,11 @@ void loader_component::OnMapInfoLoaded()
             if (era_mutators_component::IsActive("NoCannonVehicle"))
             {
                 vehicle->K2_DestroyActor();
-                spdlog::info(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
+                }
             }
         }
         if (loader_component_hooks::ShouldSpawnVehicleInternal)
@@ -876,6 +877,9 @@ void loader_component::OnMapInfoLoaded()
             }   
         }
     }
+
+    // initialize vending machines
+    initialize_vending_machines();
     
     // Mark world as ready
     UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);

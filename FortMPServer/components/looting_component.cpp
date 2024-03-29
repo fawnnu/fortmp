@@ -324,28 +324,59 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
 
     // Now pick a random row to get a random Tier
     int picked_tier = 0;
-
+    AFortAthenaMapInfo* MapInfo = (*GWorld)->GameState()->MapInfo();
+    if (MapInfo)
     {
-        float max_weight = 0.f;
-
-        for (FName row : Loot_AthenaVendings)
+        if (MapInfo->HasProperty(L"VendingMachineRarityCount"))
         {
-            max_weight += loot_tier_data_map[row]->Weight();
-        }
-
-        // Random weight
-        float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
-
-        for (FName row : Loot_AthenaVendings)
-        {
-            if (random_weight < loot_tier_data_map[row]->Weight())
+            std::vector<float> rarity_weights;
+            float max_weight = 0;
+            for (int i = 1; i < 5; i++)
             {
-                picked_tier = loot_tier_data_map[row]->LootTier();
-            
-                break;
+                rarity_weights.push_back(MapInfo->VendingMachineRarityCount().GetValueAtLevel(i, nullptr));
+                max_weight += MapInfo->VendingMachineRarityCount().GetValueAtLevel(i, nullptr);
             }
+            
+            float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
 
-            random_weight -= loot_tier_data_map[row]->Weight();
+            // TODO: make this less scuffed
+           if (random_weight < rarity_weights[0]) {
+                picked_tier = 0;
+            } else if (random_weight < rarity_weights[0] + rarity_weights[1]) {
+                picked_tier = 1;
+            } else if (random_weight < rarity_weights[0] + rarity_weights[1] + rarity_weights[2]) {
+                picked_tier = 2;
+            } else if (random_weight < rarity_weights[0] + rarity_weights[1] + rarity_weights[2] + rarity_weights[3]) {
+                picked_tier = 3;
+            } else {
+                picked_tier = 4;
+            }
+        }
+        else
+        {
+            {
+                float max_weight = 0.f;
+
+                for (FName row : Loot_AthenaVendings)
+                {
+                    max_weight += loot_tier_data_map[row]->Weight();
+                }
+
+                // Random weight
+                float random_weight = UKismetMathLibrary::RandomFloatInRange(0.f, max_weight);
+
+                for (FName row : Loot_AthenaVendings)
+                {
+                    if (random_weight < loot_tier_data_map[row]->Weight())
+                    {
+                        picked_tier = loot_tier_data_map[row]->LootTier();
+            
+                        break;
+                    }
+
+                    random_weight -= loot_tier_data_map[row]->Weight();
+                }
+            }
         }
     }
 

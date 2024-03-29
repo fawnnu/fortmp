@@ -170,7 +170,7 @@ public:
     DEFINE_PROPERTY(FRotator, LootTossDirection);
     DEFINE_PROPERTY(float, LootTossConeHalfAngle);
     DEFINE_PROPERTY(float, LootTossSpeed);
-
+    DEFINE_PROPERTY(float, DespensingDelayTime);
     DEFINE_PROPERTY(int, NumInteractionsAllowed);
     DEFINE_PROPERTY(int, NumInteractions);
 

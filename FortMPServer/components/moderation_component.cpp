@@ -359,7 +359,7 @@ void moderation_component::HandleKickPlayerCommand(const TCHAR*& InStream, AFort
 void moderation_component::HandleHelpCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     // Log everything to the player's console
-    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\ncheat infiniteammo (Enables infinite ammo for JUST you)\ncheat vanish\ncheat god <optional_playername>\ncheat launchplayer <optional_playername> (Launches the player with a height velocity of 15 000)\ncheat givewood <optional_playername>\ncheat givestone <optional_playername>\ncheat givemetal <optional_playername>\ncheat giveresources <optional_playername>\ncheat giveammo <optional_playername>\ncheat simulatebusjump <optional_playername> (Puts the player in the sky and begins skydiving mode)\ncheat spawnpickup <item wid> <item count>\ncheat changescale <scale> (Changes your scale)\ncheat loadsummon <actor full path> (Loads an actor and spawns it on the server)\ncheat spawnchest\ncheat badass <optional player name> (Gives you Save The World guns, infinite ammo, god)\ncheat givegoodweapons <optional player name> (Gives you some basic BR weapons)\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
+    ExecutingPlayerController->ClientMessage(TEXT("--- COMMAND HELP LIST ---\ncheat ban <player name> (IP ban)\ncheat unban <banned player name>\ncheat kickplayer <player name> <optional kick reason> (Kicks a player with an optional reason)\ncheat banlist (displays all the usernames of banned people)\ncheat setwarmupduration <duration in seconds> (Sets the warmup duration, effective after a server restart)\ncheat listplayers (displays all the players in the match, dead and alive)\ncheat startmatch (Starts the bus countdown)\ncheat restartserver (Restarts the server)\ncheat resetserver (Performs a full server restart)\ncheat saferesetserver (Performs a full server restart whenever the match ends)\ncheat setservername <server name> (Sets a server name to be shown on the status website)\ncheat setserverpassword <serverpassword> (Sets a server's matchmaking key, needs restart to apply)\ncheat op <player> (Gives access to admin commands to a given player)\ncheat deop <player> (Revokes access to admin commands, doesn't work on players who are logged in as admins)\ncheat fly (Toggles fly)\ncheat setspeed <optional speed multiplier> (Changes the player speed, if no parameter is passed, speed will be set to default)\ncheat giveitem <playername> <item wid> <item count> (Gives an item to a player, if the inventory is full, spawns a pickup)\ncheat wipeinventory <playername> (Removes all primary quickbar items from inventory of a specified player)\ncheat setplaylist <playlist> (Updates the playlist, effective on restart)\ncheat toggleserverchoosepart (enable/disable scp)\ncheat kill <playername> (Kills a player)\ncheat togglekeepinventory (Only makes sense for modes with respawning, disables item drops on death)\ncheat revive <playername> (Revives a player)\ncheat infiniteammo (Enables infinite ammo for JUST you)\ncheat vanish\ncheat god <optional_playername>\ncheat launchplayer <optional_playername> (Launches the player with a height velocity of 15 000)\ncheat givewood <optional_playername>\ncheat givestone <optional_playername>\ncheat givemetal <optional_playername>\ncheat giveresources <optional_playername>\ncheat giveammo <optional_playername>\ncheat simulatebusjump <optional_playername> (Puts the player in the sky and begins skydiving mode)\ncheat spawnpickup <item wid> <item count>\ncheat changescale <scale> (Changes your scale)\ncheat loadsummon <actor full path> (Loads an actor and spawns it on the server)\ncheat spawnchest\ncheat badass <optional player name> (Gives you Save The World guns, infinite ammo, god)\ncheat givegoodweapons <optional player name> (Gives you some basic BR weapons)\ncheat tpall (Teleports all players to you)\nNOTE: command arguments have to be passed with \" \" if they have a space!\nExample: cheat kickplayer Owner \"Hacker, DM for appeal\""));
 }
 
 void moderation_component::HandleStartMatchCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
@@ -1051,6 +1051,22 @@ void moderation_component::HandleToggleInfiniteAmmoCommand(const TCHAR*& InStrea
     ExecutingPlayerController->ClientMessage(TEXT("Infinite ammo toggled."));
 }
 
+void moderation_component::HandleTeleportAllCommand(const TCHAR*& InStream,
+    AFortPlayerController* ExecutingPlayerController)
+{
+    for (auto connection : (*GWorld)->NetDriver()->ClientConnections())
+    {
+        if (connection != ExecutingPlayerController->NetConnection())
+        {
+            if (ExecutingPlayerController->Pawn())
+            {
+                connection->PlayerController()->Pawn()->K2_TeleportTo(ExecutingPlayerController->Pawn()->K2_GetActorLocation() + FVector(0, 0, 500), FRotator());
+                ExecutingPlayerController->ClientMessage(TEXT("Teleporting all players to you."));
+            }
+        }
+    }
+}
+
 void moderation_component::HandleVanishCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     UKismetSystemLibrary::SetBoolPropertyByName(ExecutingPlayerController->Pawn(), L"bHidden", !ExecutingPlayerController->Pawn()->bHidden());
@@ -1064,6 +1080,42 @@ void moderation_component::HandleGodCommand(const TCHAR*& InStream, AFortPlayerC
     {
         UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", !player_controller->Pawn()->bIsInvulnerable());
         ExecutingPlayerController->ClientMessage(TEXT("Success."));
+    }
+}
+
+void moderation_component::HandlePOITeleportCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
+{
+    FString InPOIName;
+    if (!FParse::Token(InStream, InPOIName, 0))
+    {
+        InPOIName = L"None";
+    }
+    
+    TArray<AFortPlayerController*> pcs = parse_command_target_players(InStream, ExecutingPlayerController);
+
+    if (InPOIName != L"None")
+    {
+        for (auto player_controller :  pcs)
+        {
+            FVector final_loc = FVector(0,0,10000);
+            // TODO: add other pois
+            if (InPOIName == L"tilted")
+            {
+                final_loc = FVector(38012, -56655, 5000);
+            }
+            else if (InPOIName == L"salty")
+            {
+                final_loc = FVector(4307, -9733, 5000);
+            }
+            else if (InPOIName == L"retail")
+            {
+                final_loc = FVector(24500, 41152, 5000);
+            }
+
+            player_controller->Pawn()->K2_TeleportTo(final_loc, FRotator());
+            player_controller->Pawn()->BeginSkydiving(false);
+            ExecutingPlayerController->ClientMessage(TEXT("Success."));      
+        }   
     }
 }
 
@@ -1523,9 +1575,17 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
             {
                 moderation_component::HandleVanishCommand(Stream, Self);
             }
+            else if (FParse::Command(&Stream, TEXT("TPALL")))
+            {
+                moderation_component::HandleTeleportAllCommand(Stream, Self);
+            }
             else if (FParse::Command(&Stream, TEXT("GOD")))
             {
                 moderation_component::HandleGodCommand(Stream, Self);
+            }
+            else if (FParse::Command(&Stream, TEXT("POITP")))
+            {
+                moderation_component::HandlePOITeleportCommand(Stream, Self);
             }
             else if (FParse::Command(&Stream, TEXT("LAUNCHPLAYER")))
             {

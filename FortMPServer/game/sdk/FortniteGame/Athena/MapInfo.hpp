@@ -61,5 +61,6 @@ public:
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMinSpawnPercent);
     DEFINE_PROPERTY(FScalableFloat, AmmoBoxMaxSpawnPercent);
 
+    DEFINE_PROPERTY(FScalableFloat, VendingMachineRarityCount);
     DEFINE_PROPERTY(FScalableFloat, SafeZoneStartDelay);
 };
