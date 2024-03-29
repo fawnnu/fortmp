@@ -595,6 +595,7 @@ void renderer::CreateNewWindow()
                         
                                 ImGui::Text("Health: %i/100", (int)SelectedConnection->PlayerController()->Pawn()->GetHealth());
                                 ImGui::Text("Shield: %i/100", (int)SelectedConnection->PlayerController()->Pawn()->GetShield());
+                                
                                 ImGui::Text("bIsInvulnerable: %s", SelectedConnection->PlayerController()->Pawn()->bIsInvulnerable() ? "true" : "false");
 
                                 ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, .5f), "Utilities");
@@ -617,6 +618,18 @@ void renderer::CreateNewWindow()
                                 {
                                     // Force suicide upon this player
                                     SelectedConnection->PlayerController()->ServerSuicide();
+                                }
+
+                                                                
+                                if (ImGui::Button("Teleport all to player"))
+                                {
+                                    for (auto connection : (*GWorld)->NetDriver()->ClientConnections())
+                                    {
+                                        if (connection != SelectedConnection)
+                                        {
+                                            connection->PlayerController()->Pawn()->K2_TeleportTo(SelectedConnection->PlayerController()->Pawn()->K2_GetActorLocation() + FVector(0, 0, 500), FRotator());
+                                        }
+                                    }
                                 }
 
                                 if (ImGui::Button("Kick"))

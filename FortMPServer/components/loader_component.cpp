@@ -860,7 +860,7 @@ void loader_component::OnMapInfoLoaded()
 
     for (auto vehicle : athena_vehicles)
     {
-        if (vehicle->Class->IsA(AFortAthenaSKPushCannon::StaticClass()))
+        if (vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
         {
             if (era_mutators_component::IsActive("NoCannonVehicle"))
             {
