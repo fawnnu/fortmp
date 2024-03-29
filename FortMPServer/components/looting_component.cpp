@@ -439,7 +439,16 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
                     {
                         auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
 
-                        OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(possible_world_list->Count(), 1))->ItemEntry());   
+                        int Count = possible_world_list->Count();
+                        if (i < CurrentLoot->LootPackageCategoryMinArray().Num())
+                        {
+                            if (int Min = CurrentLoot->LootPackageCategoryMinArray()[i]; Min > 0)
+                            {
+                                Count *= Min;
+                            }
+                        }
+
+                        OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(Count, 1))->ItemEntry());   
                     
                         break;
                     }
@@ -484,8 +493,17 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
                             if (random_weight < possible_world_list->Weight())
                             {
                                 auto OutputItemEntries = TArrayManager<FFortItemEntry>(&ItemCollections[i].OutputItemEntry(), FFortItemEntry::GetStructSize());
-                        
-                                OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(possible_world_list->Count(), 1))->ItemEntry());   
+
+                                int Count = possible_world_list->Count();
+                                if (i < CurrentLoot->LootPackageCategoryMinArray().Num())
+                                {
+                                    if (int Min = CurrentLoot->LootPackageCategoryMinArray()[i]; Min > 0)
+                                    {
+                                        Count *= Min;
+                                    }
+                                }
+                                
+                                OutputItemEntries.Add(&static_cast<UFortWorldItem*>(possible_world_list->ItemDefinition().Get()->CreateTemporaryItemInstanceBP(Count, 1))->ItemEntry());   
                                                     
                                 break;
                             }
