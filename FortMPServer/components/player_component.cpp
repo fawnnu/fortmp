@@ -156,6 +156,7 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(TrickPointsCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
 }
 
 void player_component_hooks::HandleStartingNewPlayer_Hook(AGameModeBase* Self, FFrame& StackFrame)
@@ -1352,6 +1353,30 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
     }
 }
 
+void player_component::CannonBallDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    CHECK_CREATIVE()
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "cannon_ball"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage = 0;
+        }
+    }
+}
+
 // This function is called whenever we have to process any kind of debounced damage
 void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser)
 {
@@ -1545,6 +1570,13 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
             UKismetSystemLibrary::K2_ClearTimer(Self, L"C4BuildingDamageCallback");
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"C4BuildingDamageCallback", 1.0, false);
+        break;
+    case EDamageCauser::CannonBall:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"CannonBallDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"CannonBallDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"CannonBallDamageCallback", 1.0, false);
         break;
     default:
         break;
@@ -3531,6 +3563,12 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.GrenadeDamage += Damage;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Grenade);
+            }
+            else if (DamageCauser->IsA(AB_Prj_Athena_ShipCannon_C::StaticClass()))
+            {
+                FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
+                Value.CannonBallDamage += Damage;
+                player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::CannonBall);
             }
         }
 

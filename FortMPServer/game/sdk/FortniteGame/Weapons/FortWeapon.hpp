@@ -185,3 +185,9 @@ class AB_Prj_Athena_StickyGrenade_C : public AFortProjectileBase
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/Consumables/StickyGrenade/B_Prj_Athena_StickyGrenade.B_Prj_Athena_StickyGrenade_C")
 };
+
+class AB_Prj_Athena_ShipCannon_C : public AFortProjectileBase
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Weapons/Vehicles/B_Prj_Athena_ShipCannon.B_Prj_Athena_ShipCannon_C")
+};

@@ -29,7 +29,8 @@ enum class EDamageCauser : uint8_t
     Pickaxe,
     Headshot,
     Jewel,
-    C4
+    C4,
+    CannonBall
 };
 
 struct FSpecialDamageDealt
@@ -78,6 +79,7 @@ struct FDamageDealtMapValue
     int SupplyDropBalloon;
     int HeadshotDamage;
     int PickaxeDamage;
+    int CannonBallDamage;
     FSpecialDamageDealt SpecialDamage;
 };
 
@@ -203,7 +205,8 @@ public:
     static void HeadshotDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void C4BuildingDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
-
+    static void CannonBallDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    
     static void HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser);
 
     // Debounced buildings tracking
