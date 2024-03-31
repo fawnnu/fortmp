@@ -38,6 +38,8 @@ struct FHitResult
 class USceneComponent : public UActorComponent
 {
 public:
+    DEFINE_PROPERTY(USceneComponent*, AttachParent);
+    DEFINE_PROPERTY(TArray<USceneComponent*>, AttachChildren);
     FVector K2_GetComponentLocation()
     {
         STATIC_FINDFUNCTION(K2_GetComponentLocation)

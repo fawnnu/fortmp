@@ -140,6 +140,8 @@ public:
     DEFINE_PROPERTY(int, MaxResourcesToSpawn);
     DEFINE_PROPERTY(int, CurrentBuildingLevel);
     DEFINE_PROPERTY(TArray<ABuildingSMActor*>, AttachedBuildingActors);
+    DEFINE_PROPERTY(TArray<ABuildingSMActor*>, BuildingActorsAttachedTo);
+    DEFINE_PROPERTY(ABuildingSMActor*, DamagerOwner);
     
     void SetMirrored(bool bMirrored)
     {

@@ -35,12 +35,24 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
     {
         if (building_actor->IsA(AFortAthenaSupplyDropBalloon::StaticClass()))
         {
-            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon += damage;
-            if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"SupplyDropDamageCallback"))
+            if (auto root_component = building_actor->RootComponent())
             {
-                UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"SupplyDropDamageCallback");
+                if (auto attach_parent = root_component->AttachParent())
+                {
+                    if (AAthenaSupplyDrop_C* supply_drop = attach_parent->GetOwner()->Cast<AAthenaSupplyDrop_C>())
+                    {
+                        if (supply_drop->K2_GetActorLocation().Z - supply_drop->GroundLocation().Z > 100)
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon += damage;
+                            if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"SupplyDropDamageCallback"))
+                            {
+                                UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"SupplyDropDamageCallback");
+                            }
+                            UKismetSystemLibrary::K2_SetTimer(instigated_by, L"SupplyDropDamageCallback", 5.0, false);   
+                        }
+                    }
+                }
             }
-            UKismetSystemLibrary::K2_SetTimer(instigated_by, L"SupplyDropDamageCallback", 5.0, false);
         }
         else if (building_actor->IsA(ABuildingSMActor::StaticClass()))
         {
