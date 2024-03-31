@@ -93,6 +93,7 @@ struct TArray
 	}
 
 	void Free();
+	std::wstring ToString();
     
 	// Pointer to array data
 	T* Data;

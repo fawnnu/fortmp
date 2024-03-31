@@ -42,6 +42,7 @@ public:
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);
     static void SendGrenadeHitInteraction(AFortPlayerControllerAthena* InteractingPlayerController,std::string type);
     static void SendPlaceEvent(AFortPlayerController* InteractingPlayerController, std::string Type);
+    static void SendHealInteraction(AFortPlayerControllerAthena* InteractingPlayerController, std::string source, int count);
     
     static void HandleSummaryReply(std::string Channel, nlohmann::json Payload);
 
