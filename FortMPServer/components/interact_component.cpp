@@ -584,12 +584,14 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
                     pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
                 }
             }
-
-            if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
-            {
-                 blueprint_vending_machine->DoVendDeath();
-            }
         }
+    }
+
+    if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+    {
+        blueprint_vending_machine->VendSuccess() = true;
+        blueprint_vending_machine->DoVendDeath();
+        blueprint_vending_machine->K2_DestroyActor();
     }
 }
 

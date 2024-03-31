@@ -367,41 +367,43 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 {
     GET_PARAMETER(FVector, LaunchDir);
 
-    // Get instigator
-    AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Instigator());
-
-    if (Pawn && !memory_manager::is_bad_read_pointer(Pawn, false))
+    if (Weapon->Instigator()->IsA(AFortPlayerPawn::StaticClass()))
     {
-        if (Pawn->IsInVehicle())
-        {
-            // Get vehicle
-            if (AFortAthenaVehicle* Vehicle = Pawn->GetVehicle())
-            {
-                if (memory_manager::is_bad_read_pointer(Vehicle, false)) return;
+        // Get instigator
+       AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Instigator());
+
+       if (Pawn && !memory_manager::is_bad_read_pointer(Pawn, false))
+       {
+           if (Pawn->IsInVehicle())
+           {
+               // Get vehicle
+               if (AFortAthenaVehicle* Vehicle = Pawn->GetVehicle())
+               {
+                   if (memory_manager::is_bad_read_pointer(Vehicle, false)) return;
                 
-                // Get pawn at seat 1 (inside the cannon) and shoot it
-                AFortPlayerPawn* PawnToShoot = Vehicle->GetPawnAtSeat(1);
+                   // Get pawn at seat 1 (inside the cannon) and shoot it
+                   AFortPlayerPawn* PawnToShoot = Vehicle->GetPawnAtSeat(1);
 
-                if (PawnToShoot && !memory_manager::is_bad_read_pointer(PawnToShoot, false))
-                {
-                    if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
-                    {
-                        AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
+                   if (PawnToShoot && !memory_manager::is_bad_read_pointer(PawnToShoot, false))
+                   {
+                       if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
+                       {
+                           AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
 
-                        if (PushCannon && !memory_manager::is_bad_read_pointer(PushCannon, false))
-                        {
-                            if (LaunchDir.IsValid())
-                            {
-                                PushCannon->OnPreLaunchPawn(PawnToShoot, LaunchDir);
-                                PawnToShoot->ServerOnExitVehicle();
-                                PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
-                                PushCannon->MultiCastPushCannonLaunchedPlayer();    
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                           if (PushCannon && !memory_manager::is_bad_read_pointer(PushCannon, false))
+                           {
+                               if (LaunchDir.IsValid())
+                               {
+                                   PawnToShoot->ServerOnExitVehicle();
+                                   PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
+                                   PushCannon->MultiCastPushCannonLaunchedPlayer();
+                               }
+                           }
+                       }
+                   }
+               }
+           }
+       }   
     }
 
     return ServerFireActorInCannon(Weapon, StackFrame);

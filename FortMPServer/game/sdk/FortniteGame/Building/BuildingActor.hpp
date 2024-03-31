@@ -195,6 +195,7 @@ class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor
 {
 public:
     DEFINE_PROPERTY(uint8_t, OverrideVendingMachineRarity);
+    DEFINE_PROPERTY(bool, VendSuccess);
     
     void SetRarityColors(FColor Color)
     {
