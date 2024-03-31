@@ -146,6 +146,7 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(LMGDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(EnemyStructureDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(EnemyVehicleDamageCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(SupplyDropDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(PickaxeDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(HeadshotDamageCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(JewelDamageCallback, AFortPlayerController::StaticClass());
@@ -1192,6 +1193,31 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
+        }
+    }
+}
+
+void player_component::SupplyDropDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (Self && Self->Pawn())
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json payload =
+            {
+                {"weapon", "supply_drop_balloon"},
+                {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon}
+            };
+
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon = 0;
         }
     }
 }

@@ -13,6 +13,12 @@ public:
     }
 };
 
+class AFortAthenaSupplyDropBalloon : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaSupplyDropBalloon");
+};
+
 class AAthenaSupplyDrop_Llama_C : public AFortAthenaSupplyDrop
 {
 public:

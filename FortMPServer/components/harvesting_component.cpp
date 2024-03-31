@@ -33,7 +33,16 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
 {
     if (building_actor != nullptr)
     {
-        if (building_actor->IsA(ABuildingSMActor::StaticClass()))
+        if (building_actor->IsA(AFortAthenaSupplyDropBalloon::StaticClass()))
+        {
+            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon += damage;
+            if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"SupplyDropDamageCallback"))
+            {
+                UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"SupplyDropDamageCallback");
+            }
+            UKismetSystemLibrary::K2_SetTimer(instigated_by, L"SupplyDropDamageCallback", 5.0, false);
+        }
+        else if (building_actor->IsA(ABuildingSMActor::StaticClass()))
         {
             // Track damage inflicted to building actors
             static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
