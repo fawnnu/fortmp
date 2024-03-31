@@ -419,6 +419,9 @@ void interact_component::handle_apple_interaction(AFortPlayerController* player_
     
     // Send interaction event
     challenges_component::SendCustomEvent(player_controller, "interaction:apple");
+
+    // Send heal event
+    challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(player_controller), "apple", player_controller->Pawn()->GetHealth() + 5 > 100 ? 100 - player_controller->Pawn()->GetHealth() : 5);
 }
 
 void interact_component::handle_mushroom_interaction(AFortPlayerController* player_controller, ACBGA_ShieldsSmall_C* mushroom)

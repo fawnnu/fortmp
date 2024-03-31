@@ -840,6 +840,33 @@ void challenges_component::SendPlaceEvent(AFortPlayerController* InteractingPlay
     }
 }
 
+void challenges_component::SendHealInteraction(AFortPlayerControllerAthena* Self, std::string source, int count)
+{
+    CHECK_CREATIVE()
+    
+        if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+        {
+            std::string account_id = player_component::get_account_id(Self);
+
+            if (account_id.size() > 0)
+            {
+                nlohmann::json parameters{
+                    {"x", Self->Pawn()->K2_GetActorLocation().X},
+                    {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                    {"source", source},
+                    {"count", count}
+                };
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info("challenges_component::SendHealInteraction is sending heal for {} ({})", source, count);
+                }
+
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:heal", parameters);
+            }
+        }
+}
+
 void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition)
 {
     CHECK_PAST_WARMUP()

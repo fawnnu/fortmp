@@ -1179,6 +1179,10 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     {
                         challenges_component::SendCustomEvent(PlayerController, "interaction:snowman");
                     }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/Medkit/Athena_Medkit.Athena_Medkit"))
+                    {
+                        challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(PlayerController), "medkit", PlayerController->Pawn()->GetHealth() + 100 > 100 ? 100 - PlayerController->Pawn()->GetHealth() : 100);
+                    }
                     else // Check if it's a building resource
                     {
                         inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);

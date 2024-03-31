@@ -309,6 +309,18 @@ void TArray<FGameplayTag>::Free()
     Data = nullptr;
 }
 
+std::wstring TArray<FGameplayTag>::ToString()
+{
+    std::wstring Result;
+
+    for (FGameplayTag Tag : *this)
+    {
+        Result.append(Tag.TagName.c_str()).append(L" ");
+    }
+
+    return Result;
+}
+
 void TArray<FMcpVariantChannelInfo>::Free()
 {
     Count = 0;
