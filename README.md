@@ -31,7 +31,7 @@ Made with :heart: by
 Custom Mutators
 ------
 > [!NOTE]\
-> FortMP features a few mutators, that being:
+> FortMP features a few mutators, those being:
 
  - "rocket" - Allows the rocket event to be started through backend
  - "cube" - Allows the backend to control cube movement
@@ -43,7 +43,7 @@ Custom Mutators
 Custom Cheat Commands 
 ------
 > [!NOTE]\
-> Following commands can be used on the gameserver if you have admin permissions:
+> The following commands can be used on the gameserver if you have admin permissions:
 
 - cheat ban <player name> (IP ban)
 - cheat unban <banned player name>
