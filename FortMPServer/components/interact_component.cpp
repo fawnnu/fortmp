@@ -589,12 +589,6 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
             {
                  blueprint_vending_machine->DoVendDeath();
             }
-            
-            // Sometimes the vending_machine pointer might be already invalid after DoVendDeath
-            if (vending_machine && !memory_manager::is_bad_read_pointer(vending_machine, false))
-            {
-                vending_machine->K2_DestroyActor();   
-            }
         }
     }
 }
