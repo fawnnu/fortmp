@@ -30,8 +30,8 @@ Made with :heart: by
 
 Custom Mutators
 ------
-
-FortMP features a few mutators, that being:
+> [!NOTE]\
+> FortMP features a few mutators, that being:
 
  - "rocket" - Allows the rocket event to be started through backend
  - "cube" - Allows the backend to control cube movement
@@ -39,6 +39,11 @@ FortMP features a few mutators, that being:
  - "birthday_bus" - Changes the bus cosmetic to birthday bus (only works on the birthday version)
  - "winter_bus" - Changes the bus cosmetic to winter bus (only works on the winter version)
  - "siphon" - Enables the siphon mode on kill
+
+Custom Cheat Commands 
+------
+> [!NOTE]\
+> Following commands can be used on the gameserver if you have admin permissions:
 
 - cheat ban <player name> (IP ban)
 - cheat unban <banned player name>
@@ -79,10 +84,9 @@ FortMP features a few mutators, that being:
 - cheat spawnchest
 - cheat badass <optional player name>
 - cheat givegoodweapons <optional player name>
-- cheat tpall
-- NOTE: command arguments have to be passed with " " if they have a space!
-- Example: cheat kickplayer Owner "Hacker, DM for appeal"
+- cheat tpall <optional player name> (teleports all players to you)
+- cheat poitp (supported POIs: "tilted", "salty", "retail)
 
-> [!NOTE]\
+> [!WARNING]\
 > Command arguments have to be passed with " " if they have a space!
 > Example: cheat kickplayer Owner "Hacker, DM for appeal"
