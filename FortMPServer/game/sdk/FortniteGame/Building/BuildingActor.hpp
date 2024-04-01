@@ -404,11 +404,20 @@ class AFortPhysicsBall : public ABuildingActor
 class AB_PlayerSpawnedBall_C : public AFortPhysicsBall
 {
 public:
+    DEFINE_PROPERTY(AFortPlayerPawn*, OwningPawn);
+    
     void InitializeToyInstance(AFortPlayerController* player_controller, int NumTimesSummoned)
     {
         STATIC_FINDFUNCTION(InitializeToyInstance)
 
         Call(Function_InitializeToyInstance, player_controller, NumTimesSummoned);
+    }
+
+    void StartToyFadeOutDueToNewPlacement()
+    {
+        STATIC_FINDFUNCTION(StartToyFadeOutDueToNewPlacement)
+
+        Call(Function_StartToyFadeOutDueToNewPlacement);
     }
 };
 

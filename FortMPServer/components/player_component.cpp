@@ -220,9 +220,25 @@ AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* Pla
     
     if (PlayerController && !memory_manager::is_bad_read_pointer(PlayerController))
     {
-        AB_PlayerSpawnedBall_C* toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, PlayerController->PlayerState()));
-    
-        return toy_instance;   
+        AB_PlayerSpawnedBall_C* new_toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, PlayerController->PlayerState()));
+        new_toy_instance->SetOwner(PlayerController->Pawn());
+
+        auto active_toy_instances = TArrayManager<AActor*>(&PlayerController->ActiveToyInstances(), sizeof(AActor*));
+        static void* active_toy_instances_property = FindPropertyByName(PlayerController->Class, L"ActiveToyInstances");
+        
+        for (auto instance : PlayerController->ActiveToyInstances())
+        {
+            if (auto player_spawned_ball = instance->Cast<AB_PlayerSpawnedBall_C>())
+            {
+                if (!memory_manager::is_bad_read_pointer(player_spawned_ball))
+                {
+                    player_spawned_ball->StartToyFadeOutDueToNewPlacement();   
+                }
+            }
+        }
+        active_toy_instances.Clear(active_toy_instances_property);
+        PlayerController->ActiveToyInstances().Add(new_toy_instance);
+        return new_toy_instance;   
     } 
     
     return nullptr;
