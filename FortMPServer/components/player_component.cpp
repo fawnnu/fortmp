@@ -80,6 +80,30 @@ player_component::player_component()
             memory_manager::call_hook(target_addr, reinterpret_cast<uintptr_t>(player_component_hooks::PopAnimBPOverride_Hook));
         }
     }
+
+    AFortPlayerController* Default__FortPlayerController = FindObject<AFortPlayerController>(L"/Script/FortniteGame.Default__FortPlayerController");
+
+    if (const uintptr_t BeginPlayAddress = memory_manager::find_function_by_string(L"MusicManager class default object is null as FortPlayerController::BeginPlay is called"))
+    {
+        int BeginPlayIndex = 0;
+    
+        for (int i = 0; i < INT_MAX; i++)
+        {
+            if (Default__FortPlayerController->VTable[i] == reinterpret_cast<LPVOID>(BeginPlayAddress))
+            {
+                BeginPlayIndex = i;
+            
+                break;
+            }
+        }
+
+        // Hook begin play for the classes we need
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+    }
+    else
+    {
+        spdlog::error(L"Failed to hook AFortSprayDecalInstance::BeginPlay. Invalid BeginPlayAddress");
+    }
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
@@ -157,6 +181,26 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
+}
+
+void player_component_hooks::AFortSprayDecalInstance_BeginPlay_Hook(AFortSprayDecalInstance* Target)
+{
+    AFortSprayDecalInstance_BeginPlay(Target);
+    if (auto blueprint_decal = Target->Cast<ABP_SprayDecal_C>())
+    {
+        if (auto spawning_controller = blueprint_decal->SpawningPlayerController())
+        {
+            auto spray_instances = TArrayManager<AActor*>(&spawning_controller->ActiveSprayInstances(), sizeof(AActor*));
+            static void* active_spray_instances_property = FindPropertyByName(spawning_controller->Class, L"ActiveSprayInstances");
+
+            spawning_controller->ActiveSprayInstances().Add(Target);
+            if (spawning_controller->ActiveSprayInstances().Num() > 3)
+            {
+                spawning_controller->ActiveSprayInstances()[0]->Cast<ABP_SprayDecal_C>()->StartSprayFadeOutDueToNewPlacement();
+                spray_instances.Remove(0, active_spray_instances_property);
+            }
+        }
+    }
 }
 
 void player_component_hooks::HandleStartingNewPlayer_Hook(AGameModeBase* Self, FFrame& StackFrame)

@@ -456,6 +456,13 @@ public:
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
     DEFINE_PROPERTY(bool, bDelayedTeleporting);
 
+    void PlayWinEffects()
+    {
+        STATIC_FINDFUNCTION(PlayWinEffects)
+
+        Call(Function_PlayWinEffects);
+    }
+    
     void RespawnTurnCameraBackOn()
     {
         STATIC_FINDFUNCTION(RespawnTurnCameraBackOn)

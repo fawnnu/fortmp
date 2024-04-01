@@ -594,7 +594,7 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
     {
         blueprint_vending_machine->VendSuccess() = true;
         blueprint_vending_machine->DoVendDeath();
-        blueprint_vending_machine->K2_DestroyActor();
+        UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"K2_DestroyActor", 0.2f, false);
     }
 }
 

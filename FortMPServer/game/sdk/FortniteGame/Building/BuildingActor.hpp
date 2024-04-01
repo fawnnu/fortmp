@@ -123,6 +123,20 @@ public:
         
         Call(Function_SetTeam, TeamIndex);
     }
+
+    AController* GetOwningController()
+    {
+        STATIC_FINDFUNCTION(GetOwningController)
+
+        return Call<AController*>(Function_GetOwningController);
+    }
+
+    AFortPlayerState* GetOwningPlayerState()
+    {
+        STATIC_FINDFUNCTION(GetOwningPlayerState)
+
+        return Call<AFortPlayerState*>(Function_GetOwningPlayerState);
+    }
 };
 
 class ABuildingSMActor : public ABuildingActor
@@ -503,4 +517,25 @@ public:
     DEFINE_CLASS(L"/Game/fortmp/content_simple/athena/quests/Prop_FMP_GooseEgg_Interactable.Prop_FMP_GooseEgg_Interactable_C");
 
     DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+};
+
+class AFortSprayDecalInstance : public ABuildingSMActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortSprayDecalInstance")
+
+    void StartSprayFadeOutDueToNewPlacement()
+    {
+        STATIC_FINDFUNCTION(StartSprayFadeOutDueToNewPlacement)
+
+        Call(Function_StartSprayFadeOutDueToNewPlacement);
+    }
+};
+
+class ABP_SprayDecal_C : public AFortSprayDecalInstance
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Cosmetics/Sprays/BP_SprayDecal.BP_SprayDecal_C")
+
+    DEFINE_PROPERTY(AFortPlayerController*, SpawningPlayerController);
 };
