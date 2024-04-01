@@ -3,6 +3,7 @@
 
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 
 building_component::building_component()
@@ -23,6 +24,34 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
+bool building_component::is_building_actor_location_supported(ABuildingSMActor* building_to_check)
+{
+    // Loop thru the available building actors and check if there's any building actor at the same location with the same building type.
+    TArray<ABuildingSMActor*> building_sm_actors = UGameplayStatics::GetAllActorsOfClass<ABuildingSMActor>((*GWorld), ABuildingSMActor::StaticClass());
+                                
+    for (auto building : building_sm_actors)
+    {
+        if (building != building_to_check)
+        {
+            // Check if the building actors are player placed
+            if (building_to_check->AttributeInitLevelSource() == 1 && building->AttributeInitLevelSource() == 1)
+            {
+                if (building_to_check->K2_GetActorLocation() == building->K2_GetActorLocation())
+                {
+                    if (building->BuildingType() == building_to_check->BuildingType())
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::error(L"[ERROR] Building is not structurally supported");
+                        }
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
 bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
 {
     if (is_building_class_valid(building_class))
@@ -42,6 +71,11 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                             return false;
                         }
                     }
+                }
+                // Check if the actor can be placed
+                if (is_building_actor_location_supported(BuildingActorToTest) == false)
+                {
+                    return false;
                 }
             }
         }

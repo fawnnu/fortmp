@@ -99,12 +99,27 @@ struct FAdditionalLevelStreamed
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AdditionalLevelStreamed");
 };
 
+class UBuildingStructuralSupportSystem : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.BuildingStructuralSupportSystem");
+
+    bool IsBuildingActorStructurallySupported(class ABuildingSMActor* ActorToCheck)
+    {
+        STATIC_FINDFUNCTION(IsBuildingActorStructurallySupported)
+
+        return Call<bool>(Function_IsBuildingActorStructurallySupported, ActorToCheck);
+    }
+};
+
 class AFortGameState : public AGameState
 {
 public:
     DEFINE_PROPERTY(TArray<AFortTeamInfo*>, Teams);
     DEFINE_PROPERTY(TArray<char>, AdditionalPlaylistLevelsStreamed);
 
+    DEFINE_PROPERTY(UBuildingStructuralSupportSystem*, StructuralSupportSystem);
+    
     DEFINE_PROPERTY(AFortCreativePortalManager*, CreativePortalManager);
     
     void OnRep_AdditionalPlaylistLevelsStreamed()

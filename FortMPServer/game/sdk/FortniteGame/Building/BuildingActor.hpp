@@ -139,6 +139,23 @@ public:
     }
 };
 
+enum class EFortBuildingType : uint8_t
+{
+    Wall                           = 0,
+    Floor                          = 1,
+    Corner                         = 2,
+    Deco                           = 3,
+    Prop                           = 4,
+    Stairs                         = 5,
+    Roof                           = 6,
+    Pillar                         = 7,
+    SpawnedItem                    = 8,
+    Container                      = 9,
+    Trap                           = 10,
+    GenericCenterCellActor         = 11,
+    None                           = 12
+};
+
 class ABuildingSMActor : public ABuildingActor
 {
 public:
@@ -150,6 +167,7 @@ public:
     DEFINE_PROPERTY(struct FCurveTableRowHandle, BuildingResourceAmountOverride);
     
     DEFINE_PROPERTY(uint8_t, ResourceType);
+    DEFINE_PROPERTY(EFortBuildingType, BuildingType)
     
     DEFINE_PROPERTY(int, MaxResourcesToSpawn);
     DEFINE_PROPERTY(int, CurrentBuildingLevel);
