@@ -191,3 +191,17 @@ class UFortGameplayAbilityAthena_PeriodicItemGrant : public UFortGameplayAbility
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGameplayAbilityAthena_PeriodicItemGrant");
 };
+
+class UFortAttributeSet : public UObject
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAttributeSet");
+};
+
+class UFortGliderPackSet : public UFortAttributeSet
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGliderPackSet");
+
+    DEFINE_PROPERTY(FGameplayAttributeData, CurrentCharges);
+};

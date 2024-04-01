@@ -13,6 +13,7 @@ public:
     static UFortItem* get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid);
     static UFortItem* get_inventory_item_by_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
     static UFortItem* get_inventory_item_by_deco_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition);
+    static UFortItem* get_gadget_item_by_attribute_set_class(AFortPlayerController* player_controller, UObject* attribute_set);
     static UFortWorldItem* get_pickaxe(AFortPlayerController* player_controller);
     static void safe_update_materials_gathered(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count);
     static void safe_update_materials_used(AFortPlayerController* player_controller, UFortItemDefinition* item_definition, int item_count);

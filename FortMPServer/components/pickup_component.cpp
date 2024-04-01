@@ -471,7 +471,7 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     GenericAttributeValues.push_back(Value);
                 }
             }
-        
+            
             UFortWorldItem* spawned_item = inventory_component::add_item(PlayerController, Pickup->PrimaryPickupItemEntry().ItemDefinition(), Pickup->PrimaryPickupItemEntry().Count(), Pickup->PrimaryPickupItemEntry().LoadedAmmo(), GenericAttributeValues);
 
             // Send pickup interaction
@@ -484,6 +484,15 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                     UFortItemDefinition* SwapItemDefinition = PickupTarget->CurrentWeapon()->WeaponData();
                     FGuid SwapItemGuid = PickupTarget->CurrentWeapon()->ItemEntryGuid();
                     bool bShouldFocusOnSwappedItem = true;
+
+                    // Find GadgetItem from deco definition
+                    if (PickupTarget->CurrentWeapon()->WeaponData()->IsA(UFortDecoItemDefinition::StaticClass()))
+                    {
+                        if (UFortItem* Gadget = inventory_component::get_inventory_item_by_deco_definition(PlayerController, PlayerController->Pawn()->CurrentWeapon()->WeaponData()))
+                        {
+                            SwapItemDefinition = static_cast<UFortWorldItem*>(Gadget)->ItemEntry().ItemDefinition();
+                        }
+                    }
             
                     if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
                         inventory_component::has_item_type(PlayerController, SwapItemDefinition))

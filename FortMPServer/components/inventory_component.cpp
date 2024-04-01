@@ -173,7 +173,8 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 // Update instance count
                 item_instance->ItemEntry().Count() = item_count + item_instance->ItemEntry().Count() <= MaxStackSize ?
                     item_count + item_instance->ItemEntry().Count() : MaxStackSize;
-                
+
+                // Update state values for item toast
                 for (int StateID = 0; StateID < replicated_entry.StateValues().Num(); StateID++)
                 {
                     if (replicated_entry.StateValues()[StateID].StateType == 2)
@@ -544,6 +545,30 @@ UFortItem* inventory_component::get_inventory_item_by_definition(AFortPlayerCont
     return nullptr;    
 }
 
+UFortItem* inventory_component::get_gadget_item_by_attribute_set_class(AFortPlayerController* player_controller, UObject* attribute_set_class)
+{
+    for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
+    {
+        if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition()->IsA(UFortGadgetItemDefinition::StaticClass()))
+        {
+            if (STATIC_HASPROPERTY(static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition(), TrackedAttributes))
+            {
+                TArrayManager<FGameplayAttribute> TrackedAttributes = TArrayManager<FGameplayAttribute>(&static_cast<UFortGadgetItemDefinition*>(static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemDefinition())->TrackedAttributes(), FGameplayAttribute::GetStructSize());
+                    
+                for (FGameplayAttribute& TrackedAttribute : TrackedAttributes)
+                {
+                    if (TrackedAttribute.AttributeOwner() == attribute_set_class)
+                    {
+                        return ItemInstance;
+                    }
+                }
+            }
+        }
+    }
+    
+    return nullptr;    
+}
+
 UFortItem* inventory_component::get_inventory_item_by_deco_definition(AFortPlayerController* player_controller, UFortItemDefinition* item_definition)
 {
     for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
@@ -629,6 +654,15 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
     
     if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
     {
+        // Don't try to equip the same currently equipped item always when the quickbar slot is being spammed
+        if (AFortWeapon* current_weapon = PlayerController->Pawn()->CurrentWeapon())
+        {
+            if (current_weapon->ItemEntryGuid() == ItemGuid)
+            {
+                return;
+            }
+        }
+        
         PlayerController->Pawn()->PickUpActor(nullptr, reinterpret_cast<UFortDecoItemDefinition*>(static_cast<UFortGadgetItemDefinition*>(item_definition)->GetDecoItemDefinition()));
 
         if (PlayerController->Pawn()->CurrentWeapon())
