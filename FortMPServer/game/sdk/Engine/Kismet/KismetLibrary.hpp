@@ -244,6 +244,17 @@ public:
 class UKismetMathLibrary : public UObject
 {
 public:
+
+    static int32 FFloor(float A)
+    {
+        // Static function to use default object
+        static UObject* Default__KismetMathLibrary = FindObject(L"/Script/Engine.Default__KismetMathLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.KismetMathLibrary.FFloor")
+        
+        return Default__KismetMathLibrary->Call<int32>(FunctionObject, A);
+    }
+    
     static FVector Conv_RotatorToVector(FRotator InRotator)
     {
         // Static function to use default object

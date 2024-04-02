@@ -75,6 +75,13 @@ public:
             Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController, true) : Call(Function_InitializeKismetSpawnedBuildingActor, BuildingOwner, SpawningController);
     }
 
+    void SilentDie()
+    {
+        STATIC_FINDFUNCTION(SilentDie)
+
+        Call(Function_SilentDie);
+    }
+    
     void OnRep_Team()
     {
         STATIC_FINDFUNCTION(OnRep_Team)

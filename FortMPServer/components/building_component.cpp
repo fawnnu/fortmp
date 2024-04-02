@@ -24,6 +24,20 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
+bool building_component::is_building_in_grid(ABuildingSMActor* building_to_check)
+{
+    static int XYAxisGrid = 512;
+    static int ZAxisGrid = 384;
+    float divided_x_loc = (building_to_check->K2_GetActorLocation().X / XYAxisGrid) / 0.5f;
+    float divided_y_loc = (building_to_check->K2_GetActorLocation().Y / XYAxisGrid) / 0.5f;
+    float divided_z_loc = building_to_check->K2_GetActorLocation().Z / ZAxisGrid;
+    
+    if (UKismetMathLibrary::FFloor(divided_z_loc) == divided_z_loc && UKismetMathLibrary::FFloor(divided_x_loc) == divided_x_loc && UKismetMathLibrary::FFloor(divided_y_loc) == divided_y_loc)
+    {
+        return true;   
+    }
+    return false;
+}
 bool building_component::is_building_actor_location_supported(ABuildingSMActor* building_to_check)
 {
     // Loop thru the available building actors and check if there's any building actor at the same location with the same building type.
@@ -72,11 +86,6 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                         }
                     }
                 }
-                // Check if the actor can be placed
-                if (is_building_actor_location_supported(BuildingActorToTest) == false)
-                {
-                    return false;
-                }
             }
         }
         
@@ -98,7 +107,15 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
             
         // Spawn a building actor in the world
         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
-
+        
+        // Check if the actor can be placed
+        if (is_building_actor_location_supported(building_actor) == false || is_building_in_grid(building_actor) == false)
+        {
+            spdlog::error(L"spawn_building_actor: Calling SilentDie. Unsupported location or building not in grid");
+            building_actor->SilentDie();
+            return false;
+        }
+        
         // Set out param, if any
         if (OutBuildingActor)
         {

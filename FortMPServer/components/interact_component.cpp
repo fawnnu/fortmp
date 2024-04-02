@@ -262,9 +262,11 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                         {
                             if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
                             {
-                                vending_machine->Cast<AB_Athena_VendingMachine_C>()->VendSuccess() = true;
-                                vending_machine->Cast<AB_Athena_VendingMachine_C>()->MaxItemsToSpawnCached() = 2;
-                                UKismetSystemLibrary::K2_SetTimer(vending_machine, L"DespenseOutputItems", vending_machine->DespensingDelayTime(), false);
+                                if (auto blueprint_vending_machine = vending_machine->Cast<AB_Athena_VendingMachine_C>())
+                                {
+                                    UKismetSystemLibrary::SetBoolPropertyByName(blueprint_vending_machine, L"bCurrentInteractionSuccess", true);
+                                    UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"DespenseOutputItems", blueprint_vending_machine->DespensingDelayTime(), false);
+                                }
                             }
                         }
                     }

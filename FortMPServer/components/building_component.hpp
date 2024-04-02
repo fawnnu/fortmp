@@ -11,7 +11,8 @@ public:
     static bool is_building_actor_location_supported(ABuildingSMActor* building_to_check);
     
     static bool is_building_class_valid(UObject* building_class);
-
+    static bool is_building_in_grid(ABuildingSMActor* building_to_check);
+    
     static UFortItemDefinition* get_building_resource(ABuildingSMActor* building_actor);
 };
 
