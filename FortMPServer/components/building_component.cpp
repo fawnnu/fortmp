@@ -24,48 +24,6 @@ building_component::building_component()
     DetourTransactionCommit();
 }
 
-bool building_component::is_building_in_grid(ABuildingSMActor* building_to_check)
-{
-    static int XYAxisGrid = 512;
-    static int ZAxisGrid = 384;
-    float divided_x_loc = (building_to_check->K2_GetActorLocation().X / XYAxisGrid) / 0.5f;
-    float divided_y_loc = (building_to_check->K2_GetActorLocation().Y / XYAxisGrid) / 0.5f;
-    float divided_z_loc = building_to_check->K2_GetActorLocation().Z / ZAxisGrid;
-    
-    if (UKismetMathLibrary::FFloor(divided_z_loc) == divided_z_loc && UKismetMathLibrary::FFloor(divided_x_loc) == divided_x_loc && UKismetMathLibrary::FFloor(divided_y_loc) == divided_y_loc)
-    {
-        return true;   
-    }
-    spdlog::error(L"is_building_in_grid: {} {} {}", divided_x_loc, divided_y_loc, divided_z_loc);
-    return false;
-}
-bool building_component::is_building_actor_location_supported(ABuildingSMActor* building_to_check)
-{
-    // Loop thru the available building actors and check if there's any building actor at the same location with the same building type.
-    TArray<ABuildingSMActor*> building_sm_actors = UGameplayStatics::GetAllActorsOfClass<ABuildingSMActor>((*GWorld), ABuildingSMActor::StaticClass());
-                                
-    for (auto building : building_sm_actors)
-    {
-        if (building != building_to_check)
-        {
-            // Check if the building actors are player placed
-            if (building_to_check->AttributeInitLevelSource() == 1 && building->AttributeInitLevelSource() == 1)
-            {
-                if (building_to_check->K2_GetActorLocation() == building->K2_GetActorLocation())
-                {
-                    if (building->BuildingType() == building_to_check->BuildingType())
-                    {
-                        spdlog::info(L"Building 1: Type {}, loc {}, rot {} {} {}", building->GetName().c_str(), building->K2_GetActorLocation(), building->K2_GetActorRotation().Pitch, building->K2_GetActorRotation().Yaw, building->K2_GetActorRotation().Roll);
-                        spdlog::info(L"Building 2: Type {}, loc {}, rot {} {} {}", building_to_check->GetName().c_str(), building_to_check->K2_GetActorLocation(), building_to_check->K2_GetActorRotation().Pitch, building_to_check->K2_GetActorRotation().Yaw, building_to_check->K2_GetActorRotation().Roll);
-                        spdlog::error(L"[ERROR] Building is not structurally supported");
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
 bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
 {
     if (is_building_class_valid(building_class))
@@ -107,17 +65,18 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
             
         // Spawn a building actor in the world
         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
-        
-        // Check if the actor can be placed
-        if (is_building_in_grid(building_actor) == false)
+
+        UBuildingStructuralSupportSystem* structural_support_system = (*GWorld)->GameState()->StructuralSupportSystem();
+
+        if (structural_support_system)
         {
-            spdlog::error(L"spawn_building_actor: Calling SilentDie. Building not in grid");
-            //building_actor->SilentDie();
-            //return false;
-        }
-        if (is_building_actor_location_supported(building_actor) == false)
-        {
-            spdlog::error(L"spawn_building_actor: Unsupported location");
+            // Check if the actor can be placed
+            if (structural_support_system->IsBuildingActorStructurallySupported(building_actor) == false)
+            {
+                //spdlog::error(L"spawn_building_actor: Building not structurally supported");
+                //building_actor->SilentDie();
+                //return false;
+            }   
         }
         
         // Set out param, if any

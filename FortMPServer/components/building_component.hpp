@@ -7,11 +7,8 @@ public:
     
     static bool spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment = EFortBuildPreviewMarkerOptionalAdjustment::None, bool is_building_free = false, ABuildingActor** OutBuildingActor = nullptr);
     static bool edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations);
-
-    static bool is_building_actor_location_supported(ABuildingSMActor* building_to_check);
     
     static bool is_building_class_valid(UObject* building_class);
-    static bool is_building_in_grid(ABuildingSMActor* building_to_check);
     
     static UFortItemDefinition* get_building_resource(ABuildingSMActor* building_actor);
 };
