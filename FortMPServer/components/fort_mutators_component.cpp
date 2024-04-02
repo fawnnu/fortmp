@@ -35,7 +35,7 @@ fort_mutators_component::fort_mutators_component()
 
             static UFunction* FunctionObject = FindObject<UFunction>(L"/Script/FortniteGame.FortAthenaExitCraftSpawner.StartExitCraftSpawnTimer");
 
-            if(FunctionObject)
+            if (FunctionObject)
             {
                 auto start = memory_manager::scan_for(reinterpret_cast<uintptr_t>(FunctionObject->get_native_function()), {0xE9}, 0, false);
                 

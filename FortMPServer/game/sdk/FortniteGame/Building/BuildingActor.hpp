@@ -228,8 +228,13 @@ public:
 class AB_Athena_VendingMachine_C : public ABuildingItemCollectorActor
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Game/Athena/Items/Gameplay/VendingMachine/B_Athena_VendingMachine.B_Athena_VendingMachine_C")
+    
     DEFINE_PROPERTY(uint8_t, OverrideVendingMachineRarity);
     DEFINE_PROPERTY(bool, VendSuccess);
+    DEFINE_PROPERTY(int, MaxItemsToSpawnCached);
+    DEFINE_PROPERTY(int, MaxItemsToSpawn);
+    DEFINE_PROPERTY(int, SpawnedItemCount);
     
     void SetRarityColors(FColor Color)
     {

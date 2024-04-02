@@ -583,13 +583,22 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
         }
         else if (OtherActor->IsA(AB_Toy_Tomato_Base_C::StaticClass()))
         {
-            // Atleast 15 meters to send
-            if (PlayerPawn->GetDistanceTo(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn()) >= 1500)
+            if (OtherActor->Owner() && !memory_manager::is_bad_read_pointer(OtherActor->Owner()))
             {
-                // Don't allow self
-                if (PlayerPawn->Controller() != static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()))
+                if (OtherActor->Owner()->Owner() && !memory_manager::is_bad_read_pointer(OtherActor->Owner()->Owner()))
                 {
-                    challenges_component::SendTomatoInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), PlayerPawn->GetDistanceTo(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn()) / 100);
+                    if (auto other_pawn = static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn())
+                    {
+                        // Atleast 15 meters to send
+                        if (PlayerPawn->GetDistanceTo(other_pawn) >= 1500)
+                        {
+                            // Don't allow self
+                            if (PlayerPawn->Controller() != static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()))
+                            {
+                                challenges_component::SendTomatoInteraction(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner()), PlayerPawn->GetDistanceTo(static_cast<AFortPlayerController*>(OtherActor->Owner()->Owner())->Pawn()) / 100);
+                            }
+                        }
+                    }
                 }
             }
         }

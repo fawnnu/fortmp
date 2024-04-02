@@ -386,6 +386,7 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 
                    if (PawnToShoot && !memory_manager::is_bad_read_pointer(PawnToShoot, false))
                    {
+                       spdlog::info(L"Vehicle {}", Vehicle->GetName().c_str());
                        if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
                        {
                            AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
@@ -394,8 +395,22 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                            {
                                if (LaunchDir.IsValid())
                                {
+                                   spdlog::info(L"PushCannon {}, launching player", PushCannon->GetName().c_str());
                                    PawnToShoot->ServerOnExitVehicle();
-                                   PushCannon->OnLaunchPawn(PawnToShoot, LaunchDir);
+                                   
+                                   static UFunction* FunctionObject = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
+
+                                   struct
+                                   {
+                                       AFortPlayerPawn* Pawn;
+                                       FVector LaunchDir;
+                                   } params;
+
+                                   params.Pawn = Pawn;
+                                   params.LaunchDir = LaunchDir;
+
+                                   ProcessEvent(PushCannon, FunctionObject, &params);
+                                   
                                    PushCannon->MultiCastPushCannonLaunchedPlayer();
                                }
                            }

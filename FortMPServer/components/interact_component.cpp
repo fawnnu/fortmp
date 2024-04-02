@@ -262,6 +262,8 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                         {
                             if (vending_machine->NumInteractions() >= vending_machine->NumInteractionsAllowed())
                             {
+                                vending_machine->Cast<AB_Athena_VendingMachine_C>()->VendSuccess() = true;
+                                vending_machine->Cast<AB_Athena_VendingMachine_C>()->MaxItemsToSpawnCached() = 2;
                                 UKismetSystemLibrary::K2_SetTimer(vending_machine, L"DespenseOutputItems", vending_machine->DespensingDelayTime(), false);
                             }
                         }
@@ -578,7 +580,8 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
             {
                 FVector LootSpawnLocation = vending_machine->K2_GetActorLocation();
                 LootSpawnLocation.Z += vending_machine->LootSpawnLocation().Z; // Change the Z axis not to have the pickup stuck in the floor
-                    
+
+                vending_machine->Cast<AB_Athena_VendingMachine_C>()->SpawnedItemCount() = 2;
                 AFortPickup* new_pickup = pickup_component::spawn_pickup(item_entry.ItemDefinition(), LootSpawnLocation, item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()), false);
 
                 if (new_pickup)
@@ -592,9 +595,12 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
 
     if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
     {
-        blueprint_vending_machine->VendSuccess() = true;
-        blueprint_vending_machine->DoVendDeath();
-        UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"K2_DestroyActor", 0.2f, false);
+        auto DoVendDeath = FindObject<UFunction>(L"/Game/Athena/Items/Gameplay/VendingMachine/B_Athena_VendingMachine.B_Athena_VendingMachine_C.DoVendDeath");
+        if (DoVendDeath)
+        {
+            ProcessEvent(vending_machine,DoVendDeath, nullptr);   
+        }
+        UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"K2_DestroyActor", 0.1f, false);
     }
 }
 

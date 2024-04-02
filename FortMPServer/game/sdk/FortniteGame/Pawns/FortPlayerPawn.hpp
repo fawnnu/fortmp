@@ -444,13 +444,6 @@ public:
         Call(Function_OnPreLaunchPawn, Pawn, LaunchDir);
     }
     
-    void OnLaunchPawn(AFortPlayerPawn* Pawn, FVector& LaunchDir)
-    {
-        STATIC_FINDFUNCTION(OnLaunchPawn)
-
-        Call(Function_OnLaunchPawn, Pawn, LaunchDir);
-    }
-    
     void MultiCastPushCannonLaunchedPlayer()
     {
         STATIC_FINDFUNCTION(MultiCastPushCannonLaunchedPlayer)
