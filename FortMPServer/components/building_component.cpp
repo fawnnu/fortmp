@@ -36,6 +36,7 @@ bool building_component::is_building_in_grid(ABuildingSMActor* building_to_check
     {
         return true;   
     }
+    spdlog::error(L"is_building_in_grid: {} {} {}", divided_x_loc, divided_y_loc, divided_z_loc);
     return false;
 }
 bool building_component::is_building_actor_location_supported(ABuildingSMActor* building_to_check)
@@ -54,10 +55,9 @@ bool building_component::is_building_actor_location_supported(ABuildingSMActor* 
                 {
                     if (building->BuildingType() == building_to_check->BuildingType())
                     {
-                        if (log_component::enable_debug_logs)
-                        {
-                            spdlog::error(L"[ERROR] Building is not structurally supported");
-                        }
+                        spdlog::info(L"Building 1: Type {}, loc {}, rot {} {} {}", building->GetName().c_str(), building->K2_GetActorLocation(), building->K2_GetActorRotation().Pitch, building->K2_GetActorRotation().Yaw, building->K2_GetActorRotation().Roll);
+                        spdlog::info(L"Building 2: Type {}, loc {}, rot {} {} {}", building_to_check->GetName().c_str(), building_to_check->K2_GetActorLocation(), building_to_check->K2_GetActorRotation().Pitch, building_to_check->K2_GetActorRotation().Yaw, building_to_check->K2_GetActorRotation().Roll);
+                        spdlog::error(L"[ERROR] Building is not structurally supported");
                         return false;
                     }
                 }
@@ -109,11 +109,15 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
         ABuildingSMActor* building_actor = reinterpret_cast<ABuildingSMActor*>(SpawnActor(*GWorld, building_class, &building_location, &building_rotation, FActorSpawnParameters {}));
         
         // Check if the actor can be placed
-        if (is_building_actor_location_supported(building_actor) == false || is_building_in_grid(building_actor) == false)
+        if (is_building_in_grid(building_actor) == false)
         {
-            spdlog::error(L"spawn_building_actor: Calling SilentDie. Unsupported location or building not in grid");
-            building_actor->SilentDie();
-            return false;
+            spdlog::error(L"spawn_building_actor: Calling SilentDie. Building not in grid");
+            //building_actor->SilentDie();
+            //return false;
+        }
+        if (is_building_actor_location_supported(building_actor) == false)
+        {
+            spdlog::error(L"spawn_building_actor: Unsupported location");
         }
         
         // Set out param, if any
