@@ -247,7 +247,8 @@ void reboot_component::RebootPlayerWithDelay(AFortPlayerControllerAthena* Contro
         // Restart shield to 0 in case player originally died from fall damage.
         RespawnedPawn->SetShield(0);
         RespawnedPawn->SetHealth(100);
-
+        RespawnedPawn->SetMaxHealth(RespawnedPawn->GetMaxHealth());
+        
         UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bPlayedDying", false);
         UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsDBNO", false);
         UKismetSystemLibrary::SetBoolPropertyByName(RespawnedPawn, L"bIsHiddenForDeath", false);

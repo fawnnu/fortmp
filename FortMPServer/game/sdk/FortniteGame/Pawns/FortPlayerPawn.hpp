@@ -149,6 +149,13 @@ public:
         Call(Function_SetHealth, NewHealthVal);
     }
 
+    void SetMaxHealth(float NewHealthVal)
+    {
+        STATIC_FINDFUNCTION(SetMaxHealth)
+        
+        Call(Function_SetMaxHealth, NewHealthVal);
+    }
+
     void SetShield(float NewShieldVal);
 
     float GetHealth()
@@ -163,6 +170,13 @@ public:
         STATIC_FINDFUNCTION(GetShield)
         
         return Call<float>(Function_GetShield);
+    }
+
+    float GetMaxHealth()
+    {
+        STATIC_FINDFUNCTION(GetMaxHealth)
+        
+        return Call<float>(Function_GetMaxHealth);
     }
 };
 

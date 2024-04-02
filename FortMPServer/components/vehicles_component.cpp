@@ -366,11 +366,15 @@ void vehicles_component_hooks::ServerUpdatePhysicsParams_Hook(AActor* Vehicle, F
 void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedForVehicle* Weapon, FFrame& StackFrame)
 {
     GET_PARAMETER(FVector, LaunchDir);
-
-    if (Weapon->Instigator()->IsA(AFortPlayerPawn::StaticClass()))
+    
+    if (Weapon == nullptr || memory_manager::is_bad_read_pointer(Weapon, false)) return;
+    if (Weapon->IsA(AFortWeaponRangedForVehicle::StaticClass()) == false) return;
+    if (Weapon->Owner() == nullptr || memory_manager::is_bad_read_pointer(Weapon->Owner(), false)) return;
+    
+    if (Weapon->Owner()->IsA(AFortPlayerPawn::StaticClass()))
     {
         // Get instigator
-       AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Instigator());
+       AFortPlayerPawn* Pawn = static_cast<AFortPlayerPawn*>(Weapon->Owner());
 
        if (Pawn && !memory_manager::is_bad_read_pointer(Pawn, false))
        {
