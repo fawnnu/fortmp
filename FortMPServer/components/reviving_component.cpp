@@ -101,6 +101,7 @@ void reviving_component::revive_player(AFortPlayerController* player_controller,
         
         // Set health
         player_to_revive->SetHealth(30.0f);
+        player_to_revive->SetMaxHealth(player_to_revive->GetMaxHealth());
 
         // Bump revives in player stats
         static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.Revives++;
