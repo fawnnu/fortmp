@@ -18,10 +18,19 @@ building_component::building_component()
     
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerCreateBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerCreateBuildingActor", building_component_hooks::ServerCreateBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEditBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerEditBuildingActor", building_component_hooks::ServerEditBuildingActor_Hook);
+    REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerEndEditingBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerEndEditingBuildingActor", building_component_hooks::ServerEndEditingBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerBeginEditingBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerBeginEditingBuildingActor", building_component_hooks::ServerBeginEditingBuildingActor_Hook);
     REGISTER_UFUNCTION_DETOUR(building_component_hooks::ServerRepairBuildingActor, L"/Script/FortniteGame.FortPlayerController.ServerRepairBuildingActor", building_component_hooks::ServerRepairBuildingActor_Hook);
     
     DetourTransactionCommit();
+}
+
+void building_component_hooks::ServerEndEditingBuildingActor_Hook(AFortPlayerController* FortPlayerController,
+    FFrame& StackFrame)
+{
+    GET_PARAMETER(ABuildingSMActor*, BuildingActorToStopEditing);
+    BuildingActorToStopEditing->ForceNetUpdate();
+    return ServerEndEditingBuildingActor(FortPlayerController, StackFrame);
 }
 
 bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
@@ -87,6 +96,8 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
         
         if (building_actor)
         {
+            building_actor->ForceNetUpdate();
+            
             // Set mirrored
             building_actor->SetMirrored(is_mirrored);
              
@@ -149,10 +160,17 @@ bool building_component::edit_building_actor(ABuildingActor* building_actor, UOb
         {
             constexpr int replacement_destruction_reason = 1;
             constexpr int building_level = 0;
-        
+            
             // Edit building actor
-            ReplaceBuildingActor(building_actor, replacement_destruction_reason, building_class, building_level, rotation_iterations, is_mirrored, nullptr);
-
+            auto building_actor_new = ReplaceBuildingActor(building_actor, replacement_destruction_reason, building_class, building_level, rotation_iterations, is_mirrored, nullptr);
+            if (building_actor_new)
+            {
+                if (building_actor_new->IsA(ABuildingActor::StaticClass()))
+                {
+                    building_actor_new->Cast<ABuildingActor>()->ForceNetUpdate();   
+                }
+            }
+            
             return true;
         }
     }
@@ -285,6 +303,8 @@ void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerC
 
     if (BuildingActorToEdit)
     {
+        BuildingActorToEdit->ForceNetUpdate();
+        
         // Edit tool item definition
         static UFortItemDefinition* edit_tool_definition = FindObject<UFortItemDefinition>(L"/Game/Items/Weapons/BuildingTools/EditTool.EditTool");
 
@@ -303,6 +323,8 @@ void building_component_hooks::ServerBeginEditingBuildingActor_Hook(AFortPlayerC
                 edit_tool_weapon->EditActor() = BuildingActorToEdit;
             }
         }
+
+        BuildingActorToEdit->ForceNetUpdate();
     }
     
     return ServerBeginEditingBuildingActor(FortPlayerController, StackFrame);

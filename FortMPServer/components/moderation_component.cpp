@@ -1471,6 +1471,7 @@ void moderation_component_hooks::ServerCheat_Hook(AFortPlayerController* Self, F
         // Only allow admins to execute commands on server
         if (Self->CheatManager())
         {
+            spdlog::warn(L"Command {} has been used by {}", Msg.c_str(), Self->MyPlayerInfo()->PlayerName().c_str());
             if (FParse::Command(&Stream, TEXT("KICKPLAYER")))
             {
                 moderation_component::HandleKickPlayerCommand(Stream, Self);

@@ -21,6 +21,8 @@ namespace building_component_hooks
     // Called when a player tries to edit a building actor
     DEFINE_FUNCTION_HOOK(void, ServerEditBuildingActor, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
 
+    DEFINE_FUNCTION_HOOK(void, ServerEndEditingBuildingActor, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
+    
     // Called when a player requests to edit a building actor
     DEFINE_FUNCTION_HOOK(void, ServerBeginEditingBuildingActor, (AFortPlayerController* FortPlayerController, FFrame& StackFrame));
     
@@ -29,6 +31,6 @@ namespace building_component_hooks
 };
 
 // Used to replace an existing building actor with a new building class
-inline void* (*ReplaceBuildingActor)(UObject* InBuilding, uint8_t ReplacementDestructionReason, UObject* NewBuildingClass, uint8_t BuildingLevel, int RotationIterations, bool bIsMirrored, void* OutFortBuildingEditedParams);
+inline UObject* (*ReplaceBuildingActor)(UObject* InBuilding, uint8_t ReplacementDestructionReason, UObject* NewBuildingClass, uint8_t BuildingLevel, int RotationIterations, bool bIsMirrored, void* OutFortBuildingEditedParams);
 inline int (*ProcessRepairCost)(AFortPlayerController* Self, ABuildingActor* BuildingActorToRepair);
 inline uint8_t (*CanPlaceBuildingActor)(UWorld* World, UObject* Class, FVector* Location, FRotator* Rotation, bool bMirrored, TArray<AActor*>* OutHoveredActors, EFortBuildPreviewMarkerOptionalAdjustment* MarkerOptionalAdjustment);

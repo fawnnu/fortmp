@@ -365,6 +365,8 @@ void vehicles_component_hooks::ServerUpdatePhysicsParams_Hook(AActor* Vehicle, F
 
 void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedForVehicle* Weapon, FFrame& StackFrame)
 {
+    ServerFireActorInCannon(Weapon, StackFrame);
+    
     GET_PARAMETER(FVector, LaunchDir);
     
     if (Weapon == nullptr || memory_manager::is_bad_read_pointer(Weapon, false)) return;
@@ -449,8 +451,6 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
            }
        }   
     }
-
-    return ServerFireActorInCannon(Weapon, StackFrame);
 }
 
 void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float Damage, FGameplayTagContainer& DamageTags, FGameplayEffectContextHandle& EffectContext, class AController* EventInstigator, class AActor* DamageCauser)
