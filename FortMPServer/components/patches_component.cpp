@@ -722,6 +722,13 @@ APawn* patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook(A
         }
     } while (ReturnValue == nullptr);
 
+    // Set health (setting max health fixes the 0 health bug)
+    if (auto fort_pawn = ReturnValue->Cast<AFortPawn>())
+    {
+        fort_pawn->SetHealth(fort_pawn->GetMaxHealth());
+        fort_pawn->SetMaxHealth(fort_pawn->GetMaxHealth());
+    }
+    
     return ReturnValue;
 }
 

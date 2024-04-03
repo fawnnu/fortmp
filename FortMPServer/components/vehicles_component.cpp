@@ -402,20 +402,28 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                                    spdlog::info(L"PushCannon {}, launching player", PushCannon->GetName().c_str());
                                    PawnToShoot->ServerOnExitVehicle();
                                    
-                                   static UFunction* FunctionObject = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
+                                   static UFunction* Function_OnLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
 
-                                   struct
+                                   if (Function_OnLaunchPawn)
                                    {
-                                       AFortPlayerPawn* Pawn;
-                                       FVector LaunchDir;
-                                   } params;
+                                       struct
+                                       {
+                                           AFortPlayerPawn* Pawn;
+                                           FVector LaunchDir;
+                                       } params;
 
-                                   params.Pawn = Pawn;
-                                   params.LaunchDir = LaunchDir;
+                                       params.Pawn = Pawn;
+                                       params.LaunchDir = LaunchDir;
 
-                                   ProcessEvent(PushCannon, FunctionObject, &params);
-                                   
-                                   PushCannon->MultiCastPushCannonLaunchedPlayer();
+                                       ProcessEvent(PushCannon, Function_OnLaunchPawn, &params);   
+                                   }
+
+                                   static UFunction* Function_MultiCastPushCannonLaunchedPlayer = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.MultiCastPushCannonLaunchedPlayer");
+
+                                   if (Function_MultiCastPushCannonLaunchedPlayer)
+                                   {
+                                       ProcessEvent(PushCannon, Function_MultiCastPushCannonLaunchedPlayer, nullptr);   
+                                   }
                                }
                            }
                        }

@@ -212,7 +212,7 @@ public:
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveToyInstances);
     DEFINE_PROPERTY(TArray<class AActor*>, ActiveSprayInstances);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
-
+    
     void ClientClearDeathNotification()
     {
         STATIC_FINDFUNCTION(ClientClearDeathNotification)

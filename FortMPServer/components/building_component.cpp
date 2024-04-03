@@ -234,7 +234,7 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
     TArray<AActor*> HoveredActors;
     auto Adjustment = EFortBuildPreviewMarkerOptionalAdjustment::None;
     
-    if (!CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &Adjustment)) // We check if it returns 0 as it actually returns an enum (EFortStructuralGridQueryResults): 0 means we can place the build
+    if (CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &Adjustment) == 0) // We check if it returns 0 as it actually returns an enum (EFortStructuralGridQueryResults): 0 means we can place the build
     {   
         if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, Adjustment))
         {
@@ -244,7 +244,7 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
                 HoveredActor->K2_DestroyActor();
             }
         }
-    } 
+    }
     
     return ServerCreateBuildingActor(FortPlayerController, StackFrame);
 }

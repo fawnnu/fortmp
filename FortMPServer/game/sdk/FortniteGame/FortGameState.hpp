@@ -121,6 +121,14 @@ public:
     DEFINE_PROPERTY(UBuildingStructuralSupportSystem*, StructuralSupportSystem);
     
     DEFINE_PROPERTY(AFortCreativePortalManager*, CreativePortalManager);
+
+    bool IsRespawningAllowed(AFortPlayerState* PlayerState)
+    {
+        STATIC_FINDFUNCTION(IsRespawningAllowed)
+        bool ret_val = Call<bool>(Function_IsRespawningAllowed, PlayerState);
+        spdlog::info(ret_val);
+        return ret_val;
+    }
     
     void OnRep_AdditionalPlaylistLevelsStreamed()
     {

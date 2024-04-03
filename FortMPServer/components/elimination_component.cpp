@@ -461,10 +461,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     }
     
     // only proceed if Respawn isn't enabled
-    if (current_playlist == nullptr ||
-        current_playlist->HasProperty(L"RespawnType") == false ||
-        current_playlist->HasProperty(L"RespawnType") == true &&
-        current_playlist->RespawnType() == 0)
+    if (current_playlist == nullptr || (*GWorld)->GameState()->IsRespawningAllowed(VictimPlayerController->PlayerState()) == false)
     {
         if (RemoveFromAlivePlayerList)
         {
