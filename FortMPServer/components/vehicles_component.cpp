@@ -400,6 +400,23 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                                if (LaunchDir.IsValid())
                                {
                                    spdlog::info(L"PushCannon {}, launching player", PushCannon->GetName().c_str());
+                                   
+                                   static UFunction* Function_OnPreLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnPreLaunchPawn");
+
+                                   if (Function_OnPreLaunchPawn)
+                                   {
+                                       struct
+                                       {
+                                           AFortPlayerPawn* Pawn;
+                                           FVector LaunchDir;
+                                       } params;
+
+                                       params.Pawn = Pawn;
+                                       params.LaunchDir = LaunchDir;
+
+                                       ProcessEvent(PushCannon, Function_OnPreLaunchPawn, &params);   
+                                   }
+                                   
                                    PawnToShoot->ServerOnExitVehicle();
                                    
                                    static UFunction* Function_OnLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
