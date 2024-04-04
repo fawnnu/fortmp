@@ -418,8 +418,13 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 
                                        ProcessEvent(PushCannon, Function_OnPreLaunchPawn, &params);   
                                    }
-                                   
-                                   PawnToShoot->ServerOnExitVehicle();
+
+                                   static UFunction* Function_ServerOnExitVehicle = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.ServerOnExitVehicle");
+
+                                   if (Function_ServerOnExitVehicle)
+                                   {
+                                       ProcessEvent(PushCannon, Function_ServerOnExitVehicle, nullptr);   
+                                   }
                                    
                                    static UFunction* Function_OnLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
 

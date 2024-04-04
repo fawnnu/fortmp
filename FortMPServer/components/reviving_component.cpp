@@ -11,7 +11,7 @@ reviving_component::reviving_component()
 
 void reviving_component::revive_player(AFortPlayerController* player_controller, AFortPlayerPawn* player_to_revive, bool bForceRevive)
 {
-    if (player_controller == nullptr || player_to_revive == nullptr)
+    if (player_controller == nullptr || player_to_revive == nullptr || player_controller->MyFortPawn() == nullptr || memory_manager::is_bad_read_pointer(player_to_revive))
     {
         return;
     }
