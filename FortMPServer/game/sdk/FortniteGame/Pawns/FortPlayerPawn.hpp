@@ -465,3 +465,9 @@ public:
         Call(Function_MultiCastPushCannonLaunchedPlayer);
     }
 };
+
+class AFortAthenaJackalVehicle : public AFortAthenaVehicle
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortAthenaJackalVehicle");
+};

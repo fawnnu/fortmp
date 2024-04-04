@@ -851,7 +851,7 @@ void loader_component::OnMapInfoLoaded()
     
     // Butterfly event storm mutator
     era_mutators_component::Execute("butterfly_begin", nullptr);
-
+    
     // Handle vehicle spawn rates
     TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
 
@@ -869,12 +869,23 @@ void loader_component::OnMapInfoLoaded()
                 }
             }
         }
+        
         if (loader_component_hooks::ShouldSpawnVehicleInternal)
         {
-            if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
+            /* So for some reason Fortnite has set the VehicleClass in MapInfo for HoverBoards to the c++ class, and the ShouldSpawnVehicle function
+             * checks if it's a blueprint class (or if it's the exact same one as the already spawned vehicle class, which is a bp one).
+             * Therefore it has to be hotfixed, by forcing the game to check if the C++ class actor can be spawned (because once again, that's what they set it to in the map info, for some reason)*/
+            if (vehicle->IsA(AFortAthenaJackalVehicle::StaticClass()))
+            {
+                if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), AFortAthenaJackalVehicle::StaticClass()) == false)
+                {
+                    vehicle->K2_DestroyActor();
+                }
+            }
+            else if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
             {
                 vehicle->K2_DestroyActor();
-            }   
+            }
         }
     }
 
