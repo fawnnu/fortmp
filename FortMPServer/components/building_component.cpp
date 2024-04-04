@@ -29,7 +29,10 @@ void building_component_hooks::ServerEndEditingBuildingActor_Hook(AFortPlayerCon
     FFrame& StackFrame)
 {
     GET_PARAMETER(ABuildingSMActor*, BuildingActorToStopEditing);
-    BuildingActorToStopEditing->ForceNetUpdate();
+    if (BuildingActorToStopEditing)
+    {
+        BuildingActorToStopEditing->ForceNetUpdate();   
+    }
     return ServerEndEditingBuildingActor(FortPlayerController, StackFrame);
 }
 
