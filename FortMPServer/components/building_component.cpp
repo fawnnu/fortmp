@@ -64,14 +64,30 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
             if (MarkerOptionalAdjustment == EFortBuildPreviewMarkerOptionalAdjustment::FreeWallPieceOnTop)
             {
                 FVector NewBuildLocation = building_location;
-                NewBuildLocation.Z += CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
+                NewBuildLocation.Z += CreateDefaultObject<ABuildingSMActor>(building_class)->VertSnapGridSize();
+                TArray<AActor*> Temp_HoveredActors;
+                auto Temp_Adjustment = EFortBuildPreviewMarkerOptionalAdjustment::None;
+                if (CreateDefaultObject<ABuildingSMActor>(building_class)->BuildingType() == EFortBuildingType::Wall)
+                {
+                    if (CanPlaceBuildingActor(*GWorld, building_class, &NewBuildLocation, &building_rotation, is_mirrored, &Temp_HoveredActors, &Temp_Adjustment) == 0)
+                    {
+                        spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
+                    }
+                }
             }
             else if (MarkerOptionalAdjustment == EFortBuildPreviewMarkerOptionalAdjustment::FreeWallPieceOnBottom)
             {
                 FVector NewBuildLocation = building_location;
-                NewBuildLocation.Z -= CreateDefaultObject<ABuildingActor>(building_class)->VertSnapGridSize();
-                spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
+                NewBuildLocation.Z -= CreateDefaultObject<ABuildingSMActor>(building_class)->VertSnapGridSize();
+                TArray<AActor*> Temp_HoveredActors;
+                auto Temp_Adjustment = EFortBuildPreviewMarkerOptionalAdjustment::None;
+                if (CreateDefaultObject<ABuildingSMActor>(building_class)->BuildingType() == EFortBuildingType::Wall)
+                {
+                    if (CanPlaceBuildingActor(*GWorld, building_class, &NewBuildLocation, &building_rotation, is_mirrored, &Temp_HoveredActors, &Temp_Adjustment) == 0)
+                    {
+                        spawn_building_actor(building_class, NewBuildLocation, building_rotation, is_mirrored, building_owner, EFortBuildPreviewMarkerOptionalAdjustment::None, true);
+                    }
+                }
             }
         }
             
