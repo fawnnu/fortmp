@@ -194,6 +194,93 @@ void loader_component_hooks::BuildingFoundation_PostUpdate_Hook(ABuildingFoundat
     
 }
 
+void loader_component::parse_game_data_hotfixes(UFortPlaylistAthena* in_playlist)
+{
+    try
+    {
+        auto config = config_manager::get_server_config();
+        for (auto& elem : config["game_data_hotfixes"].items())
+        {
+            if (GetCL() == elem.value()["target_cl"].get<int>())
+            {
+                int curve_key = elem.value()["key"].get<int>();
+                int curve_new_value = elem.value()["new_value"].get<int>();
+                std::string sRowName = elem.value()["row"].get<std::string>();
+                TO_WSTRING(sRowName, wRowName);
+
+                UCurveTable* GameData = nullptr;
+                UCurveTable* GameDataOverride = nullptr;
+                
+                if (STATIC_HASPROPERTY(in_playlist, GameData))
+                {
+                    GameData = in_playlist->GameData().Get();
+                }
+
+                if (GameData == nullptr)
+                {
+                    GameData = FindObject<UCurveTable>(TEXT("/Game/Athena/Balance/DataTables/AthenaGameData.AthenaGameData"));
+                }
+                
+                if (GameData->IsA(UCompositeCurveTable::StaticClass()))
+                {
+                    // Index 1 contains the override curvetable on usual
+                    GameDataOverride = GameData->Cast<UCompositeCurveTable>()->ParentTables()[1];
+                }
+                else
+                {
+                    GameDataOverride = GameData;
+                }
+                    
+                if (GameDataOverride)
+                {
+                    auto CurveTableOverride = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameDataOverride) + 0x30);
+                    auto CurveTableDefault = *reinterpret_cast<TMap<FName, Struct*>*>(reinterpret_cast<uintptr_t>(GameData) + 0x30);
+                    
+                    bool bSuccess = false;
+
+                    if (CurveTableOverride.Contains(FName(wRowName.c_str())))
+                    {
+                        if (FSimpleCurve::GetClass())
+                        {
+                            static_cast<FSimpleCurve*>(CurveTableOverride[wRowName.c_str()].Value)->Keys()[curve_key].Value() = curve_new_value;
+                        }
+                        else
+                        {
+                            static_cast<FRichCurve*>(CurveTableOverride[wRowName.c_str()].Value)->Keys()[curve_key].Value() = curve_new_value;
+                        }
+                        bSuccess = true;
+                    }
+
+                    if (CurveTableDefault.Contains(FName(wRowName.c_str())))
+                    {
+                        if (FSimpleCurve::GetClass())
+                        {
+                            static_cast<FSimpleCurve*>(CurveTableDefault[wRowName.c_str()].Value)->Keys()[curve_key].Value() = curve_new_value;
+                        }
+                        else
+                        {
+                            static_cast<FRichCurve*>(CurveTableDefault[wRowName.c_str()].Value)->Keys()[curve_key].Value() = curve_new_value;
+                        }
+                        bSuccess = true;
+                    }
+
+                    if (bSuccess)
+                    {
+                        spdlog::info(L"loader_component::parse_game_data_hotfixes: Hotfixing {} at key {} with new value {}", wRowName, curve_key, curve_new_value);
+                    }
+                    else
+                    {
+                        spdlog::warn(L"loader_component::parse_game_data_hotfixes: Failed to hotfix {}", wRowName);
+                    }
+                }
+            }
+        }
+    }
+    catch (nlohmann::json::exception& err)
+    {
+    }
+}
+
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 {
     constexpr int listen_port = 7777;
@@ -330,7 +417,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Weapon patches
         looting_component::parse_weapon_hotfixes();
-
+        
+        parse_game_data_hotfixes(in_playlist);
+        
         // Initialize challenges hooks
         challenges_component::Initialize();
         
@@ -829,6 +918,11 @@ void loader_component::OnMapInfoLoaded()
         else
         {
             (*GWorld)->GameState()->DefaultAllowNeutralWallEditing() = 0.0;       
+        }
+
+        if (era_mutators_component::IsActive("rebooting_force_enable"))
+        {
+            (*GWorld)->GameState()->DefaultRebootMachineHotfix() = 1.0;       
         }
 
         if (log_component::enable_debug_logs)

@@ -40,6 +40,10 @@ era_mutators_component::era_mutators_component()
     new era_mutator("siphon_new", [](LPVOID)
     {
     });
+
+    new era_mutator("rebooting_force_enable", [](LPVOID)
+    {
+    });
     
     new era_mutator("2024_nye", [](LPVOID)
     {
@@ -350,9 +354,10 @@ bool era_mutators_component::IsActive(std::string Name)
 void era_mutator_hooks::EvaluateCurveTableRow_Hook(UCurveTable* CurveTable, FName RowName, float InXY, uint8* OutResult, float* OutXY, FString& ContextString)
 {
     static FName SiphonRowName = FName(TEXT("Default.Siphon.Enabled"));
-
+    
     if (GetFortniteVersionEasy() >= 8.0)
     {
+        // Handle siphon
         static FName SiphonMatsRowName = FName(TEXT("Default.Siphon.GrantMatsOnKillEnabled"));
         static FName SiphonWoodRowName = FName(TEXT("Default.Siphon.GrantWoodOnKill"));
         static FName SiphonStoneRowName = FName(TEXT("Default.Siphon.GrantStoneOnKill"));

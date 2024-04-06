@@ -20,6 +20,8 @@ public:
     static void handle_duplicated_foundations();
     static void handle_cl_specific_additions();
 
+    static void parse_game_data_hotfixes(UFortPlaylistAthena* in_playlist);
+    
     static void OnMapInfoLoaded();
     
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
