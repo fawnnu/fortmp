@@ -859,14 +859,11 @@ void loader_component::OnMapInfoLoaded()
     {
         if (vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
         {
-            if (era_mutators_component::IsActive("NoCannonVehicle"))
-            {
-                vehicle->K2_DestroyActor();
+            vehicle->K2_DestroyActor();
 
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
-                }
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
             }
         }
         
