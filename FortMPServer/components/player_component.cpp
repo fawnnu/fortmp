@@ -126,6 +126,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::HandleStartingNewPlayer, L"/Script/Engine.GameModeBase.HandleStartingNewPlayer", player_component_hooks::HandleStartingNewPlayer_Hook);
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::ApplyCharacterParts, memory_manager::find_function_by_string(L"UCustomPlayerComponent::ApplyCharacterPartOverrides - CharacterParts is not set."), player_component_hooks::ApplyCharacterParts_Hook);
+    
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
@@ -181,6 +183,32 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
+}
+
+char player_component_hooks::ApplyCharacterParts_Hook(UObject* PRIComp, UWorld* World, UObject* a3, UFortHero* Hero,  TArray<UObject*> CharacterPartSwaps, char bDisableOverrides)
+{
+    auto player_state = PRIComp->Outer->Cast<AFortPlayerState>();
+
+    if (player_state)
+    {
+        auto hero_type = player_state->HeroType();
+        if (hero_type)
+        {
+            auto hero_inst = hero_type->CreateTemporaryItemInstanceBP(1, 1)->Cast<UFortHero>();
+            if (hero_inst)
+            {
+                for (auto cp : hero_type->Specializations()[0]->CharacterParts())
+                {
+                    hero_inst->Cast<UFortHero>()->CharacterParts().Add(cp.Get());   
+                }
+                hero_inst->Cast<UFortHero>()->Specializations().Add(hero_type->Specializations()[0].Get());
+
+                spdlog::info(L"ApplyCharacterParts_Hook: Using hero {} for character parts!", hero_type->GetName().c_str());
+                return ApplyCharacterParts(PRIComp, World, a3, hero_inst, CharacterPartSwaps, 0);
+            }
+        }
+    }
+    return ApplyCharacterParts(PRIComp, World, a3, Hero, CharacterPartSwaps, bDisableOverrides);
 }
 
 void player_component_hooks::AFortSprayDecalInstance_BeginPlay_Hook(AFortSprayDecalInstance* Target)
@@ -2229,10 +2257,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
                                                 if (Object->HasProperty("HeroDefinition"))
                                                 {
-                                                    if (!NewPlayer->PlayerState()->HeroType())
-                                                    {
-                                                        NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
-                                                    }
+                                                    NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
                                                 }
                                             }
                                             else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
@@ -3360,7 +3385,16 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             Sleep(1000 / 30);
         }
         
-        // Apply CPs
+        // Get aircraft index in enum
+        static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+        uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+    
+        // Only execute the code on prelobby
+        if ((*GWorld)->GameState()->GamePhase() < Aircraft)
+        {
+            memcpy(&NewPlayer->Pawn()->CustomizationLoadout(), &NewPlayer->Cast<AFortPlayerControllerAthena>()->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+        }
+        
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
 
         // Set shield to 0 each time the player gets restarted

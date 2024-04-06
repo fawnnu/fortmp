@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../../Engine/Components/ActorComponent.hpp"
+#include "game/sdk/FortniteGame/Items/FortItem.hpp"
 
 inline uintptr_t (*ServerChoosePart_Implementation)(class AFortPlayerPawn*, int, UCustomCharacterPart*);
 
@@ -21,9 +22,10 @@ public:
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<UCustomCharacterPart>>, CharacterParts);
 };
 
-class UFortHeroType : public UObject
+class UFortHeroType : public UFortItemDefinition
 {
 public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortHeroType")
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<UFortHeroSpecialization>>, Specializations);
 };
 
@@ -209,11 +211,26 @@ public:
     DEFINE_BIT_PROPERTY(bool, bIsSkydivingFromBus);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpDampening);
     DEFINE_PROPERTY(struct FCurveTableRowHandle, ZiplineJumpStrength);
+    DEFINE_PROPERTY(TWeakObjectPtr<UFortHero>, Hero);
     DEFINE_PROPERTY(UObject*, AnimBPOverride);
     DEFINE_PROPERTY(uint8, PreviousStasisMode);
-    DEFINE_PROPERTY(FFortAthenaLoadout, CustomizationLoadout);
     DEFINE_PROPERTY(FFortClientObservedStatArray, ClientObservedStats);
 
+    FFortAthenaLoadout& CustomizationLoadout()
+    {
+        static void* native_property = FindPropertyByName(this->Class, TEXT("CustomizationLoadout")) ? FindPropertyByName(this->Class, TEXT("CustomizationLoadout")) : FindPropertyByName(this->Class, TEXT("CosmeticLoadout"));                                          
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);   
+        
+        return *reinterpret_cast<FFortAthenaLoadout*>(__int64(this) + native_property_offset);                
+    }
+
+    void OnRep_CosmeticLoadout()
+    {
+        STATIC_FINDFUNCTION(OnRep_CosmeticLoadout)
+
+        Call(Function_OnRep_CosmeticLoadout);
+    }
+    
     void OnRep_AnimBPOverride()
     {
         STATIC_FINDFUNCTION(OnRep_AnimBPOverride)

@@ -241,6 +241,7 @@ public:
     static void initialize_player_banner_color(AFortPlayerController* TargetPlayerController, std::string BannerColor);
     static EDamageCauser get_damage_causer(FGameplayTagContainer& Tags);
     static void apply_variant(FFortAthenaLoadout* Loadout, nlohmann::json VariantData, UObject* ItemVariantIsUsedFor);
+    static void apply_character_variant(AFortPlayerPawn* Pawn, nlohmann::json variants, UObject* ItemVariantIsUsedFor);
     static void apply_wraps(FFortAthenaLoadout* Loadout, nlohmann::json WrapsData);
     static void apply_bonus_pellets(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData);
     static bool get_bonus_pellet_data(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData, FEraPelletInfo& PelletInfo);
@@ -323,6 +324,8 @@ namespace player_component_hooks
     // Challenges
     DEFINE_FUNCTION_HOOK(void, ReceiveActorEndOverlap, (UObject* Self, UObject* Function, void* Params));
 
+    DEFINE_FUNCTION_HOOK(char, ApplyCharacterParts, (UObject* PRIComp, UWorld* World, UObject* a3, class UFortHero* Hero, TArray<UObject*> CharacterPartSwaps, char bDisableOverrides));
+    
     // Reimplement function
     DEFINE_FUNCTION_HOOK(void, GiveItemToPlayer, (TScriptInterface<AFortPlayerController>* Interface, UFortItemDefinition* ItemDefinition, int Quantity))
 

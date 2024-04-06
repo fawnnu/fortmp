@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "game/sdk/FortniteGame/Items/FortItem.hpp"
 
 class APlayerState : public AActor
 {
@@ -12,7 +13,7 @@ class AFortPlayerState : public APlayerState
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerState")
-    DEFINE_PROPERTY(class UFortHeroType*, HeroType);
+    DEFINE_PROPERTY(UFortHeroType*, HeroType);
 
     DEFINE_PROPERTY(FVector, PawnDeathLocation);
     
@@ -27,6 +28,7 @@ public:
     DEFINE_PROPERTY(int, CachedPreviousWorldPlayerId);
     
     DEFINE_BIT_PROPERTY(bool, bHasStartedPlaying);
+    DEFINE_PROPERTY(UObject*, CustomPRIComponent);
     
     //IP
     DEFINE_PROPERTY(FString, SavedNetworkAddress);
@@ -108,6 +110,7 @@ public:
     DEFINE_PROPERTY(uint8_t, Ping);
     DEFINE_PROPERTY(FUniqueNetIdRepl, PartyOwnerUniqueId);
     DEFINE_PROPERTY(FUniqueNetIdRepl, PlatformUniqueNetId);
+    DEFINE_PROPERTY(FString, HeroId);
     DEFINE_PROPERTY(UFortHeroType*, HeroType);
     DEFINE_PROPERTY(FDeathInfo, DeathInfo);
     DEFINE_PROPERTY(uint8_t, ReplicatedTeamMemberState);

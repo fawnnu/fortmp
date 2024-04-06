@@ -38,6 +38,22 @@ public:
     }
 };
 
+class UFortHero : public UFortItem
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortHero");
+    DEFINE_PROPERTY(TArray<class UFortHeroSpecialization*>, Specializations);
+    DEFINE_PROPERTY(TArray<class UCustomCharacterPart*>, CharacterParts);
+    DEFINE_PROPERTY(FString, Hero_name);
+
+    class UFortHeroType* GetHeroTypeBP()
+    {
+        STATIC_FINDFUNCTION(GetHeroTypeBP)
+                
+        return Call<UFortHeroType*>(Function_GetHeroTypeBP);
+    }
+};
+
 class UFortWorldItem : public UFortItem
 {
 public:
@@ -221,6 +237,10 @@ public:
 
 class UAthenaCosmeticItemDefinition : public UFortItemDefinition
 {
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaCosmeticItemDefinition");
+
+    DEFINE_PROPERTY(TArray<class UObject*>, ItemVariants);
 };
 
 class UFortMontageItemDefinitionBase : public UAthenaCosmeticItemDefinition
@@ -268,6 +288,13 @@ class UAthenaCharacterItemDefinition : public UAthenaCosmeticItemDefinition
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.AthenaCharacterItemDefinition");
     DEFINE_PROPERTY(class UFortHeroType*, HeroDefinition);
+
+    void ApplyVariants(AActor* InActor, TArray<struct FMcpVariantChannelInfo>& VariantChannels)
+    {
+        STATIC_FINDFUNCTION(ApplyVariants)
+        
+        Call(Function_ApplyVariants, InActor, VariantChannels);
+    }
 };
 
 class UAthenaCharacterPartItemDefinition : public UAthenaCosmeticItemDefinition
