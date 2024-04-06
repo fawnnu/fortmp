@@ -126,8 +126,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::HandleStartingNewPlayer, L"/Script/Engine.GameModeBase.HandleStartingNewPlayer", player_component_hooks::HandleStartingNewPlayer_Hook);
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::ApplyCharacterParts, memory_manager::find_function_by_string(L"UCustomPlayerComponent::ApplyCharacterPartOverrides - CharacterParts is not set."), player_component_hooks::ApplyCharacterParts_Hook);
-    
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::GetOrInitializeHero, memory_manager::find_function_by_string(L"GetOrInitializeHero called with valid player info"), player_component_hooks::GetOrInitializeHero_Hook)
+
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
@@ -185,30 +185,44 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
 }
 
-char player_component_hooks::ApplyCharacterParts_Hook(UObject* PRIComp, UWorld* World, UObject* a3, UFortHero* Hero,  TArray<UObject*> CharacterPartSwaps, char bDisableOverrides)
+UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController* Controller)
 {
-    auto player_state = PRIComp->Outer->Cast<AFortPlayerState>();
+    AFortPlayerStateAthena* PlayerState = Controller->PlayerState();
 
-    if (player_state)
+    if (PlayerState)
     {
-        auto hero_type = player_state->HeroType();
-        if (hero_type)
+        UFortHeroType* HeroType = PlayerState->HeroType();
+        if (HeroType)
         {
-            auto hero_inst = hero_type->CreateTemporaryItemInstanceBP(1, 1)->Cast<UFortHero>();
-            if (hero_inst)
+            if (Controller->StrongMyHero() == nullptr)
             {
-                for (auto cp : hero_type->Specializations()[0]->CharacterParts())
+                // Initialize hero
+                UFortHero* NewHeroInstance = HeroType->CreateTemporaryItemInstanceBP(1, 1)->Cast<UFortHero>();
+                if (NewHeroInstance)
                 {
-                    hero_inst->Cast<UFortHero>()->CharacterParts().Add(cp.Get());   
-                }
-                hero_inst->Cast<UFortHero>()->Specializations().Add(hero_type->Specializations()[0].Get());
+                    for (auto SoftCharacterPart : HeroType->Specializations()[0]->CharacterParts())
+                    {
+                        NewHeroInstance->Cast<UFortHero>()->CharacterParts().Add(SoftCharacterPart.Get());   
+                    }
+                    NewHeroInstance->Cast<UFortHero>()->Specializations().Add(HeroType->Specializations()[0].Get());
 
-                spdlog::info(L"ApplyCharacterParts_Hook: Using hero {} for character parts!", hero_type->GetName().c_str());
-                return ApplyCharacterParts(PRIComp, World, a3, hero_inst, CharacterPartSwaps, 0);
+                    Controller->StrongMyHero() = NewHeroInstance;
+                    spdlog::info(L"GetOrInitializeHero_Hook: Returning new hero {}!", HeroType->GetName().c_str());
+                    return NewHeroInstance;
+                }   
+            }
+            else
+            {
+                if (Controller->StrongMyHero()->GetHeroTypeBP())
+                {
+                    spdlog::info(L"GetOrInitializeHero_Hook: Returning StrongMyHero {}!", Controller->StrongMyHero()->GetHeroTypeBP()->GetName().c_str());
+                    return Controller->StrongMyHero();   
+                }
             }
         }
     }
-    return ApplyCharacterParts(PRIComp, World, a3, Hero, CharacterPartSwaps, bDisableOverrides);
+
+    return GetOrInitializeHero(Controller);
 }
 
 void player_component_hooks::AFortSprayDecalInstance_BeginPlay_Hook(AFortSprayDecalInstance* Target)

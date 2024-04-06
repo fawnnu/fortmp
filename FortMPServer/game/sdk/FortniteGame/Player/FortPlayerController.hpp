@@ -206,6 +206,7 @@ public:
     DEFINE_PROPERTY(UFortPlayerControllerAthenaXPComponent*, XPComponent);
     DEFINE_PROPERTY(bool, bHasServerFinishedLoading);
     DEFINE_PROPERTY(class AFortQuickBars*, QuickBars);
+    DEFINE_PROPERTY(class UFortHero*, StrongMyHero);
     DEFINE_PROPERTY(class AFortQuickBars*, ClientQuickBars);
     DEFINE_PROPERTY(AFortInventory*, WorldInventory);
     DEFINE_PROPERTY(APawn*, PlayerToSpectateOnDeath);
