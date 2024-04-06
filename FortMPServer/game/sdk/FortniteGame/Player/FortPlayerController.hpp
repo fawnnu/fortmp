@@ -292,7 +292,8 @@ public:
     void ClientReturnToMainMenu(FString in_reason)
     {
         STATIC_FINDFUNCTION(ClientReturnToMainMenu)
-        
+
+        spdlog::info(L"ClientReturnToMainMenu: {}", in_reason.c_str());
         Call(Function_ClientReturnToMainMenu, in_reason);
 
         if (NetConnection())

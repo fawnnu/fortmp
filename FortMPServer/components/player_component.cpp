@@ -194,7 +194,12 @@ UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController*
         UFortHeroType* HeroType = PlayerState->HeroType();
         if (HeroType)
         {
-            if (Controller->StrongMyHero() == nullptr)
+            // Get aircraft index in enum
+            static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+            uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
+    
+            // Only execute the code on prelobby
+            if ((*GWorld)->GameState()->GamePhase() < Aircraft)
             {
                 // Initialize hero
                 UFortHero* NewHeroInstance = HeroType->CreateTemporaryItemInstanceBP(1, 1)->Cast<UFortHero>();
@@ -207,17 +212,24 @@ UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController*
                     NewHeroInstance->Cast<UFortHero>()->Specializations().Add(HeroType->Specializations()[0].Get());
 
                     Controller->StrongMyHero() = NewHeroInstance;
-                    spdlog::info(L"GetOrInitializeHero_Hook: Returning new hero {}!", HeroType->GetName().c_str());
-                    return NewHeroInstance;
-                }   
+
+                    if (Controller->Pawn())
+                    {
+                        spdlog::info(L"GetOrInitializeHero_Hook: Applying customization from controller to pawn.");
+                        memcpy(&Controller->Pawn()->CustomizationLoadout(), &Controller->Cast<AFortPlayerControllerAthena>()->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+                    }   
+                }
+                    
+                spdlog::info(L"GetOrInitializeHero_Hook: Returning new hero {}!", HeroType->GetName().c_str());
+                return NewHeroInstance;
             }
-            else
+            if (Controller->StrongMyHero())
             {
                 if (Controller->StrongMyHero()->GetHeroTypeBP())
                 {
                     spdlog::info(L"GetOrInitializeHero_Hook: Returning StrongMyHero {}!", Controller->StrongMyHero()->GetHeroTypeBP()->GetName().c_str());
                     return Controller->StrongMyHero();   
-                }
+                }   
             }
         }
     }
@@ -3324,6 +3336,11 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
 void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController* FortPlayerController)
 {
     ServerReadyToStartMatch(FortPlayerController);
+
+    if (FortPlayerController->PlayerState() == nullptr || memory_manager::is_bad_read_pointer(FortPlayerController->PlayerState()))
+    {
+        FortPlayerController->ClientReturnToMainMenu(L"Invalid playerstate");
+    }
     
     if (STATIC_HASPROPERTY(FortPlayerController->PlayerState(), bHasStartedPlaying))
     {
@@ -3397,16 +3414,6 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             }
             
             Sleep(1000 / 30);
-        }
-        
-        // Get aircraft index in enum
-        static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
-        uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
-    
-        // Only execute the code on prelobby
-        if ((*GWorld)->GameState()->GamePhase() < Aircraft)
-        {
-            memcpy(&NewPlayer->Pawn()->CustomizationLoadout(), &NewPlayer->Cast<AFortPlayerControllerAthena>()->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
         }
         
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
