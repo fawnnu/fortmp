@@ -34,6 +34,8 @@ void loader_component::pre_init()
 
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
 
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::ApplyPlaylistDataTables, memory_manager::find_function_by_string(L"PLAYLIST: Patched Game Data with %s"), loader_component_hooks::ApplyPlaylistDataTables_Hook);
+    
     DetourTransactionCommit();
 }
 
@@ -417,8 +419,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Weapon patches
         looting_component::parse_weapon_hotfixes();
-        
-        parse_game_data_hotfixes(in_playlist);
         
         // Initialize challenges hooks
         challenges_component::Initialize();
@@ -1372,4 +1372,11 @@ bool loader_component_hooks::SetGameMode_Hook()
 void loader_component_hooks::SetCurrentPlaylistId_Hook(AFortGameStateAthena* Self, int PlaylistId)
 {
     // Steal the function   
+}
+
+long long loader_component_hooks::ApplyPlaylistDataTables_Hook(AFortGameModeAthena* Self)
+{
+    loader_component::parse_game_data_hotfixes(GetPlaylistEasy());
+    
+    return ApplyPlaylistDataTables(Self);
 }
