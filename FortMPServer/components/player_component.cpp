@@ -1837,6 +1837,35 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
 {
     // Only let people with a valid encryption token join
 #ifdef _RELEASE
+    if (UGameplayStatics::HasOption(Options, TEXT("SpectatorOnly")))
+    {
+        if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
+        {
+            FString LoginToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
+            if (LoginToken.IsValid())
+            {
+                if (LoginToken == L"6548a95bfad5")
+                {
+                    spdlog::info(L"Registered an attempt of a SpectatorOnly login with token {}.", LoginToken.c_str());
+                    return true;
+                }
+                else
+                {
+                    spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login with token {}.", LoginToken.c_str());
+                    return false;
+                }
+            }
+            else
+            {
+                spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login with an empty EncryptionToken.");
+            }
+        }
+        else
+        {
+            spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login.");
+            return false;
+        }
+    }
     if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
     {
         FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
@@ -1905,6 +1934,12 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
 {
     if (FortPlayerController)
     {
+        if (is_live_spectator(FortPlayerController))
+        {
+            spdlog::error(L"Player is a live spectator, not executing PostLogin.");
+            return;
+        }
+        
         // PHX JOIN the player's channel
         std::string account_id = get_account_id(FortPlayerController);
 
@@ -1951,6 +1986,10 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
 
 void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options, UNetConnection* Connection)
 {
+    if (UGameplayStatics::HasOption(Options, TEXT("SpectatorOnly")))
+    {
+        return;
+    }
     // Setup platform
     if (UGameplayStatics::HasOption(Options, TEXT("Platform")))
     {
@@ -2614,6 +2653,11 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
 {
     if (Instigator)
     {
+        if (is_live_spectator(Instigator))
+        {
+            return;
+        }
+        
         if (DamageCauser->IsA(AFortWeapon::StaticClass()))
         {
             FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(Instigator)->EraPlayerInfo().DamageDealtTracker;
@@ -3388,9 +3432,12 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
     {
         UObject* ability_set = FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") ?
             FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_AthenaPlayer.GAS_AthenaPlayer") : FindObject(L"/Game/Abilities/Player/Generic/Traits/DefaultPlayer/GAS_DefaultPlayer.GAS_DefaultPlayer");
-        
-        // Set Player ID (Sets teams on traps automatically)
-        NewPlayer->MyPlayerInfo()->PlayerID() = NewPlayer->NetConnection()->PlayerID();
+
+        if (NewPlayer->MyPlayerInfo())
+        {
+            // Set Player ID (Sets teams on traps automatically)
+            NewPlayer->MyPlayerInfo()->PlayerID() = NewPlayer->NetConnection()->PlayerID();   
+        }
         
         auto& WorldPlayerId = NewPlayer->PlayerState()->WorldPlayerId();
         
@@ -3398,7 +3445,10 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         {
             WorldPlayerId = player_component::global_player_id++;
             
-            NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
+            if (NewPlayer->MyPlayerInfo())
+            {
+                NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
+            }
         }
         NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
         

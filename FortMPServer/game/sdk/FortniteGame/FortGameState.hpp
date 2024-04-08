@@ -126,7 +126,6 @@ public:
     {
         STATIC_FINDFUNCTION(IsRespawningAllowed)
         bool ret_val = Call<bool>(Function_IsRespawningAllowed, PlayerState);
-        spdlog::info(ret_val);
         return ret_val;
     }
     

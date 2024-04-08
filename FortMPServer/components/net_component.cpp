@@ -104,7 +104,7 @@ bool net_component::listen(FURL in_url)
 
             // Error caused by InitListen (if any)
             FString in_error;
-
+            
             if (!InitListen(net_driver, in_notify, in_url, false, in_error))
             {
                 return false;
@@ -391,6 +391,11 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
     {
         if (!memory_manager::is_bad_read_pointer(Self->PlayerController()) && Self->PlayerController())
         {
+            if (player_component::is_live_spectator(Self->PlayerController()))
+            {
+                return NetConnection__Close(Self);
+            }
+            
             AFortPlayerController* FortPlayerController = Self->PlayerController();
 
             // Get account ID

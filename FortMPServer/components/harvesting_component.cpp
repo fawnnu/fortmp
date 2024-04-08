@@ -31,6 +31,14 @@ void harvesting_component_hooks::OnBuildingDamaged_Hook(ABuildingActor* Building
 
 void harvesting_component::handle_building_damaged(ABuildingSMActor* building_actor, AFortPlayerController* instigated_by, AActor* damage_causer, float damage)
 {
+    if (instigated_by)
+    {
+        if (player_component::is_live_spectator(instigated_by))
+        {
+            return;
+        }
+    }
+    
     if (building_actor != nullptr)
     {
         if (building_actor->IsA(AFortAthenaSupplyDropBalloon::StaticClass()))
@@ -78,7 +86,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 }
             }
             
-            const bool bIsDestroyed = building_actor->GetHealth() - damage < 1;
+            const bool bIsDestroyed = building_actor->GetHealth() < 1;
 
             if (bIsDestroyed)
             {

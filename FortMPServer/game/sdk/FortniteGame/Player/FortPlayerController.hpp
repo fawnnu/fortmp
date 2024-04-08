@@ -293,7 +293,11 @@ public:
     {
         STATIC_FINDFUNCTION(ClientReturnToMainMenu)
 
-        spdlog::info(L"ClientReturnToMainMenu: {}", in_reason.c_str());
+        if (in_reason.IsValid())
+        {
+            spdlog::info(L"ClientReturnToMainMenu: {}", in_reason.c_str());   
+        }
+        
         Call(Function_ClientReturnToMainMenu, in_reason);
 
         if (NetConnection())

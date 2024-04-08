@@ -628,6 +628,11 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
+    if (player_component::is_live_spectator(Self))
+    {
+        return;
+    }
+    
     if (FAthenaMatchStats::GetClass())
     {
         // Tell the client that the match ended

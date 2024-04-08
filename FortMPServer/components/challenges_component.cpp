@@ -73,6 +73,12 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
     
     if (PlayerController)
     {
+        if (player_component::is_live_spectator(PlayerController))
+        {
+            spdlog::error(L"Player is a live spectator, not sending summary.");
+            return;
+        }
+        
         std::string account_id = player_component::get_account_id(PlayerController);
         FDamageDealtMapValue DamageDealt = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().DamageDealtTracker;
 

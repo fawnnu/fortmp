@@ -465,6 +465,12 @@ void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float
     if (auto driver = Vehicle->GetDriver())
     {
         AFortPlayerControllerAthena* DamageInstigator = EventInstigator->Cast<AFortPlayerControllerAthena>();
+        
+        if (player_component::is_live_spectator(DamageInstigator))
+        {
+            return;
+        }
+        
         if (driver->PlayerState()->TeamIndex() != DamageInstigator->PlayerState()->TeamIndex())
         {
             DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage += Damage;

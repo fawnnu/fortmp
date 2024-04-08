@@ -1038,8 +1038,11 @@ void moderation_component::HandleReviveCommand(const TCHAR*& InStream, AFortPlay
     for (auto player_controller : parse_command_target_players(InStream, ExecutingPlayerController))
     {
         // Force revive a player
-        reviving_component::revive_player(ExecutingPlayerController, player_controller->Pawn(), true);
-
+        if (player_controller->Pawn())
+        {
+            reviving_component::revive_player(ExecutingPlayerController, player_controller->Pawn(), true);
+        }
+        
         ExecutingPlayerController->ClientMessage(TEXT("Successfully revived a player."));
     }
 }
@@ -1069,17 +1072,23 @@ void moderation_component::HandleTeleportAllCommand(const TCHAR*& InStream,
 
 void moderation_component::HandleVanishCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
-    UKismetSystemLibrary::SetBoolPropertyByName(ExecutingPlayerController->Pawn(), L"bHidden", !ExecutingPlayerController->Pawn()->bHidden());
-    ExecutingPlayerController->Pawn()->SetPawnVisibility(ExecutingPlayerController->Pawn()->bHidden(), true);
-    ExecutingPlayerController->ClientMessage(TEXT("Vanish toggled."));
+    if (ExecutingPlayerController->Pawn())
+    {
+        UKismetSystemLibrary::SetBoolPropertyByName(ExecutingPlayerController->Pawn(), L"bHidden", !ExecutingPlayerController->Pawn()->bHidden());
+        ExecutingPlayerController->Pawn()->SetPawnVisibility(ExecutingPlayerController->Pawn()->bHidden(), true);
+        ExecutingPlayerController->ClientMessage(TEXT("Vanish toggled."));   
+    }
 }
 
 void moderation_component::HandleGodCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
     for (auto player_controller :  parse_command_target_players(InStream, ExecutingPlayerController))
     {
-        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", !player_controller->Pawn()->bIsInvulnerable());
-        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+        if (player_controller->Pawn())
+        {
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", !player_controller->Pawn()->bIsInvulnerable());
+            ExecutingPlayerController->ClientMessage(TEXT("Success."));   
+        }
     }
 }
 
@@ -1097,6 +1106,7 @@ void moderation_component::HandlePOITeleportCommand(const TCHAR*& InStream, AFor
     {
         for (auto player_controller :  pcs)
         {
+            if (player_controller->Pawn() == nullptr) continue;
             FVector final_loc = FVector(0,0,10000);
             // TODO: add other pois
             if (InPOIName == L"tilted")
@@ -1111,7 +1121,6 @@ void moderation_component::HandlePOITeleportCommand(const TCHAR*& InStream, AFor
             {
                 final_loc = FVector(24500, 41152, 5000);
             }
-
             player_controller->Pawn()->K2_TeleportTo(final_loc, FRotator());
             player_controller->Pawn()->BeginSkydiving(false);
             ExecutingPlayerController->ClientMessage(TEXT("Success."));      
@@ -1124,8 +1133,11 @@ void moderation_component::HandleLaunchPlayerCommand(const TCHAR*& InStream,
 {
     for (auto player_controller :  parse_command_target_players(InStream, ExecutingPlayerController))
     {
-        player_controller->Pawn()->LaunchCharacterJump(FVector{0, 0, 15000}, false, false, true, true);
-        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+        if (player_controller->Pawn())
+        {
+            player_controller->Pawn()->LaunchCharacterJump(FVector{0, 0, 15000}, false, false, true, true);
+            ExecutingPlayerController->ClientMessage(TEXT("Success."));   
+        }
     }
 }
 
@@ -1208,18 +1220,21 @@ void moderation_component::HandleBadassCommand(const TCHAR*& InStream,
 {
     for (auto player_controller : parse_command_target_players(InStream, ExecutingPlayerController))
     {
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Edged_Sword_Medium_SR_Ore_T04", false, true), 1);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_SR_T05", false, true), 1);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Pistol_Bolt_SR_Ore_T04", false, true), 1, 40);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Sniper_BoltAction_Scope_SR_Ore_T04", false, true), 1, 40);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Shotgun_Auto_SR_Ore_T04", false, true), 1, 40);
-        UKismetSystemLibrary::SetBoolPropertyByName(player_controller, L"bInfiniteAmmo", true);
-        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", true);
-        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bInfiniteDurability", true);
-        UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bBuildFree", true);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Assault_Auto_SR_Ore_T04", false, true), 1, 40);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Edged_Scythe_Laser_SR_Ore_T04", false, true), 1, 40);
-        inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Missions/Secondary/BluGlo/BluGloWorldItemData.BluGloWorldItemData", true, false),10);
+        if (player_controller->Pawn())
+        {
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Edged_Sword_Medium_SR_Ore_T04", false, true), 1);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_SR_T05", false, true), 1);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Pistol_Bolt_SR_Ore_T04", false, true), 1, 40);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Sniper_BoltAction_Scope_SR_Ore_T04", false, true), 1, 40);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Shotgun_Auto_SR_Ore_T04", false, true), 1, 40);
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller, L"bInfiniteAmmo", true);
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bIsInvulnerable", true);
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bInfiniteDurability", true);
+            UKismetSystemLibrary::SetBoolPropertyByName(player_controller->Pawn(), L"bBuildFree", true);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Assault_Auto_SR_Ore_T04", false, true), 1, 40);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"WID_Edged_Scythe_Laser_SR_Ore_T04", false, true), 1, 40);
+            inventory_component::add_item(player_controller, FindObject<UFortItemDefinition>(L"/Game/Missions/Secondary/BluGlo/BluGloWorldItemData.BluGloWorldItemData", true, false),10);
+        }
         
         ExecutingPlayerController->ClientMessage(TEXT("You're now a real badass."));
     }
@@ -1257,16 +1272,19 @@ void moderation_component::HandleSimulateBusJumpCommand(const TCHAR*& InStream,
 {
     for (auto player_controller : parse_command_target_players(InStream, ExecutingPlayerController))
     {
-        FVector bus_final_loc = player_controller->Pawn()->K2_GetActorLocation();
-        bus_final_loc.Z = 20000;
-        FRotator bus_final_rot = player_controller->Pawn()->K2_GetActorRotation();
-        player_controller->Pawn()->K2_TeleportTo(bus_final_loc, bus_final_rot);
-        player_controller->Pawn()->BeginSkydiving(true);
+        if (player_controller->Pawn())
+        {
+            FVector bus_final_loc = player_controller->Pawn()->K2_GetActorLocation();
+            bus_final_loc.Z = 20000;
+            FRotator bus_final_rot = player_controller->Pawn()->K2_GetActorRotation();
+            player_controller->Pawn()->K2_TeleportTo(bus_final_loc, bus_final_rot);
+            player_controller->Pawn()->BeginSkydiving(true);
 
-        player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_Drop_Cue.FlyingBus_Drop_Cue", true, false), 1.0f, 1.0f);
-        player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_HornDoppler_Cue.FlyingBus_HornDoppler_Cue", true, false), 1.0f, 1.0f);
+            player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_Drop_Cue.FlyingBus_Drop_Cue", true, false), 1.0f, 1.0f);
+            player_controller->ClientPlaySound(FindObject<USoundBase>(L"/Game/Athena/Sounds/Bus/FlyingBus_HornDoppler_Cue.FlyingBus_HornDoppler_Cue", true, false), 1.0f, 1.0f);
         
-        ExecutingPlayerController->ClientMessage(TEXT("Success."));
+            ExecutingPlayerController->ClientMessage(TEXT("Success."));   
+        }
     }
 }
 
@@ -1326,6 +1344,7 @@ void moderation_component::HandleSpawnPickupCommand(const TCHAR*& InStream,
 void moderation_component::HandleSpawnChestCommand(const TCHAR*& InStream,
     AFortPlayerController* ExecutingPlayerController)
 {
+    if (ExecutingPlayerController->Pawn() == nullptr) return;
     FVector SpawnLocation = ExecutingPlayerController->Pawn()->K2_GetActorLocation();
     SpawnLocation.X += ExecutingPlayerController->Pawn()->GetActorForwardVector().X * 350;
     SpawnLocation.Y += ExecutingPlayerController->Pawn()->GetActorForwardVector().Y * 350;
@@ -1364,6 +1383,8 @@ void moderation_component::HandleChangeScaleCommand(const TCHAR*& InStream,
 
 void moderation_component::HandleSummonCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
+    if (ExecutingPlayerController->Pawn() == nullptr) return;
+    
     FString InActorClass;
     if (!FParse::Token(InStream, InActorClass, 0))
     {
@@ -1396,6 +1417,8 @@ void moderation_component::HandleSummonCommand(const TCHAR*& InStream, AFortPlay
 
 void moderation_component::HandleSpawnDefaultBotCommand(const TCHAR*& InStream, AFortPlayerController* ExecutingPlayerController)
 {
+    if (ExecutingPlayerController->Pawn() == nullptr) return;
+    
     FVector SpawnLocation = ExecutingPlayerController->Pawn()->K2_GetActorLocation();
     SpawnLocation.X += ExecutingPlayerController->Pawn()->GetActorForwardVector().X * 600;
     SpawnLocation.Y += ExecutingPlayerController->Pawn()->GetActorForwardVector().Y * 600;
@@ -1422,6 +1445,10 @@ void moderation_component::HandleSpawnDefaultBotCommand(const TCHAR*& InStream, 
                 bot_pawn->PlayerState() = bot_state;
                 bot_pc->WorldInventory() = SpawnDefaultActor<AFortInventory>(*GWorld, AFortInventory::StaticClass());
                 bot_pc->Possess(bot_pawn);
+                bot_pawn->SetHealth(100);
+                bot_pawn->SetMaxHealth(100);
+                memcpy(&bot_pawn->CustomizationLoadout(), &ExecutingPlayerController->Cast<AFortPlayerControllerAthena>()->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
+                memcpy(&bot_pc->CustomizationLoadout(), &ExecutingPlayerController->Cast<AFortPlayerControllerAthena>()->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
                 bot_state->ApplyCharacterCustomization(bot_pawn);
             }
         }
