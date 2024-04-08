@@ -15,10 +15,12 @@ challenges_component::challenges_component()
         {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion.Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion"), "interaction:dance-off-competition"}
     };
 
+
     DestroyTagsToInteractionMatch = {
         { {FGameplayTag(L"Athena.Quests.Building.Chair")}, "interaction:chair" },
         { {FGameplayTag(L"Athena.Quests.Building.TelephonePoles")}, "interaction:pole" },
-        { {FGameplayTag(L"Athena.Quests.Building.Wood.Palettes")}, "interaction:pallet" }
+        { {FGameplayTag(L"Athena.Quests.Building.Wood.Palettes")}, "interaction:pallet" },
+        { {FGameplayTag(L"Athena.Quests.Building.Cactus")}, "interaction:cactus" }
     };
 }
 
