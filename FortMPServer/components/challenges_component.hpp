@@ -62,6 +62,7 @@ struct progression_entry
     std::string objective;
     int value;
     int delta;
+    int stage;
     progression_meta meta;
     std::string player;
 };

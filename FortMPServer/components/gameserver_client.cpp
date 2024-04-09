@@ -411,9 +411,18 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                                 new_entry->meta.assisted_by = JsonPayloadData["meta"]["assisted_by"];
                             }
                             new_entry->delta = 0;
+                            new_entry->stage = 0;
                             try
                             {
                                 new_entry->delta = JsonPayloadData["delta"];
+                            }
+                            catch (nlohmann::json::exception& err)
+                            {
+                            }
+
+                            try
+                            {
+                                new_entry->stage = JsonPayloadData["stage"];
                             }
                             catch (nlohmann::json::exception& err)
                             {

@@ -204,6 +204,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
             std::string objective = challenges_progression->objective;
             int value = challenges_progression->value;
             int delta = challenges_progression->delta;
+            int stage = challenges_progression->stage;
             std::string AccountID = challenges_progression->player;
             bool assisted = challenges_progression->meta.assisted;
             std::string assisted_by = challenges_progression->meta.assisted_by;
@@ -251,7 +252,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                                 }
                                 if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
                                 {
-                                    ObjectiveStat.CurrentStage() = delta;
+                                    ObjectiveStat.CurrentStage() = stage;
                                 }
                             
                                 break;
@@ -272,7 +273,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
                             }
                             if (STATIC_HASPROPERTY(FFortUpdatedObjectiveStat::GetClass(), CurrentStage))
                             {
-                                NewObjectiveStat->CurrentStage() = delta;
+                                NewObjectiveStat->CurrentStage() = stage;
                             }
 
                             if (assisted)
