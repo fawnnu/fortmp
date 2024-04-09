@@ -204,7 +204,7 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
             std::string objective = challenges_progression->objective;
             int value = challenges_progression->value;
             int delta = challenges_progression->delta;
-            int stage = challenges_progression->stage;
+            int stage = challenges_progression->stage - 1;
             std::string AccountID = challenges_progression->player;
             bool assisted = challenges_progression->meta.assisted;
             std::string assisted_by = challenges_progression->meta.assisted_by;
