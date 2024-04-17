@@ -52,7 +52,7 @@ void unreal_manager::pre_init()
     async_wrapper::wait_for_wrappers(async_initializers);
     
     // Create custom properties component
-    new customproperties_component();
+    //new customproperties_component();
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||

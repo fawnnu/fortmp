@@ -491,12 +491,6 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     {
                         // Add to ignore list
                         IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
-                        
-                        // Send summary
-                        challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
-
-                        // Set placement
-                        static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
                     }
                 }
 
@@ -521,9 +515,6 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         // Make sure PlayerState is valid
         if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
         {
-            // Send stats
-            elimination_component::DelaySendEndMatchStats(VictimPlayerController);
-
             // Send elimination event to the killer
             if (DeathReport.KillerPawn())
             {
@@ -677,7 +668,6 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
 void elimination_component_hooks::ClientNotifyWon_Hook(UObject* Object, UObject* Function, void* Params)
 {
     elimination_component::NotifyWon(Object, Function, Params);
-    elimination_component::DelaySendEndMatchStats(reinterpret_cast<AFortPlayerControllerAthena*>(Object));
 }
 
 void elimination_component_hooks::ClientNotifyTeamWon_Hook(UObject* Object, UObject* Function, void* Params)

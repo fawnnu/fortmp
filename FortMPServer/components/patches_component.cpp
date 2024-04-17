@@ -70,15 +70,6 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::NotifyAcceptingConnection, memory_manager::find_function_by_string(L"NotifyAcceptingConnection: Client refused"), patches_component_hook::NotifyAcceptingConnection_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FSocketBSD__RecvFrom, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 44 8B 54 24 ? 49 8B D9 48 8B 44 24 ? 45 8B DA 41 83 E3 02"), patches_component_hook::FSocketBSD__RecvFrom_Hook);
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::PRIVATE_GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
-    if (!patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides)
-    {
-        REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverridesInternal(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
-    }
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::GetAthenaLoadoutWithOverrides_Hook);
-
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::ReservationCheck, memory_manager::find_function_by_string(L"No reservation in game."), patches_component_hook::ReservationCheck_Hook);
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::McpTempCheck, memory_manager::find_pattern("48 83 EC ? 48 81 C1 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 ? F6 80 ? ? ? ? ? 74 ? 48 8B 10 48 8B C8"), patches_component_hook::McpTempCheck_Hook);
     
     if (GetEngineVersionEasy() > 421)
     {
@@ -471,12 +462,6 @@ bool patches_component_hook::GetTagsFromPawnLocation_Hook(AFortPoiVolume* FortPo
     {
         return GetTagsFromPawnLocation(FortPoiVolume, Tags);
     }
-
-    if (!FortPoiVolume->EraPoiInfo().bLoggedInvalidBrushComponent)
-    {
-        FortPoiVolume->EraPoiInfo().bLoggedInvalidBrushComponent = true;
-        spdlog::error(L"GetTagsFromPawnLocation_Hook found Volume [{}] with no BrushComponent.", FortPoiVolume->GetName().c_str());
-    }
     
     return false;
 }
@@ -572,35 +557,11 @@ FFortAthenaLoadout* patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverride
     // Only execute the code on prelobby
     if ((*GWorld)->GameState()->GamePhase() < Aircraft)
     {
-        // Clear
-        for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
-        {
-            CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
-            CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
-        }
-    
-        PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
-        PlayerController->CustomizationLoadout().ItemWraps().Free();
         PlayerController->CustomizationLoadout().Dances().Free();
         PlayerController->CustomizationLoadout().BannerIconId().Clear();
         PlayerController->CustomizationLoadout().BannerColorId().Clear();
     
         memcpy(OutLoadout, &PlayerController->CustomizationLoadout(), FFortAthenaLoadout::GetStructSize());
-
-        if (FindPropertyByName(PlayerController->CustomizationLoadout().GetClass(), L"CharacterVariantChannels"))
-        {
-            // Apply variants
-            for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
-            {
-                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
-            }
-        }
-
-        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"ItemWraps"))
-        {
-            // Apply wraps
-            player_component::apply_wraps(OutLoadout, PlayerController->EraPlayerInfo().PendingWrapsData);
-        }
             
         return OutLoadout;
     }
@@ -619,15 +580,6 @@ FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(A
     // Only execute the code on prelobby
     if ((*GWorld)->GameState()->GamePhase() < Aircraft)
     {
-        // Clear
-        for (auto& CharacterVariantChannel : TArrayManager<FMcpVariantChannelInfo>(&PlayerController->CustomizationLoadout().CharacterVariantChannels(), FMcpVariantChannelInfo::GetStructSize()))
-        {
-            CharacterVariantChannel.OwnedVariantTags().GameplayTags.Free();
-            CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
-        }
-    
-        PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
-        PlayerController->CustomizationLoadout().ItemWraps().Free();
         PlayerController->CustomizationLoadout().Dances().Free();
         PlayerController->CustomizationLoadout().BannerIconId().Clear();
         PlayerController->CustomizationLoadout().BannerColorId().Clear();
@@ -639,21 +591,6 @@ FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(A
         FFortAthenaLoadout* OutLoadout = GetAthenaLoadoutWithOverrides(PlayerController, A1, A2);
         
         memcpy(OutLoadout, CustomizationLoadoutCopy, FFortAthenaLoadout::GetStructSize());
-
-        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"CharacterVariantChannels"))
-        {
-            // Apply variants
-            for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
-            {
-                player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
-            }
-        }
-
-        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"ItemWraps"))
-        {
-            // Apply wraps
-            player_component::apply_wraps(OutLoadout, PlayerController->EraPlayerInfo().PendingWrapsData);
-        }
             
         return OutLoadout;
     }

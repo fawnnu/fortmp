@@ -301,41 +301,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
-        // Load every asset in /Game/Athena/Items/Cosmetics
-        {
-            TArray<FAssetData> OutAssets;
-            if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Cosmetics"), OutAssets, true, false))
-            {
-                TArrayManager Assets = OutAssets;
-                for (FAssetData& Asset : Assets)
-                {
-                    LoadObject(Asset.ObjectPath().c_str());
-                }
-
-                // Log
-                spdlog::info(L"loader_component::start_match loaded {} cosmetic assets.", Assets.Num());
-            }
-        }
-        
-        // Load every asset in /Game/Athena/Items/Quests
-        {
-            TArray<FAssetData> OutAssets;
-            if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Quests"), OutAssets, true, false))
-            {
-                if (OutAssets.Num() > 0)
-                {
-                    TArrayManager Assets = OutAssets; // TODO: Figure out why this crashes sometimes with except access violation reading address 0x18
-                    for (FAssetData& Asset : Assets)
-                    {
-                        LoadObject(Asset.ObjectPath().c_str());
-                    }
-                    
-                    // Log
-                    spdlog::info(L"loader_component::start_match loaded {} quest assets.", Assets.Num());
-                }
-            }
-        }
-        
         REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations_C.SwapPOI", loader_component_hooks::SwapPOI_Hook);
         
         if (in_playlist == nullptr)
@@ -548,18 +513,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
-        if (!era_mutators_component::IsActive("domino_event"))
-        {
-            UObject* fortmp_bp_loader = FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false);
-            if (fortmp_bp_loader)
-            {
-                SpawnDefaultActor(*GWorld, fortmp_bp_loader);   
-            }
-        }
-        else
-        {
-            (*GWorld)->GameState()->GamePhase() = 2; // Warmup
-        }
+        (*GWorld)->GameState()->GamePhase() = 2; // Warmup
         
         spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
     }
@@ -995,27 +949,24 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
         uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
 
-    if (!era_mutators_component::IsActive("domino_event"))
+    if (Self->GamePhase() == Aircraft)
     {
-        if (Self->GamePhase() == Aircraft)
+        gameserver_client::Client->GameServer_Status.accepting_players = false;
+        gameserver_client::Client->SendUpdate();
+
+        player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+        /*
+         * Send a match_started event to director
+         */
+        if (director_client::client)
         {
-            gameserver_client::Client->GameServer_Status.accepting_players = false;
-            gameserver_client::Client->SendUpdate();
-
-            player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
-
-            /*
-             * Send a match_started event to director
-             */
-            if (director_client::client)
-            {
-                director_client::client->Send(eudp_packet({
-                    {"type", "match_started"},
-                    {"payload", {
-                        {"starting_players", player_component::starting_players}
-                    }}
-                }));
-            }
+            director_client::client->Send(eudp_packet({
+                {"type", "match_started"},
+                {"payload", {
+                    {"starting_players", player_component::starting_players}
+                }}
+            }));
         }
     }
 #endif
@@ -1026,11 +977,6 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
     if (ServerPlaylist)
     {
         fort_mutators_component::on_game_phase_updated(Self->GamePhase());
-
-        if (era_mutators_component::IsActive("domino_event"))
-        {
-            (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
-        }
         
         // Can't use STATIC_HASPROPERTY as the playlist can change
         if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
@@ -1346,14 +1292,7 @@ bool loader_component_hooks::SetGameMode_Hook()
 
         if (AuthorityGameMode == nullptr)
         {
-            if (era_mutators_component::IsActive("domino_event"))
-            {
-                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_GameMode.StellarBellum_GameMode_C", true));
-            }
-            else
-            {
-                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
-            }
+            AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
         }
 
         if (AuthorityGameMode && (*GWorld)->AuthorityGameMode() == nullptr)

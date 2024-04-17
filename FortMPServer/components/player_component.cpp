@@ -97,8 +97,15 @@ player_component::player_component()
             }
         }
 
-        // Hook begin play for the classes we need
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+        if (AFortSprayDecalInstance::StaticClass())
+        {
+            // Hook begin play for the classes we need
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);   
+        }
+        else
+        {
+            spdlog::error(L"Failed to hook AFortSprayDecalInstance::BeginPlay. Invalid Class.");
+        }
     }
     else
     {
@@ -124,9 +131,8 @@ player_component::player_component()
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerReadyToStartMatch, L"/Script/FortniteGame.FortPlayerController.ServerReadyToStartMatch", player_component_hooks::ServerReadyToStartMatch_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerPlaySquadQuickChatMessage, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerPlaySquadQuickChatMessage", player_component_hooks::ServerPlaySquadQuickChatMessage_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::ServerAwardVehicleTrickPoints, L"/Script/FortniteGame.FortPlayerControllerGameplay.ServerAwardVehicleTrickPoints", player_component_hooks::ServerAwardVehicleTrickPoints_Hook);
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::HandleStartingNewPlayer, L"/Script/Engine.GameModeBase.HandleStartingNewPlayer", player_component_hooks::HandleStartingNewPlayer_Hook);
-    REGISTER_FUNCTION_DETOUR(player_component_hooks::GetOrInitializeHero, memory_manager::find_function_by_string(L"GetOrInitializeHero called with valid player info"), player_component_hooks::GetOrInitializeHero_Hook)
+   // REGISTER_FUNCTION_DETOUR(player_component_hooks::GetOrInitializeHero, memory_manager::find_function_by_string(L"GetOrInitializeHero called with valid player info"), player_component_hooks::GetOrInitializeHero_Hook)
 
     if (GetEngineVersionEasy() < 420)
     {
@@ -145,48 +151,11 @@ player_component::player_component()
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
-
-    // Timers for each weapon type
-    REGISTER_CUSTOM_UFUNCTION(PistolDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HandCannonPistolDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(PumpShotgunDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(TacticalShotgunDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HeavyShotgunDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(ShotgunDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(AssaultRifleDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(BurstAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SuppressedAssaultRifleDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SniperDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HeavySniperDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(BoltSniperDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HuntingSniperDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(GrenadeDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(StinkGrenadeDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(ClingerDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SMGDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(GrenadeLauncherDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(RPGDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SuppressedSMGDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SuppressedPistolDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(MinigunDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(LMGDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(EnemyStructureDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(EnemyVehicleDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(SupplyDropDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(PickaxeDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HeadshotDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(JewelDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(C4BuildingDamageCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(BuildingPlacedCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(HarvestResourcesCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(TrickPointsCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
-    REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
 }
 
 UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController* Controller)
 {
+    return GetOrInitializeHero(Controller);
     AFortPlayerStateAthena* PlayerState = Controller->PlayerState();
 
     if (PlayerState)
@@ -267,11 +236,6 @@ void player_component_hooks::HandleStartingNewPlayer_Hook(AGameModeBase* Self, F
 
 AActor* player_component_hooks::SpawnToyInstance_Hook(AFortPlayerController* PlayerController, UObject* ToyClass, FTransform SpawnPosition)
 {
-    if (era_mutators_component::IsActive("domino_event"))
-    {
-        return nullptr;
-    }
-    
     if (PlayerController && !memory_manager::is_bad_read_pointer(PlayerController))
     {
         AB_PlayerSpawnedBall_C* new_toy_instance = static_cast<AB_PlayerSpawnedBall_C*>(UGameplayStatics::SpawnActor(ToyClass, SpawnPosition, 1, PlayerController->PlayerState()));
@@ -344,6 +308,7 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
 {
     INIT_CUSTOM_FUNCTION();
 
+    return;
     if (Self)
     {
         if (!memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
@@ -1494,6 +1459,7 @@ void player_component::CannonBallDamageCallback(AFortPlayerController* Self, FFr
 // This function is called whenever we have to process any kind of debounced damage
 void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser)
 {
+    return;
     switch (DamageCauser)
     {
     case EDamageCauser::HandCannonPistol:
@@ -1835,556 +1801,16 @@ void player_component::CampfireHealthCallback(AFortPlayerController* Self, FFram
 
 bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Options)
 {
-    // Only let people with a valid encryption token join
-#ifdef _RELEASE
-    if (UGameplayStatics::HasOption(Options, TEXT("SpectatorOnly")))
-    {
-        if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
-        {
-            FString LoginToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
-            if (LoginToken.IsValid())
-            {
-                if (LoginToken == L"6548a95bfad5")
-                {
-                    spdlog::info(L"Registered an attempt of a SpectatorOnly login with token {}.", LoginToken.c_str());
-                    return true;
-                }
-                else
-                {
-                    spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login with token {}.", LoginToken.c_str());
-                    return false;
-                }
-            }
-            else
-            {
-                spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login with an empty EncryptionToken.");
-            }
-        }
-        else
-        {
-            spdlog::warn(L"[WARN] Registered a failed attempt of SpectatorOnly login.");
-            return false;
-        }
-    }
-    if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
-    {
-        FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
-
-        if (EncryptionToken.IsValid())
-        {
-            for (int i = 0; i < EncryptionTokenList.size(); i++)
-            {
-                auto Token = EncryptionTokenList[i];
-                 
-                if (wcsstr(Token.c_str(), EncryptionToken.c_str()))
-                {
-                    EncryptionTokenList.erase(EncryptionTokenList.begin() + i);
-
-                    spdlog::info(L"EncryptionToken successfully validated.");
-                    
-                    return true;
-                }
-            }
-
-            spdlog::error(L"Client sent '{}' as EncryptionToken, but the server could not validate it. Valid encryption tokens: {}", EncryptionToken.c_str(), EncryptionTokenList.size());
-        }
-        else
-        {
-            spdlog::error(L"Invalid EncryptionToken received, kicking...");
-        }
-
-        InvalidTokensReceived++;
-
-        if (InvalidTokensReceived >= 10)
-        {
-            // Mark as pending shutdown
-            loader_component::bPendingShutdown = true;
-
-            // Log
-            spdlog::warn(L"loader_component::bPendingShutdown changed to true: InvalidTokensReceived exceeds maximum allowed value.");
-        }
-        
-        // Limit for invalid tokens
-        if (InvalidTokensReceived >= 150)
-        {
-            // Leave Era Services
-            gameserver_client::Client->SendLeave();
-            
-            // Close director connection
-            if (director_client::client)
-            {
-                director_client::client->Close();
-            }
-            
-            // Close
-            RequestExitWithStatus(true, 0);
-        }
-    }
-    else
-    {
-        spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
-    }
-    return false;
-#endif
-
     return true;
 }
 
 void player_component::PostLogin(AFortPlayerController* FortPlayerController)
 {
-    if (FortPlayerController)
-    {
-        if (is_live_spectator(FortPlayerController))
-        {
-            spdlog::error(L"Player is a live spectator, not executing PostLogin.");
-            return;
-        }
-        
-        // PHX JOIN the player's channel
-        std::string account_id = get_account_id(FortPlayerController);
-
-        if (account_id.size() > 0)
-        {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-            std::string team_id;
-
-            if (era_team* team = team_component::find_era_team(FortPlayerController, false))
-            {
-                if (team->bound_era_team_info)
-                {
-                    std::wstring wteam_id = team->bound_era_team_info->TeamID;
-                    TO_STRING(wteam_id, steam_id);
-
-                    team_id = steam_id;
-                }
-            }
-            
-            if (team_id.length() == 0)
-            {
-                team_id = account_id;
-            }
-            
-            std::map<std::string, std::string> parameters{
-                {"match", Matches[account_id]},
-                {"team", team_id}
-            };
-            
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_join", parameters);
-
-            // Initialize stats
-            static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->GatherDistanceTraveled();
-            
-            // Log
-            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
-            std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
-            std::string player_name = name_converter.to_bytes(wPlayer_name);
-            
-            spdlog::info("Player '{}' joined its channel. [SERVER: {}, TEAM: {}, ACCOUNT_ID: {}]", player_name.c_str(), gameserver_client::Client->UUID.c_str(), team_id.c_str(), account_id.c_str());
-        }
-    }
 }
 
 void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Options, UNetConnection* Connection)
 {
-    if (UGameplayStatics::HasOption(Options, TEXT("SpectatorOnly")))
-    {
-        return;
-    }
-    // Setup platform
-    if (UGameplayStatics::HasOption(Options, TEXT("Platform")))
-    {
-        FString Platform = UGameplayStatics::ParseOption(Options, TEXT("Platform"));
-
-        if (Platform.IsValid())
-        {
-            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform = std::wstring(Platform.c_str());
-        }
-    }
-    
-    if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
-    {
-        FString Token = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
-
-        if (Token.IsValid())
-        {
-            // Encryption token
-            std::wstring wToken = Token.c_str();
-
-            // Register this player in the local Players map
-            std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
-            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().AccountId = wAccountID;
-
-            // Convert string
-            TO_STRING(wAccountID, sAccountID);
-
-            struct ProfileParsingParameters
-            {
-                ProfileParsingParameters(AFortPlayerController* InNewPlayer, FString InOptions, UNetConnection* InConnection, std::wstring InAccountID)
-                {
-                    NewPlayer = InNewPlayer;
-                    Options = InOptions;
-                    Connection = InConnection;
-                    AccountID = InAccountID;
-                }
-                
-                AFortPlayerController* NewPlayer;
-                FString Options;
-                UNetConnection* Connection;
-                std::wstring AccountID;
-            };
-            ProfileParsingParameters* NewProfileParsingParameters = new ProfileParsingParameters(NewPlayer, Options, Connection, wAccountID);
-            
-            // Query profile
-            CreateThread(nullptr, 0, [](LPVOID INParams) -> DWORD
-            {
-                try
-                {
-                    ProfileParsingParameters* NewProfileParsingParameters = static_cast<ProfileParsingParameters*>(INParams);
-                    AFortPlayerController* NewPlayer = NewProfileParsingParameters->NewPlayer;
-                    FString Options = NewProfileParsingParameters->Options;
-                    UNetConnection* Connection = NewProfileParsingParameters->Connection;
-                    std::wstring AccountID = NewProfileParsingParameters->AccountID;
-                    TO_STRING(AccountID, sAccountID)
-                    std::string Name;
-                    if (UGameplayStatics::HasOption(Options, TEXT("Name")))
-                    {
-                        FString FortName = UGameplayStatics::ParseOption(Options, TEXT("Name"));
-
-                        if (!FortName.IsValid())
-                        {
-                            if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
-                                NewPlayer &&
-                                NewPlayer->Cast<AFortPlayerControllerAthena>())
-                            {
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
-                            }
-
-                            spdlog::error(L"Player attempted to join with an invalid Name in options.");
-
-                            return 0;
-                        }
-                        
-                        std::wstring wFortName = FortName.c_str();
-                        TO_EX_STRING(wFortName, Name);
-                    }
-                
-                    while (true)
-                    {
-                        try
-                        {
-                            httplib::Client ClientReq(API_URL);
-                            ClientReq.set_read_timeout(15, 0); // 15 seconds
-                            ClientReq.set_write_timeout(15, 0); // 15 seconds
-                            httplib::Headers headers = {
-                                { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
-                            };
-                            auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
-                            if (Response && Response->status == 200)
-                            {
-                                try
-                                {
-                                    nlohmann::json parsed_response = nlohmann::json::parse(Response->body);
-
-                                    try
-                                    {
-                                        if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
-                                            NewPlayer &&
-                                            NewPlayer->Cast<AFortPlayerControllerAthena>())
-                                        {
-                                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile = parsed_response;
-                                        }
-                                        
-                                        break;
-                                    }
-                                    catch (nlohmann::json::exception& err)
-                                    {
-                                    }
-                                }
-                                catch (nlohmann::json::parse_error& err)
-                                {
-                                }
-                            }
-                            else
-                            {
-                                spdlog::error("Failed to query profile [{}], invalid Response. Retrying in 1000ms...", "/api/internal/users/" + sAccountID + "/profile");
-                                if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
-                                    NewPlayer &&
-                                    NewPlayer->Cast<AFortPlayerControllerAthena>())
-                                {
-                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
-                                    if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
-                                    {
-                                        // Mark as bPendingKick
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
-                                    }
-                                }
-                                if (Response)
-                                {
-                                    spdlog::error("Query profile failure error code: {}", Response->status);
-                                }
-                            }
-                        }
-                        catch (std::exception& err)
-                        {
-                            spdlog::error("Failed to query profile. Error: '{}'. Retrying in 1000ms...", err.what());
-                            if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
-                                NewPlayer &&
-                                NewPlayer->Cast<AFortPlayerControllerAthena>())
-                            {
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures++;
-                                if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().ProfileFailures >= 5)
-                                {
-                                    // Mark as bPendingKick
-                                    static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
-                                }
-                            }
-                        }
-
-                        Sleep(1000);
-                    }
-                    
-                    // Make sure we're meant to read the profile
-                    if (memory_manager::is_bad_read_pointer(NewPlayer) ||
-                        !NewPlayer ||
-                        !NewPlayer->Cast<AFortPlayerControllerAthena>() ||
-                        NewPlayer->Cast<AFortPlayerControllerAthena>()->EraPlayerInfo().bIsDisconneting)
-                    {
-                        return 0;
-                    }
-                    
-                    nlohmann::json data = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Profile;
-
-                    // Validate name
-                    if (Name.length() > 0)
-                    {
-                        if (data.contains("display_name"))
-                        {
-                            if (std::string(data["display_name"]) != Name)
-                            {
-                                spdlog::error("Player '{}' provided a different name in join options ('{}').", std::string(data["display_name"]), Name.c_str());
-                            
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick = true;
-                            }
-                            else
-                            {
-                                spdlog::info("Validated Player's name [Backend: '{}', Options: '{}'].", std::string(data["display_name"]), Name.c_str());
-                            }
-                        }
-                    }
-                    
-                    // Handle custom replication
-                    if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform.size() > 0)
-                    {
-                        // If on iOS (5.41), do NOT replicate the following properties
-                        if (GetCL() == 4363240)
-                        {
-                            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform == TEXT("IOS"))
-                            {
-                                net_component::BlockPropertyReplicationPerConnection(Connection, AFortPlayerStateAthena::StaticClass(), TEXT("CharacterParts"));
-                            }
-                        }
-                        
-                        // Log
-                        std::wstring PlayerPlatform = static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform;
-                        TO_STRING(PlayerPlatform, sPlayerPlatform)
-                        if (data.contains("display_name"))
-                        {
-                            spdlog::info("Player's ['{}'] platform: {}", std::string(data["display_name"]), sPlayerPlatform.c_str());
-                        }
-                    }
-            
-                    if (data.contains("admin"))
-                    {
-                        if (static_cast<bool>(data["admin"]))
-                        {
-                            // Give admin permission
-                            NewPlayer->CheatManager() = static_cast<UCheatManager*>(UGameplayStatics::SpawnObject(UCheatManager::StaticClass(), NewPlayer));
-
-                            if (data.contains("display_name"))
-                            {
-                                spdlog::info("Player '{}' joined as an admin [AUTHORIZED BY ERA SERVICES].", std::string(data["display_name"]));
-                            }
-                        }
-                    }
-
-                    if (data.contains("level"))
-                    {
-                        if (static_cast<int>(data["level"]) > 0)
-                        {
-                            initialize_player_banner_level(NewPlayer, data["level"]);
-                        }
-                    }
-    
-                    if (data.contains("locker"))
-                    {
-                        nlohmann::json locker = data["locker"];
-
-                        if (locker.contains("emotes"))
-                        {
-                            nlohmann::json emotes = locker["emotes"];
-
-                            // Emote ownership
-                            if (emotes.is_array())
-                            {
-                                for (auto& elem : emotes.items())
-                                {
-                                    std::string emote = elem.value();
-
-                                    if (emote.find(":") != std::string::npos)
-                                    {
-                                        emote = emote.substr(emote.find(":") + 1);
-                                        TO_WSTRING(emote, wEmote);
-
-                                        if (UAthenaDanceItemDefinition* EmoteAsset = FindObject<UAthenaDanceItemDefinition>(wEmote.c_str(), false, true))
-                                        {
-                                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().OwnedEmotes.push_back(EmoteAsset);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // Item wraps parsing
-                        if (UAthenaItemWrapDefinition::StaticClass())
-                        {
-                            if (locker.contains("wraps"))
-                            {
-                                nlohmann::json wraps = locker["wraps"];
-
-                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PendingWrapsData = wraps;
-                                    
-                                apply_wraps(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), wraps);
-                            }
-                        }
-
-                        for (auto& elem : locker.items())
-                        {
-                            if (elem.value().is_object())
-                            {
-                                UObject* PickedAsset = nullptr;
-                        
-                                if (elem.value().contains("asset"))
-                                {
-                                    nlohmann::json asset = elem.value()["asset"];
-                            
-                                    // If it's a valid string
-                                    if (asset.is_string() && std::string(asset).find(":") != std::string::npos)
-                                    {
-                                        // Banners
-                                        if (locker.contains("banner") &&
-                                            locker["banner"].contains("asset") &&
-                                            locker.contains("banner_color") &&
-                                            locker["banner_color"].contains("asset"))
-                                        {
-                                            if (asset == locker["banner"]["asset"])
-                                            {
-                                                initialize_player_banner_icon(NewPlayer, asset);
-                                
-                                                continue;
-                                            }
-                                            if (asset == locker["banner_color"]["asset"])
-                                            {
-                                                initialize_player_banner_color(NewPlayer, asset);
-                                
-                                                continue;
-                                            }
-                                        }
-                        
-                                        std::string value = std::string(asset).substr(std::string(asset).find(":")+1);
-
-                                        UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
-
-                                        // Check if the backend didn't send a literal random item definition
-                                        UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
-
-                                        if (athena_game_data)
-                                        {
-                                            if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
-                                            {
-                                                for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
-                                                {
-                                                    if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
-                                                    {
-                                                        if (Object == ShuffleTileItem)
-                                                        {
-                                                            Object = nullptr;
-                                                        }
-                                                    }
-                                                } 
-                                            }
-                                        }
-                                
-                                        if (Object)
-                                        {
-                                            if (Object->IsA(UAthenaCharacterItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Character() = static_cast<UAthenaCharacterItemDefinition*>(Object);
-                                                if (Object->HasProperty("HeroDefinition"))
-                                                {
-                                                    NewPlayer->PlayerState()->HeroType() = static_cast<UAthenaCharacterItemDefinition*>(Object)->HeroDefinition();
-                                                }
-                                            }
-                                            else if (Object->IsA(UAthenaBackpackItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Backpack() = static_cast<UAthenaBackpackItemDefinition*>(Object);
-                                            }
-                                            else if (Object->IsA(UAthenaPickaxeItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Pickaxe() = static_cast<UAthenaPickaxeItemDefinition*>(Object);
-                                            }
-                                            else if (Object->IsA(UAthenaGliderItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().Glider() = static_cast<UAthenaGliderItemDefinition*>(Object);
-                                            }
-                                            else if (Object->IsA(UAthenaSkyDiveContrailItemDefinition::StaticClass()))
-                                            {
-                                                PickedAsset = Object;
-                                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout().SkyDiveContrail() = static_cast<UAthenaSkyDiveContrailItemDefinition*>(Object);
-                                            }
-                                        }
-                                    }
-                                }
-                                if (elem.value().contains("variants"))
-                                {
-                                    nlohmann::json variants = elem.value()["variants"];
-
-                                    if (variants.is_array())
-                                    {
-                                        // Save variants
-                                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PendingVariantsData.push_back(std::make_pair(variants, PickedAsset));
-                                        
-                                        // Apply variant
-                                        apply_variant(&static_cast<AFortPlayerControllerAthena*>(NewPlayer)->CustomizationLoadout(), variants, PickedAsset);
-                                    }
-                                }
-                            }
-                        }
-
-                        static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bProfileReady = true;
-                    }
-                }
-                catch (std::exception& err)
-                {
-                    spdlog::error("Error {} occurred while reading profile. Kicking player...", err.what());
-                    if (!memory_manager::is_bad_read_pointer(static_cast<ProfileParsingParameters*>(INParams)->NewPlayer) &&
-                        static_cast<ProfileParsingParameters*>(INParams)->NewPlayer)
-                    {
-                        // Mark as bPendingKick
-                        if (AFortPlayerControllerAthena* NewPlayer = static_cast<ProfileParsingParameters*>(INParams)->NewPlayer->Cast<AFortPlayerControllerAthena>())
-                        {
-                            NewPlayer->EraPlayerInfo().bPendingKick = true;
-                        }
-                    }
-                }
-                
-                return 0;
-            }, NewProfileParsingParameters, 0, nullptr);
-        }
-    }
+    return;
 }
 
 bool player_component::is_live_spectator(APlayerController* player_controller)
@@ -2430,21 +1856,6 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
     {
         if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
         {
-#ifdef _RELEASE
-            if (b_requires_validation)
-            {
-                // Make sure the player owns the asset
-                if (std::find(static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.begin(),
-                              static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end(),
-                              dance_asset) == static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end())
-                {
-                    // Log
-                    spdlog::error(L"Received attempt to play non-owned emote item.");
-                
-                    return;
-                }
-            }
-#endif
 
             // Check if our pawn is overlapping anything
             TArray<UPrimitiveComponent*> OverlappedComponents;
@@ -2468,8 +1879,6 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             // set the ability in the newly created struct
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
-                if (era_mutators_component::IsActive("domino_event")) return;
-                
                 new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
                 
                 // Notify backend that we're dancing
@@ -2554,13 +1963,6 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
 
 std::string player_component::get_account_id(AFortPlayerController* target_player_controller)
 {
-    if (!memory_manager::is_bad_read_pointer(target_player_controller) && target_player_controller && !static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().bIsDisconneting)
-    {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-                
-        return converter.to_bytes(static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().AccountId);
-    }
-    
     return "";
 }
 
@@ -2651,6 +2053,7 @@ AFortPlayerController* player_component::get_player_by_quest_manager(UFortQuestM
 
 void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPlayerController* Instigator, AActor* DamageCauser, int Damage, FName BoneName)
 {
+    return;
     if (Instigator)
     {
         if (is_live_spectator(Instigator))
@@ -3396,25 +2799,17 @@ void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController*
     {
         if (FortPlayerController->PlayerState()->bHasStartedPlaying() == false)
         {
+            // Grant harvesting tool
+            inventory_component::add_item(FortPlayerController, static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
         
-            if (era_mutators_component::IsActive("domino_event"))
+            for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
             {
-                // Do nothing for now, later we might give a special item for this event
+                // Grant default item
+                inventory_component::add_item(FortPlayerController, starting_item.Item, starting_item.Count);
             }
-            else
-            {
-                // Grant harvesting tool
-                inventory_component::add_item(FortPlayerController, static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe() ? static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->CustomizationLoadout().Pickaxe()->WeaponDefinition() : FindObject<UFortItemDefinition>(L"WID_Harvest_Pickaxe_Athena_C_T01", false, true), 1);
         
-                for (FItemAndCount starting_item : (*GWorld)->AuthorityGameMode()->StartingItems())
-                {
-                    // Grant default item
-                    inventory_component::add_item(FortPlayerController, starting_item.Item, starting_item.Count);
-                }
-        
-                // Equip pickaxe
-                FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
-            }
+            // Equip pickaxe
+            FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
     
             creative_component::handle_player_join(FortPlayerController->NetConnection());
 
@@ -3439,38 +2834,8 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             NewPlayer->MyPlayerInfo()->PlayerID() = NewPlayer->NetConnection()->PlayerID();   
         }
         
-        auto& WorldPlayerId = NewPlayer->PlayerState()->WorldPlayerId();
-        
-        if (WorldPlayerId <= 0)
-        {
-            WorldPlayerId = player_component::global_player_id++;
-            
-            if (NewPlayer->MyPlayerInfo())
-            {
-                NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
-            }
-        }
-        NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
-        
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
         ability_component::apply_playlist_modifiers(NewPlayer->Pawn());
-
-        // Make sure profile is there
-        while (true)
-        {
-            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick)
-            {
-                NewPlayer->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer."));
-                return;
-            }
-            
-            if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bProfileReady)
-            {
-                break;
-            }
-            
-            Sleep(1000 / 30);
-        }
         
         NewPlayer->Pawn()->PlayerState()->ApplyCharacterCustomization(NewPlayer->Pawn());
 
@@ -3501,23 +2866,13 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
             }
         }
 
-        
-        if (!era_mutators_component::IsActive("domino_event"))
-        {
-            // Apply backpack, if specified
-            player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));   
-        }
+        // Apply backpack, if specified
+        player_component::ApplyBackpack(static_cast<AFortPlayerControllerAthena*>(NewPlayer));
 
         // Equip the pickaxe on landing
         if (STATIC_HASPROPERTY(NewPlayer->Pawn(), OnPawnLanded))
         {
             NewPlayer->Pawn()->OnPawnLanded().Bind(TScriptDelegate<AFortPawn>(NewPlayer->Pawn(), TEXT("OnPawnLandedImplementation")));
-        }
-
-        // Butterfly/domino event
-        if (era_mutators_component::IsActive("butterfly_begin") || era_mutators_component::IsActive("domino_event"))
-        {
-            UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->Pawn(), "bIsInvulnerable", true);
         }
 
         // Implementable event
@@ -3823,6 +3178,7 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
 {
     GET_PROCESS_EVENT_PARAMETER(FGameplayCueParameters, Parameters)
 
+    return;
     if (Self)
     {
         AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller();

@@ -26,6 +26,7 @@ challenges_component::challenges_component()
 
 void challenges_component::Initialize()
 {
+    return;
     // load object
     if (GetEngineVersionEasy() == 420)
     {
@@ -70,7 +71,8 @@ void challenges_component::Initialize()
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
 {
     CHECK_PAST_WARMUP()
-    
+
+    return;
     if (PlayerController)
     {
         if (player_component::is_live_spectator(PlayerController))
@@ -134,7 +136,8 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (KillerPlayerController && VictimPlayerController)
     {
         if (!memory_manager::is_bad_read_pointer(VictimPlayerController->Pawn()) && VictimPlayerController->Pawn())
@@ -331,7 +334,8 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (ExecutingPlayerController && VictimPlayerController)
     {
         const std::string executing_account_id = player_component::get_account_id(ExecutingPlayerController);
@@ -367,6 +371,7 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
+    return;
     if (EmoteAsset == nullptr) return;
     
     if (InteractingController && InteractingController->Pawn())
@@ -435,6 +440,7 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
 
 void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::json Payload)
 {
+    return;
     if (Channel.find("player:v2:") != std::string::npos)
     {
         Channel = Channel.substr(Channel.find(":") + 1);
@@ -556,6 +562,7 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
     
+    return;
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -593,6 +600,7 @@ void challenges_component::SendCustomEvent(AFortPlayerController* InteractingCon
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
+    return;
     float x_location = 0.0f;
     float y_location = 0.0f;
 
@@ -630,7 +638,8 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (InteractingController && InteractingController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingController);
@@ -663,7 +672,8 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (InteractingPlayerController && InteractingPlayerController->Pawn() && Pickup)
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -703,7 +713,8 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
     FGameplayTag POI)
 {
     CHECK_CREATIVE()
-    
+
+    return;
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -755,7 +766,8 @@ void challenges_component::SendTomatoInteraction(AFortPlayerController* Interact
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -784,7 +796,8 @@ void challenges_component::SendGrenadeHitInteraction(AFortPlayerControllerAthena
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
-    
+
+    return;
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -819,6 +832,7 @@ void challenges_component::SendPlaceEvent(AFortPlayerController* InteractingPlay
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
+    return;
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
         std::string account_id = player_component::get_account_id(InteractingPlayerController);
@@ -851,7 +865,7 @@ void challenges_component::SendPlaceEvent(AFortPlayerController* InteractingPlay
 void challenges_component::SendHealInteraction(AFortPlayerControllerAthena* Self, std::string source, int count)
 {
     CHECK_CREATIVE()
-    
+    return;
         if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
         {
             std::string account_id = player_component::get_account_id(Self);
@@ -880,6 +894,7 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
 
+    return;
     static UFortItemDefinition* Athena_Bling_Pack_Definition = FindObject<UFortItemDefinition>(L"/Game/Athena/Playlists/Bling/BlingPack/Athena_Bling_Pack.Athena_Bling_Pack");
     static UFortItemDefinition* AGID_SpookyMist = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SpookyMist/AGID_SpookyMist.AGID_SpookyMist");
     
@@ -916,6 +931,7 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
 
 void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     AAthena_SoccerGame_C* SoccerGame = static_cast<AAthena_SoccerGame_C*>(Object);
     
     if (log_component::enable_debug_logs)
@@ -937,6 +953,7 @@ void challenges_component_hooks::BndEvt__Goal_02_Overlap_K2Node_ComponentBoundEv
 
 void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEvent_1_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     AAthena_SoccerGame_C* SoccerGame = static_cast<AAthena_SoccerGame_C*>(Object);
 
     if (log_component::enable_debug_logs)
@@ -958,6 +975,7 @@ void challenges_component_hooks::BndEvt__Goal_01_Overlap_K2Node_ComponentBoundEv
 
 void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     GET_PROCESS_EVENT_PARAMETER(AActor*, OtherActor);
 
     AB_GolfMinigame_Hole* GolfGame = static_cast<AB_GolfMinigame_Hole*>(Object);
@@ -984,6 +1002,7 @@ void challenges_component_hooks::BndEvt__HoleCollision_K2Node_ComponentBoundEven
 
 void challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEvent_0_ComponentBeginOverlapSignature__DelegateSignature_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     AB_BasketballHoopWithMinigame_C* BasketBallGame = static_cast<AB_BasketballHoopWithMinigame_C*>(Object);
 
     if (log_component::enable_debug_logs)
@@ -1005,6 +1024,7 @@ void challenges_component_hooks::BndEvt__HoopTriggerBox_K2Node_ComponentBoundEve
 
 void challenges_component_hooks::PidgeonShot_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);
     
     AProp_Quest_ClayPidgeonLauncher_C* ClayPidgeonLauncher = static_cast<AProp_Quest_ClayPidgeonLauncher_C*>(Object);
@@ -1025,6 +1045,7 @@ void challenges_component_hooks::PidgeonShot_Hook(UObject* Object, UObject* Func
 
 void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     if (Object->IsA(ABA_QuestInteractable_DancePlatforms::StaticClass()))
     {
         ABA_QuestInteractable_DancePlatforms* DancePlatform = static_cast<ABA_QuestInteractable_DancePlatforms*>(Object);
@@ -1062,6 +1083,7 @@ void challenges_component_hooks::Rising__FinishedFunc_Hook(UObject* Object, UObj
 
 void challenges_component_hooks::KillPuck_Hook(UObject* Object, UObject* Function, void* Params)
 {
+    return;
     AB_Toy_IcePuck_Base_C* IcePuck = reinterpret_cast<AB_Toy_IcePuck_Base_C*>(Object);
 
     if (IcePuck && IcePuck->Owner() && IcePuck->Owner()->Owner())
@@ -1079,6 +1101,7 @@ void challenges_component_hooks::KillPuck_Hook(UObject* Object, UObject* Functio
 
 void challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook(UObject* Context, FFrame& StackFrame, void* Param)
 {
+    return;
     GET_PARAMETER(UFortQuestItemDefinition*, InQuestItemRef);
     GET_PARAMETER(FName, ObjectiveBackendName);
     GET_PARAMETER(TArray<AFortPlayerController*>, PlayerControllersForUpdate);

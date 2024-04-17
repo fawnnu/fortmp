@@ -112,15 +112,7 @@ void Setup()
                 // Initialize gamemode custom functions
                 new gamemodes_component();
                     
-                // load into level
-                if (era_mutators_component::IsActive("domino_event"))
-                {
-                    UGameplayStatics::OpenLevel(*GWorld, TEXT("/game/fortmp/content_complex/domino/domino_level"), true, TEXT("game=/Game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_GameMode.StellarBellum_GameMode_C"));
-                }
-                else
-                {
-                    UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
-                }
+                UGameplayStatics::OpenLevel(*GWorld, GetEngineVersionEasy() > 423 ? TEXT("Apollo_Terrain") : TEXT("Athena_Terrain"), true, TEXT("game=/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C"));
                 
                 while ((*GWorld)->GetName().find(GetFortniteVersionEasy() >= 10 ? L"Frontend" : L"FortniteEmptyDedicated") != std::string::npos)
                 {
@@ -159,7 +151,6 @@ void Setup()
                 new creative_component();
                 new moderation_component();
                 new playlist_component();
-                new anticheat_component();
                 new challenges_component();
                 era_mutators_component::InitializeHooks();
                     

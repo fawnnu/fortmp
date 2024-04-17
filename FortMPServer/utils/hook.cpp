@@ -70,9 +70,15 @@ hook_manager::hook_manager()
 
     DetourTransactionCommit();
 
-    REGISTER_VTABLE_HOOK(FindObject(L"/Script/AIModule.Default__EnvQueryInstanceBlueprintWrapper")->VTable, ProcessEvent_Index, hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent);
-    REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent);
-    REGISTER_VTABLE_HOOK(CreateDefaultObject<UPlaysetLevelStreamComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
+    if (auto EnvQueryInstanceBlueprintWrapper = FindObject(L"/Script/AIModule.Default__EnvQueryInstanceBlueprintWrapper"))
+    {
+        REGISTER_VTABLE_HOOK(EnvQueryInstanceBlueprintWrapper->VTable, ProcessEvent_Index, hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent);   
+    }
+    if (UFortLevelSaveComponent::StaticClass() && UPlaysetLevelStreamComponent::StaticClass())
+    {
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent);
+        REGISTER_VTABLE_HOOK(CreateDefaultObject<UPlaysetLevelStreamComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
+    }
 }
 
 void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)

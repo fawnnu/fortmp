@@ -109,11 +109,6 @@ era_mutators_component::era_mutators_component()
         // 1 hour storm formation
         (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 60;
     });
-
-    new era_mutator("domino_event", [](LPVOID)
-    {
-        // Do nothing
-    });
     
     new era_mutator("butterfly_end", [](LPVOID)
     {
