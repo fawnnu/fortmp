@@ -27,5 +27,3 @@ namespace vehicles_component_hooks
 }
 
 inline void (*SetWorldLocationAndRotation)(USceneComponent* RootComponent, FVector& NewLocation, FQuat& NewRotation, bool bSweep, void* OutSweepHitResult, int ETeleportType);
-inline void (*FBodyInstance_GetUnrealWorldTransform)(FBodyInstance* BodyInstance, FTransform*, bool, bool);
-inline void (*OctopusTowhookUpdateState);

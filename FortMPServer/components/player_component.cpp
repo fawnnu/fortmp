@@ -2748,12 +2748,6 @@ void player_component_hooks::ServerSendZiplineState_Hook(AFortPlayerPawn* FortPl
 
     if (InZiplineState.bJumped())
     {
-        // CREDIT: RUBY (Makes it impossible for cheaters to exploit ziplines)
-        if (InZiplineState.Zipline() == nullptr)
-        {
-            return;
-        }
-        
         // CREDIT: WIKTORWIKTOR12
         float ZiplineJumpDampening = FortPlayerPawn->ZiplineJumpDampening().Eval(0);
         float ZiplineJumpStrength = FortPlayerPawn->ZiplineJumpStrength().Eval(0);
