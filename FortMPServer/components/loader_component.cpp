@@ -35,8 +35,16 @@ void loader_component::pre_init()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
 
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::ApplyPlaylistDataTables, memory_manager::find_function_by_string(L"PLAYLIST: Patched Game Data with %s"), loader_component_hooks::ApplyPlaylistDataTables_Hook);
-    
+
     DetourTransactionCommit();
+}
+
+void loader_component_hooks::HandleWorldQueryComplete_Hook(AFortWorldManager* Self)
+{
+    HandleWorldQueryComplete(Self);
+
+    // Start match if we have enough loaded levels
+    loader_component::start_match((*GWorld)->AuthorityGameMode()->OnSetPlaylist());
 }
 
 void loader_component::load_asset(FName Path, FName InAssetName)
@@ -87,9 +95,16 @@ loader_component::loader_component()
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-    
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
+
+    if (GetEngineVersionEasy() <= 420)
+    {
+        REGISTER_FUNCTION_DETOUR(loader_component_hooks::HandleWorldQueryComplete, memory_manager::find_function_by_string(L"HandleWorldQueryComplete:"), loader_component_hooks::HandleWorldQueryComplete_Hook);
+    }
+    else
+    {
+        REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
+        REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
+    }
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetCalendarEventInformation, memory_manager::find_function_by_string(L"GetCalendarEventInformation(%s) called without an event manager"), loader_component_hooks::GetCalendarEventInformation_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::NotifyCustomStatEvent, memory_manager::find_pattern("4C 8B DC 49 89 5B 08 57 48 83 EC 60 33 C0 49 8D 53 B8 49 8B D8 49 89 43 B8 4D 8D 43 D8 49 89 43 C0 49 89 43 C8 49 8B F9 49 89 43 D0 49 89 43 D8 49 89 43 E0 49 89 43 E8 49 89 43 F0 E8 ? ? ? ? 48 8B D3 48 8D 4C 24 ? E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ?"), loader_component_hooks::NotifyCustomStatEvent_Hook);

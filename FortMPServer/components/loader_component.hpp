@@ -60,6 +60,7 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, SetCurrentPlaylistId, (AFortGameStateAthena* Self, int PlaylistId));
 
     DEFINE_FUNCTION_HOOK(__int64, ApplyPlaylistDataTables, (AFortGameModeAthena* Self));
-
+    DEFINE_FUNCTION_HOOK(void, HandleWorldQueryComplete, (AFortWorldManager* Self));
+    
     DEFINE_FUNCTION_HOOK(void, GetCalendarEventInformation, (class UObject* WorldContextObject, FString* EventName, bool* bIsEventActive, FTimespan* TimeSinceBegin, FTimespan* TimeUntilEnd, float* TimespanRatio))
 }
