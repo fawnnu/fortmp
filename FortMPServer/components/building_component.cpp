@@ -147,7 +147,18 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
 
                     if (replicated_entry.ItemDefinition() == building_resource_definition)
                     {
+                        inventory_component::safe_update_materials_used(building_owner, replicated_entry.ItemDefinition(), 10);
+
                         inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
+
+                        // Count buildings placement
+                        static_cast<AFortPlayerControllerAthena*>(building_owner)->EraPlayerInfo().PlayerStatsTracker.TemporaryPlacedBuilds++;
+                        if (UKismetSystemLibrary::K2_IsTimerActive(building_owner, L"BuildingPlacedCallback"))
+                        {
+                            UKismetSystemLibrary::K2_ClearTimer(building_owner, L"BuildingPlacedCallback");
+                        }
+                        UKismetSystemLibrary::K2_SetTimer(building_owner, L"BuildingPlacedCallback", 5.0, false);
+                        
                         break;
                     }
                 }

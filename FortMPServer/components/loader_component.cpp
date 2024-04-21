@@ -35,16 +35,8 @@ void loader_component::pre_init()
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
 
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::ApplyPlaylistDataTables, memory_manager::find_function_by_string(L"PLAYLIST: Patched Game Data with %s"), loader_component_hooks::ApplyPlaylistDataTables_Hook);
-
+    
     DetourTransactionCommit();
-}
-
-void loader_component_hooks::HandleWorldQueryComplete_Hook(AFortWorldManager* Self)
-{
-    HandleWorldQueryComplete(Self);
-
-    // Start match if we have enough loaded levels
-    loader_component::start_match((*GWorld)->AuthorityGameMode()->OnSetPlaylist());
 }
 
 void loader_component::load_asset(FName Path, FName InAssetName)
@@ -95,16 +87,9 @@ loader_component::loader_component()
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
-
-    if (GetEngineVersionEasy() <= 420)
-    {
-        REGISTER_FUNCTION_DETOUR(loader_component_hooks::HandleWorldQueryComplete, memory_manager::find_function_by_string(L"HandleWorldQueryComplete:"), loader_component_hooks::HandleWorldQueryComplete_Hook);
-    }
-    else
-    {
-        REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
-        REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
-    }
+    
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_function_by_string(L"STAT_UpdateLevelStreamingTime"), loader_component_hooks::UpdateLevelStreaming_Hook);
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::UpdateLevelStreaming, memory_manager::find_pattern("E8 ? ? ? ? 48 8B CF E8 ? ? ? ? 84 C0 75 0E FF 15 ? ? ? ? 84 C0 0F 84 ? ? ? ?", true, 1), loader_component_hooks::UpdateLevelStreaming_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::SetGameMode, memory_manager::find_function_by_string(L"Failed to spawn GameMode actor."), loader_component_hooks::SetGameMode_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::GetCalendarEventInformation, memory_manager::find_function_by_string(L"GetCalendarEventInformation(%s) called without an event manager"), loader_component_hooks::GetCalendarEventInformation_Hook);
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::NotifyCustomStatEvent, memory_manager::find_pattern("4C 8B DC 49 89 5B 08 57 48 83 EC 60 33 C0 49 8D 53 B8 49 8B D8 49 89 43 B8 4D 8D 43 D8 49 89 43 C0 49 89 43 C8 49 8B F9 49 89 43 D0 49 89 43 D8 49 89 43 E0 49 89 43 E8 49 89 43 F0 E8 ? ? ? ? 48 8B D3 48 8D 4C 24 ? E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ? 48 8B 4C 24 ? 48 85 C9 74 05 E8 ? ? ? ?"), loader_component_hooks::NotifyCustomStatEvent_Hook);
@@ -316,6 +301,41 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     //make sure we weren't listening already
     if (net_component::listen(in_url))
     {
+        // Load every asset in /Game/Athena/Items/Cosmetics
+        {
+            TArray<FAssetData> OutAssets;
+            if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Cosmetics"), OutAssets, true, false))
+            {
+                TArrayManager Assets = OutAssets;
+                for (FAssetData& Asset : Assets)
+                {
+                    LoadObject(Asset.ObjectPath().c_str());
+                }
+
+                // Log
+                spdlog::info(L"loader_component::start_match loaded {} cosmetic assets.", Assets.Num());
+            }
+        }
+        
+        // Load every asset in /Game/Athena/Items/Quests
+        {
+            TArray<FAssetData> OutAssets;
+            if (UAssetRegistryHelpers::GetAssetRegistry()->GetAssetsByPath(TEXT("/Game/Athena/Items/Quests"), OutAssets, true, false))
+            {
+                if (OutAssets.Num() > 0)
+                {
+                    TArrayManager Assets = OutAssets; // TODO: Figure out why this crashes sometimes with except access violation reading address 0x18
+                    for (FAssetData& Asset : Assets)
+                    {
+                        LoadObject(Asset.ObjectPath().c_str());
+                    }
+                    
+                    // Log
+                    spdlog::info(L"loader_component::start_match loaded {} quest assets.", Assets.Num());
+                }
+            }
+        }
+        
         REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations_C.SwapPOI", loader_component_hooks::SwapPOI_Hook);
         
         if (in_playlist == nullptr)
@@ -528,7 +548,18 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             }
         }
 
-        (*GWorld)->GameState()->GamePhase() = 2; // Warmup
+        if (!era_mutators_component::IsActive("domino_event"))
+        {
+            UObject* fortmp_bp_loader = FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false);
+            if (fortmp_bp_loader)
+            {
+                SpawnDefaultActor(*GWorld, fortmp_bp_loader);   
+            }
+        }
+        else
+        {
+            (*GWorld)->GameState()->GamePhase() = 2; // Warmup
+        }
         
         spdlog::info(L"Match has started in world '{}' and listening for connections", (*GWorld)->GetName().c_str());
     }
@@ -964,24 +995,27 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
         static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
         uint8_t Aircraft = GamePhaseEnum->GetEnumIndex(TEXT("Aircraft"));
 
-    if (Self->GamePhase() == Aircraft)
+    if (!era_mutators_component::IsActive("domino_event"))
     {
-        gameserver_client::Client->GameServer_Status.accepting_players = false;
-        gameserver_client::Client->SendUpdate();
-
-        player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
-
-        /*
-         * Send a match_started event to director
-         */
-        if (director_client::client)
+        if (Self->GamePhase() == Aircraft)
         {
-            director_client::client->Send(eudp_packet({
-                {"type", "match_started"},
-                {"payload", {
-                    {"starting_players", player_component::starting_players}
-                }}
-            }));
+            gameserver_client::Client->GameServer_Status.accepting_players = false;
+            gameserver_client::Client->SendUpdate();
+
+            player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+            /*
+             * Send a match_started event to director
+             */
+            if (director_client::client)
+            {
+                director_client::client->Send(eudp_packet({
+                    {"type", "match_started"},
+                    {"payload", {
+                        {"starting_players", player_component::starting_players}
+                    }}
+                }));
+            }
         }
     }
 #endif
@@ -992,6 +1026,11 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
     if (ServerPlaylist)
     {
         fort_mutators_component::on_game_phase_updated(Self->GamePhase());
+
+        if (era_mutators_component::IsActive("domino_event"))
+        {
+            (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
+        }
         
         // Can't use STATIC_HASPROPERTY as the playlist can change
         if (ServerPlaylist->HasProperty(TEXT("bEnableCreativeMode")))
@@ -1307,7 +1346,14 @@ bool loader_component_hooks::SetGameMode_Hook()
 
         if (AuthorityGameMode == nullptr)
         {
-            AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
+            if (era_mutators_component::IsActive("domino_event"))
+            {
+                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/fortmp/content_complex/domino/StellarBellum_Content/StellarBellum_GameMode.StellarBellum_GameMode_C", true));
+            }
+            else
+            {
+                AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Athena_GameMode.Athena_GameMode_C", true));
+            }
         }
 
         if (AuthorityGameMode && (*GWorld)->AuthorityGameMode() == nullptr)

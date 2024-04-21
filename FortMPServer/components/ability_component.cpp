@@ -26,11 +26,7 @@ ability_component::ability_component()
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbility, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbility", ability_component_hooks::ServerTryActivateAbility_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbilityWithEventData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbilityWithEventData", ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
-
-    if (GetFortniteVersionEasy() >= 7.00)
-    {
-        REGISTER_FUNCTION_DETOUR(ability_component_hooks::HandleGliderRedeploy, memory_manager::find_pattern("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 56 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 D8 0F 29 78 C8 48 8B 05 ? ? ? ?"), ability_component_hooks::HandleGliderRedeploy_Hook);
-    }
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::HandleGliderRedeploy, memory_manager::find_pattern("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 56 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 D8 0F 29 78 C8 48 8B 05 ? ? ? ?"), ability_component_hooks::HandleGliderRedeploy_Hook);
     
     DetourTransactionCommit();
 }

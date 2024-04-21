@@ -88,7 +88,6 @@ void team_component::InitializeTeams()
 
 void team_component::Login(AFortPlayerController* player_controller, const FString& Options)
 {
-    return;
     if (UGameplayStatics::HasOption(Options, TEXT("EncryptionToken")))
     {
         FString EncryptionToken = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));

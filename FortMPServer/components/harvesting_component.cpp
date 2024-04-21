@@ -41,9 +41,63 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
     
     if (building_actor != nullptr)
     {
-        if (building_actor->IsA(ABuildingSMActor::StaticClass()))
+        if (building_actor->IsA(AFortAthenaSupplyDropBalloon::StaticClass()))
         {
+            if (auto root_component = building_actor->RootComponent())
+            {
+                if (auto attach_parent = root_component->AttachParent())
+                {
+                    if (AAthenaSupplyDrop_C* supply_drop = attach_parent->GetOwner()->Cast<AAthenaSupplyDrop_C>())
+                    {
+                        if (supply_drop->K2_GetActorLocation().Z - supply_drop->GroundLocation().Z > 100)
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon += damage;
+                            if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"SupplyDropDamageCallback"))
+                            {
+                                UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"SupplyDropDamageCallback");
+                            }
+                            UKismetSystemLibrary::K2_SetTimer(instigated_by, L"SupplyDropDamageCallback", 5.0, false);   
+                        }
+                    }
+                }
+            }
+        }
+        else if (building_actor->IsA(ABuildingSMActor::StaticClass()))
+        {
+            // Track damage inflicted to building actors
+            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
+
+            // If the building is player built & owned by another team, count EnemyStructureDamage
+            if (building_actor->AttributeInitLevelSource() == 1)
+            {
+                // Check PlayerState
+                if (instigated_by->PlayerState())
+                {
+                    // Check team
+                    if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
+                    {
+                        static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage += damage;
+                        if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"EnemyStructureDamageCallback"))
+                        {
+                            UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"EnemyStructureDamageCallback");
+                        }
+                        UKismetSystemLibrary::K2_SetTimer(instigated_by, L"EnemyStructureDamageCallback", 5.0, false);
+                    }
+                }
+            }
+            
             const bool bIsDestroyed = building_actor->GetHealth() < 1;
+
+            if (bIsDestroyed)
+            {
+                if (building_actor->IsA(AProp_QuestInteractable_GoldBalloon_Parent_C::StaticClass()))
+                {
+                    if (instigated_by->Pawn())
+                    {
+                        challenges_component::SendCustomEventWithObjective(instigated_by, "interaction:pop-golden-balloon", building_actor->Cast<AProp_QuestInteractable_GoldBalloon_Parent_C>()->ObjBackendName());
+                    }
+                }   
+            }
             
             // Make sure a player is damaging the building with their pickaxe
             if (building_actor->AttributeInitLevelSource() != 1 &&
@@ -152,6 +206,9 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     {
                         // Give the resource to the player
                         inventory_component::add_item(instigated_by, ResourceItemDefinition, Count, 0, {}, false);
+
+                        // update gathered materials
+                        inventory_component::safe_update_materials_gathered(instigated_by, ResourceItemDefinition, Count);
                     }
                 }
             }

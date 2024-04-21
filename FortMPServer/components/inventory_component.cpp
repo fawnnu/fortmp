@@ -683,7 +683,7 @@ void inventory_component_hooks::ServerExecuteInventoryItem_Hook(AFortPlayerContr
         }
     }
 
-    static bool b_set_metadata = GetEngineVersionEasy() < 420;
+    static bool b_set_metadata = GetEngineVersionEasy() < 421;
 
     if (b_set_metadata)
     {

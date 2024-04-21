@@ -399,17 +399,57 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
             
             AFortPlayerController* FortPlayerController = Self->PlayerController();
 
-            // Log
-            if (!memory_manager::is_bad_read_pointer(FortPlayerController->MyPlayerInfo()) && FortPlayerController->MyPlayerInfo())
-            {
-                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
-                std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
-                std::string player_name = name_converter.to_bytes(wPlayer_name);
-                    
-                spdlog::info("Player '{}' left its channel", player_name.c_str());
+            // Get account ID
+            std::string account_id = player_component::get_account_id(FortPlayerController);
 
-                // Drop items
-                inventory_component::clear_primary_inventory(FortPlayerController, true);   
+            if (account_id.size() > 0)
+            {
+                // Send summary, on creative
+                if (creative_component::is_creative_enabled())
+                {
+                    challenges_component::SendSummary(FortPlayerController, 2);
+                }
+                
+                // Mark as disconnecting
+                static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().bIsDisconneting = true;
+                
+                std::map<std::string, std::string> parameters{
+                };
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_leave", parameters);
+
+                /*
+                 * If we're in Warmup, notify director of an available player
+                 */
+                if (*GWorld && (*GWorld)->GameState())
+                {
+                    static UEnum* GamePhaseEnum = FindObject<UEnum>(TEXT("/Script/FortniteGame.EAthenaGamePhase"));
+                    uint8_t Warmup = GamePhaseEnum->GetEnumIndex(TEXT("Warmup"));
+                    if ((*GWorld)->GameState()->GamePhase() == Warmup || creative_component::is_creative_enabled())
+                    {
+                        if (director_client::client)
+                        {
+                            director_client::client->Send(eudp_packet({
+                                {"type", "player_left"},
+                                {"payload", {
+                                    {"account_id", account_id}
+                                }}
+                            }));
+                        }
+                    }
+                }
+                
+                // Log
+                if (!memory_manager::is_bad_read_pointer(FortPlayerController->MyPlayerInfo()) && FortPlayerController->MyPlayerInfo())
+                {
+                    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
+                    std::wstring wPlayer_name = FortPlayerController->MyPlayerInfo()->PlayerName().c_str();
+                    std::string player_name = name_converter.to_bytes(wPlayer_name);
+                    
+                    spdlog::info("Player '{}' left its channel [ACCOUNT_ID: {}]", player_name.c_str(), account_id.c_str());
+
+                    // Drop items
+                    inventory_component::clear_primary_inventory(FortPlayerController, true);   
+                }
             }
         }
     }
