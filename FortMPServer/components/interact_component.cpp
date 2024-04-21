@@ -178,6 +178,7 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         }
         else if (building_container->SearchLootTierGroup() == L"Loot_AthenaBooty")
         {
+            challenges_component::SendCustomEvent(player_controller, "interact:buried_treasure");
             static UFortGadgetItemDefinition* buried_treasure_gadget = FindObject<UFortGadgetItemDefinition>(L"/Game/Athena/Items/Gameplay/Booty/AGID_Athena_Booty.AGID_Athena_Booty", true, false);
 
             if (buried_treasure_gadget)
