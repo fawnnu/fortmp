@@ -346,7 +346,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                                     spdlog::warn(L"Player '{}' eliminated an enemy with a too long distance ( {} ). Kicking...", DeathReport.KillerPawn()->Controller()->MyPlayerInfo()->PlayerName().c_str(), VictimPlayerController->Pawn()->GetDistanceTo(DeathReport.KillerPawn()));
 
                                     // Commented out for now due to a lot of false positives
-                                    //DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
+                                    DeathReport.KillerPawn()->Controller()->ClientReturnToMainMenu(TEXT(""));
                                 }
                             }
                         }
