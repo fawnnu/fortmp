@@ -76,6 +76,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         {
             handle_plane_interaction(player_controller, static_cast<AFortAthenaFerretVehicle*>(receiving_actor));
         }
+        else if (receiving_actor->IsA(AFortOctopusVehicle::StaticClass(log_component::enable_debug_logs)))
+        {
+            challenges_component::SendCustomEvent(player_controller, "interaction:hamster-ball");
+        }
     }
     else if (receiving_actor->IsA(AAthenaSupplyDrop_Llama_C::StaticClass(log_component::enable_debug_logs)))
     {
@@ -178,7 +182,7 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         }
         else if (building_container->SearchLootTierGroup() == L"Loot_AthenaBooty")
         {
-            challenges_component::SendCustomEvent(player_controller, "interaction:buried_treasure");
+            challenges_component::SendCustomEvent(player_controller, "interaction:buried-treasure");
             static UFortGadgetItemDefinition* buried_treasure_gadget = FindObject<UFortGadgetItemDefinition>(L"/Game/Athena/Items/Gameplay/Booty/AGID_Athena_Booty.AGID_Athena_Booty", true, false);
 
             if (buried_treasure_gadget)
