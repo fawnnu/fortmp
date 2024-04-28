@@ -34,8 +34,8 @@ void loader_component::pre_init()
 
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
 
-    REGISTER_FUNCTION_DETOUR(loader_component_hooks::ApplyPlaylistDataTables, memory_manager::find_function_by_string(L"PLAYLIST: Patched Game Data with %s"), loader_component_hooks::ApplyPlaylistDataTables_Hook);
-    
+    REGISTER_FUNCTION_DETOUR(loader_component_hooks::OnPlaylistDataLoaded, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object finished loading its assets and GameMode can now"), loader_component_hooks::OnPlaylistDataLoaded_Hook);
+
     DetourTransactionCommit();
 }
 
@@ -1374,9 +1374,34 @@ void loader_component_hooks::SetCurrentPlaylistId_Hook(AFortGameStateAthena* Sel
     // Steal the function   
 }
 
-long long loader_component_hooks::ApplyPlaylistDataTables_Hook(AFortGameModeAthena* Self)
+void loader_component_hooks::OnPlaylistDataLoaded_Hook(AFortGameStateAthena* Self)
 {
-    loader_component::parse_game_data_hotfixes(GetPlaylistEasy());
+    if (era_mutators_component::IsActive("rebooting_force_enable"))
+    {
+        (*GWorld)->GameState()->DefaultRebootMachineHotfix() = 1.0;
+        std::vector<FTransform> reboot_locs;
     
-    return ApplyPlaylistDataTables(Self);
+        TArray<AActor*> reboot_vans = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABuildingGameplayActorSpawnMachine::StaticClass());
+                                
+        for (auto actor : reboot_vans)
+        {
+            reboot_locs.push_back(actor->GetTransform());
+        }
+    
+        OnPlaylistDataLoaded(Self);
+
+        for (auto transform : reboot_locs)
+        {
+            FVector Location = transform.Translation;
+            FRotator SpawnRotation = UKismetMathLibrary::Quat_Rotator(transform.Rotation);
+            FActorSpawnParameters SpawnParameters{};
+            ABuildingGameplayActorSpawnMachine* van = static_cast<ABuildingGameplayActorSpawnMachine*>(SpawnActor(*GWorld, FindObject(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C", true, false), &Location, &SpawnRotation, SpawnParameters));
+            if (van)
+            {
+                spdlog::info(L"rebooting_force_enable: Respawning a van {}", van->GetName().c_str());
+            }
+        }
+        return;
+    }
+    return OnPlaylistDataLoaded(Self);
 }

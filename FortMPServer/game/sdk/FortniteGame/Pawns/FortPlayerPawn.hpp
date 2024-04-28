@@ -419,6 +419,13 @@ public:
         Call(Function_TeleportToSkyDive, HeighAboveGround);
     }
 
+    bool IsActivelyStrafingInAir()
+    {
+        STATIC_FINDFUNCTION(IsActivelyStrafingInAir)
+        
+        return Call<bool>(Function_IsActivelyStrafingInAir);
+    }
+
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerPawnAthena");
 };
 

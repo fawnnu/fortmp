@@ -47,7 +47,6 @@ namespace loader_component_hooks
     DEFINE_FUNCTION_HOOK(void, AFortGameModeAthena_BeginPlay, (AFortGameModeAthena* Target));
     
     DEFINE_FUNCTION_HOOK(bool, SetGameMode, ());
-
     DEFINE_FUNCTION_HOOK(void, NotifyCustomStatEvent, (UFortQuestManager* QuestManager, UObject* ContextObject, FGameplayTagContainer SourceTags, FGameplayTagContainer ContextTags));
     
     DEFINE_FUNCTION_HOOK(UObject*, GetGameSessionClass, (AGameModeBase* GameMode, UObject* GameSessionClass));
@@ -59,7 +58,6 @@ namespace loader_component_hooks
     // Steal the function
     DEFINE_FUNCTION_HOOK(void, SetCurrentPlaylistId, (AFortGameStateAthena* Self, int PlaylistId));
 
-    DEFINE_FUNCTION_HOOK(__int64, ApplyPlaylistDataTables, (AFortGameModeAthena* Self));
-
+    DEFINE_FUNCTION_HOOK(void, OnPlaylistDataLoaded, (AFortGameStateAthena* Self));
     DEFINE_FUNCTION_HOOK(void, GetCalendarEventInformation, (class UObject* WorldContextObject, FString* EventName, bool* bIsEventActive, FTimespan* TimeSinceBegin, FTimespan* TimeUntilEnd, float* TimespanRatio))
 }

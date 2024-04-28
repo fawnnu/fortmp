@@ -67,8 +67,10 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
             // Track damage inflicted to building actors
             static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
 
+            const bool bIsPlayerBuiltStructure = building_actor->AttributeInitLevelSource() == 1;
+            
             // If the building is player built & owned by another team, count EnemyStructureDamage
-            if (building_actor->AttributeInitLevelSource() == 1)
+            if (bIsPlayerBuiltStructure)
             {
                 // Check PlayerState
                 if (instigated_by->PlayerState())
