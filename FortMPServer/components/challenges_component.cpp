@@ -658,6 +658,35 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
     }  
 }
 
+void challenges_component::SendCustomEventWithCount(AFortPlayerController* InteractingController, std::string event_type, int Count)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                        {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                        {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                        {"count", Count}
+            };
+            
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
+}
+
 void challenges_component::SendPickupInteraction(AFortPlayerController* InteractingPlayerController,
                                                  AFortPickup* Pickup)
 {

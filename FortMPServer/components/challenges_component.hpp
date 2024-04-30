@@ -37,6 +37,7 @@ public:
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendCustomEvent(AFortPlayerController* InteractingController, std::string event_type);
     static void SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName);
+    static void SendCustomEventWithCount(AFortPlayerController* InteractingController, std::string event_type, int Count);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     static void SendVisitInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);
     static void SendTomatoInteraction(AFortPlayerController* InteractingPlayerController, float distance);

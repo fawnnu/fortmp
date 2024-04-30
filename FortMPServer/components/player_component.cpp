@@ -334,6 +334,8 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
                 Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
             }
 
+            // Auto complete
+            challenges_component::SendCustomEventWithCount(Self->Controller(), "interaction:destroy-structures-with-cannon-ball", 25);
             // Progress land challenges
             challenges_component::SendCustomEvent(Self->Controller(), "event:landing");
         }
