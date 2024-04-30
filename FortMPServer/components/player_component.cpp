@@ -227,7 +227,10 @@ UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController*
             {
                 if (Controller->StrongMyHero()->GetHeroTypeBP())
                 {
-                    spdlog::info(L"GetOrInitializeHero_Hook: Returning StrongMyHero {}!", Controller->StrongMyHero()->GetHeroTypeBP()->GetName().c_str());
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"GetOrInitializeHero_Hook: Returning StrongMyHero {}!", Controller->StrongMyHero()->GetHeroTypeBP()->GetName().c_str());
+                    }
                     return Controller->StrongMyHero();   
                 }   
             }
