@@ -138,7 +138,8 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
         {
             for (int i = 0; i < MapInfo->VehicleClassDetails().Count; ++i)
             {
-                FVehicleClassDetails Detail = MapInfo->VehicleClassDetails()[i];
+                TArrayManager VehicleClassDetails = MapInfo->VehicleClassDetails();
+                FVehicleClassDetails& Detail = VehicleClassDetails[i];
 
                 if (Detail.VehicleClass().Get() != vehicle_class) continue;
 
