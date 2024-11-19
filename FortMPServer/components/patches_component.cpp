@@ -1,7 +1,6 @@
 ﻿#include "include.hpp"
 #include "patches_component.hpp"
 
-#include "loader_component.hpp"
 #include "log_component.hpp"
 #include "net_component.hpp"
 #include "player_component.hpp"
@@ -314,38 +313,10 @@ char patches_component_hook::ReservationCheck_Hook(UObject* a1, long long a2, ch
     return 0;
 }
 
-void patches_component_hook::RequestExit_Hook(bool bForce)
-{
-    if (loader_component::bPendingRequestExit)
-    {
-        return RequestExit(bForce);
-    }
-
-    {
-        spdlog::critical(L"Avoiding Game's Requested RequestExit(): Unidentified behavior is now expectable.");
-    }
-}
-
 void patches_component::pre_init()
 {
     if (GetCL() == 6165369)
     {
-        //if (const uintptr_t FunctionAddress = memory_manager::find_pattern("40 53 48 83 EC 30 80 3D ? ? ? ? ? 0F B6 D9 72 33 48 8B 05 ? ? ? ? 4C 8D 44 24 ? 48 89 44 24 ? 41 B9 ? ? ? ? 0F B6 C1 33 D2 89 44 24 28 33 C9 48 8D 05 ? ? ? ? 48 89 44 24 ? E8 ? ? ? ? 48 8D 0D ? ? ? ? C6 05 ? ? ? ? ?"))
-        //{
-        //    FEraPatchInfo PatchInfo;
-        //    PatchInfo.Address = FunctionAddress;
-        //    PatchInfo.Type = Detour;
-        //    PatchInfo.AdditionalData.push_back(patches_component_hook::RequestExit_Hook);
-        //    temporary_patches.push_back(PatchInfo);
-        //    
-        //    DetourTransactionBegin();
-        //    DetourUpdateThread(GetCurrentThread());
-//
-        //    REGISTER_FUNCTION_DETOUR(patches_component_hook::RequestExit, FunctionAddress, patches_component_hook::RequestExit_Hook);
-//
-        //    DetourTransactionCommit();
-        //}
-        
         if (const uintptr_t PatchAddress = memory_manager::find_pattern("0F 85 ? ? ? ? 48 8D 05 ? ? ? ? 4C 89 7D D0 48 89 45 E0 48 8D 4C 24 ? 48 8D 05 ? ? ? ? 48 89 75 E8 33 D2 48 89 45 C0 4C 89 7C 24 ? 48 C7 44 24 ? ? ? ? ? E8 ? ? ? ? 4C 8B 74 24"))
         {
             {
@@ -358,7 +329,6 @@ void patches_component::pre_init()
                 PatchInfo.Address = PatchAddress;
                 PatchInfo.Size = 2;
                 PatchInfo.ParseBytes();
-                PatchInfo.Type = Bytes;
                 temporary_patches.push_back(PatchInfo);
             
                 memcpy(reinterpret_cast<PVOID>(PatchAddress), ReplacementBytes, 2);
@@ -374,7 +344,6 @@ void patches_component::pre_init()
                 PatchInfo.Address = PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2);
                 PatchInfo.Size = 0x123;
                 PatchInfo.ParseBytes();
-                PatchInfo.Type = Bytes;
                 temporary_patches.push_back(PatchInfo);
                 memset(reinterpret_cast<PVOID>(PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2)), 0x90, 0x123);
         
@@ -397,7 +366,6 @@ void patches_component::pre_init()
                 PatchInfo.Address = PatchAddress;
                 PatchInfo.Size = 2;
                 PatchInfo.ParseBytes();
-                PatchInfo.Type = Bytes;
                 temporary_patches.push_back(PatchInfo);
             
                 memcpy(reinterpret_cast<PVOID>(PatchAddress), ReplacementBytes, 2);
@@ -413,7 +381,6 @@ void patches_component::pre_init()
                 PatchInfo.Address = PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2);
                 PatchInfo.Size = 0x16F;
                 PatchInfo.ParseBytes();
-                PatchInfo.Type = Bytes;
                 temporary_patches.push_back(PatchInfo);
                 memset(reinterpret_cast<PVOID>(PatchAddress + 6 + *reinterpret_cast<int*>(PatchAddress + 2)), 0x90, 0x16F);
         
@@ -427,21 +394,8 @@ void patches_component::revert_pre_init()
 {
     for (FEraPatchInfo& Patch : temporary_patches)
     {
-        if (Patch.Type == Bytes)
-        {
-            Patch.Apply();
-            Patch.Free();
-        }
-
-        if (Patch.Type == Detour)
-        {
-            DetourTransactionBegin();
-            DetourUpdateThread(GetCurrentThread());
-
-            DetourDetach(&reinterpret_cast<LPVOID&>(Patch.Address), Patch.AdditionalData[0]);
-            
-            DetourTransactionCommit();
-        }
+        Patch.Apply();
+        Patch.Free();
     }
 
     temporary_patches.clear();

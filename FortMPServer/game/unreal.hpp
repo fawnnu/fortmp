@@ -70,7 +70,7 @@ inline float (*SRand)();
 inline bool (*TryLoadMips)(void* Self, int FirstMipToLoad, void** OutMipData);
 
 // Request exit
-inline void (*RequestExitWithStatus_Internal)(bool bForce, uint8_t ReturnCode);
+inline void (*RequestExitWithStatus)(bool bForce, uint8_t ReturnCode);
 
 // CreateDefaultObject
 inline UObject* (*CreateDefaultObject_Internal)(UObject* SelfClass);
@@ -89,8 +89,6 @@ inline bool (*LineTraceMultiByChannel)(UWorld*, TArray<struct FHitResult>& OutHi
 
 // Add ignored actors to params
 inline void (*FCollisionQueryParams__AddIgnoredActors)(FCollisionQueryParams*, TArray<AActor*>&);
-
-void RequestExitWithStatus(bool bForce, uint8_t ReturnCode);
 
 namespace CoreOffsets
 {

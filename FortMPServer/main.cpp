@@ -90,11 +90,6 @@ void Setup()
     {
         // Set the default map
         CreateDefaultObject<UGameMapsSettings>()->GameDefaultMap().AssetPathName = TEXT("/Game/Maps/FortniteEmptyDedicated.FortniteEmptyDedicated");
-
-        if (log_component::enable_debug_logs)
-        {
-            spdlog::info(L"Setup(): GetFortniteVersionEasy() returned < 10. Set 'GameDefaultMap' to 'FortniteEmptyDedicated'.");   
-        }
     }
 
     {
@@ -102,11 +97,6 @@ void Setup()
         {
             if (*GWorld)
             {
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::info(L"Setup(): valid *GWorld. Beginning main game setup.");   
-                }
-                
                 // Wait 3.5 Seconds to set GIsServer
                 if (GetEngineVersionEasy() >= 421)
                 {

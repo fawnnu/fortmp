@@ -21,19 +21,11 @@ public:
     // Anti tampering kicks in after this function is called. Here we revert every patch applied in pre_init
     static void revert_pre_init();
 
-    enum FEraPatchType
-    {
-        Bytes,
-        Detour
-    };
-
     struct FEraPatchInfo
     {
         uintptr_t Address;
         PVOID Bytes;
         SIZE_T Size;
-        std::vector<PVOID> AdditionalData;
-        FEraPatchType Type;
 
         void ParseBytes()
         {
@@ -67,7 +59,7 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(UFortClientSettingsRecord*, GetClientSettingsRecord, (UFortLocalPlayer* LocalPlayer));
 
     DEFINE_FUNCTION_HOOK(bool, SpawnPlayActor, (ULocalPlayer* LocalPlayer, uintptr_t URL, uintptr_t Error, uintptr_t World));
-    DEFINE_FUNCTION_HOOK(void, RequestExit, (bool bForce));
+    
     DEFINE_FUNCTION_HOOK(int, GetNetMode, (UNetDriver* NetDriver));
     DEFINE_FUNCTION_HOOK(int, WorldGetNetMode, (UWorld* World));
     DEFINE_FUNCTION_HOOK(FFortAthenaLoadout*, PRIVATE_GetAthenaLoadoutWithOverrides, (AFortPlayerControllerAthena* PlayerController, FFortAthenaLoadout* OutLoadout));
