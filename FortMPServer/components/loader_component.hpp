@@ -29,6 +29,7 @@ public:
     static void SwapButterflyEventPOIs(AFortGameModeAthena* Self, FFrame& StackFrame);
     
     inline static bool bPendingShutdown;
+    inline static bool bPendingRequestExit;
 
     // Log
     inline static bool bLogged85Percent;

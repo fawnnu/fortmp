@@ -5,6 +5,7 @@
 #include "../components/replication_component.hpp"
 #include "../components/customproperties_component.hpp"
 #include "../components/qos_component.hpp"
+#include "../components/loader_component.hpp"
 
 void unreal_manager::pre_init()
 {
@@ -47,7 +48,7 @@ void unreal_manager::pre_init()
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
+        INIT_POINTER(RequestExitWithStatus_Internal, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
     }));
     async_wrapper::wait_for_wrappers(async_initializers);
     
@@ -265,6 +266,15 @@ unreal_manager::unreal_manager()
     spdlog::info(L"Server successfully initialized. Module FortniteClient-Win64-Shipping.exe base address is {}",
         reinterpret_cast<void*>(GetModuleHandle(nullptr)));
     spdlog::info(L"Running version: {}", GetEngineVersion().c_str());
+}
+
+void RequestExitWithStatus(bool bForce, uint8_t ReturnCode)
+{
+    loader_component::bPendingRequestExit = true;
+
+    spdlog::info("RequestExitWithStatus: forcing request exit.");
+
+    RequestExitWithStatus_Internal(bForce, ReturnCode);
 }
 
 bool FString::operator==(FString in_str)
