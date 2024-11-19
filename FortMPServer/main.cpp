@@ -73,6 +73,20 @@ void Setup()
     new gui_manager();
     
     new era_mutators_component();
+
+    // Set backend URLs from config
+    if (config_manager::bReceivedConfig)
+    {
+        auto config = config_manager::get_server_config();
+        if (config.contains("override_api_url"))
+        {
+            API_URL = std::string(config["override_api_url"]);
+        }
+        if (config.contains("override_ws_url"))
+        {
+            WS_URL = std::string(config["override_ws_url"]);
+        }
+    }
     
 #ifdef _RELEASE
     // Initialize the QOS component

@@ -30,14 +30,6 @@
 #undef min
 #endif
 
-#ifdef _STAGING
-#define WS_URL std::string("wss://staging.ws.erafn.org") 
-#define API_URL std::string("https://staging.api.v1.internal.erafn.org")
-#else
-#define WS_URL std::string("wss://ws.prod.erafn.app") 
-#define API_URL std::string("https://api-v1-internal-service.prod.erafn.app") 
-#endif
-
 #define TO_STRING(in_wstring, out_string) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_wstring##_converter; std::string out_string = in_wstring##_converter.to_bytes(in_wstring);
 #define TO_WSTRING(in_string, out_wstring) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_string##_converter; std::wstring out_wstring = in_string##_converter.from_bytes(in_string);
 #define TO_EX_WSTRING(in_string, out_wstring) std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> in_string##_converter; out_wstring = in_string##_converter.from_bytes(in_string);
@@ -95,3 +87,6 @@
 
 #include "utils/Containers.hpp"
 #include "components/blueprint_component.hpp"
+
+inline std::string WS_URL = "";
+inline std::string API_URL = "";
