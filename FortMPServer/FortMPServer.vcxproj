@@ -482,6 +482,7 @@
   <ItemGroup>
     <Content Include="resources\pakchunkEra621-WindowsClient.pak" />
     <Content Include="resources\pakchunkEra740-WindowsClient.pak" />
+    <Content Include="resources\pakchunkEra851-WindowsClient.pak" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
