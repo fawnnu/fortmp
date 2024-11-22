@@ -136,18 +136,18 @@ bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena*
                                                 (PlayerLocation.Y - BuildingLocation.Y) * (PlayerLocation.Y - BuildingLocation.Y) +
                                                 (PlayerLocation.Z - BuildingLocation.Z) * (PlayerLocation.Z - BuildingLocation.Z));
                         
-                    // Check the distance, if it's less than 10cm, allow the client sent values.
-                    if (Distance > 1000.0)
+                    // Check the distance, if it's more than 25 meters count as illegal
+                    if (Distance > 2500.0)
                     {
                         Player->EraPlayerInfo().IllegalBuildingPlacements++;
-                        spdlog::critical("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);
+                        spdlog::error("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);
 
                         if (Player->EraPlayerInfo().IllegalBuildingPlacements >= 5)
                         {
                             // Perform a ban
                             if (auto account_id = player_component::get_account_id(Player); account_id.size())
                             {
-                                spdlog::critical("Player attempted 5 or more illegal building placement. Banning...");
+                                spdlog::error("Player attempted 5 or more illegal building placement. Banning...");
                                 gameserver_client::Client->SendBan(account_id);
 
                                 return false;

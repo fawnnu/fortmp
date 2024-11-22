@@ -2436,9 +2436,11 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
         if (player_controller->Pawn() && player_controller->Pawn()->AbilitySystemComponent())
         {
 #ifdef _RELEASE
-            if (b_requires_validation)
+            static UFortItemDefinition* DefaultDanceMoves = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/Dances/EID_DanceMoves.EID_DanceMoves");
+            
+            if (b_requires_validation && dance_asset != DefaultDanceMoves)
             {
-                // Make sure the player owns the asset
+                // Make sure the player owns the asset,unless it's default
                 if (std::find(static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.begin(),
                               static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end(),
                               dance_asset) == static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().OwnedEmotes.end())
