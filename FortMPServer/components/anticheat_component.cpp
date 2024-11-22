@@ -136,8 +136,8 @@ bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena*
                                                 (PlayerLocation.Y - BuildingLocation.Y) * (PlayerLocation.Y - BuildingLocation.Y) +
                                                 (PlayerLocation.Z - BuildingLocation.Z) * (PlayerLocation.Z - BuildingLocation.Z));
                         
-                    // Check the distance, if it's more than 25 meters count as illegal
-                    if (Distance > 2500.0)
+                    // Check the distance, if it's more than 30 meters count as illegal
+                    if (Distance > 3000.0)
                     {
                         Player->EraPlayerInfo().IllegalBuildingPlacements++;
                         spdlog::error("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);

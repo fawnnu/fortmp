@@ -297,10 +297,13 @@ void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerControlle
     GET_PARAMETER(bool, bMirrored);
     GET_PARAMETER(int, RotationIterations);
 
-    if (BuildingActorToEdit && NewBuildingClass)
+    if (!memory_manager::is_bad_read_pointer(BuildingActorToEdit) && BuildingActorToEdit && NewBuildingClass)
     {
         // Edit building actor
-        building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+        if (anticheat_component::ValidateBuildingPlacement(static_cast<AFortPlayerControllerAthena*>(FortPlayerController), BuildingActorToEdit->K2_GetActorLocation()))
+        {
+            building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+        }
     }
     
     return ServerEditBuildingActor(FortPlayerController, StackFrame);
