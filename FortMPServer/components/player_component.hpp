@@ -133,6 +133,7 @@ struct FEraPlayerInfo
 {
     nlohmann::json Profile;
     int ProfileFailures;
+    int IllegalBuildingPlacements;
     bool bPendingKick;
     bool bProfileReady;
     std::vector<std::pair<nlohmann::json, UObject*>> PendingVariantsData;

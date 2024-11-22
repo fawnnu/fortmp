@@ -50,6 +50,7 @@ public:
     static bool CheckShotTrajectory(UFortGameplayAbility_RangedWeapon* RangedWeaponAbility, FGameplayAbilityTargetDataHandle& InData);
     static float GetFiringRate(AFortWeapon* FortWeapon);
     static float GetBurstFiringRate(AFortWeapon* FortWeapon);
+    static bool ValidateBuildingPlacement(AFortPlayerControllerAthena* Player, FVector BuildingLocation);
 
     inline static std::map<AFortPlayerController*, int> IllegalSniperActionsCount;
     inline static std::map<AFortWeapon*, int> IllegalWeaponActionsCount;

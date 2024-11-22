@@ -3,6 +3,7 @@
 
 #include "log_component.hpp"
 #include "looting_component.hpp"
+#include "moderation_component.hpp"
 #include "player_component.hpp"
 
 anticheat_component::anticheat_component()
@@ -112,6 +113,55 @@ float anticheat_component::GetBurstFiringRate(AFortWeapon* FortWeapon)
     }
     
     return 0.0;
+}
+
+bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena* Player, FVector BuildingLocation)
+{
+    if (!memory_manager::is_bad_read_pointer(Player, false) && Player)
+    {
+        if (Player->IsA(AFortPlayerControllerAthena::StaticClass()))
+        {
+            if (!memory_manager::is_bad_read_pointer(Player->Pawn(), false) && Player->Pawn())
+            {
+                if (Player->Pawn()->IsA(AFortPlayerPawnAthena::StaticClass()))
+                {
+                    // check location
+                    AFortPlayerPawnAthena* Pawn = static_cast<AFortPlayerPawnAthena*>(Player->Pawn());
+
+                    // Get location
+                    FVector PlayerLocation = Pawn->K2_GetActorLocation();
+
+                    // Get distance from requested location
+                    const float Distance = sqrtf((PlayerLocation.X - BuildingLocation.X) * (PlayerLocation.X - BuildingLocation.X) +
+                                                (PlayerLocation.Y - BuildingLocation.Y) * (PlayerLocation.Y - BuildingLocation.Y) +
+                                                (PlayerLocation.Z - BuildingLocation.Z) * (PlayerLocation.Z - BuildingLocation.Z));
+                        
+                    // Check the distance, if it's less than 10cm, allow the client sent values.
+                    if (Distance > 1000.0)
+                    {
+                        Player->EraPlayerInfo().IllegalBuildingPlacements++;
+                        spdlog::critical("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);
+
+                        if (Player->EraPlayerInfo().IllegalBuildingPlacements >= 5)
+                        {
+                            // Perform a ban
+                            if (auto account_id = player_component::get_account_id(Player); account_id.size())
+                            {
+                                spdlog::critical("Player attempted 5 or more illegal building placement. Banning...");
+                                gameserver_client::Client->SendBan(account_id);
+
+                                return false;
+                            }
+                        }
+                    }
+                    
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 bool anticheat_component::ValidateTargetDataFrequency(FRangedAbilityData& AbilityData, UFortGameplayAbility_RangedWeapon* Ability, UWorld* World, float FiringRatePerSecond, float OptimalTimeDelta, float CustomTimeDilation)

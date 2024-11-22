@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "building_component.hpp"
 
+#include "anticheat_component.hpp"
 #include "creative_component.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
@@ -272,13 +273,16 @@ void building_component_hooks::ServerCreateBuildingActor_Hook(AFortPlayerControl
     auto Adjustment = EFortBuildPreviewMarkerOptionalAdjustment::None;
     
     if (CanPlaceBuildingActor(*GWorld, building_class, &build_location, &build_rotation, is_mirrored, &HoveredActors, &Adjustment) == 0) // We check if it returns 0 as it actually returns an enum (EFortStructuralGridQueryResults): 0 means we can place the build
-    {   
-        if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, Adjustment))
+    {
+        if (anticheat_component::ValidateBuildingPlacement(static_cast<AFortPlayerControllerAthena*>(FortPlayerController), build_location))
         {
-            // If the build was placed, destroy all Hovered Actors
-            for (AActor* HoveredActor : HoveredActors)
+            if (building_component::spawn_building_actor(building_class, build_location, build_rotation, is_mirrored, FortPlayerController, Adjustment))
             {
-                HoveredActor->K2_DestroyActor();
+                // If the build was placed, destroy all Hovered Actors
+                for (AActor* HoveredActor : HoveredActors)
+                {
+                    HoveredActor->K2_DestroyActor();
+                }
             }
         }
     }
