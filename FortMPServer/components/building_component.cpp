@@ -174,7 +174,7 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
 
 bool building_component::edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations)
 {
-    if (is_building_class_valid(building_class))
+    if (is_building_class_valid(building_class) && is_building_class_valid(building_actor->Class))
     {
         if (building_actor)
         {
