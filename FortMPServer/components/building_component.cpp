@@ -302,7 +302,21 @@ void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerControlle
         // Edit building actor
         if (anticheat_component::ValidateBuildingPlacement(static_cast<AFortPlayerControllerAthena*>(FortPlayerController), BuildingActorToEdit->K2_GetActorLocation()))
         {
-            building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+            // Validate building ownership
+            if (!memory_manager::is_bad_read_pointer(FortPlayerController) && FortPlayerController)
+            {
+                if (!memory_manager::is_bad_read_pointer(FortPlayerController->PlayerState()) && FortPlayerController->PlayerState())
+                {
+                    if (FortPlayerController->PlayerState()->TeamIndex() == BuildingActorToEdit->Team())
+                    {
+                        building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+                    }
+                    else
+                    {
+                        spdlog::error(L"Player trying to edit another team's building actor.");
+                    }
+                }
+            }
         }
     }
     
