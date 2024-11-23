@@ -142,17 +142,7 @@ bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena*
                         Player->EraPlayerInfo().IllegalBuildingPlacements++;
                         spdlog::error("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);
 
-                        if (Player->EraPlayerInfo().IllegalBuildingPlacements >= 5)
-                        {
-                            // Perform a ban
-                            if (auto account_id = player_component::get_account_id(Player); account_id.size())
-                            {
-                                spdlog::error("Player attempted 5 or more illegal building placement. Banning...");
-                                gameserver_client::Client->SendBan(account_id);
-
-                                return false;
-                            }
-                        }
+                        return false;
                     }
                     
                     return true;
