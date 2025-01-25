@@ -2,12 +2,24 @@
 
 #include <map>
 
+// Uninitialized pointers
+static std::map<PVOID, std::string> UninitializedPointers;
+
 #define INIT_POINTER(PointerName, PointerAddress)                                           \
     if (PointerAddress)                                                                     \
+    {\
         PointerName = reinterpret_cast<decltype(PointerName)>(PointerAddress);              \
+        if (auto result = UninitializedPointers.find(PointerName); result != UninitializedPointers.end())\
+        {\
+            UninitializedPointers.erase(result);\
+        }\
+    }\
     else                                                                                    \
+    {\
         spdlog::error("Failed to setup pointer '{}', invalid pointer address provided",     \
-            #PointerName);
+            #PointerName);\
+        UninitializedPointers[PointerName] = #PointerName;\
+    }
 
 #ifndef WILDCARD
 #define WILDCARD 0x100

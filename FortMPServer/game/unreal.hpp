@@ -12,6 +12,9 @@ class unreal_manager
 public:
     unreal_manager();
     static void pre_init();
+
+    // A function simply used to log the status of the software's initialization
+    static void status();
 };
 
 class UWorld;

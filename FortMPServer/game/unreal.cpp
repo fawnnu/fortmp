@@ -24,6 +24,10 @@ void unreal_manager::pre_init()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
+        if (!FMemory_Malloc)
+        {
+            INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("4C 8B C9 48 8B 0D ? ? ? ? 48 85 C9 75 08 49 8B C9 E9 ? ? ? ? 48 8B 01 44 8B C2 49 8B D1 48 FF 60 10"));
+        }
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
@@ -44,6 +48,10 @@ void unreal_manager::pre_init()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 53 56 57 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B F9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 07 FF D0"));
+        if (!ConstructUScriptStruct)
+        {
+            INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 55 53 56 57 41 55 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B E9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 09 FF D0 48 89 44 24 ? EB 05 48 89 74 24 ? 48 85 DB"));
+        }
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
@@ -102,6 +110,18 @@ void unreal_manager::pre_init()
     }
 
     gameserver_client::PreInitialize();
+}
+
+void unreal_manager::status()
+{
+    // Scan & Log
+    for (const auto& [key, val] : UninitializedPointers)
+    {
+        if (key == nullptr)
+        {
+            spdlog::warn("Pointer {} has failed initialization.", val.c_str());
+        }
+    }
 }
 
 unreal_manager::unreal_manager()

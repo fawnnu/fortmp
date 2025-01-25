@@ -59,6 +59,9 @@ void Setup()
     
     // Setup logging (File sinks)
     new log_component();
+
+    // Log initialization status
+    unreal_manager::status();
     
     // Setup Unreal Engine
     new unreal_manager();
