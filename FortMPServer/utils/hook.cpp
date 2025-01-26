@@ -70,9 +70,19 @@ hook_manager::hook_manager()
 
     DetourTransactionCommit();
 
-    REGISTER_VTABLE_HOOK(FindObject(L"/Script/AIModule.Default__EnvQueryInstanceBlueprintWrapper")->VTable, ProcessEvent_Index, hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent);
-    REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent);
-    REGISTER_VTABLE_HOOK(CreateDefaultObject<UPlaysetLevelStreamComponent>()->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
+    // Creative saving etc...
+    if (static UObject* Default__EnvQueryInstanceBlueprintWrapper = FindObject(L"/Script/AIModule.Default__EnvQueryInstanceBlueprintWrapper"))
+    {
+        REGISTER_VTABLE_HOOK(Default__EnvQueryInstanceBlueprintWrapper->VTable, ProcessEvent_Index, hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent);
+    }
+    if (static UFortLevelSaveComponent* Default__FortLevelSaveComponent = CreateDefaultObject<UFortLevelSaveComponent>())
+    {
+        REGISTER_VTABLE_HOOK(Default__FortLevelSaveComponent->VTable, ProcessEvent_Index, hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent);
+    }
+    if (static UPlaysetLevelStreamComponent* Default__PlaysetLevelStreamComponent = CreateDefaultObject<UPlaysetLevelStreamComponent>())
+    {
+        REGISTER_VTABLE_HOOK(Default__PlaysetLevelStreamComponent->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
+    }
 }
 
 void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
