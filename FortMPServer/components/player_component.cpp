@@ -3270,32 +3270,35 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             const int player_cap_override = config["player_cap_override"].get<int>();
 
             // Get percentages
-            const int player_cap_override_85percent = player_cap_override / 100 * 85;
-            const int player_cap_override_95percent = player_cap_override / 100 * 95;
-            if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_85percent)
+            if (player_cap_override == 100) // Public matches
             {
-                // Update the countdown to 20 seconds 
-                FortGameModeAthena->WarmupCountdownDuration() = 20.f;
-                FortGameModeAthena->WarmupEarlyCountdownDuration() = 20.f;
-
-                // Log
-                if (!loader_component::bLogged85Percent)
+                const int player_cap_override_85percent = player_cap_override / 100 * 85;
+                const int player_cap_override_95percent = player_cap_override / 100 * 95;
+                if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_85percent)
                 {
-                    loader_component::bLogged85Percent = true;
-                    spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
+                    // Update the countdown to 20 seconds 
+                    FortGameModeAthena->WarmupCountdownDuration() = 20.f;
+                    FortGameModeAthena->WarmupEarlyCountdownDuration() = 20.f;
+
+                    // Log
+                    if (!loader_component::bLogged85Percent)
+                    {
+                        loader_component::bLogged85Percent = true;
+                        spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
+                    }
                 }
-            }
-            if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
-            {
-                // Update the countdown to 10 seconds 
-                FortGameModeAthena->WarmupCountdownDuration() = 10.f;
-                FortGameModeAthena->WarmupEarlyCountdownDuration() = 10.f;
-
-                // Log
-                if (!loader_component::bLogged95Percent)
+                if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
                 {
-                    loader_component::bLogged95Percent = true;
-                    spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                    // Update the countdown to 10 seconds 
+                    FortGameModeAthena->WarmupCountdownDuration() = 10.f;
+                    FortGameModeAthena->WarmupEarlyCountdownDuration() = 10.f;
+
+                    // Log
+                    if (!loader_component::bLogged95Percent)
+                    {
+                        loader_component::bLogged95Percent = true;
+                        spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                    }
                 }
             }
         }
