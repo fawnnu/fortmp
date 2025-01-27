@@ -626,11 +626,11 @@ FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(A
             CharacterVariantChannel.OwnedVariantTags().ParentTags.Free();
         }
     
-        PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
-        PlayerController->CustomizationLoadout().ItemWraps().Free();
-        PlayerController->CustomizationLoadout().Dances().Free();
-        PlayerController->CustomizationLoadout().BannerIconId().Clear();
-        PlayerController->CustomizationLoadout().BannerColorId().Clear();
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"CharacterVariantChannels")) PlayerController->CustomizationLoadout().CharacterVariantChannels().Free();
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"ItemWraps")) PlayerController->CustomizationLoadout().ItemWraps().Free();
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"Dances")) PlayerController->CustomizationLoadout().Dances().Free();
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerIconId")) PlayerController->CustomizationLoadout().BannerIconId().Clear();
+        if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"BannerColorId")) PlayerController->CustomizationLoadout().BannerColorId().Clear();
 
         // Copy the loadout
         FFortAthenaLoadout* CustomizationLoadoutCopy = static_cast<FFortAthenaLoadout*>(alloca(FFortAthenaLoadout::GetStructSize()));
@@ -643,7 +643,7 @@ FFortAthenaLoadout* patches_component_hook::GetAthenaLoadoutWithOverrides_Hook(A
         if (FindPropertyByName(FFortAthenaLoadout::GetClass(), L"CharacterVariantChannels"))
         {
             // Apply variants
-            for (std::pair<nlohmann::json, UObject*> variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
+            for (std::pair variant_data : PlayerController->EraPlayerInfo().PendingVariantsData)
             {
                 player_component::apply_variant(OutLoadout, variant_data.first, variant_data.second);
             }
