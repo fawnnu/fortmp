@@ -235,7 +235,7 @@ unreal_manager::unreal_manager()
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("40 53 57 41 56 48 83 EC 20 4C 8B 74 24 ? 33 FF 48 89 79 08 48 8B D9 48 89 79 40 48 89 79 48 48 89 79 60 48 89 79 68 44 88 49 ? 89 79 18 48 89 11"));
+        INIT_POINTER(FCollisionQueryParams__Ctor, memory_manager::find_pattern("E8 ? ? ? ? 48 8D 44 24 ? 4C 8B CE 48 89 44 24 ? 4C 8B C7 48 8B 83", true, 1));
     }));
     async_initializers.push_back(new async_wrapper([&]
     {
@@ -244,6 +244,10 @@ unreal_manager::unreal_manager()
     async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 53 41 55 41 56 48 83 EC 20 33 DB 4C 8B F2 4C 8B E9 39 5A 08 7E 7A 48 89 74 24 ? 33 F6"));
+        if (!FCollisionQueryParams__AddIgnoredActors)
+        {
+            INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 57 41 55 41 56 48 83 EC 20 33 FF 4C 8B F2 4C 8B E9 39 7A 08 0F 8E ? ? ? ? 48 89 74 24 ? 8B F7 48 89 5C 24"));
+        }
     }));
     async_wrapper::wait_for_wrappers(async_initializers);
     
