@@ -8,59 +8,44 @@
 
 void unreal_manager::pre_init()
 {
-    std::vector<async_wrapper*> async_initializers;
-    async_initializers.push_back(new async_wrapper([&]
+    std::vector<async_wrapper*> early_async_initializers;
+    early_async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
+        INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("4C 8B C9 48 8B 0D ? ? ? ? 48 85 C9 75 08 49 8B C9 E9 ? ? ? ? 48 8B 01 44 8B C2 49 8B D1 48 FF 60 10"));
         if (!FMemory_Malloc)
         {
-            INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("4C 8B C9 48 8B 0D ? ? ? ? 48 85 C9 75 08 49 8B C9 E9 ? ? ? ? 48 8B 01 44 8B C2 49 8B D1 48 FF 60 10"));
+            INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
         }
     }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(InitializeStruct, memory_manager::find_pattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 48 83 EC 20 44 8B 49 54 48 8B DA 8B 71 50 4C 8B F1 FF CE 45 8B E0 41 03 F1 33 D2 41 F7 D9 48 8B CB 41 23 F1 8B C6"));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(StaticFindObject, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 30 80 3D ? ? ? ? ? 41 0F B6 D9 49 8B F8 48 8B F2"));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
-    }));
-    async_initializers.push_back(new async_wrapper([&]
+    early_async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
     }));
-    async_initializers.push_back(new async_wrapper([&]
+    early_async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 53 56 57 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B F9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 07 FF D0"));
+        INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 55 53 56 57 41 55 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B E9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 09 FF D0 48 89 44 24 ? EB 05 48 89 74 24 ? 48 85 DB"));
         if (!ConstructUScriptStruct)
         {
-            INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 55 53 56 57 41 55 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B E9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 09 FF D0 48 89 44 24 ? EB 05 48 89 74 24 ? 48 85 DB"));
+            INIT_POINTER(ConstructUScriptStruct, memory_manager::find_pattern("40 53 56 57 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 33 F6 4C 8B F2 89 74 24 40 4C 8B F9 48 8B 02 48 8B 5A 08 48 8B 7A 10 48 85 C0 74 07 FF D0"));
         }
     }));
-    async_initializers.push_back(new async_wrapper([&]
+    early_async_initializers.push_back(new async_wrapper([&]
     {
         INIT_POINTER(RequestExitWithStatus, memory_manager::find_function_by_string(L"FPlatformMisc::RequestExitWithStatus(%i, %d)"));
     }));
-    async_wrapper::wait_for_wrappers(async_initializers);
-    
-    // Create custom properties component
-    new customproperties_component();
+    early_async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(StaticFindObject, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 30 80 3D ? ? ? ? ? 41 0F B6 D9 49 8B F8 48 8B F2"));
+    }));
+    early_async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FName_ToString, memory_manager::find_pattern("E8 ? ? ? ? F3 41 0F 10 06 48 8D 15 ? ? ? ? F3 0F 59 05 ? ? ? ? 48 8B CF", true, 1));
+    }));
+    early_async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
+    }));
+    async_wrapper::wait_for_wrappers(early_async_initializers);
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
@@ -108,7 +93,25 @@ void unreal_manager::pre_init()
         CoreOffsets::FieldMask =  123;
         CoreOffsets::Script = 0x60;
     }
-
+    
+    // Create custom properties component
+    new customproperties_component();
+    
+    std::vector<async_wrapper*> async_initializers;
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(FName_FName, memory_manager::find_function_by_string(L"EnteringMap", { 0xE9 }, 1, false));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(InitializeStruct, memory_manager::find_pattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 48 83 EC 20 44 8B 49 54 48 8B DA 8B 71 50 4C 8B F1 FF CE 45 8B E0 41 03 F1 33 D2 41 F7 D9 48 8B CB 41 23 F1 8B C6"));
+    }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
+    }));
+    async_wrapper::wait_for_wrappers(async_initializers);
+    
     gameserver_client::PreInitialize();
 }
 
