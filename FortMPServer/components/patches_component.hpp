@@ -104,6 +104,8 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(bool, FSocketBSD__RecvFrom, (void* Self, uint8* Data, int32 BufferSize, int32& BytesRead, void* Source, int Flags));
 
     DEFINE_FUNCTION_HOOK(int, CurlEasy, ());
+
+    DEFINE_FUNCTION_HOOK(FGameplayTagContainer*, __Filter, (FGameplayTagContainer* Self, FGameplayTagContainer* Result, FGameplayTagContainer* OtherContainer));
 };
 
 inline int TimesLoggedMSGSIZEExploit;

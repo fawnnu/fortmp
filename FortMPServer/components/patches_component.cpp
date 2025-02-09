@@ -65,6 +65,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetNetMode, memory_manager::find_pattern("48 83 EC 28 48 8B 01 FF 90 ? ? ? ? 84 C0 74 12 33 C0 38 05 ? ? ? ? 0F 95 C0 FF C0 48 83 C4 28"), patches_component_hook::GetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_pattern("40 53 48 81 EC ? ? ? ? 48 83 79 ? ? 48 8B D9 74 0E B8 ? ? ? ? 48 81 C4 ? ? ? ? 5B"), patches_component_hook::WorldGetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_function_by_string(L"not creating navigation on clients", {0xe8}, 1), patches_component_hook::WorldGetNetMode_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::__Filter, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B FA 48 8D 05 ? ? ? ? 33 D2 49 8B F0 38 15 ? ? ? ? 48 89 17 48 0F 45 C2 48 89 57 08 48 89 57 10 48 89 57 18 48 8B 19 48 63 49 08 48 89 44 24 ? 48 8D 2C CB 48 3B DD 74 40 48 63 4E 08 85 C9 74 2A 48 8B 06 48 8D 14 C8"), patches_component_hook::__Filter_Hook);
     
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
@@ -799,4 +800,18 @@ uintptr_t patches_component_hook::ReplicateActor_Hook(UActorChannel* Self)
     }
 
     return ReplicateActor(Self);
+}
+
+FGameplayTagContainer* patches_component_hook::__Filter_Hook(FGameplayTagContainer* Self, FGameplayTagContainer* Result, FGameplayTagContainer* OtherContainer)
+{
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->GameplayTags.Data) && Self->GameplayTags.Data && !memory_manager::is_bad_read_pointer(Result) && Result && !memory_manager::is_bad_read_pointer(OtherContainer) && OtherContainer && !memory_manager::is_bad_read_pointer(OtherContainer->GameplayTags.Data) && OtherContainer->GameplayTags.Data)
+    {
+        return __Filter(Self, Result, OtherContainer);
+    }
+    
+    {
+        spdlog::error(L"patches_component_hook::__Filter_Hook(): Caught bad read pointer.");
+        ZeroMemory(Result, sizeof(FGameplayTagContainer));
+        return Result;
+    }
 }
