@@ -810,7 +810,6 @@ FGameplayTagContainer* patches_component_hook::__Filter_Hook(FGameplayTagContain
     }
     
     {
-        spdlog::error(L"patches_component_hook::__Filter_Hook(): Caught bad read pointer.");
         ZeroMemory(Result, sizeof(FGameplayTagContainer));
         return Result;
     }
