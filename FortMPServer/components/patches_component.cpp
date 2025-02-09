@@ -76,7 +76,11 @@ patches_component::patches_component()
     {
         REGISTER_FUNCTION_DETOUR(patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverridesInternal(): MCP is enabled but we were unable to"), patches_component_hook::PRIVATE_GetAthenaLoadoutWithOverrides_Hook);
     }
-    REGISTER_FUNCTION_DETOUR(patches_component_hook::GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::GetAthenaLoadoutWithOverrides_Hook);
+
+    if (GetEngineVersionEasy() > 420)
+    {    
+        REGISTER_FUNCTION_DETOUR(patches_component_hook::GetAthenaLoadoutWithOverrides, memory_manager::find_function_by_string(L"AFortPlayerController::GetAthenaLoadoutWithOverrides(): MCP is enabled but we were unable to"), patches_component_hook::GetAthenaLoadoutWithOverrides_Hook);
+    }
 
     REGISTER_FUNCTION_DETOUR(patches_component_hook::ReservationCheck, memory_manager::find_function_by_string(L"No reservation in game."), patches_component_hook::ReservationCheck_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::McpTempCheck, memory_manager::find_pattern("48 83 EC ? 48 81 C1 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 ? F6 80 ? ? ? ? ? 74 ? 48 8B 10 48 8B C8"), patches_component_hook::McpTempCheck_Hook);
