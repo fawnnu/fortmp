@@ -122,44 +122,51 @@ void gameserver_client::Initialize()
         Aws::Auth::AWSCredentials Credentials("a6dc961104a779468543630be4e6259b", "f989383ce3f277383fc3ff7fa6845438ff6c92faac0629dafa4aab1ea0dbee64");
         S3Client = std::make_shared<Aws::S3::S3Client>(Credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(Aws::S3::S3Client::ALLOCATION_TAG), ClientConfig);
     }
-    
-    // initialize the client
-    Client_WS.init_asio();
 
-    // Set handlers
-    Client_WS.set_open_handler(websocketpp::lib::bind(&gameserver_client::OnConnected, this, websocketpp::lib::placeholders::_1));
-    
-    Client_WS.set_message_handler(websocketpp::lib::bind(&gameserver_client::OnMessageReceived, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
-    
-    Client_WS.set_tls_init_handler([this](websocketpp::connection_hdl)
+    try
     {
-        return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tls_client);
-    });
+        // initialize the client
+        Client_WS.init_asio();
+
+        // Set handlers
+        Client_WS.set_open_handler(websocketpp::lib::bind(&gameserver_client::OnConnected, this, websocketpp::lib::placeholders::_1));
     
-    websocketpp::lib::error_code error_code;
-    auto Connection = Client_WS.get_connection(WS_URL + "/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
+        Client_WS.set_message_handler(websocketpp::lib::bind(&gameserver_client::OnMessageReceived, this, websocketpp::lib::placeholders::_1, websocketpp::lib::placeholders::_2));
     
-    if (error_code)
-    {
-        spdlog::error("Failed to initialize GameServer Client with error code: {}. Era Services will not see this server.", error_code.message().c_str());
-        return;
+        Client_WS.set_tls_init_handler([this](websocketpp::connection_hdl)
+        {
+            return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tls_client);
+        });
+    
+        websocketpp::lib::error_code error_code;
+        auto Connection = Client_WS.get_connection(WS_URL + "/internal/game/websocket?token=bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1&vsn=2.0.0", error_code);
+    
+        if (error_code)
+        {
+            spdlog::error("Failed to initialize GameServer Client with error code: {}. Era Services will not see this server.", error_code.message().c_str());
+            return;
+        }
+
+        Connection_Handle = Connection->get_handle();
+    
+        Client_WS.connect(Connection);
+
+        // Start the scheduler thread
+        CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(scheduler_client::Initialize), nullptr, 0, nullptr);
+    
+        // Start the heartbeat thread
+        CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&HeartbeatThread), 0,0,0);
+    
+        while (true)
+        {
+            Client_WS.run();
+
+            Sleep(1000);
+        }
     }
-
-    Connection_Handle = Connection->get_handle();
-    
-    Client_WS.connect(Connection);
-
-    // Start the scheduler thread
-    CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(scheduler_client::Initialize), nullptr, 0, nullptr);
-    
-    // Start the heartbeat thread
-    CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&HeartbeatThread), 0,0,0);
-    
-    while (true)
+    catch (std::exception& err)
     {
-        Client_WS.run();
-
-        Sleep(1000);
+        spdlog::error("gameserver_client::Initialize: {}", err.what());
     }
 #endif
 }
@@ -686,47 +693,60 @@ int gameserver_client::SendHeartbeat()
 int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters)
 {
 #ifdef _RELEASE
-    websocketpp::lib::error_code ec;
-    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
-
-    if (Connection)
+    try
     {
-        if (Connection->get_state() == websocketpp::session::state::open)
+        websocketpp::lib::error_code ec;
+        auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+
+        if (ec || Connection->get_state() != websocketpp::session::state::open)
         {
-            nlohmann::json payload = R"([])"_json;
+            spdlog::warn("gameserver_client::SendEventToChannel(): Invalid connection. Re-attempting message send in 100ms");
+            Sleep(100);
+            return SendEventToChannel(channel, event_type, parameters);
+        }
 
-            // Copy the message before bumping it
-            const int CurrentMessageReference = MessageRef;
-
-            payload.push_back(0); // Channel Ref
-            payload.push_back(MessageRef++); // Message ref
-            payload.push_back(channel); // Channel
-            payload.push_back(event_type); // Event Type
-            payload.push_back(parameters); // param
-            
-            // Copy last message
-            LastMessagePayload = payload;
-            
-            // Send
-            websocketpp::lib::error_code ec2;
-            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
-
-            if (log_component::enable_debug_logs)
+        if (Connection)
+        {
+            if (Connection->get_state() == websocketpp::session::state::open)
             {
-                if (ec2)
-                {
-                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
-                }
-                else
-                {
-                    spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
-                }
-            }
+                nlohmann::json payload = R"([])"_json;
 
-            return CurrentMessageReference;
+                // Copy the message before bumping it
+                const int CurrentMessageReference = MessageRef;
+
+                payload.push_back(0); // Channel Ref
+                payload.push_back(MessageRef++); // Message ref
+                payload.push_back(channel); // Channel
+                payload.push_back(event_type); // Event Type
+                payload.push_back(parameters); // param
+            
+                // Copy last message
+                LastMessagePayload = payload;
+            
+                // Send
+                websocketpp::lib::error_code ec2;
+                Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+
+                if (log_component::enable_debug_logs)
+                {
+                    if (ec2)
+                    {
+                        spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                    }
+                    else
+                    {
+                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    }
+                }
+
+                return CurrentMessageReference;
+            }
         }
     }
-
+    catch (std::exception& e)
+    {
+        spdlog::error("gameserver_client::SendEventToChannel: {}", e.what());
+    }
 #endif
     return -1;
 }
