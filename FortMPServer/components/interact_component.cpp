@@ -25,12 +25,20 @@ interact_component::interact_component()
     {
         REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 40 32 FF 48 8B F2 80 3A 02 48 8B D9 0F 85 ? ? ? ? 8B 81 ? ? ? ? 85 C0 78 1A 39 81 ? ? ? ? 7C 12 32 C0 48 8B 5C 24 ? 48 8B 74 24 ? 48 83 C4 30"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
     }
+    if (!interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract)
+    {
+        REGISTER_FUNCTION_DETOUR(interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 30 80 3A 02 48 8B FA 48 8B D9 0F 85 ? ? ? ? 48 89 6C 24 ? 48 89 74 24 ? 48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 48 8B CF 88 83 ? ? ? ? 0F B6 E8 E8 ? ? ? ? 48 85 C0 74 3F"), interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook);
+    }
     
     if (const uintptr_t InterfaceToOwnerAddr = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 80 A3 ? ? ? ? ? 0F B6 E8 C0 E0 04 48 8B CF 08 83 ? ? ? ? E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
     {
         interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(InterfaceToOwnerAddr + 3);
     }
     else if (const uintptr_t InterfaceToOwnerAddr = memory_manager::find_pattern("48 8D A9 ? ? ? ? 48 8B CD E8 ? ? ? ? 0F B6 F8 84 C0 74 06 FF 83 ? ? ? ? 80 A3 ? ? ? ? ? 40 0F B6 CF C0 E1 04 08 8B ? ? ? ? 48 8B CE E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CD 48 8B F0 E8 ? ? ? ? 83 BB ? ? ? ? ?"))
+    {
+        interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(InterfaceToOwnerAddr + 3);
+    }
+    else if (const uintptr_t InterfaceToOwnerAddr = memory_manager::find_pattern("48 8D B1 ? ? ? ? 48 8B CE E8 ? ? ? ? 48 8B CF 88 83 ? ? ? ? 0F B6 E8 E8 ? ? ? ? 48 85 C0 74 3F 48 8D 88 ? ? ? ? 48 8B 01 FF 50 28 48 8B D0 48 8B CE 48 8B F8 E8 ? ? ? ? 83 BB ? ? ? ? ? 7E 1B 48 8D 8B ? ? ? ? 48 89 74 24 ?"))
     {
         interact_component_hooks::InterfaceToOwnerOffset = *reinterpret_cast<int*>(InterfaceToOwnerAddr + 3);
     }
@@ -235,25 +243,28 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                 deposit_item_instance != nullptr || deposit_amount == 0)
             {
                 // Pay the item cost
-                if (GetFortniteVersionEasy() < 7.0)
+                if (false) // DEPRECATED
                 {
-                    if (deposit_item_instance != nullptr && deposit_amount != 0)
+                    if (GetFortniteVersionEasy() < 7.0)
                     {
-                        if (deposit_item_instance->ItemEntry().Count() < deposit_amount)
+                        if (deposit_item_instance != nullptr && deposit_amount != 0)
                         {
-                            spdlog::warn(L"Player '{}' tried to buy from vending machines without enough materials.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+                            if (deposit_item_instance->ItemEntry().Count() < deposit_amount)
+                            {
+                                spdlog::warn(L"Player '{}' tried to buy from vending machines without enough materials.", player_controller->MyPlayerInfo()->PlayerName().c_str());
                             
-                            return;
+                                return;
+                            }
                         }
                     }
-                }
-
-                // If a new pickup has been spawned, charge the player with the price
-                if (GetFortniteVersionEasy() < 7.0)
-                {
-                    if (deposit_item_instance != nullptr && deposit_amount != 0)
+                    
+                    // If a new pickup has been spawned, charge the player with the price
+                    if (GetFortniteVersionEasy() < 7.0)
                     {
-                        inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                        if (deposit_item_instance != nullptr && deposit_amount != 0)
+                        {
+                            inventory_component::remove_item(player_controller, deposit_item_instance->ItemEntry().ItemGuid(), deposit_amount, false);
+                        }
                     }
                 }
 
@@ -278,6 +289,21 @@ void interact_component::handle_vending_machine_interaction(AFortPlayerControlle
                                     UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"DespenseOutputItems", blueprint_vending_machine->DespensingDelayTime(), false);
                                 }
                             }
+                        }
+                    }
+                }
+                else // Old seasons
+                {
+                    if (auto blueprint_vending_machine = vending_machine->Cast<AB_Athena_VendingMachine_C>())
+                    {
+                        UKismetSystemLibrary::SetBoolPropertyByName(blueprint_vending_machine, L"bCurrentInteractionSuccess", true);
+                        if (STATIC_HASPROPERTY(blueprint_vending_machine, DespensingDelayTime))
+                        {
+                            UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"DespenseOutputItems", blueprint_vending_machine->DespensingDelayTime(), false);
+                        }
+                        else if (STATIC_HASPROPERTY(blueprint_vending_machine, OutputDespenseDelayTime))
+                        {
+                            UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"DespenseOutputItems", blueprint_vending_machine->OutputDespenseDelayTime(), false);
                         }
                     }
                 }
@@ -575,6 +601,14 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
 {
     // Another safety check just in case anything has changed during the dispense delay.
     if (IsPendingKillPending(vending_machine)) return;
+
+    if (log_component::enable_debug_logs)
+    {
+        if (!memory_manager::is_bad_read_pointer(vending_machine) && vending_machine)
+        {
+            spdlog::info(L"interact_component::DespenseOutputItems(): dropping items for {}.", vending_machine->GetName().c_str());
+        }
+    }
     
     UFortItemDefinition* deposit_item_definition = vending_machine->ActiveInputItem();
     
@@ -593,7 +627,12 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
                 FVector LootSpawnLocation = vending_machine->K2_GetActorLocation();
                 LootSpawnLocation.Z += vending_machine->LootSpawnLocation().Z; // Change the Z axis not to have the pickup stuck in the floor
 
-                vending_machine->Cast<AB_Athena_VendingMachine_C>()->SpawnedItemCount() = 2;
+                // Safety checks
+                if (STATIC_HASPROPERTY(vending_machine, SpawnedItemCount))
+                {
+                    vending_machine->Cast<AB_Athena_VendingMachine_C>()->SpawnedItemCount() = 2;
+                }
+
                 AFortPickup* new_pickup = pickup_component::spawn_pickup(item_entry.ItemDefinition(), LootSpawnLocation, item_entry.Count(), looting_component::get_default_loaded_ammo(item_entry.ItemDefinition()), false);
 
                 if (new_pickup)
@@ -602,23 +641,36 @@ void interact_component::DespenseOutputItems(ABuildingItemCollectorActor* vendin
                     pickup_component::toss_pickup(new_pickup, vending_machine, vending_machine->LootTossDirection(), vending_machine->LootTossConeHalfAngle(), vending_machine->LootTossSpeed());
                 }
             }
+            
+            break;
         }
     }
+    
+    STATIC_HASPROPERTY(vending_machine, NumInteractionsAllowed);
+    STATIC_HASPROPERTY(vending_machine, NumInteractions);
 
-    if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
+    if (bExists_NumInteractions && bExists_NumInteractionsAllowed)
     {
-        auto DoVendDeath = FindObject<UFunction>(L"/Game/Athena/Items/Gameplay/VendingMachine/B_Athena_VendingMachine.B_Athena_VendingMachine_C.DoVendDeath");
-        if (DoVendDeath)
+        if (AB_Athena_VendingMachine_C* blueprint_vending_machine = static_cast<AB_Athena_VendingMachine_C*>(vending_machine))
         {
-            ProcessEvent(vending_machine,DoVendDeath, nullptr);   
+            auto DoVendDeath = FindObject<UFunction>(L"/Game/Athena/Items/Gameplay/VendingMachine/B_Athena_VendingMachine.B_Athena_VendingMachine_C.DoVendDeath");
+            if (DoVendDeath)
+            {
+                ProcessEvent(vending_machine,DoVendDeath, nullptr);   
+            }
+            UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"K2_DestroyActor", 0.1f, false);
         }
-        UKismetSystemLibrary::K2_SetTimer(blueprint_vending_machine, L"K2_DestroyActor", 0.1f, false);
     }
 }
 
 bool interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook(void* Interface, FInteractionType& InteractionType)
 {
     const bool ReturnValue = BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract(Interface, InteractionType);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info("interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook: interacting with vending machine. ReturnValue: {}", ReturnValue);
+    }
     
     if (ReturnValue)
     {
@@ -630,6 +682,15 @@ bool interact_component_hooks::BuildingItemCollectorActor_InteractInterface_Serv
 
             if (!memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
             {
+                if (log_component::enable_debug_logs)
+                {
+                    if (!memory_manager::is_bad_read_pointer(PlayerController->MyPlayerInfo()) && PlayerController->MyPlayerInfo())
+                    {
+                        std::wstring wPlayer_name = PlayerController->MyPlayerInfo()->PlayerName().c_str();
+                        spdlog::info(L"interact_component_hooks::BuildingItemCollectorActor_InteractInterface_ServerOnAttemptInteract_Hook: Player '{}' is interacting with vending machine.", wPlayer_name.c_str());
+                    }
+                }
+                
                 AActor* Owner = reinterpret_cast<AActor*>(reinterpret_cast<uintptr_t>(Interface) + InterfaceToOwnerOffset);
 
                 if (Owner)
