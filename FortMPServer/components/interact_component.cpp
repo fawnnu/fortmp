@@ -155,6 +155,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with battle stars
         handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_QuestInteractable_RubberDuckies_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with battle stars
+        handle_rubberduck_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_RubberDuckies_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller, ABuildingContainer* building_container)
