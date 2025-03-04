@@ -463,120 +463,123 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     // only proceed if Respawn isn't enabled
     if (current_playlist == nullptr || (*GWorld)->GameState()->IsRespawningAllowed(VictimPlayerController->PlayerState()) == false)
     {
-        if (RemoveFromAlivePlayerList)
+        if (!creative_component::is_playground_enabled())
         {
-            // Remove player from alive list if function exists
-            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
-        }
+            if (RemoveFromAlivePlayerList)
+            {
+                // Remove player from alive list if function exists
+                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
+            }
         
-        if (RemoveFromAlivePlayers)
-        {
-            // Remove player from alive list if function exists
-            RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
-        }
+            if (RemoveFromAlivePlayers)
+            {
+                // Remove player from alive list if function exists
+                RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+            }
 
 #ifdef _RELEASE
-        // Summary event
-        if (!creative_component::is_creative_enabled())
-        {
-            if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
+            // Summary event
+            if (!creative_component::is_creative_enabled())
             {
-                // Ignore placement for
-                std::vector<AFortPlayerController*> IgnoreList;
+                if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
+                {
+                    // Ignore placement for
+                    std::vector<AFortPlayerController*> IgnoreList;
                 
-                // Send placement for the whole team
-                if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
-                {
-                    for (AController* TeamMember : TeamInfo->TeamMembers())
-                    {
-                        // Add to ignore list
-                        IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
-                        
-                        // Send summary
-                        challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
-
-                        // Set placement
-                        static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
-                    }
-                }
-
-                if (placement - 1 > 0)
-                {
-                    // Send placement for everyone else who is in a still valid team EXCEPT the players in the ignore list
-                    for (AFortTeamInfo* TeamInfo : team_component::get_alive_teams_list())
+                    // Send placement for the whole team
+                    if (AFortTeamInfo* TeamInfo = team_component::find_team(VictimPlayerController))
                     {
                         for (AController* TeamMember : TeamInfo->TeamMembers())
                         {
-                            if (std::find(IgnoreList.begin(), IgnoreList.end(), reinterpret_cast<AFortPlayerController*>(TeamMember)) == IgnoreList.end())
-                            {
-                                // Send placement
-                                elimination_component::send_placement(reinterpret_cast<AFortPlayerController*>(TeamMember), placement - 1);
-                            }
+                            // Add to ignore list
+                            IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
+                        
+                            // Send summary
+                            challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
+
+                            // Set placement
+                            static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().PlayerStatsTracker.Placement = placement;
                         }
                     }
-                }
-            }
-        }
 
-        // Make sure PlayerState is valid
-        if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
-        {
-            // Send stats
-            elimination_component::DelaySendEndMatchStats(VictimPlayerController);
-
-            // Send elimination event to the killer
-            if (DeathReport.KillerPawn())
-            {
-                if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
-                {
-                    // Make sure the killer and victim are different
-                    if (KillerPlayerController != VictimPlayerController)
+                    if (placement - 1 > 0)
                     {
-                        std::string rarity;
-
-                        if (DeathReport.DamageCauser())
+                        // Send placement for everyone else who is in a still valid team EXCEPT the players in the ignore list
+                        for (AFortTeamInfo* TeamInfo : team_component::get_alive_teams_list())
                         {
-                            if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
+                            for (AController* TeamMember : TeamInfo->TeamMembers())
                             {
-                                if (reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData())
+                                if (std::find(IgnoreList.begin(), IgnoreList.end(), reinterpret_cast<AFortPlayerController*>(TeamMember)) == IgnoreList.end())
                                 {
-                                    rarity = reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData()->GetRarity();
+                                    // Send placement
+                                    elimination_component::send_placement(reinterpret_cast<AFortPlayerController*>(TeamMember), placement - 1);
                                 }
                             }
                         }
-                        
-                        challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause(), DeathReport.Tags(), rarity);
                     }
                 }
             }
-        }
+
+            // Make sure PlayerState is valid
+            if (!memory_manager::is_bad_read_pointer(VictimPlayerController->PlayerState()))
+            {
+                // Send stats
+                elimination_component::DelaySendEndMatchStats(VictimPlayerController);
+
+                // Send elimination event to the killer
+                if (DeathReport.KillerPawn())
+                {
+                    if (AFortPlayerController* KillerPlayerController = DeathReport.KillerPawn()->Controller())
+                    {
+                        // Make sure the killer and victim are different
+                        if (KillerPlayerController != VictimPlayerController)
+                        {
+                            std::string rarity;
+
+                            if (DeathReport.DamageCauser())
+                            {
+                                if (DeathReport.DamageCauser()->IsA(AFortWeapon::StaticClass()))
+                                {
+                                    if (reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData())
+                                    {
+                                        rarity = reinterpret_cast<AFortWeapon*>(DeathReport.DamageCauser())->WeaponData()->GetRarity();
+                                    }
+                                }
+                            }
+                        
+                            challenges_component::SendElimination(KillerPlayerController, VictimPlayerController, VictimPlayerController->PlayerState()->DeathInfo().DeathCause(), DeathReport.Tags(), rarity);
+                        }
+                    }
+                }
+            }
         
-        // Notify Era Services
-        gameserver_client::Client->GameServer_Status.number_of_players = (*GWorld)->AuthorityGameMode()->AlivePlayers().Num();
-        gameserver_client::Client->SendUpdate();
+            // Notify Era Services
+            gameserver_client::Client->GameServer_Status.number_of_players = (*GWorld)->AuthorityGameMode()->AlivePlayers().Num();
+            gameserver_client::Client->SendUpdate();
 #endif
         
-        // only spectate where spectating is stripped
-        if (GetEngineVersionEasy() < 422)
-        {
-            // Start spectating after 5 seconds
-            UKismetSystemLibrary::K2_SetTimer(VictimPlayerController, L"SpectateKillerPawnOnDeath", 5, false);
-
-            // Spectate on other clients
-            for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+            // only spectate where spectating is stripped
+            if (GetEngineVersionEasy() < 422)
             {
-                UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
+                // Start spectating after 5 seconds
+                UKismetSystemLibrary::K2_SetTimer(VictimPlayerController, L"SpectateKillerPawnOnDeath", 5, false);
 
-                if (Connection == nullptr || Connection->PlayerController() == nullptr)
+                // Spectate on other clients
+                for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
                 {
-                    continue;
-                }
+                    UNetConnection* Connection = (*GWorld)->NetDriver()->ClientConnections()[i];
 
-                if (!(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()) &&
-                    Connection->PlayerController() != VictimPlayerController)
-                {
-                    // If the player is dead, update spectating
-                    UKismetSystemLibrary::K2_SetTimer(Connection->PlayerController(), L"SpectateOnDeath", 5, false);
+                    if (Connection == nullptr || Connection->PlayerController() == nullptr)
+                    {
+                        continue;
+                    }
+
+                    if (!(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()) &&
+                        Connection->PlayerController() != VictimPlayerController)
+                    {
+                        // If the player is dead, update spectating
+                        UKismetSystemLibrary::K2_SetTimer(Connection->PlayerController(), L"SpectateOnDeath", 5, false);
+                    }
                 }
             }
         }

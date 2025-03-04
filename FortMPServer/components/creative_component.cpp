@@ -110,6 +110,19 @@ bool creative_component::is_creative_enabled()
     return false;
 }
 
+bool creative_component::is_playground_enabled()
+{
+    UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
+    UFortPlaylistAthena* Playground = FindObject<UFortPlaylistAthena>(L"/Game/Athena/Playlists/Playground/Playlist_Playground.Playlist_Playground");
+
+    if (current_playlist == nullptr)
+    {
+        return false;
+    }
+
+    return current_playlist == Playground;
+}
+
 void creative_component::handle_player_join(UNetConnection* NetConnection)
 {
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
