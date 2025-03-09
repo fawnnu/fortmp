@@ -265,7 +265,7 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     if (DistanceXY > 3000)
     {
-        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle());
+        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}. Player's location [{} {} {}] Pickup's location [{} {} {}]", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle(), PawnLoc.X, PawnLoc.Y, PawnLoc.Z, PickupLoc.X, PickupLoc.Y, PickupLoc.Z);
         
         // False positives
         //PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));   
