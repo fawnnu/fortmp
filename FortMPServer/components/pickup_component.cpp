@@ -267,8 +267,12 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     {
         spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}. Player's location [{} {} {}] Pickup's location [{} {} {}]", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle(), PawnLoc.X, PawnLoc.Y, PawnLoc.Z, PickupLoc.X, PickupLoc.Y, PickupLoc.Z);
         
-        // False positives
-        //PlayerPawn->Controller()->ClientReturnToMainMenu(TEXT("[AC] Cheat detected. Attempted to pickup an item from far distance. ({})", DistanceXY));   
+        bool bPickupAtSpawnPoint = round(PickupLoc.X) == 0 & round(PickupLoc.Y) == 0 & round(PickupLoc.Z) == 0;
+        if (!bPickupAtSpawnPoint)
+        {
+            spdlog::warn(L"[PICKUP IS NOT AT SPAWN LOCATION.] Previous Log: Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}. Player's location [{} {} {}] Pickup's location [{} {} {}]", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle(), PawnLoc.X, PawnLoc.Y, PawnLoc.Z, PickupLoc.X, PickupLoc.Y, PickupLoc.Z);
+            return;
+        }
     }
     
     // Pick it up
