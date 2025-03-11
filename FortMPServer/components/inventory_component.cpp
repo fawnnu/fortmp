@@ -177,17 +177,17 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
                 // Update state values for item toast
                 for (int StateID = 0; StateID < replicated_entry.StateValues().Num(); StateID++)
                 {
-                    if (replicated_entry.StateValues()[StateID].StateType == 2)
+                    if (replicated_entry.StateValues()[StateID].StateType() == 2)
                     {
-                        replicated_entry.StateValues()[StateID].IntValue = b_notify_player;
+                        replicated_entry.StateValues()[StateID].IntValue() = b_notify_player;
                     }
                 }
 
                 for (int StateID = 0; StateID < item_instance->ItemEntry().StateValues().Num(); StateID++)
                 {
-                    if (item_instance->ItemEntry().StateValues()[StateID].StateType == 2)
+                    if (item_instance->ItemEntry().StateValues()[StateID].StateType() == 2)
                     {
-                        item_instance->ItemEntry().StateValues()[StateID].IntValue = b_notify_player;
+                        item_instance->ItemEntry().StateValues()[StateID].IntValue() = b_notify_player;
                     }
                 }
                 
@@ -292,25 +292,9 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     
     // Update inventory locally
     player_controller->WorldInventory()->HandleInventoryLocalUpdate();
-
-    static void* StateValues_property = FindPropertyByName(FFortItemEntry::GetClass(), L"StateValues");
     
-    // Add to state values
-    TArrayManager<FFortItemEntryStateValue> StateValues = TArrayManager<FFortItemEntryStateValue>(&replicated_entries[replicated_entries.Num() - 1].StateValues(), sizeof(FFortItemEntryStateValue));
-
-    // Make a new state value
-    FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(sizeof(FFortItemEntryStateValue)));
-
-    // Initialize the newly allocated memory
-    ZeroMemory(NewStateValue, sizeof(FFortItemEntryStateValue));
-
-    // Initialize the properties
-    NewStateValue->IntValue = b_notify_player;
-    NewStateValue->NameValue = FName();
-    NewStateValue->StateType = 2;
-
-    // Add it to the StateValues
-    StateValues.Add(NewStateValue);
+    // Notification
+    replicated_entries[replicated_entries.Num() - 1].AddStateValue(b_notify_player, FName(), 2);
     
     // Support force quickbar focus when item gets added to inventory
     if (STATIC_HASPROPERTY(item_definition, bForceFocusWhenAdded))
@@ -328,7 +312,7 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
     {
         TryAddToQuickBar(player_controller, world_item);
     }
-    
+
     return item_instances[item_instances.Num() - 1];
 }
 

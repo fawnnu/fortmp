@@ -393,10 +393,12 @@ public:
 struct FFortItemEntryStateValue
 {
 public:
-    int32                                        IntValue;  
-    FName                                        NameValue; 
-    uint8_t               StateType; 
-    uint8                                        Pad_25FE[0x3]; 
+    DEFINE_STRUCT_PROPERTY(int, IntValue);
+    DEFINE_STRUCT_PROPERTY(FName, NameValue);
+    DEFINE_STRUCT_PROPERTY(uint8_t, StateType);
+
+    UE_OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortItemEntryStateValue")
 };
 
 struct FFortItemEntry : public FFastArraySerializerItem
@@ -414,21 +416,21 @@ struct FFortItemEntry : public FFastArraySerializerItem
 
     void AddStateValue(int IntValue, FName NameValue, uint8_t StateType)
     {
-        TArrayManager<FFortItemEntryStateValue> StateValuesManager = TArrayManager<FFortItemEntryStateValue>(&StateValues(), sizeof(FFortItemEntryStateValue));
+        TArrayManager StateValuesManager = StateValues();
 
         // Make a new state value
-        FFortItemEntryStateValue* NewStateValue = reinterpret_cast<FFortItemEntryStateValue*>(alloca(sizeof(FFortItemEntryStateValue)));
-
-        // Initialize the newly allocated memory
-        ZeroMemory(NewStateValue, sizeof(FFortItemEntryStateValue));
+        FFortItemEntryStateValue* NewStateValue = new FFortItemEntryStateValue;
 
         // Initialize the properties
-        NewStateValue->IntValue = IntValue;
-        NewStateValue->NameValue = NameValue;
-        NewStateValue->StateType = StateType;
+        NewStateValue->IntValue() = IntValue;
+        NewStateValue->NameValue() = NameValue;
+        NewStateValue->StateType() = StateType;
 
         // Add it to the StateValues
         StateValuesManager.Add(NewStateValue);
+
+        // Free
+        FMemory_Free(NewStateValue);
     }
 
     FFortItemEntryStateValue* GetStateValueByName(FName InNameValue)
@@ -437,7 +439,7 @@ struct FFortItemEntry : public FFastArraySerializerItem
 
         for (FFortItemEntryStateValue& StateValue : StateValuesManager)
         {
-            if (StateValue.NameValue == InNameValue)
+            if (StateValue.NameValue() == InNameValue)
             {
                 return &StateValue;
             }
