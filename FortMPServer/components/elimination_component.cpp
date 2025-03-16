@@ -479,7 +479,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
 
 #ifdef _RELEASE
             // Summary event
-            if (!creative_component::is_creative_enabled())
+            if (!creative_component::is_creative_enabled() && !creative_component::is_playground_enabled())
             {
                 if (int placement = elimination_component::get_placement(VictimPlayerController); placement > 0)
                 {
