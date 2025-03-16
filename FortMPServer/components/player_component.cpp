@@ -3167,15 +3167,6 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     // Call native function
     PostLogin(FortGameModeAthena, NewPlayer);
 
-#ifdef _RELEASE
-    if (team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true) && team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false))
-    {
-        team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(), GetFortniteVersionEasy() < 5.0 ? team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index() : team_component::find_era_team(static_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index() - 2);
-    }
-#elif _TESTING
-    team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 2, 2);
-#endif
-    
     // Kick the player if a ban record exists
     if (moderation_component::is_player_banned(static_cast<AFortPlayerController*>(NewPlayer)))
     {

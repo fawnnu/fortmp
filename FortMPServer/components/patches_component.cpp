@@ -66,7 +66,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_pattern("40 53 48 81 EC ? ? ? ? 48 83 79 ? ? 48 8B D9 74 0E B8 ? ? ? ? 48 81 C4 ? ? ? ? 5B"), patches_component_hook::WorldGetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::WorldGetNetMode, memory_manager::find_function_by_string(L"not creating navigation on clients", {0xe8}, 1), patches_component_hook::WorldGetNetMode_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::__Filter, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B FA 48 8D 05 ? ? ? ? 33 D2 49 8B F0 38 15 ? ? ? ? 48 89 17 48 0F 45 C2 48 89 57 08 48 89 57 10 48 89 57 18 48 8B 19 48 63 49 08 48 89 44 24 ? 48 8D 2C CB 48 3B DD 74 40 48 63 4E 08 85 C9 74 2A 48 8B 06 48 8D 14 C8"), patches_component_hook::__Filter_Hook);
-    
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::FortDamageFormula_Execute, memory_manager::find_function_by_string(L"STAT_FortDamageFormula_Execute"), patches_component_hook::FortDamageFormula_Execute_Hook)
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AddSquadMember, memory_manager::find_function_by_string(L"AddSquadMember: %s %d [%s]"), patches_component_hook::AddSquadMember_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::StatManagerFunc, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 30 49 63 F0 80 FA 02 0F 83 ? ? ? ? 0F B6 D2"), patches_component_hook::StatManagerFunc_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::NotifyAcceptingConnection, memory_manager::find_function_by_string(L"NotifyAcceptingConnection: Client refused"), patches_component_hook::NotifyAcceptingConnection_Hook);
@@ -816,5 +816,43 @@ FGameplayTagContainer* patches_component_hook::__Filter_Hook(FGameplayTagContain
     {
         ZeroMemory(Result, sizeof(FGameplayTagContainer));
         return Result;
+    }
+}
+
+// This function breaks traps somewhy; so override calculations for traps and always deal 150 damage
+void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struct FGameplayEffectCustomExecutionParameters* ExecutionParams, FGameplayEffectCustomExecutionOutput* OutExecutionOutput)
+{
+    FortDamageFormula_Execute(Self, ExecutionParams, OutExecutionOutput);
+
+    TArrayManager OutputModifiers = OutExecutionOutput->OutputModifiers();
+    
+    if (ExecutionParams)
+    {
+        if (ExecutionParams->OwningSpec)
+        {
+            if (ExecutionParams->OwningSpec->EffectContext().Data.IsValid())
+            {
+                if (UObject* AbilityInstanceNotReplicated = ExecutionParams->OwningSpec->EffectContext().Data.Get()->AbilityInstanceNotReplicated().Get())
+                {
+                    // Only override trap's damage
+                    if (AbilityInstanceNotReplicated->IsA(UGA_Trap_FloorSpikes_C::StaticClass()))
+                    {
+                        // Build our own output;
+                        FGameplayModifierEvaluatedData* EvaluatedModifier = new FGameplayModifierEvaluatedData;
+
+                        EvaluatedModifier->Attribute().AttributeName() = std::wstring(TEXT("Damage"));
+                        EvaluatedModifier->Attribute().AttributeOwner() = FindObject(TEXT("/Script/FortniteGame.FortHealthSet"));
+                        EvaluatedModifier->Attribute().Attribute() = static_cast<UProperty*>(FindPropertyByName(EvaluatedModifier->Attribute().AttributeOwner(), TEXT("Damage")));
+                        EvaluatedModifier->Magnitude() = 150.0;
+                        EvaluatedModifier->ModifierOp() = 0;
+                        EvaluatedModifier->IsValid() = true;
+                        EvaluatedModifier->Handle().Handle = -1;
+                        EvaluatedModifier->Handle().bPassedFiltersAndWasExecuted = false;
+
+                        OutputModifiers.Add(EvaluatedModifier);
+                    }
+                }
+            }
+        }
     }
 }

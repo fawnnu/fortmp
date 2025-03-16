@@ -505,9 +505,9 @@ uint8_t team_component_hooks::GetSquadIdForCurrentPlayer_Hook(void* Self, FUniqu
                         if (era_team* found_team = team_component::find_era_team(Controller, false))
                         {
                             // log
-                            spdlog::info(L"team_component_hooks::GetSquadIdForCurrentPlayer_Hook found {}'s team. Squad Id: {}.", PlayerState->GetName(), GetFortniteVersionEasy() < 5.0 ? found_team->get_team_index() : found_team->get_team_index() - 2);
+                            spdlog::info(L"team_component_hooks::GetSquadIdForCurrentPlayer_Hook found {}'s team. Squad Id: {}.", PlayerState->GetName(), found_team->get_team_index());
                             
-                            return GetFortniteVersionEasy() < 5.0 ? found_team->get_team_index() : found_team->get_team_index() - 2;
+                            return found_team->get_team_index();
                         }
                     }
                 }

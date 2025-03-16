@@ -9,6 +9,18 @@ public:
     DEFINE_PROPERTY(APawn*, PawnPrivate);
 };
 
+class UFortConstructionSet : public UObject
+{
+public:
+    DEFINE_PROPERTY(FGameplayAttributeData, TrapBaseDamage);
+};
+
+struct FFortPlayerAttributeSets
+{
+    DEFINE_STRUCT_PROPERTY(UFortConstructionSet*, ConstructionSet);
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortPlayerAttributeSets");
+};
+
 class AFortPlayerState : public APlayerState
 {
 public:
@@ -16,6 +28,7 @@ public:
     DEFINE_PROPERTY(UFortHeroType*, HeroType);
 
     DEFINE_PROPERTY(FVector, PawnDeathLocation);
+    DEFINE_PROPERTY(FFortPlayerAttributeSets, AttributeSets);
     
     // Used on older builds
     DEFINE_PROPERTY(UCustomCharacterPart*, CharacterParts);

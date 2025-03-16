@@ -8,7 +8,8 @@ public:
 
 struct FActiveGameplayEffectHandle
 {
-    char Padding[0x8];
+    int Handle;
+    bool bPassedFiltersAndWasExecuted;
 };
 
 struct FGameplayEffectContext
@@ -16,12 +17,15 @@ struct FGameplayEffectContext
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, SourceObject);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, Instigator);
     DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<UObject>, EffectCauser);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class UGameplayAbility>, AbilityInstanceNotReplicated);
+    DEFINE_STRUCT_PROPERTY(TWeakObjectPtr<class UGameplayAbility>, AbilityCDO);
     
     DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEffectContext")
 };
 
 struct FGameplayEffectContextHandle
 {
+    void** VTable;
     TSharedPtr<FGameplayEffectContext> Data;
 };
 
@@ -204,4 +208,36 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortGliderPackSet");
 
     DEFINE_PROPERTY(FGameplayAttributeData, CurrentCharges);
+};
+
+struct FGameplayModifierEvaluatedData
+{
+    DEFINE_STRUCT_PROPERTY(FGameplayAttribute, Attribute);
+    DEFINE_STRUCT_PROPERTY(float, Magnitude);
+    DEFINE_STRUCT_PROPERTY(bool, IsValid);
+    DEFINE_STRUCT_PROPERTY(uint8_t, ModifierOp);
+    DEFINE_STRUCT_PROPERTY(FActiveGameplayEffectHandle, Handle);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayModifierEvaluatedData");
+};
+    
+struct FGameplayEffectCustomExecutionOutput
+{
+    DEFINE_STRUCT_PROPERTY(TArray<FGameplayModifierEvaluatedData>, OutputModifiers);   
+    
+    DEFINE_STRUCT_CLASS(L"/Script/GameplayAbilities.GameplayEffectCustomExecutionOutput")
+};
+
+struct FGameplayEffectCustomExecutionParameters
+{
+    char pad[0x50];
+
+    FGameplayEffectSpec* OwningSpec;
+};
+
+class UGA_Trap_FloorSpikes_C : public UFortGameplayAbility
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Traps/FloorSpikes/GA_Trap_FloorSpikes.GA_Trap_FloorSpikes_C")
 };
