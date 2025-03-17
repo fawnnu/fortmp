@@ -185,6 +185,21 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
     // Victim player controller taken from function
     AFortPlayerController* VictimPlayerController = reinterpret_cast<AFortPlayerController*>(Object);
 
+    // Do nothing if VictimPlayerController is invalid
+    if (VictimPlayerController == nullptr || memory_manager::is_bad_read_pointer(VictimPlayerController))
+    {
+        spdlog::error(L"ClientOnPawnDied_Hook: bad self object.");
+        
+        return;
+    }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"elimination_component_hooks::ClientOnPawnDied_Hook: processing elimination for '{}'.", VictimPlayerController->GetName().c_str());
+        }
+    }
+    
     // Get playlist
     UFortPlaylistAthena* current_playlist = GetPlaylistEasy();
 
@@ -467,14 +482,30 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
         {
             if (RemoveFromAlivePlayerList)
             {
-                // Remove player from alive list if function exists
-                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
+                // Only proceed if our player is still in the aliveplayers array
+                if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(VictimPlayerController))
+                {
+                    // Remove player from alive list if function exists
+                    RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0);
+                }
+                else
+                {
+                    spdlog::warn(L"elimination_component_hooks::ClientOnPawnDied_Hook attempted removing an already removed player.");
+                }
             }
         
             if (RemoveFromAlivePlayers)
             {
-                // Remove player from alive list if function exists
-                RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+                // Only proceed if our player is still in the aliveplayers array
+                if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(VictimPlayerController))
+                {
+                    // Remove player from alive list if function exists
+                    RemoveFromAlivePlayers((*GWorld)->AuthorityGameMode(), VictimPlayerController, 0, 0, 0, 1, 0);
+                }
+                else
+                {
+                    spdlog::warn(L"elimination_component_hooks::ClientOnPawnDied_Hook attempted removing an already removed player.");
+                }
             }
 
 #ifdef _RELEASE
