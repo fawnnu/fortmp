@@ -241,3 +241,15 @@ class UGA_Trap_FloorSpikes_C : public UFortGameplayAbility
 public:
     DEFINE_CLASS(L"/Game/Abilities/Traps/FloorSpikes/GA_Trap_FloorSpikes.GA_Trap_FloorSpikes_C")
 };
+
+class UGA_Trap_CeilingSpikes_C : public UFortGameplayAbility
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Traps/CeilingSpikes/GA_Trap_CeilingSpikes.GA_Trap_CeilingSpikes_C")
+};
+
+class UGA_Trap_WallSpikes_C : public UFortGameplayAbility
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Traps/WallSpikes/GA_Trap_WallSpikes.GA_Trap_WallSpikes_C")
+};
