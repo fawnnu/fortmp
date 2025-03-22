@@ -32,6 +32,7 @@ public:
     static int get_default_last_team();
     static int get_alive_teams();
     static std::vector<AFortTeamInfo*> get_alive_teams_list();
+    static bool is_human_team(uint8_t team);
 
     static inline int max_team_size_override;
     static inline std::map<std::wstring, era_team_info> TeamsMap;

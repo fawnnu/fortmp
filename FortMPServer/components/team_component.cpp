@@ -372,6 +372,19 @@ std::vector<AFortTeamInfo*> team_component::get_alive_teams_list()
     return alive_teams;
 }
 
+bool team_component::is_human_team(uint8_t team)
+{
+    if (team != 103 &&
+        team != 104 &&
+        team != 0 &&
+        team != 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 era_team* team_component::find_free_team(AFortPlayerController* player_controller)
 {
     bool found_team = false;

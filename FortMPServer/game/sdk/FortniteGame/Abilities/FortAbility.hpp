@@ -248,8 +248,8 @@ public:
     DEFINE_CLASS(L"/Game/Abilities/Traps/CeilingSpikes/GA_Trap_CeilingSpikes.GA_Trap_CeilingSpikes_C")
 };
 
-class UGA_Trap_WallSpikes_C : public UFortGameplayAbility
+class UGA_Trap_WallSpikesMetal_C : public UFortGameplayAbility
 {
 public:
-    DEFINE_CLASS(L"/Game/Abilities/Traps/WallSpikes/GA_Trap_WallSpikes.GA_Trap_WallSpikes_C")
+    DEFINE_CLASS(L"/Game/Abilities/Traps/WallSpikesMetal/GA_Trap_WallSpikesMetal.GA_Trap_WallSpikesMetal_C")
 };

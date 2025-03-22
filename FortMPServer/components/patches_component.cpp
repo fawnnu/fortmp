@@ -837,7 +837,7 @@ void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struc
                     // Only override trap's damage
                     if (AbilityInstanceNotReplicated->IsA(UGA_Trap_FloorSpikes_C::StaticClass()) ||
                         AbilityInstanceNotReplicated->IsA(UGA_Trap_CeilingSpikes_C::StaticClass()) ||
-                        AbilityInstanceNotReplicated->IsA(UGA_Trap_WallSpikes_C::StaticClass()))
+                        AbilityInstanceNotReplicated->IsA(UGA_Trap_WallSpikesMetal_C::StaticClass()))
                     {
                         // Build our own output;
                         FGameplayModifierEvaluatedData* EvaluatedModifier = new FGameplayModifierEvaluatedData;

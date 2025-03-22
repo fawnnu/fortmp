@@ -6,6 +6,7 @@
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
+#include "team_component.hpp"
 
 building_component::building_component()
 {
@@ -307,7 +308,16 @@ void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerControlle
             {
                 if (!memory_manager::is_bad_read_pointer(FortPlayerController->PlayerState()) && FortPlayerController->PlayerState())
                 {
-                    if (FortPlayerController->PlayerState()->TeamIndex() == BuildingActorToEdit->Team())
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"building_component_hooks::ServerEditBuildingActor_Hook: PlayerState ('{}', Team: '{}') is attempting to edit BuildingActor ('{}', Team: '{}')",
+                            FortPlayerController->PlayerState()->GetName().c_str(),
+                            FortPlayerController->PlayerState()->TeamIndex(),
+                            BuildingActorToEdit->GetName().c_str(),
+                            BuildingActorToEdit->Team());
+                    }
+                    
+                    if (FortPlayerController->PlayerState()->TeamIndex() == BuildingActorToEdit->Team() || !team_component::is_human_team(BuildingActorToEdit->Team()))
                     {
                         building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
                     }
