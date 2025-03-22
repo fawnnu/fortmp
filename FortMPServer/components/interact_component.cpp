@@ -417,7 +417,7 @@ void interact_component::handle_gnome_interaction(AFortPlayerController* player_
     if (gnome->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:chilly-gnome", gnome->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:gnome", gnome->QuestBackendObjectiveName());
     }
 }
 
