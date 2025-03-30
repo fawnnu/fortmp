@@ -869,7 +869,13 @@ bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObje
             (*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
         {
             *Object = nullptr;
-            spdlog::error(L"patches_component_hook::SerializeObject_Hook: Invalid Object or Object class. Skipping serialization...")
+
+            // Log
+            if ((*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
+            {
+                spdlog::error(L"patches_component_hook::SerializeObject_Hook: Invalid Object class. Skipping serialization...");
+            }
+            
             return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);
         }
     }
