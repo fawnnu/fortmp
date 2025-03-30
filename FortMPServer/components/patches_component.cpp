@@ -860,21 +860,22 @@ void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struc
     }
 }
 
-// Fix some weird crash; mem issue
 bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObject* Class, UObject** Object, void* OutNetworkGuid)
 {
     if (Object)
     {
-        if (memory_manager::is_bad_read_pointer(Object) || memory_manager::is_bad_read_pointer(*Object) ||
-            (*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
+        if (memory_manager::is_bad_read_pointer(Object) || *Object == nullptr || memory_manager::is_bad_read_pointer(*Object))
+        {
+            *Object = nullptr;
+            return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);
+        }
+
+        if ((*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
         {
             *Object = nullptr;
 
             // Log
-            if ((*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
-            {
-                spdlog::error(L"patches_component_hook::SerializeObject_Hook: Invalid Object class. Skipping serialization...");
-            }
+            spdlog::error(L"patches_component_hook::SerializeObject_Hook: Bad class object passed. Skipping serialization.")
             
             return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);
         }
