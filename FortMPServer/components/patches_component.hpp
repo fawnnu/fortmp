@@ -108,6 +108,8 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(FGameplayTagContainer*, __Filter, (FGameplayTagContainer* Self, FGameplayTagContainer* Result, FGameplayTagContainer* OtherContainer));
 
     DEFINE_FUNCTION_HOOK(void, FortDamageFormula_Execute, (UObject* Self, struct FGameplayEffectCustomExecutionParameters* ExecutionParams, FGameplayEffectCustomExecutionOutput* OutExecutionOutput))
+
+    DEFINE_FUNCTION_HOOK(bool, SerializeObject, (UObject* Self, void* Ar, UObject* Class, UObject** Object, void* OutNetworkGuid))
 };
 
 inline int TimesLoggedMSGSIZEExploit;

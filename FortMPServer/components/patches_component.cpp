@@ -42,6 +42,7 @@ patches_component::patches_component()
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 4C 8B E8 48 85 C0 0F 85 ? ? ? ? 49 63 5F 08 8D 4B 01 41 89 4F 08 41 3B 4F 0C 7E 0A 8B D3 49 8B CF E8 ? ? ? ? 49 8B 07 48 8B D6"), patches_component_hook::SpawnActor_Pawn);
     
     REGISTER_FUNCTION_DETOUR(patches_component_hook::SpawnDefaultPawnAtTransform_Implementation, memory_manager::find_function_by_string(L"SpawnDefaultPawnAtTransform: Couldn't spawn Pawn of type %s at %s"), patches_component_hook::SpawnDefaultPawnAtTransform_Implementation_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::SerializeObject, memory_manager::find_function_by_string(L"Using None instead of replicated reference to %s because the level it's in has not been made visible"), patches_component_hook::SerializeObject_Hook);
     
     // Re-implement GC checks
     REGISTER_FUNCTION_DETOUR(patches_component_hook::TryCollectGarbage, GetEngineVersionEasy() < 420 ? memory_manager::find_function_by_string(L"TryCollectGarbage: forcing GC after %d skipped attempts.") : 0, patches_component_hook::TryCollectGarbage_Hook);
@@ -857,4 +858,21 @@ void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struc
             }
         }
     }
+}
+
+// Fix some weird crash; mem issue
+bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObject* Class, UObject** Object, void* OutNetworkGuid)
+{
+    if (Object)
+    {
+        if (memory_manager::is_bad_read_pointer(Object) || memory_manager::is_bad_read_pointer(*Object) ||
+            (*Object)->Class == nullptr || memory_manager::is_bad_read_pointer((*Object)->Class))
+        {
+            *Object = nullptr;
+            spdlog::error(L"patches_component_hook::SerializeObject_Hook: Invalid Object or Object class. Skipping serialization...")
+            return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);
+        }
+    }
+    
+    return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);   
 }
