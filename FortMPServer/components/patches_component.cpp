@@ -875,7 +875,7 @@ bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObje
             *Object = nullptr;
 
             // Log
-            spdlog::error(L"patches_component_hook::SerializeObject_Hook: Bad class object passed. Skipping serialization.")
+            spdlog::error(L"patches_component_hook::SerializeObject_Hook: Bad class object passed. Skipping serialization.");
             
             return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);
         }
