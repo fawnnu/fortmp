@@ -9,6 +9,18 @@ public:
         
         return Call<AActor*>(Function_GetOwner);
     }
+
+    void RegisterComponent()
+    {
+        if (UActorComponent__RegisterComponentInWorld)
+        {
+            UActorComponent__RegisterComponentInWorld(this, *GWorld);
+        }
+        else
+        {
+            spdlog::error("Failed to register component in World: UActorComponent__RegisterComponentInWorld is NULL");
+        }
+    }
 };
 
 class AFortAircraft;
@@ -35,11 +47,27 @@ struct FHitResult
     OVERLOAD_NEW_OPERATOR();
 };
 
+class EAttachmentRule : public UEnum
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.EAttachmentRule")
+
+    ENUM_PROPERTY(KeepRelative);
+};
+
 class USceneComponent : public UActorComponent
 {
 public:
     DEFINE_PROPERTY(USceneComponent*, AttachParent);
     DEFINE_PROPERTY(TArray<USceneComponent*>, AttachChildren);
+
+    bool K2_AttachToComponent(USceneComponent* Parent, FName SocketName, uint8_t LocationRule, uint8_t RotationRule, uint8_t ScaleRule, bool bWeldSimulatedBodies)
+    {
+        STATIC_FINDFUNCTION(K2_AttachToComponent)
+
+        return Call<bool>(Function_K2_AttachToComponent, Parent, SocketName, LocationRule, RotationRule, ScaleRule, bWeldSimulatedBodies);
+    }
+    
     FVector K2_GetComponentLocation()
     {
         STATIC_FINDFUNCTION(K2_GetComponentLocation)
@@ -98,7 +126,31 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/Engine.ProjectileMovementComponent")
 };
 
-class UPrimitiveComponent : public UActorComponent
+class ECollisionEnabled : public UEnum
+{
+public:
+    DEFINE_STATIC_ENUM_CLASS(L"/Script/Engine.ECollisionEnabled")
+
+    ENUM_PROPERTY(QueryOnly);
+};
+
+class ECollisionChannel : public UEnum
+{
+public:
+    DEFINE_STATIC_ENUM_CLASS(L"/Script/Engine.ECollisionChannel")
+
+    ENUM_PROPERTY(ECC_WorldDynamic);
+};
+
+class ECollisionResponse : public UEnum
+{
+public:
+    DEFINE_STATIC_ENUM_CLASS(L"/Script/Engine.ECollisionResponse")
+
+    ENUM_PROPERTY(ECR_Overlap);
+};
+
+class UPrimitiveComponent : public USceneComponent
 {
 public:
     DEFINE_PROPERTY(TArray<AActor*>, MoveIgnoreActors);
@@ -116,12 +168,26 @@ public:
         
         Call(Function_SetCollisionResponseToChannel, Channel, NewResponse);
     }
+
+    void SetCollisionResponseToAllChannels(uint8_t NewResponse)
+    {
+        STATIC_FINDFUNCTION(SetCollisionResponseToAllChannels)
+        
+        Call(Function_SetCollisionResponseToAllChannels, NewResponse);
+    }
     
     uint8_t GetCollisionObjectType()
     {
         STATIC_FINDFUNCTION(GetCollisionObjectType)
         
         return Call<uint8_t>(Function_GetCollisionObjectType);
+    }
+    
+    void SetCollisionObjectType(uint8_t Collision)
+    {
+        STATIC_FINDFUNCTION(SetCollisionObjectType)
+        
+        Call(Function_SetCollisionObjectType, Collision);
     }
 };
 
@@ -194,5 +260,18 @@ public:
         STATIC_FINDFUNCTION(GetScaledBoxExtent)
 
         return Call<FVector>(Function_GetScaledBoxExtent);
+    }
+};
+
+class USphereComponent : public UPrimitiveComponent
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/Engine.SphereComponent");
+
+    void SetSphereRadius(float InSphereRadius, bool bUpdateOverlaps)
+    {
+        STATIC_FINDFUNCTION(SetSphereRadius)
+
+        Call(Function_SetSphereRadius, InSphereRadius, bUpdateOverlaps);
     }
 };

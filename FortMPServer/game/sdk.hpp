@@ -53,6 +53,31 @@
         return static_class;\
     }
 
+#define DEFINE_STATIC_ENUM_CLASS(ClassFullName)\
+    static UObject* StaticClass(bool bLog = false)\
+    {\
+        static UObject* static_class = FindObject(ClassFullName);\
+        \
+        if (static_class == nullptr)\
+        {\
+            if (bLog)\
+            {\
+                spdlog::error(L"StaticClass: failed to find '{}'.", ClassFullName);\
+            }\
+        }\
+        \
+        return static_class;\
+    }\
+\
+    static std::wstring DumpName(uint8_t EnumIndex)\
+    {\
+        TArray<TPair<FName, __int64>> NamesList = *reinterpret_cast<TArray<TPair<FName, __int64>>*>(__int64(StaticClass()) + 0x40);\
+    \
+        std::wstring full_enum_name = NamesList[EnumIndex].Key.ToString();\
+        \
+        return full_enum_name.substr(full_enum_name.find_last_of(L":") + 1);\
+    }
+
 #define DEFINE_CLASS(ClassFullName)\
     static UObject* StaticClass(bool bLog = false)\
     {\
@@ -154,6 +179,13 @@
 
 #define STATIC_FINDFUNCTIONOBJECT(FunctionName)\
     static UObject* FunctionObject = FindObject(FunctionName);
+
+
+#define ENUM_PROPERTY(ElementName)\
+static uint8_t ElementName##()\
+{\
+return STATIC_GetEnumIndex(StaticClass(), FName(#ElementName).ToString());\
+}
 
 #include "sdk/Engine/GameFramework/Actor.hpp"
 #include "sdk/Engine/Interface.hpp"

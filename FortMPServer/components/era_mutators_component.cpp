@@ -19,6 +19,49 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    // YAY THIS WORKS!
+    new era_mutator("mountainpost_overlap_fix_test", [](LPVOID)
+    {
+        TArray<AProp_MountainSummit_QuestInteractable_Parent*> MountainPosts = UGameplayStatics::GetAllActorsOfClass<AProp_MountainSummit_QuestInteractable_Parent>();
+
+        for (AProp_MountainSummit_QuestInteractable_Parent* MountainPost : MountainPosts)
+        {
+            // Create the component and register it properly
+            if (MountainPost->RootComponent())
+            {
+                USphereComponent* OverlapComponent = UGameplayStatics::SpawnObject<USphereComponent>(MountainPost->RootComponent());
+                OverlapComponent->RegisterComponent();
+                if (OverlapComponent->K2_AttachToComponent(MountainPost->RootComponent(), FName(), EAttachmentRule::KeepRelative(), EAttachmentRule::KeepRelative(), EAttachmentRule::KeepRelative(), true))
+                {
+                    OverlapComponent->SetSphereRadius(500.0, true);
+
+                    // Setup collision
+                    OverlapComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly());
+                    OverlapComponent->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic());
+                    OverlapComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap());
+
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"[MUTATOR] mountainpost_overlap_fix: Created component '{}' for actor '{}' with collision: [{} {} {}]",
+                            OverlapComponent->GetName().c_str(),
+                            MountainPost->GetName().c_str(),
+                            ECollisionEnabled::DumpName(ECollisionEnabled::QueryOnly()).c_str(),
+                            ECollisionChannel::DumpName(ECollisionChannel::ECC_WorldDynamic()).c_str(),
+                            ECollisionResponse::DumpName(ECollisionResponse::ECR_Overlap()).c_str());
+                    }
+                }
+                else
+                {
+                    spdlog::error(L"[MUTATOR] mountainpost_overlap_fix: K2_AttachToComponent failed execution.");
+                }
+            }
+            else
+            {
+                spdlog::error(L"[MUTATOR] mountainpost_overlap_fix: Target actor has invalid RootComponent.");
+            }
+        }
+    });
+    
     new era_mutator("NoVehicle", [](LPVOID)
     {
     });

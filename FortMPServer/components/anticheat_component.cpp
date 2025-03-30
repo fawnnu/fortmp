@@ -154,6 +154,22 @@ bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena*
     return false;
 }
 
+bool anticheat_component::ValidateInteractionDistance(AActor* Sender, AActor* Receiver)
+{
+    auto SenderLoc = Sender->K2_GetActorLocation();
+    auto ReceiverLoc = Receiver->K2_GetActorLocation();
+    const float DistanceXYZ = sqrtf((SenderLoc.X - ReceiverLoc.X) * (SenderLoc.X - ReceiverLoc.X) +
+            (SenderLoc.Y - ReceiverLoc.Y) * (SenderLoc.Y - ReceiverLoc.Y) +
+            (SenderLoc.Z - ReceiverLoc.Z) * (SenderLoc.Z - ReceiverLoc.Z));
+
+    if (DistanceXYZ > 1500)
+    {
+        return false;
+    }
+    
+    return true;
+}
+
 bool anticheat_component::ValidateTargetDataFrequency(FRangedAbilityData& AbilityData, UFortGameplayAbility_RangedWeapon* Ability, UWorld* World, float FiringRatePerSecond, float OptimalTimeDelta, float CustomTimeDilation)
 {
     float TimeShotDelta;

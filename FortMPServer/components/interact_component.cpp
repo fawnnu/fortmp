@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "interact_component.hpp"
 
+#include "anticheat_component.hpp"
 #include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "inventory_component.hpp"
@@ -50,6 +51,13 @@ interact_component::interact_component()
 
 void interact_component::handle_interaction(AFortPlayerController* player_controller, AActor* receiving_actor, UPrimitiveComponent* interact_component, uint8_t interaction_type)
 {
+    // Distance checks
+    if (!anticheat_component::ValidateInteractionDistance(player_controller->MyFortPawn(), receiving_actor))
+    {
+        spdlog::error(L"interact_component::handle_interaction: Player '{}' failed ValidateInteractionDistance. Interaction will be ignored.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+        return;
+    }
+    
     if (log_component::enable_debug_logs)
     {
         // Log receiving actor

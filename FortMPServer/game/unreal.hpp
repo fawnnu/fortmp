@@ -93,6 +93,9 @@ inline bool (*LineTraceMultiByChannel)(UWorld*, TArray<struct FHitResult>& OutHi
 // Add ignored actors to params
 inline void (*FCollisionQueryParams__AddIgnoredActors)(FCollisionQueryParams*, TArray<AActor*>&);
 
+// Registers component in world
+inline void (*UActorComponent__RegisterComponentInWorld)(class UActorComponent* Self, UWorld* InWorld);
+
 namespace CoreOffsets
 {
     inline DWORD Children;
@@ -292,6 +295,36 @@ public:
             if (EnumKey.find(this->GetName()) != std::wstring::npos)
             {
                 if (EnumKey.erase(EnumKey.find(this->GetName()), this->GetName().length() + 2) == EnumName)
+                {
+                    // If given enum name matches the current enum name (with E[...]:: removed), return current index
+                    return i;
+                }
+            }
+            else
+            {
+                if (EnumKey == EnumName)
+                {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+    
+    static uint8_t STATIC_GetEnumIndex(UObject* InEnumObj, std::wstring EnumName)
+    {
+        // Get list of all enums
+        TArray<TPair<FName, __int64>> NamesList = *reinterpret_cast<TArray<TPair<FName, __int64>>*>(reinterpret_cast<__int64>(InEnumObj) + 0x40);
+
+        for (int i = 0; i < NamesList.Num(); i++)
+        {
+            // Enum name
+            std::wstring EnumKey = NamesList[i].Key.ToString();
+
+            if (EnumKey.find(InEnumObj->GetName()) != std::wstring::npos)
+            {
+                if (EnumKey.erase(EnumKey.find(InEnumObj->GetName()), InEnumObj->GetName().length() + 2) == EnumName)
                 {
                     // If given enum name matches the current enum name (with E[...]:: removed), return current index
                     return i;

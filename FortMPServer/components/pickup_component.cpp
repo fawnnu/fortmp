@@ -263,9 +263,9 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     const float DistanceXY = sqrtf((PawnLoc.X - PickupLoc.X) * (PawnLoc.X - PickupLoc.X) +
             (PawnLoc.Y - PickupLoc.Y) * (PawnLoc.Y - PickupLoc.Y));
     
-    if (DistanceXY > 3000)
+    if (DistanceXY > 1500)
     {
-        spdlog::warn(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}. Player's location [{} {} {}] Pickup's location [{} {} {}]", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle(), PawnLoc.X, PawnLoc.Y, PawnLoc.Z, PickupLoc.X, PickupLoc.Y, PickupLoc.Z);
+        spdlog::error(L"Player {} picked up an item with distance {} cm on the XY axis. In vehicle ? {}. Player's location [{} {} {}] Pickup's location [{} {} {}]", PlayerPawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), DistanceXY, PlayerPawn->IsInVehicle(), PawnLoc.X, PawnLoc.Y, PawnLoc.Z, PickupLoc.X, PickupLoc.Y, PickupLoc.Z);
         
         bool bPickupAtSpawnPoint = round(PickupLoc.X) == 0 & round(PickupLoc.Y) == 0 & round(PickupLoc.Z) == 0;
         if (!bPickupAtSpawnPoint)

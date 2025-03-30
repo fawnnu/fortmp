@@ -256,6 +256,10 @@ unreal_manager::unreal_manager()
             INIT_POINTER(FCollisionQueryParams__AddIgnoredActors, memory_manager::find_pattern("40 57 41 55 41 56 48 83 EC 20 33 FF 4C 8B F2 4C 8B E9 39 7A 08 0F 8E ? ? ? ? 48 89 74 24 ? 8B F7 48 89 5C 24"));
         }
     }));
+    async_initializers.push_back(new async_wrapper([&]
+    {
+        INIT_POINTER(UActorComponent__RegisterComponentInWorld, memory_manager::find_function_by_string(L"RegisterComponentWithWorld: (%s) Trying to register component with IsPendingKill() == true. Aborting."));
+    }));
     async_wrapper::wait_for_wrappers(async_initializers);
     
     INIT_POINTER(GIsServer, reinterpret_cast<uintptr_t>(GIsClient) + 1);

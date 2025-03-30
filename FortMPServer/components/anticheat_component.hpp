@@ -51,6 +51,7 @@ public:
     static float GetFiringRate(AFortWeapon* FortWeapon);
     static float GetBurstFiringRate(AFortWeapon* FortWeapon);
     static bool ValidateBuildingPlacement(AFortPlayerControllerAthena* Player, FVector BuildingLocation);
+    static bool ValidateInteractionDistance(AActor* Sender, AActor* Receiver);
 
     inline static std::map<AFortPlayerController*, int> IllegalSniperActionsCount;
     inline static std::map<AFortWeapon*, int> IllegalWeaponActionsCount;

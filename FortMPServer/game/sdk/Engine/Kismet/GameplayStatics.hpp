@@ -49,6 +49,16 @@ public:
         return Default__GameplayStatics->Call<UObject*>(FunctionObject, Class, Outer);
     }
 
+    template <typename T>
+    static T* SpawnObject(UObject* Outer = nullptr)
+    {
+        UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/Engine.GameplayStatics.SpawnObject")
+        
+        return Default__GameplayStatics->Call<T*>(FunctionObject, T::StaticClass(), Outer);
+    }
+
     static AActor* FinishSpawningActor(AActor* Actor, FTransform SpawnTransform)
     {
         UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
@@ -140,5 +150,37 @@ public:
         ProcessEvent(Default__GameplayStatics, function, &function_params);
 
         return function_params.OutActors;
+    }
+
+    template <typename T = AActor>
+    static TArray<T*> GetAllActorsOfClass()
+    {
+        if (T::StaticClass())
+        {
+            UGameplayStatics* Default__GameplayStatics = FindObject<UGameplayStatics>(L"/Script/Engine.Default__GameplayStatics");
+        
+            static UFunction* function = FindObject<UFunction>(L"/Script/Engine.GameplayStatics.GetAllActorsOfClass");
+        
+            struct params
+            {
+                // World to look for actors in
+                UWorld* WorldContextObject;
+
+                // Actor class to look for
+                UObject* ActorClass;
+
+                // List of out actors
+                TArray<T*> OutActors;
+            } function_params;
+        
+            function_params.WorldContextObject = *GWorld;
+            function_params.ActorClass = T::StaticClass();
+
+            ProcessEvent(Default__GameplayStatics, function, &function_params);
+
+            return function_params.OutActors;
+        }
+        
+        return {};
     }
 };
