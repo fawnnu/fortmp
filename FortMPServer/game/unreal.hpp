@@ -66,6 +66,9 @@ inline bool* GIsClient;
 // GIsServer
 inline bool* GIsServer;
 
+// Status
+inline bool isUnrealInitialized;
+
 // SRand
 inline float (*SRand)();
 

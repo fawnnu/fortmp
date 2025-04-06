@@ -8,6 +8,12 @@
 
 void unreal_manager::pre_init()
 {
+    // Init
+    isUnrealInitialized = false;
+    
+    // hook
+    customproperties_component::pre_init();
+    
     std::vector<async_wrapper*> early_async_initializers;
     early_async_initializers.push_back(new async_wrapper([&]
     {
@@ -93,6 +99,8 @@ void unreal_manager::pre_init()
         CoreOffsets::FieldMask =  123;
         CoreOffsets::Script = 0x60;
     }
+
+    isUnrealInitialized = true;
     
     // Create custom properties component
     new customproperties_component();

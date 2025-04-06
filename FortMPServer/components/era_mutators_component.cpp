@@ -147,7 +147,7 @@ era_mutators_component::era_mutators_component()
         }
     });
     
-    new era_mutator("butterfly_begin", [](LPVOID)
+    new era_mutator("event_begin", [](LPVOID)
     {
         // 1 hour storm formation
         (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 60;
@@ -158,7 +158,7 @@ era_mutators_component::era_mutators_component()
         // Do nothing
     });
     
-    new era_mutator("butterfly_end", [](LPVOID)
+    new era_mutator("event_end", [](LPVOID)
     {
         (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 1;
 
@@ -199,6 +199,9 @@ era_mutators_component::era_mutators_component()
                     static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
                 }
             }
+
+            // 3 minutes to restore match to normality
+            UKismetSystemLibrary::K2_SetTimer((*GWorld)->GameState(), L"OnCustomEventEnd", 180.0, false);
         }
     });
     

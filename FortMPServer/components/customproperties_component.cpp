@@ -20,41 +20,6 @@ customproperties_component::customproperties_component()
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_423_425_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_423_425_TEMPLATE);
         }
-        
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-
-        INIT_POINTER(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("40 55 53 57 41 54 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85"));
-        if (!customproperties_component_hooks::ConstructUProperty)
-        {
-            INIT_POINTER(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("48 89 5C 24 ? 55 56 57 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 C9 48 89 54 24 ? 41 8B D9"));
-        }
-        
-        if (customproperties_component_hooks::ConstructUProperty)
-        {
-            DetourAttach(&reinterpret_cast<PVOID&>(customproperties_component_hooks::ConstructUProperty), customproperties_component_hooks::ConstructUProperty_Hook);
-        }
-        else
-        {
-            spdlog::critical("Failed to setup hook '{}', invalid function pointer provided. Closing....", "customproperties_component_hooks::ConstructUProperty");
-
-            // Unregister the server
-            if (gameserver_client::Client)
-            {
-                gameserver_client::Client->SendLeave();
-            }
-            
-            // Close director connection
-            if (director_client::client)
-            {
-                director_client::client->Close();
-            }
-            
-            // Request exit if the server has not been responsive for more than 5 minutes
-            RequestExitWithStatus(true, 0);
-        }
-        
-        DetourTransactionCommit();
     }
     else
     {
@@ -77,8 +42,62 @@ customproperties_component::customproperties_component()
     }
 }
 
+void customproperties_component::pre_init()
+{
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+
+    INIT_POINTER(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("40 55 53 57 41 54 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85"));
+    if (!customproperties_component_hooks::ConstructUProperty)
+    {
+        INIT_POINTER(customproperties_component_hooks::ConstructUProperty, memory_manager::find_pattern("48 89 5C 24 ? 55 56 57 48 8D AC 24 ? ? ? ? B8 ? ? ? ? E8 ? ? ? ? 48 2B E0 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 33 C9 48 89 54 24 ? 41 8B D9"));
+    }
+        
+    if (customproperties_component_hooks::ConstructUProperty)
+    {
+        DetourAttach(&reinterpret_cast<PVOID&>(customproperties_component_hooks::ConstructUProperty), customproperties_component_hooks::ConstructUProperty_Hook);
+    }
+    else
+    {
+        spdlog::critical("Failed to setup hook '{}', invalid function pointer provided. Closing....", "customproperties_component_hooks::ConstructUProperty");
+
+        // Unregister the server
+        if (gameserver_client::Client)
+        {
+            gameserver_client::Client->SendLeave();
+        }
+            
+        // Close director connection
+        if (director_client::client)
+        {
+            director_client::client->Close();
+        }
+            
+        // Request exit if the server has not been responsive for more than 5 minutes
+        RequestExitWithStatus(true, 0);
+    }
+        
+    DetourTransactionCommit();
+}
+
+void customproperties_component::wait_for_initialization()
+{
+    do 
+    {
+        if (isUnrealInitialized)
+        {
+            break;
+        }
+        
+        Sleep(1000 / 60);
+    } while (true);
+}
+
 void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass, void*** PropertyArray, int& PropertyNum)
-{   
+{
+    // Wait for everything to be initialized; block the thread until then.
+    customproperties_component::wait_for_initialization();
+    
     // Get class name and apply any pending custom property
     if (NewClass)
     {

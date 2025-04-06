@@ -105,6 +105,7 @@ loader_component::loader_component()
 
     REGISTER_PROCESS_EVENT_DETOUR(L"/Script/AIModule.EnvQueryInstanceBlueprintWrapper.EQSQueryDoneSignature__DelegateSignature", loader_component_hooks::EQSQueryDoneSignature__DelegateSignature_Hook);
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(OnCustomEventEnd, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
     if (GetCL() == 4526925)
     {
@@ -984,8 +985,8 @@ void loader_component::OnMapInfoLoaded()
 
     initialize_reboot_vans();
     
-    // Butterfly event storm mutator
-    era_mutators_component::Execute("butterfly_begin", nullptr);
+    // event storm mutator
+    era_mutators_component::Execute("event_begin", nullptr);
     
     // Handle vehicle spawn rates
     TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
@@ -1026,6 +1027,13 @@ void loader_component::OnMapInfoLoaded()
     
     // Mark world as ready
     UKismetSystemLibrary::SetBoolPropertyByName((*GWorld)->AuthorityGameMode(), L"bWorldIsReady", true);
+}
+
+void loader_component::OnCustomEventEnd(AFortGameStateAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    era_mutators_component::Execute("event_end", nullptr);
 }
 
 void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame)
@@ -1266,7 +1274,7 @@ void loader_component_hooks::SwapPOI_Hook(UObject* Object, UObject* Function, vo
             (*GWorld)->AuthorityGameMode()->SwapButterflyEventPOIs();
 
             // Storm resume
-            era_mutators_component::Execute("butterfly_end", nullptr);
+            era_mutators_component::Execute("event_end", nullptr);
         }
     }
 }

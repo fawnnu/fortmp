@@ -25,6 +25,7 @@ public:
     static void OnMapInfoLoaded();
     
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
+    static void OnCustomEventEnd(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void SwapButterflyEventPOIs(AFortGameModeAthena* Self, FFrame& StackFrame);
     

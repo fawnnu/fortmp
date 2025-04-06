@@ -3516,7 +3516,7 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         }
 
         // Butterfly/domino event
-        if (era_mutators_component::IsActive("butterfly_begin") || era_mutators_component::IsActive("domino_event"))
+        if (era_mutators_component::IsActive("event_begin") || era_mutators_component::IsActive("domino_event"))
         {
             UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->Pawn(), "bIsInvulnerable", true);
         }

@@ -64,7 +64,9 @@ class customproperties_component
 {
 public:
     customproperties_component();
-
+    static void pre_init();
+    static void wait_for_initialization();
+    
     static inline std::vector<FCustomPropertyData> PendingCustomProperties;
 };
 
