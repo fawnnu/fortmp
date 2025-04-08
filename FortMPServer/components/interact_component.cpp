@@ -206,10 +206,12 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         if (building_container->SearchLootTierGroup() == L"Loot_Treasure")
         {
             challenges_component::SendCustomEvent(player_controller, "event:chest");
+            challenges_component::SendCustomEventWithObjective(player_controller, "interaction:container", TEXT("battlepass_interact_athena_treasurechest"));
         }
         else if (building_container->SearchLootTierGroup() == L"Loot_Ammo")
         {
             challenges_component::SendCustomEvent(player_controller, "event:ammo");
+            challenges_component::SendCustomEventWithObjective(player_controller, "interaction:container", TEXT("battlepass_interact_athena_ammobox"));
         }
         else if (building_container->SearchLootTierGroup() == L"Loot_AthenaBooty")
         {
@@ -399,6 +401,7 @@ void interact_component::handle_supplydrop_interaction(AFortPlayerController* pl
     }
     
     challenges_component::SendCustomEvent(player_controller, "event:supply");
+    challenges_component::SendCustomEventWithObjective(player_controller, "interaction:container", TEXT("battlepass_interact_athena_supplydrop"));
 }
 
 void interact_component::handle_letter_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Letter_Parent_C* letter)
