@@ -115,7 +115,7 @@ void unreal_manager::pre_init()
         INIT_POINTER(InitializeStruct, memory_manager::find_pattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 48 83 EC 20 44 8B 49 54 48 8B DA 8B 71 50 4C 8B F1 FF CE 45 8B E0 41 03 F1 33 D2 41 F7 D9 48 8B CB 41 23 F1 8B C6"));
         if (!InitializeStruct)
         {
-            INIT_POINTER(InitializeStruct, memory_manager::find_pattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 48 83 EC 20 4C 63 49 44 48 8B DA 8B 71 40 4C 8B F1 FF CE 45 8B E0 41 03 F1 33 D2"));
+            INIT_POINTER(InitializeStruct, memory_manager::find_pattern("48 89 54 24 ? 53 55 56 57 41 54 41 55 41 56 48 83 EC 20 ? ? 49 44 48 8B DA 8B 71 40 4C 8B F1 FF CE 45 8B E0 41 03 F1 33 D2"));
         }
     }));
     async_initializers.push_back(new async_wrapper([&]
