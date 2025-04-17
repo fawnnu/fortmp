@@ -89,7 +89,7 @@ struct FGameplayAbilityTargetDataHandle
 {
     uint8 UniqueId;
 
-    char pad[0x19];
+    char pad[0x1F];
 
     TArray<TSharedPtr<struct FFortGameplayAbilityTargetData_SingleTargetHit>>& GetData()
     {

@@ -173,12 +173,27 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
     return false;
 }
 
-bool building_component::edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations)
+bool building_component::edit_building_actor(ABuildingActor* building_actor, UObject* building_class, bool is_mirrored, int rotation_iterations, bool override_class_checks)
 {
-    if (is_building_class_valid(building_class) && is_building_class_valid(building_actor->Class))
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"building_component::edit_building_actor: Editing '{}' (Is valid class: {}) with '{}' (Is valid class: {})",
+            building_actor->Class->GetName().c_str(),
+            is_building_class_valid(building_actor->Class),
+            building_class->GetName().c_str(),
+            is_building_class_valid(building_class));
+    }
+    
+    if ((is_building_class_valid(building_class) && is_building_class_valid(building_actor->Class)) ||
+        override_class_checks)
     {
         if (building_actor)
         {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"building_component::edit_building_actor: Passed security checks, Valid building actor target, proceeding with editing.");
+            }
+            
             constexpr int replacement_destruction_reason = 1;
             constexpr int building_level = 0;
             
@@ -319,7 +334,7 @@ void building_component_hooks::ServerEditBuildingActor_Hook(AFortPlayerControlle
                     
                     if (FortPlayerController->PlayerState()->TeamIndex() == BuildingActorToEdit->Team() || !team_component::is_human_team(BuildingActorToEdit->Team()))
                     {
-                        building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations);
+                        building_component::edit_building_actor(BuildingActorToEdit, NewBuildingClass, bMirrored, RotationIterations, FortPlayerController->PlayerState()->TeamIndex() == BuildingActorToEdit->Team());
                     }
                     else
                     {
