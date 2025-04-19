@@ -19,6 +19,21 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("no_shooting_gallery", [](LPVOID)
+    {
+        TArray<AProp_Quest_ClayPidgeonLauncher_C*> ShootingGalleries = UGameplayStatics::GetAllActorsOfClass<AProp_Quest_ClayPidgeonLauncher_C>();
+
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"era_mutators_component:no_shooting_gallery is destroying {} ShootingGalleries.", ShootingGalleries.Num());
+        }
+
+        for (AProp_Quest_ClayPidgeonLauncher_C* ShootingGallery : ShootingGalleries)
+        {
+            ShootingGallery->K2_DestroyActor();
+        }
+    });
+    
     // YAY THIS WORKS!
     new era_mutator("mountainpost_overlap_fix_test", [](LPVOID)
     {

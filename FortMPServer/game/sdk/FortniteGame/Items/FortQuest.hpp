@@ -204,6 +204,8 @@ public:
 class AProp_Quest_ClayPidgeonLauncher_C : public AActor
 {
 public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/ClayPidgeons/Prop_Quest_ClayPidgeonLauncher.Prop_Quest_ClayPidgeonLauncher_C");
+    
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
 

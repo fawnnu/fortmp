@@ -325,7 +325,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             {
                 if (OutAssets.Num() > 0)
                 {
-                    TArrayManager Assets = OutAssets; // TODO: Figure out why this crashes sometimes with except access violation reading address 0x18
+                    TArrayManager Assets = OutAssets; 
                     for (FAssetData& Asset : Assets)
                     {
                         LoadObject(Asset.ObjectPath().c_str());
@@ -433,13 +433,8 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = APlayerPawn_Athena_C::StaticClass();
         
         // setup warmup time
-#ifdef _RELEASE
         (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = config["warmup_duration"];
         (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = config["warmup_duration"];
-#elif _TESTING
-        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 600.f;
-        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 600.f;
-#endif
 
         if ((*GWorld)->AuthorityGameMode()->HasProperty(L"EndGameKickPlayersDelay"))
         {
@@ -455,13 +450,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             (*GWorld)->AuthorityGameMode()->StartMatch();
         }
 
-#ifdef _RELEASE
         // Disable GC during match
         if (STATIC_HASPROPERTY((*GWorld)->AuthorityGameMode(), bDisableGCOnServerDuringMatch))
         {
             (*GWorld)->AuthorityGameMode()->bDisableGCOnServerDuringMatch() = true;
         }
-#endif
 
         // Notify gamemode of server being ready
         (*GWorld)->AuthorityGameMode()->OnServerReady();
@@ -475,80 +468,19 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         // Potentially could be moved to server_config on a later date.
         UKismetSystemLibrary::ExecuteConsoleCommand(L"ApplyContentKeyChain keychain");
 
-#ifdef _RELEASE
-            // Only on public servers
-            /*if (gameserver_client::Client->GameServer_Status.private_matchmaking_key.length() == 0)
-            {
-                // Notify era services
-                gameserver_client::Client->GameServer_Status.accepting_players = false;
-                gameserver_client::Client->GameServer_Status.status = "ready";
-                gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-                gameserver_client::Client->SendUpdate();
-            }
-            else*/ // Run different code on private
-            {
-                gameserver_client::Client->GameServer_Status.accepting_players = true;
-                gameserver_client::Client->GameServer_Status.status = "online";
-                gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
-                gameserver_client::Client->SendUpdate(); 
-            }
-
-            /*
-             * Tell the director the gameserver is ready
-             */
-            director_client::send_ready_event();
-#endif
-        
-        // Set default floating island location on season 6
-        if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
         {
-            ABP_IslandScripting_C* island_scripting = ABP_IslandScripting_C::get_island_scripting();
-
-            if (island_scripting)
-            {
-                if (!era_mutators_component::IsActive("no_cube"))
-                {
-                    FVector default_floating_island_position = island_scripting->IslandPosition();
-
-                    // Activate the beam in the sky for fortnitemares
-                    if (island_scripting->HasProperty(L"IsDeimosActive"))
-                    {
-                        island_scripting->IsDeimosActive() = true;
-                    }
-
-                    // Update the minimap on 6.21
-                    if (island_scripting->HasProperty(L"UpdateMap"))
-                    {
-                        island_scripting->UpdateMap() = true;
-                        island_scripting->OnRep_UpdateMap();
-                    }
-
-                    ACUBE_Simple_C* cube = island_scripting->CubeBP();
-
-                    if (cube)
-                    {
-                        // Updated cube progress
-                        cube->CrackProgress() = 1.0;
-                        cube->DrainActive() = true;
-                        cube->DrainAmount() = 1.0;
-                    }
-
-                    spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);
-                }
-                else
-                {
-                    island_scripting->DisableVortexGust() = true;
-                    island_scripting->OnRep_DisableVortexGust();
-                    island_scripting->MapIconState() = 1;
-                    island_scripting->OnRep_MapIconState();
-                    island_scripting->LevelActorsDeletedInt() = 1;
-                    island_scripting->OnRep_LevelActorsDeletedInt();
-                    island_scripting->UpdateMap() = true;
-                    island_scripting->OnRep_UpdateMap();
-                }
-            }
+            gameserver_client::Client->GameServer_Status.accepting_players = true;
+            gameserver_client::Client->GameServer_Status.status = "online";
+            gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
+            gameserver_client::Client->SendUpdate(); 
         }
 
+        /*
+         * Tell the director the gameserver is ready
+        \ */
+        director_client::send_ready_event();
+        
+        // CUSTOM EVENT EXECUTION; NO LONGER IN USE
         if (!era_mutators_component::IsActive("domino_event"))
         {
             UObject* fortmp_bp_loader = FindObject(L"/Game/fortmp/content_simple/athena/maps/bp_fortmp_map_loader.bp_fortmp_map_loader_C", true, false);
@@ -838,6 +770,62 @@ void loader_component::handle_duplicated_foundations()
 
 void loader_component::handle_cl_specific_additions()
 {
+    // Execute the no_shooting_gallery mutator (May crash!)
+    if (GetCL() == 4363240)
+    {
+        era_mutators_component::Execute("no_shooting_gallery", nullptr);
+    }
+        
+    // Set default floating island location on season 6
+    if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
+    {
+        ABP_IslandScripting_C* island_scripting = ABP_IslandScripting_C::get_island_scripting();
+
+        if (island_scripting)
+        {
+            if (!era_mutators_component::IsActive("no_cube"))
+            {
+                FVector default_floating_island_position = island_scripting->IslandPosition();
+
+                // Activate the beam in the sky for fortnitemares
+                if (island_scripting->HasProperty(L"IsDeimosActive"))
+                {
+                    island_scripting->IsDeimosActive() = true;
+                }
+
+                // Update the minimap on 6.21
+                if (island_scripting->HasProperty(L"UpdateMap"))
+                {
+                    island_scripting->UpdateMap() = true;
+                    island_scripting->OnRep_UpdateMap();
+                }
+
+                ACUBE_Simple_C* cube = island_scripting->CubeBP();
+
+                if (cube)
+                {
+                    // Updated cube progress
+                    cube->CrackProgress() = 1.0;
+                    cube->DrainActive() = true;
+                    cube->DrainAmount() = 1.0;
+                }
+
+                spdlog::warn(L"start_match: Floating island at location {} {} {}", ABP_IslandScripting_C::get_island_scripting()->GetName().c_str(), default_floating_island_position.X, default_floating_island_position.Y, default_floating_island_position.Z);
+            }
+            else
+            {
+                island_scripting->DisableVortexGust() = true;
+                island_scripting->OnRep_DisableVortexGust();
+                island_scripting->MapIconState() = 1;
+                island_scripting->OnRep_MapIconState();
+                island_scripting->LevelActorsDeletedInt() = 1;
+                island_scripting->OnRep_LevelActorsDeletedInt();
+                island_scripting->UpdateMap() = true;
+                island_scripting->OnRep_UpdateMap();
+            }
+        }
+    }
+    
     // Spawn the week 4 star, on 4.1
     if (GetCL() == 4053532)
     {
