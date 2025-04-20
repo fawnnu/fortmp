@@ -70,7 +70,7 @@ director_client::director_client()
 
                         if (log_component::enable_debug_logs)
                         {
-                            spdlog::info("Received entity control message for player '{}'.", account_id.c_str());
+                            spdlog::info("Received entity control message for player '{}'. Message: {}", account_id.c_str(), payload.dump().c_str());
                         }
                         
                         // Create encryption token

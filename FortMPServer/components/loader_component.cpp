@@ -1314,6 +1314,11 @@ void loader_component_hooks::ABuildingContainer_BeginPlay_Hook(ABuildingContaine
 
 bool loader_component_hooks::SetGameMode_Hook()
 {
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"loader_component_hooks::SetGameMode_Hook: setting up match start.");
+    }
+    
     if (*GWorld)
     {
 #ifdef _RELEASE
