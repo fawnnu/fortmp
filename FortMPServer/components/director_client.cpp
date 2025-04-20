@@ -3,6 +3,7 @@
 
 #include "config_manager.hpp"
 #include "loader_component.hpp"
+#include "log_component.hpp"
 #include "player_component.hpp"
 #include "team_component.hpp"
 
@@ -50,6 +51,11 @@ director_client::director_client()
 
             client->On("entity", [](eudp_client*, nlohmann::json payload)
             {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info("Received entity control message. Unpacking it and handling team.");
+                }
+                
                 try
                 {
                     std::string ticket = payload["ticket"];
@@ -62,6 +68,11 @@ director_client::director_client()
                         // Get account id
                         std::string account_id = player.value();
 
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info("Received entity control message for player '{}'.", account_id.c_str());
+                        }
+                        
                         // Create encryption token
                         std::string sEncryptionToken = std::string(account_id) + ":" + std::string(backfill);
                         std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
@@ -83,8 +94,12 @@ director_client::director_client()
                         }
                     }
                 }
-                catch (nlohmann::json& exception)
+                catch (std::exception& exception)
                 {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::error("Client received entity message with error: {}", exception.what());
+                    }
                 }
             });
         });
