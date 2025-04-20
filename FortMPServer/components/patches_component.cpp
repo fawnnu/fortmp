@@ -58,6 +58,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("E8 ? ? ? ? 44 0F B6 F0 84 C0 0F 84 ? ? ? ? 48 8D 97 ? ? ? ? 49 8B CC E8 ? ? ? ?", true, 1), patches_component_hook::GetTagsFromPawnLocation_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FGameplayTagContainerEquals, memory_manager::find_pattern("48 89 5C 24 ? 56 48 83 EC 20 48 8B F2 48 8B D9 48 3B CA 0F 84 ? ? ? ? 8B 52 08 48 89 6C 24 ? 33 ED 48 89 7C 24 ? 89 69 08 39 51 0C"), patches_component_hook::FGameplayTagContainerEquals_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AbilityCrashFunction, memory_manager::find_pattern("48 8B 42 20 4D 8B C8 48 8B 08 48 83 C0 08 48 89 42 20 48 8B 42 78 48 89 4A 30 48 39 08"), patches_component_hook::AbilityCrashFunction_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::UnkFunc, memory_manager::find_pattern("40 53 48 83 EC 20 8B 41 50 33 DB 4C 8B D1 3B 41 7C 74 6C 48 8B 12 4C 8D 81 ? ? ? ? 4D 8B 48 08 48 8B C2 48 C1 E8 20 03 C2 48 63 C8 49 63 82 ? ? ? ? 48 FF C8 48 23 C8 8B C3"), patches_component_hook::UnkFunc_Hook);
     
     // Loading crash fix
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_pattern("40 55 56 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 48 8B 01"), patches_component_hook::UpdateNetStats_Hook);
@@ -928,24 +929,30 @@ PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVO
     return AbilityCrashFunction(a1,a2,a3);   
 }
 
-PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagContainer* Dst, FGameplayTagContainer* Src)
+PVOID patches_component_hook::UnkFunc_Hook(PVOID a1, PVOID* a2)
 {
-    if (!Dst ||
-        !Src ||
-        memory_manager::is_bad_read_pointer(Dst) ||
-        memory_manager::is_bad_read_pointer(Src))
+    if (!a2 ||
+        memory_manager::is_bad_read_pointer(a2))
     {
-        spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block");
+        spdlog::error(L"patches_component_hook::UnkFunc_Hook: Invalid memory block");
         
         return nullptr;
     }
+    
+    return UnkFunc(a1,a2);
+}
 
-    if (!Src->GameplayTags.Data ||
-        memory_manager::is_bad_read_pointer(Src->GameplayTags.Data))
+PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagContainer* Dst, FGameplayTagContainer* Src)
+{
+    if (Src && !memory_manager::is_bad_read_pointer(Src))
     {
-        spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block");
+        if (!Src->GameplayTags.Data ||
+            memory_manager::is_bad_read_pointer(Src->GameplayTags.Data))
+        {
+            spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block");
         
-        return nullptr;
+            return nullptr;
+        }
     }
     
     return FGameplayTagContainerEquals(Dst, Src);   
