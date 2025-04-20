@@ -57,6 +57,8 @@ patches_component::patches_component()
     // start match patch
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("E8 ? ? ? ? 44 0F B6 F0 84 C0 0F 84 ? ? ? ? 48 8D 97 ? ? ? ? 49 8B CC E8 ? ? ? ?", true, 1), patches_component_hook::GetTagsFromPawnLocation_Hook);
 
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::AbilityCrashFunction, memory_manager::find_pattern("48 8B 42 20 4D 8B C8 48 8B 08 48 83 C0 08 48 89 42 20 48 8B 42 78 48 89 4A 30 48 39 08"), patches_component_hook::AbilityCrashFunction_Hook);
+    
     // Loading crash fix
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_pattern("40 55 56 41 56 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 48 8B 01"), patches_component_hook::UpdateNetStats_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UpdateNetStats, memory_manager::find_function_by_string(L"STAT_NetDebugWidget_UpdateNetStats"), patches_component_hook::UpdateNetStats_Hook);
@@ -882,4 +884,22 @@ bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObje
     }
     
     return SerializeObject(Self, Ar, Class, Object, OutNetworkGuid);   
+}
+
+PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVOID a3)
+{
+    if (a2 && !memory_manager::is_bad_read_pointer(a2))
+    {
+        if (!a2[15] || memory_manager::is_bad_read_pointer(a2[15]))
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::warn(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is invalid.");
+
+                return nullptr;
+            }
+        }
+    }
+    
+    return AbilityCrashFunction(a1,a2,a3);   
 }

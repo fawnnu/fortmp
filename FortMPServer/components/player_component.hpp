@@ -131,6 +131,7 @@ enum EEraPlatform
 // Struct that keeps the player's data Era needs in PlayerController
 struct FEraPlayerInfo
 {
+    bool bStartedQueryProfileReq;
     nlohmann::json Profile;
     int ProfileFailures;
     int IllegalBuildingPlacements;

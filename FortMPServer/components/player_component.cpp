@@ -2083,6 +2083,13 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                             httplib::Headers headers = {
                                 { "x-era-token", "bn8HUsAfhogEq6E57ledvyGReK9n8E7XP53AbRomzvItAexNB09aXiTgFhoPvUD1" }
                             };
+                            // Signal that the player has been registered properly and that the Profile query will happen soon
+                            if (!memory_manager::is_bad_read_pointer(NewPlayer) &&
+                                    NewPlayer &&
+                                    NewPlayer->Cast<AFortPlayerControllerAthena>())
+                            {
+                                static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bStartedQueryProfileReq = true;
+                            }
                             auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
                             if (Response && Response->status == 200)
                             {
@@ -3456,18 +3463,42 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
         ability_component::apply_playlist_modifiers(NewPlayer->Pawn());
 
+        // Only proceed if Query profile has begun
+        if (!static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bStartedQueryProfileReq)
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Kicking player: bStartedQueryProfileReq is false.");
+            }
+            NewPlayer->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer. [EC 2]"));
+            return;
+        }
+        
         // Make sure profile is there
+        int DebugIterations = 0;
+        bool DebugLog = false;
         while (true)
         {
             if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bPendingKick)
             {
-                NewPlayer->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer."));
+                NewPlayer->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer. [EC 1]"));
                 return;
             }
             
             if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bProfileReady)
             {
                 break;
+            }
+
+            DebugIterations++;
+
+            if (DebugIterations > 100 && !DebugLog)
+            {
+                DebugLog = true;
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"player_component_hooks::K2_OnRestartPlayer_Hook: Profile parsing is taking too long.");
+                }
             }
             
             Sleep(1000 / 30);

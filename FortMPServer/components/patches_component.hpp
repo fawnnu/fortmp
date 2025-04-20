@@ -110,6 +110,8 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(void, FortDamageFormula_Execute, (UObject* Self, struct FGameplayEffectCustomExecutionParameters* ExecutionParams, FGameplayEffectCustomExecutionOutput* OutExecutionOutput))
 
     DEFINE_FUNCTION_HOOK(bool, SerializeObject, (UObject* Self, void* Ar, UObject* Class, UObject** Object, void* OutNetworkGuid))
+
+    DEFINE_FUNCTION_HOOK(PVOID, AbilityCrashFunction, (PVOID a1, PVOID* a2, PVOID a3))
 };
 
 inline int TimesLoggedMSGSIZEExploit;
