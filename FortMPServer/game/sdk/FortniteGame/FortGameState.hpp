@@ -358,6 +358,13 @@ public:
         Call(Function_WaitForMapInfo);
     }
     
+    void WaitForServerReady()
+    {
+        STATIC_FINDFUNCTION(WaitForServerReady)
+        
+        Call(Function_WaitForServerReady);
+    }
+    
     void OnRep_CurrentPlaylistInfo()
     {
         STATIC_FINDFUNCTION(OnRep_CurrentPlaylistInfo)

@@ -27,6 +27,7 @@ public:
     static void OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void OnCustomEventEnd(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void WaitForMapInfo(AFortGameStateAthena* Self, FFrame& StackFrame);
+    static void WaitForServerReady(AFortGameStateAthena* Self, FFrame& StackFrame);
     static void SwapButterflyEventPOIs(AFortGameModeAthena* Self, FFrame& StackFrame);
     
     inline static bool bPendingShutdown;
@@ -34,6 +35,8 @@ public:
     // Log
     inline static bool bLogged85Percent;
     inline static bool bLogged95Percent;
+
+    inline static bool initialized_all_components;
 };
 
 namespace loader_component_hooks

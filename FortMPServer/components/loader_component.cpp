@@ -23,6 +23,8 @@
 
 void loader_component::pre_init()
 {
+    initialized_all_components = false;
+    
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
     
@@ -107,6 +109,7 @@ loader_component::loader_component()
     REGISTER_CUSTOM_UFUNCTION(OnGamePhaseUpdated, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(OnCustomEventEnd, AFortGameStateAthena::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(WaitForMapInfo, AFortGameStateAthena::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(WaitForServerReady, AFortGameStateAthena::StaticClass());
     if (GetCL() == 4526925)
     {
         REGISTER_CUSTOM_UFUNCTION(SwapButterflyEventPOIs, AFortGameModeAthena::StaticClass());
@@ -461,6 +464,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 
         // Implement waiter for Map Info
         (*GWorld)->GameState()->WaitForMapInfo();
+        (*GWorld)->GameState()->WaitForServerReady();
         
         // Apply an optional keychain (stored in /Binaries/Win64 of your game version), keychains are used to decrypt encrypted paks which got started using around season 8
         // Example keychain file format (Server Only) (12.41, Travis Scott (Jerky) event): _:RELEASED:8734362B2A2A8B0FBC9EDE6160627E1D:8ZsoLeTeezxjoIxnNfUrNf61XfqMEKfnyTb3u4o/X6g=
@@ -474,11 +478,6 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
             gameserver_client::Client->GameServer_Status.mode = GetPlaylistEasy() ? GetPlaylistEasy()->sGetName() : std::to_string((*GWorld)->GameState()->CurrentPlaylistId());
             gameserver_client::Client->SendUpdate(); 
         }
-
-        /*
-         * Tell the director the gameserver is ready
-        \ */
-        director_client::send_ready_event();
         
         // CUSTOM EVENT EXECUTION; NO LONGER IN USE
         if (!era_mutators_component::IsActive("domino_event"))
@@ -1079,6 +1078,23 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
                 (*GWorld)->AuthorityGameMode()->bMatchHasStarted() = false;
             }
         }
+    }
+}
+
+void loader_component::WaitForServerReady(AFortGameStateAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self->MapInfo() && initialized_all_components)
+    {
+        /*
+         * Tell the director the gameserver is ready
+        \ */
+        director_client::send_ready_event();
+    }
+    else
+    {
+        UKismetSystemLibrary::K2_SetTimer(Self, L"WaitForServerReady", 1.0, false);
     }
 }
 
