@@ -162,6 +162,7 @@ void Setup()
                 new playlist_component();
                 new anticheat_component();
                 new challenges_component();
+                loader_component::initialized_all_components = true;
                 era_mutators_component::InitializeHooks();
                     
                 break;
