@@ -56,7 +56,7 @@ patches_component::patches_component()
 
     // start match patch
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("E8 ? ? ? ? 44 0F B6 F0 84 C0 0F 84 ? ? ? ? 48 8D 97 ? ? ? ? 49 8B CC E8 ? ? ? ?", true, 1), patches_component_hook::GetTagsFromPawnLocation_Hook);
-
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::FGameplayTagContainerEquals, memory_manager::find_pattern("48 89 5C 24 ? 56 48 83 EC 20 48 8B F2 48 8B D9 48 3B CA 0F 84 ? ? ? ? 8B 52 08 48 89 6C 24 ? 33 ED 48 89 7C 24 ? 89 69 08 39 51 0C"), patches_component_hook::FGameplayTagContainerEquals_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AbilityCrashFunction, memory_manager::find_pattern("48 8B 42 20 4D 8B C8 48 8B 08 48 83 C0 08 48 89 42 20 48 8B 42 78 48 89 4A 30 48 39 08"), patches_component_hook::AbilityCrashFunction_Hook);
     
     // Loading crash fix
@@ -928,9 +928,32 @@ PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVO
     return AbilityCrashFunction(a1,a2,a3);   
 }
 
+PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagContainer* Dst, FGameplayTagContainer* Src)
+{
+    if (!Dst ||
+        !Src ||
+        memory_manager::is_bad_read_pointer(Dst) ||
+        memory_manager::is_bad_read_pointer(Src))
+    {
+        spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block");
+        
+        return nullptr;
+    }
+
+    if (!Src->GameplayTags.Data ||
+        memory_manager::is_bad_read_pointer(Src->GameplayTags.Data))
+    {
+        spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block");
+        
+        return nullptr;
+    }
+    
+    return FGameplayTagContainerEquals(Dst, Src);   
+}
+
 PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* Src, size_t Size)
 {
-    if (Size == 0)
+    /*if (Size == 0)
     {
         return nullptr;
     }
@@ -972,7 +995,7 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
                 }
             }
         }
-    }
+    }*/
     
     return FGameplayTagContainerMemcpy(Dst, Src, Size);   
 }
