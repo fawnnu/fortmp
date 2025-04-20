@@ -968,7 +968,6 @@ PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagConta
             if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i) ||
                 memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i)))
             {
-                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [1]");
                 return Dst;
             }
         }
@@ -977,14 +976,12 @@ PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagConta
             if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i) ||
                 memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i)))
             {
-                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [2]");
                 return Dst;
             }
         }
     }
     else
     {
-        spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [3]");
     }
     
     return FGameplayTagContainerEquals(Dst, Src);   
@@ -997,7 +994,7 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
         return nullptr;
     }
 
-    if (log_component::enable_debug_logs)
+    /*if (log_component::enable_debug_logs)
     {
         static int Log = 0;
         Log++;
@@ -1005,7 +1002,7 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
         {
             spdlog::info(L"[DEBUG DATA] patches_component_hook::FGameplayTagContainerMemcpy_Hook is scanning memory blocks [SIZE {}]", Size);
         }
-    }
+    }*/
     
     // Scan the addresses to make sure memcpy works fine
     for (int i = 0; i < Size; i++)
@@ -1031,8 +1028,6 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
                 if (bBadDst)
                 {
                     FMemory_Realloc(Dst, Size, 0);
-                    
-                    spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Fixing Dst Memory block (realloc).");
 
                     return FGameplayTagContainerMemcpy(Dst, Src, Size);   
                 }
@@ -1047,17 +1042,15 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
 
 PVOID patches_component_hook::FGameplayTagContainer_Filter_Hook(PVOID Self, PVOID Unk, TArray<FGameplayTag>* Tags)
 {
-    if (!Tags ||
-        memory_manager::is_bad_read_pointer(Tags) ||
-        !Tags->Data ||
+    if (!Tags->Data ||
         memory_manager::is_bad_read_pointer(Tags->Data))
     {
-        spdlog::error(L"patches_component_hook::FGameplayTagContainer_Filter_Hook: Invalid Tags.");
-
-        FGameplayTagContainer* ReturnValue = static_cast<FGameplayTagContainer*>(FMemory_Realloc(nullptr, sizeof FGameplayTagContainer, 0));
-        ZeroMemory(ReturnValue, sizeof FGameplayTagContainer);
-        
-        return ReturnValue;
+        if (Tags->Num() > 0)
+        {
+            Tags->Data = nullptr;
+            Tags->Count = 0;
+            Tags->Max = 0;
+        }
     }
 
     return FGameplayTagContainer_Filter(Self, Unk, Tags);
