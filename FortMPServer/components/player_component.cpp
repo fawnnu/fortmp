@@ -1993,6 +1993,8 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 {
     if (UGameplayStatics::HasOption(Options, TEXT("SpectatorOnly")))
     {
+        spdlog::info(L"player_component::Setup: SpectatorOnly players cannot partecipate.");
+        
         return;
     }
     // Setup platform
@@ -2042,6 +2044,11 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Query profile
             CreateThread(nullptr, 0, [](LPVOID INParams) -> DWORD
             {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"player_component::Setup: Created thread.");
+                }
+                
                 try
                 {
                     ProfileParsingParameters* NewProfileParsingParameters = static_cast<ProfileParsingParameters*>(INParams);
@@ -2089,6 +2096,10 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                     NewPlayer->Cast<AFortPlayerControllerAthena>())
                             {
                                 static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().bStartedQueryProfileReq = true;
+                            }
+                            else
+                            {
+                                spdlog::error(L"player_component::Setup: Invalid player, cannot set bStartedQueryProfileReq.");
                             }
                             auto Response = ClientReq.Get("/api/internal/users/" + sAccountID + "/profile" + "?build=" + std::to_string(GetCL()), headers);
                             if (Response && Response->status == 200)
@@ -2396,6 +2407,14 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                 return 0;
             }, NewProfileParsingParameters, 0, nullptr);
         }
+        else
+        {
+            spdlog::error(L"player_component::Setup: Invalid Encryption Token. [EC 2]");
+        }
+    }
+    else
+    {
+        spdlog::error(L"player_component::Setup: Invalid Encryption Token.");
     }
 }
 
