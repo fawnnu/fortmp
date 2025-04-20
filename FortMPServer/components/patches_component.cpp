@@ -963,15 +963,28 @@ PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagConta
 {
     if (Src && !memory_manager::is_bad_read_pointer(Src))
     {
-        if (!Src->GameplayTags.Data ||
-            memory_manager::is_bad_read_pointer(Src->GameplayTags.Data))
+        for (int i = 0; i < 8 * Src->GameplayTags.Num(); i++)
         {
-            if (Src->GameplayTags.Count > 0 && Src->ParentTags.Count > 0)
+            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i) ||
+                memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i)))
             {
-                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid memory blocks.");
-                return nullptr;
+                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [1]");
+                return Dst;
             }
         }
+        for (int i = 0; i < 8 * Src->ParentTags.Num(); i++)
+        {
+            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i) ||
+                memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i)))
+            {
+                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [2]");
+                return Dst;
+            }
+        }
+    }
+    else
+    {
+        spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid Src. [3]");
     }
     
     return FGameplayTagContainerEquals(Dst, Src);   
@@ -1040,8 +1053,11 @@ PVOID patches_component_hook::FGameplayTagContainer_Filter_Hook(PVOID Self, PVOI
         memory_manager::is_bad_read_pointer(Tags->Data))
     {
         spdlog::error(L"patches_component_hook::FGameplayTagContainer_Filter_Hook: Invalid Tags.");
+
+        FGameplayTagContainer* ReturnValue = static_cast<FGameplayTagContainer*>(FMemory_Realloc(nullptr, sizeof FGameplayTagContainer, 0));
+        ZeroMemory(ReturnValue, sizeof FGameplayTagContainer);
         
-        return nullptr;
+        return ReturnValue;
     }
 
     return FGameplayTagContainer_Filter(Self, Unk, Tags);

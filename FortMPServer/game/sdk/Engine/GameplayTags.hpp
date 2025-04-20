@@ -32,6 +32,8 @@ struct FGameplayTag
 
 struct FGameplayTagContainer
 {
+    FGameplayTagContainer() = default;
+    
     TArray<FGameplayTag> GameplayTags;
     TArray<FGameplayTag> ParentTags;
 };
