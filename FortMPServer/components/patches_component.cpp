@@ -116,6 +116,30 @@ patches_component::patches_component()
         }
     }
 
+    // Add security checks to memcpy when using FGameplayTagContainer::operator=
+    {
+        const uintptr_t target_address = memory_manager::find_pattern("E8 ? ? ? ? 01 7B 08 8B 56 18 89 6B 18 39 53 1C 74 09 48 8D 4B 10 E8 ? ? ? ? 48 63 6E 18 85 ED 74 35 8B 43 18 8D 14 28");
+
+        if (target_address)
+        {
+            // Get address of called function to call it later
+            uintptr_t called_function = target_address + 5 + *reinterpret_cast<int*>(target_address + 1);
+            INIT_POINTER(patches_component_hook::FGameplayTagContainerMemcpy, called_function);
+            memory_manager::call_hook(target_address, reinterpret_cast<uintptr_t>(patches_component_hook::FGameplayTagContainerMemcpy_Hook));
+        }
+    }
+    {
+        const uintptr_t target_address = memory_manager::find_pattern("E8 ? ? ? ? 01 6B 18 48 8B 7C 24 ? 48 8B 6C 24 ? 48 8B C3 48 8B 5C 24 ? 48 83 C4 20 5E C3");
+
+        if (target_address)
+        {
+            // Get address of called function to call it later
+            uintptr_t called_function = target_address + 5 + *reinterpret_cast<int*>(target_address + 1);
+            INIT_POINTER(patches_component_hook::FGameplayTagContainerMemcpy, called_function);
+            memory_manager::call_hook(target_address, reinterpret_cast<uintptr_t>(patches_component_hook::FGameplayTagContainerMemcpy_Hook));
+        }
+    }
+    
     {
 #ifdef _RELEASE
         // Allow matchmaking
@@ -902,4 +926,53 @@ PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVO
     }
     
     return AbilityCrashFunction(a1,a2,a3);   
+}
+
+PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* Src, size_t Size)
+{
+    if (Size == 0)
+    {
+        return nullptr;
+    }
+
+    if (log_component::enable_debug_logs)
+    {
+        static int Log = 0;
+        Log++;
+        if (Log % 100 == 0)
+        {
+            spdlog::info(L"[DEBUG DATA] patches_component_hook::FGameplayTagContainerMemcpy_Hook is scanning memory blocks [SIZE {}]", Size);
+        }
+    }
+    
+    // Scan the addresses to make sure memcpy works fine
+    for (int i = 0; i < Size; i++)
+    {
+        if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Dst) + i) ||
+            !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i) ||
+            memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Dst) + i)) ||
+            memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src) + i)))
+        {
+            bool bBadDst = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Dst) + i) || memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Dst) + i));
+            bool bBadSrc = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i) || memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src) + i));
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Invalid memory block ({} out of {}, {}).", i + 1, Size, bBadDst ? L"Dst" : L"Src");
+            }
+
+            // Attempt fixing the memory block
+            if (!(bBadDst && bBadSrc))
+            {
+                if (bBadDst)
+                {
+                    FMemory_Realloc(Dst, Size, 0);
+                    
+                    spdlog::error(L"patches_component_hook::FGameplayTagContainerMemcpy_Hook: Fixing Dst Memory block (realloc).");
+                }
+            }
+        }
+    }
+    
+    return FGameplayTagContainerMemcpy(Dst, Src, Size);   
 }

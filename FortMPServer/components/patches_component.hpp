@@ -112,6 +112,8 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(bool, SerializeObject, (UObject* Self, void* Ar, UObject* Class, UObject** Object, void* OutNetworkGuid))
 
     DEFINE_FUNCTION_HOOK(PVOID, AbilityCrashFunction, (PVOID a1, PVOID* a2, PVOID a3))
+
+    DEFINE_FUNCTION_HOOK(PVOID, FGameplayTagContainerMemcpy, (void *Dst, void *Src, size_t Size));
 };
 
 inline int TimesLoggedMSGSIZEExploit;
