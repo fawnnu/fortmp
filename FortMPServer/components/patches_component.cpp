@@ -965,7 +965,11 @@ PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagConta
         if (!Src->GameplayTags.Data ||
             memory_manager::is_bad_read_pointer(Src->GameplayTags.Data))
         {
-            return nullptr;
+            if (Src->GameplayTags.Count > 0 && Src->ParentTags.Count > 0)
+            {
+                spdlog::error(L"patches_component_hook::FGameplayTagContainerEquals_Hook: Invalid memory blocks.");
+                return nullptr;
+            }
         }
     }
     
