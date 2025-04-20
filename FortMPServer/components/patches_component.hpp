@@ -117,6 +117,7 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(PVOID, FGameplayTagContainerEquals, (FGameplayTagContainer* Dst, FGameplayTagContainer* Src));
     DEFINE_FUNCTION_HOOK(PVOID, UnkFunc, (PVOID a1, PVOID* a2));
     DEFINE_FUNCTION_HOOK(bool, FNetGUIDCache__SupportsObject, (PVOID Self, UObject* Object, TWeakObjectPtr<UObject>* WeakObjectPtr));
+    DEFINE_FUNCTION_HOOK(PVOID, FGameplayTagContainer_Filter, (PVOID Self, PVOID Unk, TArray<FGameplayTag>* Tags));
 };
 
 inline int TimesLoggedMSGSIZEExploit;

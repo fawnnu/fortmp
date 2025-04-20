@@ -58,6 +58,7 @@ patches_component::patches_component()
     REGISTER_FUNCTION_DETOUR(patches_component_hook::GetTagsFromPawnLocation, memory_manager::find_pattern("E8 ? ? ? ? 44 0F B6 F0 84 C0 0F 84 ? ? ? ? 48 8D 97 ? ? ? ? 49 8B CC E8 ? ? ? ?", true, 1), patches_component_hook::GetTagsFromPawnLocation_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FGameplayTagContainerEquals, memory_manager::find_pattern("48 89 5C 24 ? 56 48 83 EC 20 48 8B F2 48 8B D9 48 3B CA 0F 84 ? ? ? ? 8B 52 08 48 89 6C 24 ? 33 ED 48 89 7C 24 ? 89 69 08 39 51 0C"), patches_component_hook::FGameplayTagContainerEquals_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::FNetGUIDCache__SupportsObject, memory_manager::find_function_by_string(L"FNetGUIDCache::SupportsObject: %s NOT Supported."), patches_component_hook::FNetGUIDCache__SupportsObject_Hook);
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::FGameplayTagContainer_Filter, memory_manager::find_pattern("4C 8B DC 56 48 83 EC 40 49 89 6B 18 48 8D 05 ? ? ? ? 4D 89 63 F0 49 8B E8 4D 89 6B E8 48 8B F2 45 33 ED 4D 89 73 E0 44 38 2D ? ? ? ? 4C 89 2A 4C 89 6A 08 49 0F 45 C5 4C 89 6A 10 4C 89 6A 18 4C 8B 31 48 63 49 08 4D 89 7B D8 48 89 44 24 ? 4D 8D 24 CE 4D 3B F4 0F 84 ? ? ? ? 49 89 5B 10"), patches_component_hook::FGameplayTagContainer_Filter_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::AbilityCrashFunction, memory_manager::find_pattern("48 8B 42 20 4D 8B C8 48 8B 08 48 83 C0 08 48 89 42 20 48 8B 42 78 48 89 4A 30 48 39 08"), patches_component_hook::AbilityCrashFunction_Hook);
     REGISTER_FUNCTION_DETOUR(patches_component_hook::UnkFunc, memory_manager::find_pattern("40 53 48 83 EC 20 8B 41 50 33 DB 4C 8B D1 3B 41 7C 74 6C 48 8B 12 4C 8D 81 ? ? ? ? 4D 8B 48 08 48 8B C2 48 C1 E8 20 03 C2 48 63 C8 49 63 82 ? ? ? ? 48 FF C8 48 23 C8 8B C3"), patches_component_hook::UnkFunc_Hook);
     
@@ -1029,4 +1030,19 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
     }
     
     return FGameplayTagContainerMemcpy(Dst, Src, Size);   
+}
+
+PVOID patches_component_hook::FGameplayTagContainer_Filter_Hook(PVOID Self, PVOID Unk, TArray<FGameplayTag>* Tags)
+{
+    if (!Tags ||
+        memory_manager::is_bad_read_pointer(Tags) ||
+        !Tags->Data ||
+        memory_manager::is_bad_read_pointer(Tags->Data))
+    {
+        spdlog::error(L"patches_component_hook::FGameplayTagContainer_Filter_Hook: Invalid Tags.");
+        
+        return nullptr;
+    }
+
+    return FGameplayTagContainer_Filter(Self, Unk, Tags);
 }
