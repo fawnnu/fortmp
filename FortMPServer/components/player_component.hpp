@@ -225,6 +225,7 @@ public:
     static void CampfireHealthCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);
+    static bool PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FString& Options);
     static void PostLogin(AFortPlayerController* FortPlayerController);
     static void Setup(AFortPlayerController* NewPlayer, const FString& Options, UNetConnection* Connection);
     static bool is_live_spectator(APlayerController* player_controller);
@@ -249,6 +250,7 @@ public:
     
     static inline std::vector<std::wstring> EncryptionTokenList;
     static inline std::map<std::string, std::string> Matches;
+    static inline std::map<std::string, std::string> Platforms;
     static inline int InvalidTokensReceived;
     static inline int16 global_player_id = 1;
     static inline int starting_players = 0;

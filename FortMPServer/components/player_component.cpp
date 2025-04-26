@@ -1929,10 +1929,57 @@ bool player_component::Login(const FUniqueNetIdRepl& PlayerID, const FString& Op
     {
         spdlog::error(L"Player tried to join without EncryptionToken, kicking...");
     }
+    
     return false;
 #endif
 
     return true;
+}
+
+bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FString& Options)
+{
+    if (UGameplayStatics::HasOption(Options, TEXT("Platform")))
+    {
+        FString Platform = UGameplayStatics::ParseOption(Options, TEXT("Platform"));
+
+        FString Token = UGameplayStatics::ParseOption(Options, TEXT("EncryptionToken"));
+
+        // Encryption token
+        std::wstring wToken = Token.c_str();
+
+        // Register this player in the local Players map
+        std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
+
+        // Convert string
+        TO_STRING(wAccountID, sAccountID);
+
+        if (Platforms.contains(sAccountID))
+        {
+            // Currently supported platforms
+            if (Platform == TEXT("AND"))
+            {
+                if (Platforms[sAccountID] == "mobile_android")
+                {
+                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'mobile_android' Era platform.");
+                    return true;    
+                }
+            }
+            if (Platform == TEXT("WIN"))
+            {
+                if (Platforms[sAccountID] == "pc")
+                {
+                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'pc' Era platform.");
+                    return true;
+                }
+            }
+        }
+    }
+    else
+    {
+        spdlog::error(L"Player tried to join without Platform, kicking...");
+    }
+
+    return false;
 }
 
 void player_component::PostLogin(AFortPlayerController* FortPlayerController)

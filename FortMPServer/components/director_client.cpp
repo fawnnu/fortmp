@@ -66,7 +66,7 @@ director_client::director_client()
                     for (auto& player : payload["players"].items())
                     {
                         // Get account id
-                        std::string account_id = player.value();
+                        std::string account_id = player.value()[0];
 
                         if (log_component::enable_debug_logs)
                         {
@@ -82,6 +82,9 @@ director_client::director_client()
                         
                         // set match id for player
                         player_component::Matches[account_id] = match;
+
+                        // Set platform
+                        player_component::Platforms[account_id] = player.value()[1];
                         
                         // Properly handle incoming fill and ticket
                         if (ticket.length() > 0)

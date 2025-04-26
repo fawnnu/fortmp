@@ -1461,17 +1461,20 @@ AFortPlayerController* moderation_component_hooks::Login_Hook(AFortGameModeAthen
 {
     if (player_component::Login(UniqueID, Options))
     {
-        AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
+        if (player_component::PlatformLogin(UniqueID, Options))
+        {
+            AFortPlayerController* NewPlayerController = Login(Self, NewPlayer, InRemoteRole, Portal, Options, UniqueID, ErrorMessage);
 
 #ifdef _RELEASE
-        if (NewPlayerController)
-        {
-           player_component::Setup(NewPlayerController, Options, static_cast<UNetConnection*>(NewPlayer));
-           team_component::Login(NewPlayerController, Options);
-        }
+            if (NewPlayerController)
+            {
+                player_component::Setup(NewPlayerController, Options, static_cast<UNetConnection*>(NewPlayer));
+                team_component::Login(NewPlayerController, Options);
+            }
 #endif
 
-        return NewPlayerController;
+            return NewPlayerController;
+        }
     }
 
     // If FortMP Login fails, return

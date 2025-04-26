@@ -1394,6 +1394,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         loader_component::bLogged85Percent = false;
         loader_component::bLogged95Percent = false;
         player_component::Matches.clear();
+        player_component::Platforms.clear();
         pickup_component::GlobalPickupStream.clear();
         anticheat_component::IllegalSniperActionsCount.clear();
         anticheat_component::Initialize();
