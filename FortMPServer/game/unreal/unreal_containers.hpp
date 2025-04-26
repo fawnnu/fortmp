@@ -1,7 +1,16 @@
 ﻿#pragma once
 
 // Reallocate an area of memory
-inline void* (*FMemory_Realloc)(PVOID Block, SIZE_T NewSize, int Alignment);
+inline void* (*FMemory_Realloc_)(PVOID Block, SIZE_T NewSize, int Alignment);
+inline void* FMemory_Realloc(PVOID Block, SIZE_T NewSize, int Alignment)
+{
+	if (NewSize > (1ULL << 30)) // >1GB for example
+	{
+		spdlog::warn(L"FMemory_Realloc: Allocating {} on {} with Alignment {}", NewSize, Block, Alignment);
+	}
+	
+	return FMemory_Realloc_(Block, NewSize, Alignment);
+}
 
 // Remove an element from an array
 inline void (*GenericArray_Remove)(PVOID TargetArray, PVOID Property, int ItemIndex);

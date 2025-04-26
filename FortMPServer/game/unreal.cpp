@@ -17,10 +17,10 @@ void unreal_manager::pre_init()
     std::vector<async_wrapper*> early_async_initializers;
     early_async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("4C 8B C9 48 8B 0D ? ? ? ? 48 85 C9 75 08 49 8B C9 E9 ? ? ? ? 48 8B 01 44 8B C2 49 8B D1 48 FF 60 10"));
-        if (!FMemory_Malloc)
+        INIT_POINTER(FMemory_Malloc_, memory_manager::find_pattern("4C 8B C9 48 8B 0D ? ? ? ? 48 85 C9 75 08 49 8B C9 E9 ? ? ? ? 48 8B 01 44 8B C2 49 8B D1 48 FF 60 10"));
+        if (!FMemory_Malloc_)
         {
-            INIT_POINTER(FMemory_Malloc, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
+            INIT_POINTER(FMemory_Malloc_, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
         }
     }));
     early_async_initializers.push_back(new async_wrapper([&]
@@ -145,7 +145,7 @@ unreal_manager::unreal_manager()
 
     async_initializers.push_back(new async_wrapper([&]
     {
-        INIT_POINTER(FMemory_Realloc, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
+        INIT_POINTER(FMemory_Realloc_, memory_manager::find_pattern("E8 ? ? ? ? 48 89 03 48 8B 5C 24 ? 48 83 C4 20", true, 1));
     }));
     async_initializers.push_back(new async_wrapper([&]
     {

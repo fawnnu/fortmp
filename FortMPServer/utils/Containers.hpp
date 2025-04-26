@@ -16,7 +16,16 @@ typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
 // FMemory
-inline void* (*FMemory_Malloc)(int32 Size, int32 Alignment);
+inline void* (*FMemory_Malloc_)(int32 Size, int32 Alignment);
+inline void* FMemory_Malloc(int32 Size, int32 Alignment)
+{
+    if (Size > (1ULL << 30)) // >1GB for example
+    {
+        spdlog::warn(L"FMemory_Malloc: Allocating {} with Alignment {}", Size, Alignment);
+    }
+    
+    return FMemory_Malloc_(Size,Alignment);
+}
 
 #define NumBitsPerDWORD ((int32)32)
 #define NumBitsPerDWORDLogTwo ((int32)5)
