@@ -157,15 +157,20 @@ void ability_component::apply_playlist_modifiers(UObject* player_pawn)
                                                         {
                                                             if (UGameplayEffect* GameplayEffectCast = GameplayEffectDefaultObj->Cast<UGameplayEffect>())
                                                             {
-                                                                FGameplayEffectSpecHandle Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(GameplayEffectCast, PlayerPawn, PlayerPawn, GameplayEffect.Level());
-
-                                                                Spec.AddSourceObject(PlayerPawn);
-                                                                ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
-
                                                                 if (log_component::enable_debug_logs)
                                                                 {
-                                                                    spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                                    spdlog::info(L"ability_component::apply_playlist_modifiers: Attempting to apply effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
                                                                 }
+                                                                
+                                                                //FGameplayEffectSpecHandle Spec = UAbilitySystemBlueprintLibrary::MakeSpecHandle(GameplayEffectCast, PlayerPawn, PlayerPawn, GameplayEffect.Level());
+//
+                                                                //Spec.AddSourceObject(PlayerPawn);
+                                                                //ASC->BP_ApplyGameplayEffectSpecToSelf(Spec);
+//
+                                                                //if (log_component::enable_debug_logs)
+                                                                //{
+                                                                //    spdlog::info(L"ability_component::apply_playlist_modifiers: Applied effect {} to player.", GameplayEffect.GameplayEffect()->GetName().c_str());
+                                                                //}
                                                             }
                                                         }
                                                     }
