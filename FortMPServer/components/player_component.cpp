@@ -1972,6 +1972,14 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
                     return true;
                 }
             }
+            if (Platform == TEXT("IOS"))
+            {
+                if (Platforms[sAccountID] == "mobile_ios")
+                {
+                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'mobile_ios' Era platform.");
+                    return true;
+                }
+            }
         }
     }
     else
