@@ -2250,9 +2250,22 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                         }
                     }
                     
-                    // Handle custom replication
+                    // Handle custom replication & platforms
                     if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform.size() > 0)
                     {
+                        if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform == TEXT("IOS"))
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform_Enum = iOS;
+                        }
+                        if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform == TEXT("WIN"))
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform_Enum = PC;
+                        }
+                        if (static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform == TEXT("AND"))
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().PlayerPlatform_Enum = Android;
+                        }
+                        
                         // If on iOS (5.41), do NOT replicate the following properties
                         if (GetCL() == 4363240)
                         {

@@ -18,6 +18,44 @@ struct FPredictionKey
     bool bIsStale;
     bool bIsServerInitiated;
     char Unk01[0x6];
+    
+    FORCEINLINE std::string ToAnsiString() const
+    {
+        return "Current: " +
+            std::to_string(Current) +
+            ", Base: " +
+            std::to_string(Base) +
+            ", PredictiveConnection: " +
+            PredictiveConnection->sGetName() +
+            ", bIsStale: " +
+            std::string(bIsStale ? "true" : "false") +
+            ", bIsServerInitiated: " +
+            std::string(bIsServerInitiated ? "true" : "false");
+    }
+
+    FORCEINLINE std::wstring ToUnicodeString() const
+    {
+        return L"Current: " +
+            std::to_wstring(Current) +
+            L", Base: " +
+            std::to_wstring(Base) +
+            L", PredictiveConnection: " +
+            PredictiveConnection->GetName() +
+            L", bIsStale: " +
+            std::wstring(bIsStale ? L"true" : L"false") +
+            L", bIsServerInitiated: " +
+            std::wstring(bIsServerInitiated ? L"true" : L"false");
+    }
+
+    FORCEINLINE operator const char*() const
+    {
+        return ToAnsiString().c_str();
+    }
+
+    FORCEINLINE operator const wchar_t*() const
+    {
+        return ToUnicodeString().c_str();
+    }
 };
 
 struct FGameplayAbilitySpec : FFastArraySerializerItem
@@ -111,7 +149,8 @@ class UAbilitySystemComponent : public UObject
 {
 public:
     DEFINE_PROPERTY(FGameplayAbilitySpecContainer, ActivatableAbilities);
-
+    DEFINE_PROPERTY(AActor*, OwnerActor);
+    DEFINE_PROPERTY(AActor*, AvatarActor);
     DEFINE_PROPERTY(TArray<UObject*>, SpawnedAttributes);
 
     void ClientActivateAbilityFailed(FGameplayAbilitySpecHandle AbilityToActivate, int16_t PredictionKey)
@@ -180,4 +219,16 @@ struct FFortGameplayAbilityTargetData_SingleTargetHit : FGameplayAbilityTargetDa
     
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortGameplayAbilityTargetData_SingleTargetHit");
     UE_OVERLOAD_NEW_OPERATOR();
+};
+
+class UGAB_Melee_ImpactCombo_Athena : public UGameplayAbility
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Weapons/Abilities/GAB_Melee_ImpactCombo_Athena.GAB_Melee_ImpactCombo_Athena_C")
+};
+
+class UGA_Ranged_GenericDamage : public UGameplayAbility
+{
+public:
+    DEFINE_CLASS(L"/Game/Abilities/Weapons/Ranged/GA_Ranged_GenericDamage.GA_Ranged_GenericDamage_C")
 };

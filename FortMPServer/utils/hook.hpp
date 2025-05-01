@@ -26,6 +26,11 @@
                                                                                                                                 \
     if (function_to_hook) hook_manager::hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
 
+#define REGISTER_OVERRIDE_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
+    { UObject* function_to_hook = FindObject<UObject>(FunctionObject);                                                          \
+                                                                                                                                \
+    if (function_to_hook) hook_manager::override_hooked_functions[function_to_hook] = std::function<void(UObject*, UObject*, void*)>(&FunctionDetour); }
+
 #define REGISTER_POST_PROCESS_EVENT_DETOUR(FunctionObject, FunctionDetour)                                                           \
     { UObject* function_to_hook = FindObject<UObject>(FunctionObject);                                                          \
                                                                                                                                 \
@@ -143,6 +148,9 @@ public:
     inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> hooked_functions;
     
     // Map of functions to hook
+    inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> override_hooked_functions;
+    
+    // Map of functions to hook
     inline static std::map<UObject*, std::function<void(UObject*, UObject*, void*)>> post_hooked_functions;
     
     // Map of functions to hook
@@ -163,7 +171,10 @@ namespace hook_manager_hooks
     DEFINE_FUNCTION_HOOK(void, UEnvQueryInstanceBlueprintWrapper_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, UFortLevelSaveComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, UPlaysetLevelStreamComponent_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(void, UFortGameplayAbility_ProcessEvent, (UObject* Object, UObject* Function, void* Params));
     DEFINE_FUNCTION_HOOK(void, ProcessInternal, (UObject* Context, FFrame& StackFrame, void* ReturnValue))
     DEFINE_FUNCTION_HOOK(void, ProcessLocalScriptFunction, (UObject* Context, FFrame& StackFrame, void* ReturnValue))
     DEFINE_FUNCTION_HOOK(void, ProcessScriptFunction, (UObject* Context, UFunction* Function, FFrame& Stack, void* RESULT_DECL, void* Exec))
+    
+    DEFINE_FUNCTION_HOOK(void, ProcessEvent, (UObject* Object, UObject* Function, void* Params))
 }

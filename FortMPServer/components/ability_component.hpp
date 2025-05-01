@@ -4,7 +4,10 @@ class ability_component
 {
 public:
     ability_component();
+    static void on_match_begin();
 
+    static FGameplayAbilitySpec* get_ability_spec(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle handle);
+    
     // Directly activate an ability
     static void activate_ability(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle ability_handle, bool input_pressed, const FPredictionKey& prediction_key, FGameplayEventData* event_data = nullptr);
 
@@ -20,8 +23,12 @@ namespace ability_component_hooks
 {
     DEFINE_FUNCTION_HOOK(void, ServerTryActivateAbility, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerTryActivateAbilityWithEventData, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, ServerSetReplicatedTargetData, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(void, ServerAbilityRPCBatch, (UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame));
     DEFINE_FUNCTION_HOOK(__int64, HandleGliderRedeploy, (AFortPlayerPawn* FortPlayerPawn, __int64 a2));
+    DEFINE_FUNCTION_HOOK(bool, UGameplayAbility__CommitCheck, (UGameplayAbility* Self, const FGameplayAbilitySpecHandle Handle, const void** ActorInfo, const void* ActivationInfo));
+    DEFINE_FUNCTION_HOOK(void, UGameplayAbility__K2_ActivateAbility, (UObject* Self, UObject* Function, void* Params));
+    DEFINE_FUNCTION_HOOK(__int64, MeleeCombatActivated, (AFortPlayerPawnAthena* Self));
 }
 
 // GHandle for specs

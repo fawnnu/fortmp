@@ -66,6 +66,9 @@ hook_manager::hook_manager()
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::AActor_ProcessEvent, FindObject(L"/Script/Engine.Default__Actor")->VTable[ProcessEvent_Index], hook_manager_hooks::AActor_ProcessEvent_Hook);
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessInternal, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 30 48 8B 6A 10 49 8B F8 4C 8B 42 28 48 8B DA 48 8B 01"), hook_manager_hooks::ProcessInternal_Hook);
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessLocalScriptFunction, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 48 8B 42 20 48 8D 35 ? ? ? ? 49 8B F8 48 8B DA 80 38 04 74 34"), hook_manager_hooks::ProcessLocalScriptFunction_Hook);
+
+    //REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 4D 8B F8 45 33 F6 44 8B 41 0C 48 8B F2 44 3B 05 ? ? ? ? 4C 8B E1 7D 38 B8 ? ? ? ? 41 F7 E8 8B CA C1 F9 0F 8B C1"), hook_manager_hooks::ProcessEvent_Hook);
+    
     //REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessScriptFunction, memory_manager::find_pattern("40 55 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 48 8B 85 ? ? ? ? 4C 8B E1"), hook_manager_hooks::ProcessScriptFunction_Hook);
 
     DetourTransactionCommit();
@@ -82,6 +85,12 @@ hook_manager::hook_manager()
     if (static UPlaysetLevelStreamComponent* Default__PlaysetLevelStreamComponent = CreateDefaultObject<UPlaysetLevelStreamComponent>())
     {
         REGISTER_VTABLE_HOOK(Default__PlaysetLevelStreamComponent->VTable, ProcessEvent_Index, hook_manager_hooks::UPlaysetLevelStreamComponent_ProcessEvent);
+    }
+
+    // Ability
+    if (static UObject* Default__FortGameplayAbility = FindObject(L"/Script/FortniteGame.Default__FortGameplayAbility"))
+    {
+        REGISTER_VTABLE_HOOK(Default__FortGameplayAbility->VTable, ProcessEvent_Index, hook_manager_hooks::UFortGameplayAbility_ProcessEvent);
     }
 }
 
@@ -122,6 +131,20 @@ void hook_manager_hooks::UEnvQueryInstanceBlueprintWrapper_ProcessEvent_Hook(UOb
     return UEnvQueryInstanceBlueprintWrapper_ProcessEvent(Object, Function, Params);
 }
 
+void hook_manager_hooks::UFortGameplayAbility_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    if (Object && Function)
+    {
+        if (hook_manager::override_hooked_functions[Function])
+        {
+            // Call hooked function
+            hook_manager::override_hooked_functions[Function](Object, Function, Params);
+            return;
+        }
+    }
+    
+    return UFortGameplayAbility_ProcessEvent(Object, Function, Params);
+}
 
 void hook_manager_hooks::UFortLevelSaveComponent_ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
 {
@@ -197,4 +220,11 @@ void hook_manager_hooks::ProcessScriptFunction_Hook(UObject* Context, UFunction*
     }
 
     ProcessScriptFunction(Context, Function, Stack, RESULT_DECL, Exec);
+}
+
+void hook_manager_hooks::ProcessEvent_Hook(UObject* Object, UObject* Function, void* Params)
+{
+    spdlog::info(L"{} {}", Object->GetName().c_str(), Function->GetName());
+    
+    return ProcessEvent(Object, Function, Params);   
 }

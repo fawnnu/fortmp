@@ -27,6 +27,16 @@ struct FGameplayTag
         return TagName < cmp.TagName;
     }
     
+    FORCEINLINE operator const char*() 
+    {
+        return TagName.sToString().c_str();
+    }
+
+    FORCEINLINE operator const wchar_t*()
+    {
+        return TagName.ToString().c_str();
+    }
+    
     FName TagName;
 };
 

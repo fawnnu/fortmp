@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "loader_component.hpp"
 
+#include "ability_component.hpp"
 #include "anticheat_component.hpp"
 #include "bots_component.hpp"
 #include "challenges_component.hpp"
@@ -341,6 +342,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         }
         
         REGISTER_PROCESS_EVENT_DETOUR(L"/Game/Athena/Maps/Athena_POI_Foundations.Athena_POI_Foundations_C.SwapPOI", loader_component_hooks::SwapPOI_Hook);
+        ability_component::on_match_begin();
         
         if (in_playlist == nullptr)
         {

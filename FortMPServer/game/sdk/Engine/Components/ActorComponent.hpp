@@ -45,6 +45,56 @@ struct FHitResult
     
     DEFINE_STRUCT_CLASS(L"/Script/Engine.HitResult")
     OVERLOAD_NEW_OPERATOR();
+
+    FORCEINLINE std::string ToAnsiString()
+    {
+        return std::string("Location: ") +
+            std::string(Location()) +
+            "Trace End: " +
+            std::string(TraceEnd()) +
+            "ImpactPoint: " +
+            std::string(ImpactPoint()) +
+            "ImpactNormal: " +
+            std::string(ImpactNormal()) +
+            "Actor: " +
+            std::string(Actor().Get()->sGetName()) +
+            "BoneName: " +
+            std::string(BoneName().sToString()) +
+            "TraceStart: " +
+            std::string(TraceStart()) +
+            "Normal: " +
+            std::string(Normal());
+    }
+
+    FORCEINLINE std::wstring ToUnicodeString()
+    {
+        return std::wstring(L"Location: ") +
+            std::wstring(Location()) +
+            L"Trace End: " +
+            std::wstring(TraceEnd()) +
+            L"ImpactPoint: " +
+            std::wstring(ImpactPoint()) +
+            L"ImpactNormal: " +
+            std::wstring(ImpactNormal()) +
+            L"Actor: " +
+            std::wstring(Actor().Get()->GetName()) +
+            L"BoneName: " +
+            std::wstring(BoneName().ToString()) +
+            L"TraceStart: " +
+            std::wstring(TraceStart()) +
+            L"Normal: " +
+            std::wstring(Normal());
+    }
+
+    FORCEINLINE operator const char*()
+    {
+        return ToAnsiString().c_str();
+    }
+
+    FORCEINLINE operator const wchar_t*()
+    {
+        return ToUnicodeString().c_str();
+    }
 };
 
 class EAttachmentRule : public UEnum

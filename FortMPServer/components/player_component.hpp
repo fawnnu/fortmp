@@ -120,12 +120,12 @@ struct FPlayerStats
     int TemporaryCampfireHealth;
 };
 
-enum EEraPlatform
+enum EEraPlatform : uint8_t
 {
-    PC,
-    Android,
-    iOS,
-    Switch
+    PC = 0,
+    Android = 1,
+    iOS = 2,
+    Switch = 3
 };
 
 // Struct that keeps the player's data Era needs in PlayerController
@@ -140,6 +140,7 @@ struct FEraPlayerInfo
     std::vector<std::pair<nlohmann::json, UObject*>> PendingVariantsData;
     nlohmann::json PendingWrapsData;
     std::wstring PlayerPlatform;
+    EEraPlatform PlayerPlatform_Enum;
     std::wstring AccountId;
     FDamageDealtMapValue DamageDealtTracker;
     FPlayerStats PlayerStatsTracker;

@@ -3,6 +3,7 @@
 
 #include "inventory_component.hpp"
 #include "log_component.hpp"
+#include "player_component.hpp"
 
 ability_component::ability_component()
 {
@@ -25,10 +26,35 @@ ability_component::ability_component()
 
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbility, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbility", ability_component_hooks::ServerTryActivateAbility_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbilityWithEventData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbilityWithEventData", ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook);
+    REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerSetReplicatedTargetData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerSetReplicatedTargetData", ability_component_hooks::ServerSetReplicatedTargetData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::HandleGliderRedeploy, memory_manager::find_pattern("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 56 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 D8 0F 29 78 C8 48 8B 05 ? ? ? ?"), ability_component_hooks::HandleGliderRedeploy_Hook);
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::UGameplayAbility__CommitCheck, memory_manager::find_function_by_string(L"UGameplayAbility::CommitCheck provided an invalid handle or actor info or couldn't find ability spec: %s Handle Valid"), ability_component_hooks::UGameplayAbility__CommitCheck_Hook);
+    REGISTER_FUNCTION_DETOUR(ability_component_hooks::MeleeCombatActivated, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 01 48 8B D9 FF 90 ? ? ? ? 84 C0 74 3D F3 0F 10 8B ? ? ? ? 48 8B 8B ? ? ? ? E8 ? ? ? ? 48 83 BB ? ? ? ? ? 74 1F 48 8B 03 48 8B CB"), ability_component_hooks::MeleeCombatActivated_Hook);
     
     DetourTransactionCommit();
+}
+
+void ability_component::on_match_begin()
+{
+    //StaticLoadObject(nullptr, nullptr, L"/Game/Abilities/Weapons/Melee/GAB_Melee_GenericCombo.GAB_Melee_GenericCombo_C", nullptr, 0, nullptr, true);
+
+    //REGISTER_OVERRIDE_PROCESS_EVENT_DETOUR(L"/Game/Abilities/Weapons/Melee/GAB_Melee_GenericCombo.GAB_Melee_GenericCombo_C.K2_ActivateAbility", ability_component_hooks::UGameplayAbility__K2_ActivateAbility_Hook);
+}
+
+FGameplayAbilitySpec* ability_component::get_ability_spec(UAbilitySystemComponent* ability_system_component, FGameplayAbilitySpecHandle handle)
+{
+    auto items = TArrayManager<FGameplayAbilitySpec>(&ability_system_component->ActivatableAbilities().Items(), FGameplayAbilitySpec::GetStructSize());
+    
+    for (FGameplayAbilitySpec& item : items)
+    {
+        if (item.Handle == handle.Handle)
+        {
+            return &item;
+        }
+    }
+
+    return nullptr;;
 }
 
 // Might be bad practice, but works for now.
@@ -298,4 +324,98 @@ void ability_component_hooks::ServerAbilityRPCBatch_Hook(UAbilitySystemComponent
     ability_component::activate_ability(AbilitySystemComponent, BatchInfo.AbilitySpecHandle(), BatchInfo.InputPressed(), BatchInfo.PredictionKey()); 
     
     return ServerAbilityRPCBatch(AbilitySystemComponent, StackFrame);   
+}
+
+void ability_component_hooks::ServerSetReplicatedTargetData_Hook(UAbilitySystemComponent* AbilitySystemComponent, FFrame& StackFrame)
+{
+    GET_PARAMETER(FGameplayAbilitySpecHandle, AbilityHandle);
+    GET_PARAMETER(FPredictionKey, AbilityOriginalPredictionKey);
+    GET_PARAMETER(FGameplayAbilityTargetDataHandle, ReplicatedTargetDataHandle);
+    GET_PARAMETER(FGameplayTag, ApplicationTag);
+    GET_PARAMETER(FPredictionKey, CurrentPredictionKey);
+
+    // Debug logging
+    //spdlog::info(L"ability_component_hooks::ServerSetReplicatedTargetData_Hook called:");
+    //spdlog::info(L"- Ability Handle: {}", AbilityHandle.Handle);
+    //spdlog::info(L"- Ability Class: {}", ability_component::get_ability_spec(AbilitySystemComponent, AbilityHandle)->Ability->Class->GetName().c_str());
+    //spdlog::info(L"- AbilityOriginalPredictionKey: {}", AbilityOriginalPredictionKey);
+    //if (ReplicatedTargetDataHandle.GetData().Num() == 1)
+    //{
+    //    spdlog::info(L"- ReplicatedTargetDataHandle: {}", ReplicatedTargetDataHandle.GetSingleData().Get()->HitResult().ToUnicodeString());
+    //}
+    //else
+    //{
+    //    for (auto& Data : ReplicatedTargetDataHandle.GetData())
+    //    {
+    //        spdlog::info(L"- ReplicatedTargetDataHandle: {}", Data.Get()->HitResult().ToUnicodeString());   
+    //    }
+    //}
+    //spdlog::info(L"- ApplicationTag: {}", ApplicationTag.TagName.ToString().c_str());
+    //spdlog::info(L"- CurrentPredictionKey: {}", CurrentPredictionKey);
+
+    // Fix ability
+    if (static bool Build_541 = GetCL() == 4363240; Build_541)
+    {
+        if (FGameplayAbilitySpec* Spec = ability_component::get_ability_spec(AbilitySystemComponent, AbilityHandle))
+        {
+            if (AbilitySystemComponent && AbilitySystemComponent->OwnerActor())
+            {
+                if (AbilitySystemComponent->OwnerActor()->IsA(AFortPlayerStateAthena::StaticClass()))
+                {
+                    AFortPlayerControllerAthena* PlayerController = static_cast<AFortPlayerControllerAthena*>(AbilitySystemComponent->OwnerActor()->Owner());
+
+                    if (PlayerController && PlayerController->IsA(AFortPlayerControllerAthena::StaticClass()))
+                    {
+                        // IOS
+                        if (PlayerController->EraPlayerInfo().PlayerPlatform_Enum == 2)
+                        {
+                            if (Spec->Ability->Cast<UGAB_Melee_ImpactCombo_Athena>())
+                            {
+                                static FName MeleeHit1 = L"Gameplay.Melee.Hit1"; 
+                                
+                                ApplicationTag.TagName = MeleeHit1;
+                            }
+                            else if (Spec->Ability->Cast<UGA_Ranged_GenericDamage>())
+                            {
+                                ApplicationTag.TagName = FName();
+                                spdlog::info(ApplicationTag.TagName.ToString().c_str());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return ServerSetReplicatedTargetData(AbilitySystemComponent, StackFrame);   
+}
+
+bool ability_component_hooks::UGameplayAbility__CommitCheck_Hook(UGameplayAbility* Self, const FGameplayAbilitySpecHandle Handle, const void** ActorInfo, const void* ActivationInfo)
+{
+    bool return_value = UGameplayAbility__CommitCheck(Self, Handle, ActorInfo, ActivationInfo);
+
+    //if (log_component::enable_debug_logs)
+    //{
+    //    spdlog::info(L"ability_component_hooks::UGameplayAbility__CommitCheck_Hook returned {} for ability {} [Class: {}]", return_value, Self->GetName().c_str(), Self->Class->GetName().c_str());
+    //}
+
+    return return_value;
+}
+
+void ability_component_hooks::UGameplayAbility__K2_ActivateAbility_Hook(UObject* Self, UObject* Function, void* Params)
+{
+    if (Self->IsA(FindObject(L"/Game/Athena/Items/Weapons/Abilities/GAB_Melee_ImpactCombo_Athena.GAB_Melee_ImpactCombo_Athena_C", true)))
+    {
+        // Override code :)
+        return;
+    }
+    
+    hook_manager_hooks::UFortGameplayAbility_ProcessEvent(Self, Function, Params);   
+}
+
+long long ability_component_hooks::MeleeCombatActivated_Hook(AFortPlayerPawnAthena* Self)
+{
+    long long return_value = MeleeCombatActivated(Self);
+
+    return return_value;
 }
