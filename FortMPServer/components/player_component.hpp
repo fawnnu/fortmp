@@ -176,6 +176,7 @@ public:
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
     static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
+    static void DelayedEndConnection(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
 
     // Damage timers
     static void PistolDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);

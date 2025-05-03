@@ -145,6 +145,7 @@ player_component::player_component()
 
     REGISTER_CUSTOM_UFUNCTION(OnPawnLandedImplementation, AFortPawn::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(GatherDistanceTraveled, AFortPlayerControllerAthena::StaticClass())
+    REGISTER_CUSTOM_UFUNCTION(DelayedEndConnection, AFortPlayerControllerAthena::StaticClass())
 
     // Timers for each weapon type
     REGISTER_CUSTOM_UFUNCTION(PistolDamageCallback, AFortPlayerController::StaticClass());
@@ -467,6 +468,19 @@ void player_component::GatherDistanceTraveled(AFortPlayerControllerAthena* Self,
         
         // Re-execute the same function in 1 second
         UKismetSystemLibrary::K2_SetTimer(Self, L"GatherDistanceTraveled", 1, false);
+    }
+}
+
+void player_component::DelayedEndConnection(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    if (Self && !memory_manager::is_bad_read_pointer(Self))
+    {
+        if (Self->NetConnection() && !memory_manager::is_bad_read_pointer(Self->NetConnection()))
+        {
+            NetConnection__Close(Self->NetConnection());
+        }
     }
 }
 

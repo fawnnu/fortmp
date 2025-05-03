@@ -297,13 +297,11 @@ public:
         {
             spdlog::info(L"ClientReturnToMainMenu: {}", in_reason.c_str());   
         }
+
+        // Set a backup timer, just in case
+        UKismetSystemLibrary::K2_SetTimer(this, L"DelayedEndConnection", 5.0f, false);
         
         Call(Function_ClientReturnToMainMenu, in_reason);
-
-        if (NetConnection())
-        {
-            NetConnection__Close(NetConnection());
-        }
     }
 
     UFortItem* BP_GetInventoryItemWithGuid(FGuid ItemGuid)
