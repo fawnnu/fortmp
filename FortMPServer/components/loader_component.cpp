@@ -18,6 +18,7 @@
 #include "player_component.hpp"
 #include "playlist_component.hpp"
 #include "replication_component.hpp"
+#include "storm_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -1042,6 +1043,11 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
 
             player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
 
+            if (player_component::starting_players <= 20)
+            {
+                era_mutators_component::Execute("low_players_blitz_storm", nullptr);
+            }
+            
             /*
              * Send a match_started event to director
              */

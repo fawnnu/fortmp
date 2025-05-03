@@ -141,6 +141,33 @@ era_mutators_component::era_mutators_component()
         }
     });
 
+    // enables storm overrides 
+    new era_mutator("enable_storm_overrides", [](LPVOID)
+    {
+    });
+
+    // Enable blitz-like storm (first circle) when starting playercount is below 20
+    new era_mutator("low_players_blitz_storm",  [](LPVOID)
+    {
+        if (*GWorld)
+        {
+            UWorld* World = *GWorld;
+            
+            if (World->GameState() && World->GameState()->MapInfo())
+            {
+                World->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 0;
+            }
+            
+            //if (World->AuthorityGameMode() && World->AuthorityGameMode()->SafeZoneIndicator())
+            //{
+            //    World->AuthorityGameMode()->SafeZoneIndicator()
+            //}
+        }
+
+        storm_component::storm_table_overrides[1][0].second.first = 0;
+        storm_component::storm_table_overrides[1][0].second.second = 60;
+    });
+
     new era_mutator("era_festival_close", [](LPVOID)
     {
         gameserver_client::Client->GameServer_Status.accepting_players = false;

@@ -42,6 +42,14 @@ public:
     DEFINE_PROPERTY(TArray<FFortSupplyDropGamePhaseData>, GamePhaseData);
 };
 
+struct FFortSafeZoneDefinition
+{
+    DEFINE_STRUCT_PROPERTY(FScalableFloat, WaitTime);
+    DEFINE_STRUCT_PROPERTY(FScalableFloat, ShrinkTime);
+    
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.FortSafeZoneDefinition");
+};
+
 class AFortAthenaMapInfo : public AActor
 {
 public:

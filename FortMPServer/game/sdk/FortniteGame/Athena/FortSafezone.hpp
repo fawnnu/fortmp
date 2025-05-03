@@ -6,6 +6,8 @@ public:
     DEFINE_PROPERTY(float, SafeZoneStartShrinkTime);
 
     DEFINE_PROPERTY(float, SafeZoneFinishShrinkTime);
+    
+    DEFINE_PROPERTY(FVector, NextNextCenter);
 
     FVector GetSafeZoneCenter()
     {

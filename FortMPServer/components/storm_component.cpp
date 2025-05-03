@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "storm_component.hpp"
 
+#include "era_mutators_component.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
 
@@ -9,7 +10,7 @@ storm_component::storm_component()
     storm_table_overrides = {
         {
             1, {
-                {{0, 20}, {120, 140}},
+                {{0, 20},  {120, 140}},
                 {{20, 30}, {130, 145}},
                 {{30, 40}, {140, 150}},
                 {{40, 50}, {150, 160}},
@@ -181,6 +182,7 @@ void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode
     }
 
     // Apply overrides
+    if (era_mutators_component::IsActive("enable_storm_overrides"))
     {
         int safe_zone_phase = (*GWorld)->AuthorityGameMode()->SafeZonePhase();
         bool found_override = false;
