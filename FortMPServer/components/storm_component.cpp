@@ -187,7 +187,7 @@ void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode
         std::pair<float,float> override = storm_component::get_storm_table_override(safe_zone_phase, player_component::starting_players, &found_override);
         if (found_override)
         {
-            GameMode->SafeZoneIndicator()->SafeZoneStartShrinkTime() = override.first;
+            GameMode->SafeZoneIndicator()->SafeZoneStartShrinkTime() = (*GWorld)->GameState()->ReplicatedWorldTimeSeconds() + override.first;
             GameMode->SafeZoneIndicator()->SafeZoneFinishShrinkTime() = GameMode->SafeZoneIndicator()->SafeZoneStartShrinkTime() + override.second;
 
             if (log_component::enable_debug_logs)
