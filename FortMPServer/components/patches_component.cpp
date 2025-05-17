@@ -922,9 +922,9 @@ PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVO
             if (log_component::enable_debug_logs)
             {
                 spdlog::warn(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is invalid.");
-
-                return nullptr;
             }
+            
+            return nullptr;
         }
     }
     
@@ -952,8 +952,9 @@ bool patches_component_hook::FNetGUIDCache__SupportsObject_Hook(PVOID Self, UObj
         if (log_component::enable_debug_logs)
         {
             spdlog::error(L"patches_component_hook::FNetGUIDCache__SupportsObject_Hook: Invalid Object. Returning.");
-            return false;
         }
+        
+        return false;
     }
 
     return FNetGUIDCache__SupportsObject(Self, Object, WeakObjectPtr);
