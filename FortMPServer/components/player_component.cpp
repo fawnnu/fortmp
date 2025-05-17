@@ -2089,6 +2089,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
             // Register this player in the local Players map
             std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
             static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().AccountId = wAccountID;
+            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().Competitive_PendingPayoutCurrency = 0;
 
             // Convert string
             TO_STRING(wAccountID, sAccountID);
@@ -3362,6 +3363,37 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
         // Notify backend
         player_component::PostLogin(static_cast<AFortPlayerController*>(NewPlayer));
 
+        // Custom logic for competitive
+        try
+        {
+            auto config = config_manager::get_server_config();
+            const int player_cap_override = config["player_cap_override"].get<int>();
+
+            // Get percentages
+            if (player_cap_override == 100) // Public matches
+            {
+                if (FortGameModeAthena->AlivePlayers().Num() >= 40)
+                {
+                    // Update the countdown to the normal values
+                    if (era_mutators_component::IsActive("competitive"))
+                    {
+                        FortGameModeAthena->WarmupCountdownDuration() = config["warmup_duration"];
+                        FortGameModeAthena->WarmupEarlyCountdownDuration() = config["warmup_duration"];
+                    
+                        // Log
+                        if (!loader_component::bLoggedCompetitiveCountdown)
+                        {
+                            loader_component::bLoggedCompetitiveCountdown = true;
+                            spdlog::info(L"Starting competitive warmup countdown, 40 players joined.");
+                        }
+                    }
+                }
+            }
+        }
+        catch (nlohmann::json::exception& err)
+        {
+        }
+        
         // Above specific % of capacity, start the match in x seconds
         try
         {
@@ -3375,28 +3407,36 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
                 const int player_cap_override_95percent = player_cap_override / 100 * 95;
                 if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_85percent)
                 {
-                    // Update the countdown to 20 seconds 
-                    FortGameModeAthena->WarmupCountdownDuration() = 20.f;
-                    FortGameModeAthena->WarmupEarlyCountdownDuration() = 20.f;
-
-                    // Log
-                    if (!loader_component::bLogged85Percent)
+                    // Update the countdown to 20 seconds
+                    if (!era_mutators_component::IsActive("competitive"))
                     {
-                        loader_component::bLogged85Percent = true;
-                        spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
+                        FortGameModeAthena->WarmupCountdownDuration() = 20.f;
+                        FortGameModeAthena->WarmupEarlyCountdownDuration() = 20.f;
+                    
+                    
+                        // Log
+                        if (!loader_component::bLogged85Percent)
+                        {
+                            loader_component::bLogged85Percent = true;
+                            spdlog::info(L"Starting Aircraft in 20 seconds, 85 percent of the players joined.");
+                        }
                     }
                 }
                 if (FortGameModeAthena->AlivePlayers().Num() >= player_cap_override_95percent)
                 {
-                    // Update the countdown to 10 seconds 
-                    FortGameModeAthena->WarmupCountdownDuration() = 10.f;
-                    FortGameModeAthena->WarmupEarlyCountdownDuration() = 10.f;
-
-                    // Log
-                    if (!loader_component::bLogged95Percent)
+                    // Update the countdown to 10 seconds
+                    if (!era_mutators_component::IsActive("competitive"))
                     {
-                        loader_component::bLogged95Percent = true;
-                        spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                        FortGameModeAthena->WarmupCountdownDuration() = 10.f;
+                        FortGameModeAthena->WarmupEarlyCountdownDuration() = 10.f;
+                    
+
+                        // Log
+                        if (!loader_component::bLogged95Percent)
+                        {
+                            loader_component::bLogged95Percent = true;
+                            spdlog::info(L"Starting Aircraft in 10 seconds, 95 percent of the players joined.");
+                        }
                     }
                 }
             }
@@ -3648,7 +3688,7 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
         }
 
         // Butterfly/domino event
-        if (era_mutators_component::IsActive("event_begin") || era_mutators_component::IsActive("domino_event"))
+        if (era_mutators_component::IsActive("event_begin") || era_mutators_component::IsActive("domino_event") || era_mutators_component::IsActive("competitive"))
         {
             UKismetSystemLibrary::SetBoolPropertyByName(NewPlayer->Pawn(), "bIsInvulnerable", true);
         }

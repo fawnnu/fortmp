@@ -2,6 +2,7 @@
 #include "elimination_component.hpp"
 
 #include "challenges_component.hpp"
+#include "competitive_component.hpp"
 #include "config_manager.hpp"
 #include "creative_component.hpp"
 #include "era_mutators_component.hpp"
@@ -526,6 +527,8 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                             IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
                         
                             // Send summary
+                            competitive_component::on_placement(reinterpret_cast<AFortPlayerControllerAthena*>(TeamMember), placement);
+                            competitive_component::on_summary(reinterpret_cast<AFortPlayerControllerAthena*>(TeamMember));
                             challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), placement);
 
                             // Set placement
@@ -544,6 +547,7 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                                 {
                                     // Send placement
                                     elimination_component::send_placement(reinterpret_cast<AFortPlayerController*>(TeamMember), placement - 1);
+                                    competitive_component::on_placement(reinterpret_cast<AFortPlayerControllerAthena*>(TeamMember), placement - 1);
                                 }
                             }
                         }
@@ -642,6 +646,8 @@ void elimination_component::NotifyWon(UObject* Object, UObject* Function, void* 
         {
             Sleep(1000);
                     
+            competitive_component::on_placement(static_cast<AFortPlayerControllerAthena*>(TeamMember), 1);
+            competitive_component::on_summary(static_cast<AFortPlayerControllerAthena*>(TeamMember));
             challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
                         
             return 0;

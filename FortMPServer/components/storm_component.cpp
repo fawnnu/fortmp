@@ -181,6 +181,30 @@ void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode
         return;
     }
 
+    if (era_mutators_component::IsActive("competitive"))
+    {
+        int safe_zone_phase = (*GWorld)->AuthorityGameMode()->SafeZonePhase();
+
+        if (safe_zone_phase >= 4)
+        {
+            for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
+            {
+                UNetConnection* ClientConnection = (*GWorld)->NetDriver()->ClientConnections()[i];
+
+                if (!memory_manager::is_bad_read_pointer(ClientConnection) && ClientConnection)
+                {
+                    if (AFortPlayerController* PlayerController = ClientConnection->PlayerController(); !memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+                    {
+                        if (AFortPlayerPawn* PlayerPawn = PlayerController->Pawn(); !memory_manager::is_bad_read_pointer(PlayerPawn) && PlayerPawn)
+                        {
+                            UKismetSystemLibrary::SetBoolPropertyByName(PlayerPawn, L"bIsInvulnerable", false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Apply overrides
     if (era_mutators_component::IsActive("enable_storm_overrides"))
     {

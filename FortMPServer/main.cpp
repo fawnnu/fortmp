@@ -32,6 +32,7 @@
 #include "components/playlist_component.hpp"
 #include "components/anticheat_component.hpp"
 #include "components/challenges_component.hpp"
+#include "components/competitive_component.hpp"
 #include "components/config_manager.hpp"
 #include "components/customproperties_component.hpp"
 #include "components/director_client.hpp"
@@ -162,6 +163,7 @@ void Setup()
                 new playlist_component();
                 new anticheat_component();
                 new challenges_component();
+                new competitive_component();
                 loader_component::initialized_all_components = true;
                 era_mutators_component::InitializeHooks();
                     

@@ -34,6 +34,7 @@ public:
 
     // Log
     inline static bool bLogged85Percent;
+    inline static bool bLoggedCompetitiveCountdown;
     inline static bool bLogged95Percent;
 
     inline static bool initialized_all_components;

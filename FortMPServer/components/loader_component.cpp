@@ -439,9 +439,17 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         (*GWorld)->AuthorityGameMode()->DefaultPawnClass() = APlayerPawn_Athena_C::StaticClass();
         
         // setup warmup time
-        (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = config["warmup_duration"];
-        (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = config["warmup_duration"];
-
+        if (era_mutators_component::IsActive("competitive"))
+        {
+            (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = 99999;
+            (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = 99999;
+        }
+        else
+        {
+            (*GWorld)->AuthorityGameMode()->WarmupCountdownDuration() = config["warmup_duration"];
+            (*GWorld)->AuthorityGameMode()->WarmupEarlyCountdownDuration() = config["warmup_duration"];
+        }
+        
         if ((*GWorld)->AuthorityGameMode()->HasProperty(L"EndGameKickPlayersDelay"))
         {
             (*GWorld)->AuthorityGameMode()->EndGameKickPlayersDelay() = 30.f;   
@@ -1401,6 +1409,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         player_component::starting_players = 0;
         loader_component::bLogged85Percent = false;
         loader_component::bLogged95Percent = false;
+        loader_component::bLoggedCompetitiveCountdown = false;
         player_component::Matches.clear();
         player_component::Platforms.clear();
         pickup_component::GlobalPickupStream.clear();

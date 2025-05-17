@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "challenges_component.hpp"
 
+#include "competitive_component.hpp"
 #include "creative_component.hpp"
 #include "function_component.hpp"
 #include "log_component.hpp"
@@ -279,6 +280,9 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     "Athena.Quests.Location.ExplorerOutposts.G"
                 };
 
+                // Accumulate rewards for competitive
+                competitive_component::on_elimination(static_cast<AFortPlayerControllerAthena*>(KillerPlayerController));
+                
                 // Read player POI
                 std::vector POIList = static_cast<AFortPlayerControllerAthena*>(KillerPlayerController)->EraPlayerInfo().CurrentPOIList;
                 for (std::string POITag : POITagsForCorruptedZone)

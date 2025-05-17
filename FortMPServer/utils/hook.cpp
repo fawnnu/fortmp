@@ -103,6 +103,13 @@ void hook_manager_hooks::AActor_ProcessEvent_Hook(UObject* Object, UObject* Func
             // Call hooked function
             hook_manager::hooked_functions[Function](Object, Function, Params);
         }
+
+        if (hook_manager::override_hooked_functions[Function])
+        {
+            // Call hooked function
+            hook_manager::override_hooked_functions[Function](Object, Function, Params);
+            return;
+        }
     }
 
     if (Object && Function)

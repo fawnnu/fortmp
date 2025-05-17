@@ -150,6 +150,7 @@ struct FEraPlayerInfo
     bool bIsDisconneting;
     std::vector<FGameplayTag> CurrentPOIList;
     ABuildingGameplayActorSpawnMachine* CurrentSpawnMachine;
+    int Competitive_PendingPayoutCurrency;
 };
 
 // Struct that keeps information about a shotgun pellet. We need this data to make
