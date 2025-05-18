@@ -117,6 +117,37 @@ storm_component::storm_component()
             }
         }
     };
+
+    if (era_mutators_component::IsActive("competitive"))
+    {
+        storm_table_overrides = {
+            {
+                1, {
+                    {{0, 100},  {160, 160}}
+                }
+            },
+            {
+                2, {
+                    {{0, 100}, {110, 110}}
+                }
+            },
+            {
+                3, {
+                    {{0, 100}, {110, 80}}
+                }
+            },
+            {
+                4, {
+                    {{0, 100}, {80, 50}}
+                }
+            },
+            {
+                5, {
+                    {{0, 100}, {70, 30}}
+                }
+            }
+        };
+    }
     
     INIT_POINTER(StartSafeZone, memory_manager::find_function_by_string(L"AFortGameModeAthena::IsSafeZoneAllowed: Skipping SafeZone phase: bSkipSafeZones == true"));
     
@@ -185,7 +216,7 @@ void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode
     {
         int safe_zone_phase = (*GWorld)->AuthorityGameMode()->SafeZonePhase();
 
-        if (safe_zone_phase >= 4)
+        if (safe_zone_phase >= 3)
         {
             for (int i = 0; i < (*GWorld)->NetDriver()->ClientConnections().Num(); i++)
             {
@@ -206,7 +237,7 @@ void storm_component_hooks::SetSafezoneValues_Hook(AFortGameModeAthena* GameMode
     }
 
     // Apply overrides
-    if (era_mutators_component::IsActive("enable_storm_overrides"))
+    if (era_mutators_component::IsActive("enable_storm_overrides") || era_mutators_component::IsActive("competitive"))
     {
         int safe_zone_phase = (*GWorld)->AuthorityGameMode()->SafeZonePhase();
         bool found_override = false;

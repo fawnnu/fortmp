@@ -2,6 +2,7 @@
 #include "harvesting_component.hpp"
 
 #include "challenges_component.hpp"
+#include "era_mutators_component.hpp"
 #include "inventory_component.hpp"
 #include "log_component.hpp"
 #include "player_component.hpp"
@@ -182,6 +183,12 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 
                 // Bonus varying from 0% to 15%
                 Count += round(UKismetMathLibrary::RandomFloatInRange(0, 0.15)*Count);
+
+                if (era_mutators_component::IsActive("competitive"))
+                {
+                    // 30% boost for competitive
+                    Count += round(0.3 * Count);
+                }
                 
                 if (Count <= 0) return;
                 
