@@ -3920,7 +3920,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
             if (DamageCauser->IsA(ABGA_Athena_C4::StaticClass()))
             {
                 // If the building is player built & owned by another team, count SpecialDamage.C4BuildingDamage
-                if (Structure->AttributeInitLevelSource() == 1)
+                if (Structure->AttributeInitLevelSource() == 1 && team_component::is_human_team(Structure->Team()))
                 {
                     // Check PlayerState
                     if (InstigatedBy->PlayerState())
