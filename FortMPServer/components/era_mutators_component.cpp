@@ -297,6 +297,12 @@ era_mutators_component::era_mutators_component()
 
     new cube_mutator("cube_spawn", [](LPVOID Parameters)
     {
+        if (!gameserver_client::Client->bInitialized)
+        {
+            cube_mutator::late_initialization = true;
+            return;
+        }
+        
         if (ACUBE_C::StaticClass(true))
         {
             // Get the Cube actor

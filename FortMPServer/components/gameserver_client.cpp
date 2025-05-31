@@ -269,6 +269,13 @@ void gameserver_client::Register()
                         spdlog::error("gameserver_client::Register() caught error while trying to read kevin data: {}", err.what());
                     }
 
+                    bInitialized = true;
+                    
+                    if (cube_mutator::late_initialization)
+                    {
+                        era_mutators_component::Execute("cube_spawn", nullptr);
+                    }
+                    
                     break;
                 }
                 else

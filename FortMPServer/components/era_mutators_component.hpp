@@ -30,6 +30,7 @@ public:
     }
 
     inline static int step;
+    inline static int late_initialization = false;
 };
 
 // Overload operator

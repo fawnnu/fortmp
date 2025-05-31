@@ -99,4 +99,6 @@ public:
     int LocalNonAckHeartbeatsForPlayers;
 
     std::shared_ptr<Aws::S3::S3Client> S3Client;
+
+    bool bInitialized;
 };
