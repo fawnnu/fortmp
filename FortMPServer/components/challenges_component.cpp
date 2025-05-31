@@ -102,10 +102,10 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
         }
 
         {
-            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_flushfactory"));
-            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_shiftyshafts"));
-            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_greasygrove"));
-            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_tiltedtowers"));
+            SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.RiskyReels"));
+            SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.ParadisePalms"));
+            SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.ShiftyShafts"));
+            SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.TiltedTowers"));
         }
     }
 }
