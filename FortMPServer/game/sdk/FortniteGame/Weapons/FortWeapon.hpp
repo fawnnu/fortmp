@@ -191,3 +191,9 @@ class AB_Prj_Athena_ShipCannon_C : public AFortProjectileBase
 public:
     DEFINE_CLASS(L"/Game/Athena/Items/Weapons/Vehicles/B_Prj_Athena_ShipCannon.B_Prj_Athena_ShipCannon_C")
 };
+
+class ABGA_Athena_C4 : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/C4/B_BGA_Athena_C4.B_BGA_Athena_C4")
+};

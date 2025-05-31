@@ -158,6 +158,24 @@ public:
         return NamePrivate.ToString();
     }
 
+    std::wstring GetFullName()
+    {
+        std::wstring fullname = GetName();
+
+        for (UObject* CurrentOuter = Outer; CurrentOuter; CurrentOuter = CurrentOuter->Outer)
+        {
+            fullname = CurrentOuter->GetName() + L"." + fullname;
+        }
+
+        // Add class
+        if (Class)
+        {
+            fullname = Class->GetName() + L" " + fullname;
+        }
+
+        return fullname;
+    }
+
     std::string sGetName()
     {
         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;

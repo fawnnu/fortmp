@@ -68,6 +68,48 @@ void challenges_component::Initialize()
     REGISTER_SCRIPT_FUNCTION_HOOK(L"/Game/Athena/Items/QuestInteractables/AthenaQuestFunctionLibrary.AthenaQuestFunctionLibrary_C.Athena_GiveQuestUpdateToPlayers", challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook, true);
 }
 
+void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerController)
+{
+    // CL-based implementation
+    if (GetCL() == 4363240)
+    {
+        {
+            SendCustomEventWithCount(PlayerController, "interaction:destroy-structures-with-cannon-ball", 25);
+        }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_05"));
+        }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:golf", TEXT("battlepass_athena_score_hole_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:golf", TEXT("battlepass_athena_score_hole_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:golf", TEXT("battlepass_athena_score_hole_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:golf", TEXT("battlepass_athena_score_hole_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:golf", TEXT("battlepass_athena_score_hole_05"));
+        }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:basket", TEXT("battlepass_athena_score_basket_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:basket", TEXT("battlepass_athena_score_basket_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:basket", TEXT("battlepass_athena_score_basket_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:basket", TEXT("battlepass_athena_score_basket_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:basket", TEXT("battlepass_athena_score_basket_05"));
+        }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_flushfactory"));
+            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_shiftyshafts"));
+            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_greasygrove"));
+            SendCustomEventWithObjective(PlayerController, "interaction:poi", TEXT("battlepass_visit_athena_location_tiltedtowers"));
+        }
+    }
+}
+
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
 {
     CHECK_PAST_WARMUP()

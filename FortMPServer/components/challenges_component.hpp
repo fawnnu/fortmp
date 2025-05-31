@@ -28,6 +28,11 @@ class challenges_component
 public:
     challenges_component();
     static void Initialize();
+
+    /*
+     * The function is called as the player first lands. Its implementation is CL-based
+     */
+    static void AutocompleteChallenges(AFortPlayerController* PlayerController);
     
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags, std::string rarity);

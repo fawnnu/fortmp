@@ -338,8 +338,9 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
                 Self->Controller()->ServerExecuteInventoryItem(inventory_component::get_pickaxe(Self->Controller())->ItemEntry().ItemGuid());
             }
 
-            // Auto complete
-            challenges_component::SendCustomEventWithCount(Self->Controller(), "interaction:destroy-structures-with-cannon-ball", 25);
+            // Autocomplete
+            challenges_component::AutocompleteChallenges(Self->Controller());
+
             // Progress land challenges
             challenges_component::SendCustomEvent(Self->Controller(), "event:landing");
         }
@@ -3865,7 +3866,6 @@ void player_component_hooks::ServerPlaySquadQuickChatMessage_Hook(AFortPlayerCon
     }
 }
 
-// Only use this to keep track of sniper damage, as projectiles are not taken into account by NetMulticast_Athena_BatchedDamageCues
 void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Function, void* Params)
 {
     GET_PROCESS_EVENT_PARAMETER(AFortPlayerController*, InstigatedBy);   
@@ -3913,6 +3913,26 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.CannonBallDamage += Damage;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::CannonBall);
+            }
+        }
+        else if (ABuildingSMActor* Structure = Self->Cast<ABuildingSMActor>())
+        {
+            if (DamageCauser->IsA(ABGA_Athena_C4::StaticClass()))
+            {
+                // If the building is player built & owned by another team, count SpecialDamage.C4BuildingDamage
+                if (Structure->AttributeInitLevelSource() == 1)
+                {
+                    // Check PlayerState
+                    if (InstigatedBy->PlayerState())
+                    {
+                        // Check team
+                        if (Structure->Team() != InstigatedBy->PlayerState()->TeamIndex())
+                        {
+                            static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage += Damage;
+                            player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::C4);
+                        }
+                    }
+                }
             }
         }
 
