@@ -195,5 +195,5 @@ public:
 class ABGA_Athena_C4 : public AActor
 {
 public:
-    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/C4/B_BGA_Athena_C4.B_BGA_Athena_C4")
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/C4/B_BGA_Athena_C4.B_BGA_Athena_C4_C")
 };
