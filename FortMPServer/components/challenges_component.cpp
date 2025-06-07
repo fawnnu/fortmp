@@ -107,6 +107,19 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
             SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.ShiftyShafts"));
             SendPOIInteraction(PlayerController, TEXT("Athena.Location.POI.TiltedTowers"));
         }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_05"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_06"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_07"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_08"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_09"));
+            SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_10"));
+        }
     }
 }
 
