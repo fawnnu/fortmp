@@ -166,6 +166,7 @@ class ABGA_RiftPortal_Athena : public AActor
 {
 public:
     DEFINE_PROPERTY(UObject*, OverlapCapsule);
+    DEFINE_PROPERTY(FName, ObjectiveBackendName);
     DEFINE_CLASS(L"/Game/Athena/Items/ForagedItems/Rift/BGA_RiftPortal_Athena.BGA_RiftPortal_Athena_C");
 };
 

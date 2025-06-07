@@ -582,6 +582,18 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 if (PlayerPawn->Controller())
                 {
                     challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:rift");
+
+                    // Send a rift-spawn event if we got a valid backend objective name set
+                    if (ABGA_RiftPortal_Athena* RiftPortal = OtherActor->Cast<ABGA_RiftPortal_Athena>())
+                    {
+                        if (STATIC_HASPROPERTY(RiftPortal, ObjectiveBackendName))
+                        {
+                            if (RiftPortal->ObjectiveBackendName().ToString().length() > 0 && RiftPortal->ObjectiveBackendName() != TEXT("battlepass_touch_athena_riftportal"))
+                            {
+                                challenges_component::SendCustomEventWithObjective(PlayerPawn->Controller(), "interaction:rift-spawn", RiftPortal->ObjectiveBackendName());
+                            }
+                        }
+                    }
                 }
             }
         }
