@@ -260,7 +260,10 @@ void gameserver_client::Register()
                             if (type == "cube")
                             {
                                 int tracking = item.value()["state"]["tracking"];
-                                cube_mutator::step = tracking;
+                                if (!era_mutators_component::IsActive("season5_kevin"))
+                                {
+                                    cube_mutator::step = tracking;
+                                }
                             }
                         }
                     }

@@ -141,6 +141,25 @@ era_mutators_component::era_mutators_component()
         }
     });
 
+    new era_mutator("season5_kevin", [](LPVOID)
+    {
+        if (GetCL() == 4363240)
+        {
+            TArray<AActor*> cube_scripter = UGameplayStatics::GetAllActorsOfClass(*GWorld, ACUBE_C::StaticClass());
+                                
+            for (auto actor : cube_scripter)
+            {
+                if (cube_mutator::step < 564)
+                {
+                    static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+                }
+            }
+            
+            // 3 minutes to restore match to normality
+            UKismetSystemLibrary::K2_SetTimer((*GWorld)->GameState(), L"OnCustomEventEnd", 90.0, false);
+        }
+    });
+
     // enables storm overrides 
     new era_mutator("enable_storm_overrides", [](LPVOID)
     {
@@ -202,6 +221,8 @@ era_mutators_component::era_mutators_component()
     
     new era_mutator("event_end", [](LPVOID)
     {
+        spdlog::info(L"era_mutator: [event_end] is restoring normal match conditions.");
+        
         (*GWorld)->GameState()->MapInfo()->SafeZoneStartDelay().Value() = 1;
 
         // Start safe zone again
@@ -255,7 +276,7 @@ era_mutators_component::era_mutators_component()
                                 
             for (auto actor : cube_scripter)
             {
-                if (cube_mutator::step < 563)
+                if (cube_mutator::step < 564)
                 {
                     static_cast<ACUBE_C*>(actor)->NextStepDynamic();
                 }
@@ -297,7 +318,7 @@ era_mutators_component::era_mutators_component()
 
     new cube_mutator("cube_spawn", [](LPVOID Parameters)
     {
-        if (!gameserver_client::Client->bInitialized)
+        if (!gameserver_client::Client->bInitialized && !IsActive("season5_kevin"))
         {
             cube_mutator::late_initialization = true;
             return;
@@ -311,9 +332,14 @@ era_mutators_component::era_mutators_component()
             for (auto actor : cube_scripter)
             {
                 auto cube = static_cast<ACUBE_C*>(actor);
+
+                if (IsActive("season5_kevin"))
+                {
+                    cube_mutator::step = 563;
+                }
                 
                 // Spawn the cube at a specific step
-                if (cube_mutator::step < 563)
+                if (cube_mutator::step < 564)
                 {
                     cube->New(cube_mutator::step-1);
                     cube->Next(cube_mutator::step);
