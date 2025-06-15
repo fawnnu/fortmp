@@ -120,6 +120,16 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
             SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_09"));
             SendCustomEventWithObjective(PlayerController, "interaction:rift-spawn", TEXT("battlepass_athena_use_location_riftportal_10"));
         }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_05"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_06"));
+            SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_07"));
+        }
     }
 }
 
