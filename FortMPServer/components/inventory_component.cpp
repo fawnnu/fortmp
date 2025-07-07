@@ -468,7 +468,10 @@ bool inventory_component::is_inventory_full(AFortPlayerController* player_contro
     {
         if (has_item_type(player_controller, replicated_entry.ItemDefinition()))
         {
-            item_count++;
+            if (replicated_entry.ItemDefinition()->bInventorySizeLimited())
+            {
+                item_count++;
+            }
         }
     }
 

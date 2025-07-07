@@ -67,6 +67,7 @@ class UFortItemDefinition : public UObject
 public:
     DEFINE_PROPERTY(int, MaxStackSize);
     DEFINE_PROPERTY(uint8_t, ItemType);
+    DEFINE_BIT_PROPERTY(bool, bInventorySizeLimited);
     DEFINE_PROPERTY(uint8_t, FilterOverride);
     DEFINE_PROPERTY(uint8_t, Rarity);
     DEFINE_PROPERTY(uint8_t, Tier);
@@ -169,6 +170,7 @@ public:
 
     DEFINE_BIT_PROPERTY(bool, bForceFocusWhenAdded);
     DEFINE_BIT_PROPERTY(bool, bCanBeDropped);
+    DEFINE_BIT_PROPERTY(bool, bCanBeReplacedByPickup);
     DEFINE_BIT_PROPERTY(bool, bPersistInInventoryWhenFinalStackEmpty);
     DEFINE_BIT_PROPERTY(bool, bAllowedToBeLockedInInventory);
     

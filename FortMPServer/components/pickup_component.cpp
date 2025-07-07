@@ -497,8 +497,11 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
                             SwapItemDefinition = static_cast<UFortWorldItem*>(Gadget)->ItemEntry().ItemDefinition();
                         }
                     }
-            
+
+                    STATIC_HASPROPERTY(SwapItemDefinition, bCanBeReplacedByPickup);
                     if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
+                        bExists_bCanBeReplacedByPickup &&
+                        static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeReplacedByPickup() &&
                         inventory_component::has_item_type(PlayerController, SwapItemDefinition))
                     {
                         // Swap item
