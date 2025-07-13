@@ -825,7 +825,14 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.Farthest.North", "athena_battlepass_visit_far_north"},
                 {"Athena.Quests.Location.Farthest.South", "athena_battlepass_visit_far_south"},
                 {"Athena.Quests.Location.Farthest.East", "athena_battlepass_visit_far_east"},
-                {"Athena.Quests.Location.Farthest.West", "athena_battlepass_visit_far_west"}
+                {"Athena.Quests.Location.Farthest.West", "athena_battlepass_visit_far_west"},
+                {"Athena.Location.Meta.SevenSeals.01", "battlepass_visit_athena_location_seal_01"},
+                {"Athena.Location.Meta.SevenSeals.02", "battlepass_visit_athena_location_seal_02"},
+                {"Athena.Location.Meta.SevenSeals.03", "battlepass_visit_athena_location_seal_03"},
+                {"Athena.Location.Meta.SevenSeals.04", "battlepass_visit_athena_location_seal_04"},
+                {"Athena.Location.Meta.SevenSeals.05", "battlepass_visit_athena_location_seal_05"},
+                {"Athena.Location.Meta.SevenSeals.06", "battlepass_visit_athena_location_seal_06"},
+                {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"}
             };
 
             if (ObjectivesMap.contains(sObjective))
@@ -1007,7 +1014,7 @@ void challenges_component::HandleItemAdded(AFortPlayerController* InteractingPla
             }
 
             // Send event
-            SendCustomEvent(InteractingPlayerController, "interact:shadow-stone");
+            SendCustomEvent(InteractingPlayerController, "interaction:shadow-stone");
         }
     }
 }
