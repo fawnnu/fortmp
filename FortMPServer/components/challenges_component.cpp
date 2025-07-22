@@ -131,6 +131,16 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
             SendCustomEventWithObjective(PlayerController, "interaction:stone-head", TEXT("battlepass_visit_athena_location_stonehead_07"));
         }
     }
+    else if (GetCL() == 4526925)
+    {
+        {
+            SendCustomEventWithPayload(PlayerController, "interaction:tomato", nlohmann::json{
+                {"x", 0.1f},
+                {"y", 0.1f},
+                {"distance", 16.0f}
+                });
+        }
+    }
 }
 
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
@@ -693,6 +703,29 @@ void challenges_component::SendCustomEvent(AFortPlayerController* InteractingCon
             }
         }
     }     
+}
+
+void challenges_component::SendCustomEventWithPayload(AFortPlayerController* InteractingController, std::string event_type, nlohmann::json payload)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (InteractingController && InteractingController->Pawn())
+    {
+        std::string account_id = player_component::get_account_id(InteractingController);
+        
+        if (account_id.size() > 0)
+        {
+            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, payload);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }  
 }
 
 void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName)
