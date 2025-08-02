@@ -315,6 +315,9 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
         
         if (category_loot_tier_data->TierGroup() == L"Loot_AthenaVending")
         {
+            // Apply patches
+            apply_loot_pool_changes(category_loot_tier_data, element.Key());
+            
             if (category_loot_tier_data->Weight() > 0.f)
             {
                 Loot_AthenaVendings.push_back(element.Key());
@@ -448,6 +451,8 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
         
                     if (category_loot_package_data->LootPackageID() == CurrentLoot->LootPackage())
                     {
+                        apply_loot_pool_changes(category_loot_package_data, WorldList.Key(), ELootDataTableEditType::LootPackages_WorldList);
+                        
                         if (category_loot_package_data->Weight() > 0.f)
                         {
                             possible_world_lists.push_back(category_loot_package_data);
@@ -503,6 +508,8 @@ void looting_component::set_vending_machine_loot(ABuildingItemCollectorActor* ve
 
                             if (world_list_package->LootPackageID() == FName(category_loot_package_data->LootPackageCall().c_str()))
                             {
+                                apply_loot_pool_changes(world_list_package, WorldList.Key(), ELootDataTableEditType::LootPackages_WorldList);
+                                
                                 if (world_list_package->Weight() > 0.f)
                                 {
                                     possible_world_lists.push_back(world_list_package);
