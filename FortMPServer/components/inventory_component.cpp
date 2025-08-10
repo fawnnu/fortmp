@@ -1154,6 +1154,10 @@ void inventory_component_hooks::ServerRemoveInventoryItem_Hook(AFortPlayerContro
             {
                 challenges_component::SendPlaceEvent(PlayerController, "turret");
             }
+            else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Traps/TID_Context_Freeze_Athena.TID_Context_Freeze_Athena"))
+            {
+                challenges_component::SendPlaceEvent(PlayerController, "chiller");
+            }
         }
         
         inventory_component::remove_item(PlayerController, ItemGuid, Count, false);
