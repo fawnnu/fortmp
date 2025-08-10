@@ -854,7 +854,7 @@ void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struc
 {
     FortDamageFormula_Execute(Self, ExecutionParams, OutExecutionOutput);
 
-    if (GetFortniteVersionEasy() < 6)
+    //if (GetFortniteVersionEasy() < 6)
     {
         TArrayManager OutputModifiers = OutExecutionOutput->OutputModifiers();
     
