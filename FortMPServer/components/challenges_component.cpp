@@ -13,6 +13,7 @@ challenges_component::challenges_component()
 {
     QuestToInteractionMatch = {
         {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_PianoChain_Play_Piano1.Quest_BR_PianoChain_Play_Piano1"), "interaction:piano"},
+        {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_PianoChain_Play_Piano2.Quest_BR_PianoChain_Play_Piano2"), "interaction:piano"},
         {FindObject<UFortQuestItemDefinition>(L"/Game/Athena/Items/Quests/BattlePass/Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion.Quest_BR_Dance_ScavengerHunt_DanceOff_Abandoned_Mansion"), "interaction:dance-off-competition"}
     };
 

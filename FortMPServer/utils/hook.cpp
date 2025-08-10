@@ -65,8 +65,13 @@ hook_manager::hook_manager()
 
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::AActor_ProcessEvent, FindObject(L"/Script/Engine.Default__Actor")->VTable[ProcessEvent_Index], hook_manager_hooks::AActor_ProcessEvent_Hook);
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessInternal, memory_manager::find_pattern("48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 30 48 8B 6A 10 49 8B F8 4C 8B 42 28 48 8B DA 48 8B 01"), hook_manager_hooks::ProcessInternal_Hook);
+    if (hook_manager_hooks::ProcessInternal == nullptr)
+    {
+        REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessInternal, memory_manager::find_pattern("4C 8B DC 53 57 41 56 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 48 8B 41 10 49 8B F8 48 8B DA 4C 8B F1 83 B8 ? ? ? ? ? 0F 8C ? ? ? ? 4C 8B 42 28 45 33 C9 48 8B 01 49 89 6B 20 48 8B 6A 10 49 89 73 E0 48 8B D5 4D 89 7B D8 FF 90 ? ? ? ? 33 F6 44 8B F8 A8 01 74 1D 4D 8B 16 48 8B D5 4C 8B 4B 78 49 8B CE 4C 8B 43 28 48 89 74 24 ? 41 FF 92 ? ? ? ? 41 F6 C7 02 4C 8B BC 24 ? ? ? ? 74 6C 48 8B 43 20 48 8D 35 ? ? ? ? 80 38 04 74 2A"), hook_manager_hooks::ProcessInternal_Hook);
+    }
+    
     REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessLocalScriptFunction, memory_manager::find_pattern("48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 70 48 8B 05 ? ? ? ? 48 33 C4 48 89 44 24 ? 48 8B 42 20 48 8D 35 ? ? ? ? 49 8B F8 48 8B DA 80 38 04 74 34"), hook_manager_hooks::ProcessLocalScriptFunction_Hook);
-
+    
     //REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessEvent, memory_manager::find_pattern("40 55 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 89 9D ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 4D 8B F8 45 33 F6 44 8B 41 0C 48 8B F2 44 3B 05 ? ? ? ? 4C 8B E1 7D 38 B8 ? ? ? ? 41 F7 E8 8B CA C1 F9 0F 8B C1"), hook_manager_hooks::ProcessEvent_Hook);
     
     //REGISTER_FUNCTION_DETOUR(hook_manager_hooks::ProcessScriptFunction, memory_manager::find_pattern("40 55 53 56 57 41 54 41 55 41 56 41 57 48 81 EC ? ? ? ? 48 8D 6C 24 ? 48 8B 05 ? ? ? ? 48 33 C5 48 89 85 ? ? ? ? 48 8B 85 ? ? ? ? 4C 8B E1"), hook_manager_hooks::ProcessScriptFunction_Hook);

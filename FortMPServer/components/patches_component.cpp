@@ -854,34 +854,37 @@ void patches_component_hook::FortDamageFormula_Execute_Hook(UObject* Self, struc
 {
     FortDamageFormula_Execute(Self, ExecutionParams, OutExecutionOutput);
 
-    TArrayManager OutputModifiers = OutExecutionOutput->OutputModifiers();
-    
-    if (ExecutionParams)
+    if (GetFortniteVersionEasy() < 6)
     {
-        if (ExecutionParams->OwningSpec)
+        TArrayManager OutputModifiers = OutExecutionOutput->OutputModifiers();
+    
+        if (ExecutionParams)
         {
-            if (ExecutionParams->OwningSpec->EffectContext().Data.IsValid())
+            if (ExecutionParams->OwningSpec)
             {
-                if (UObject* AbilityInstanceNotReplicated = ExecutionParams->OwningSpec->EffectContext().Data.Get()->AbilityInstanceNotReplicated().Get())
+                if (ExecutionParams->OwningSpec->EffectContext().Data.IsValid())
                 {
-                    // Only override trap's damage
-                    if (AbilityInstanceNotReplicated->IsA(UGA_Trap_FloorSpikes_C::StaticClass()) ||
-                        AbilityInstanceNotReplicated->IsA(UGA_Trap_CeilingSpikes_C::StaticClass()) ||
-                        AbilityInstanceNotReplicated->IsA(UGA_Trap_WallSpikesMetal_C::StaticClass()))
+                    if (UObject* AbilityInstanceNotReplicated = ExecutionParams->OwningSpec->EffectContext().Data.Get()->AbilityInstanceNotReplicated().Get())
                     {
-                        // Build our own output;
-                        FGameplayModifierEvaluatedData* EvaluatedModifier = new FGameplayModifierEvaluatedData;
+                        // Only override trap's damage
+                        if (AbilityInstanceNotReplicated->IsA(UGA_Trap_FloorSpikes_C::StaticClass()) ||
+                            AbilityInstanceNotReplicated->IsA(UGA_Trap_CeilingSpikes_C::StaticClass()) ||
+                            AbilityInstanceNotReplicated->IsA(UGA_Trap_WallSpikesMetal_C::StaticClass()))
+                        {
+                            // Build our own output;
+                            FGameplayModifierEvaluatedData* EvaluatedModifier = new FGameplayModifierEvaluatedData;
 
-                        EvaluatedModifier->Attribute().AttributeName() = std::wstring(TEXT("Damage"));
-                        EvaluatedModifier->Attribute().AttributeOwner() = FindObject(TEXT("/Script/FortniteGame.FortHealthSet"));
-                        EvaluatedModifier->Attribute().Attribute() = static_cast<UProperty*>(FindPropertyByName(EvaluatedModifier->Attribute().AttributeOwner(), TEXT("Damage")));
-                        EvaluatedModifier->Magnitude() = 150.0;
-                        EvaluatedModifier->ModifierOp() = 0;
-                        EvaluatedModifier->IsValid() = true;
-                        EvaluatedModifier->Handle().Handle = -1;
-                        EvaluatedModifier->Handle().bPassedFiltersAndWasExecuted = false;
+                            EvaluatedModifier->Attribute().AttributeName() = std::wstring(TEXT("Damage"));
+                            EvaluatedModifier->Attribute().AttributeOwner() = FindObject(TEXT("/Script/FortniteGame.FortHealthSet"));
+                            EvaluatedModifier->Attribute().Attribute() = static_cast<UProperty*>(FindPropertyByName(EvaluatedModifier->Attribute().AttributeOwner(), TEXT("Damage")));
+                            EvaluatedModifier->Magnitude() = 150.0;
+                            EvaluatedModifier->ModifierOp() = 0;
+                            EvaluatedModifier->IsValid() = true;
+                            EvaluatedModifier->Handle().Handle = -1;
+                            EvaluatedModifier->Handle().bPassedFiltersAndWasExecuted = false;
 
-                        OutputModifiers.Add(EvaluatedModifier);
+                            OutputModifiers.Add(EvaluatedModifier);
+                        }
                     }
                 }
             }
