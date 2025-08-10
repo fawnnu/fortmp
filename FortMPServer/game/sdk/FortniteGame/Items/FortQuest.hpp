@@ -112,6 +112,15 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/RubberDuckies/Prop_QuestInteractable_RubberDuckies_Parent.Prop_QuestInteractable_RubberDuckies_Parent_C");
 };
 
+class AProp_QuestInteractable_SheetMusic_Parent_C : public ABuildingSMActor
+{
+public:
+    DEFINE_PROPERTY(UFortQuestItemDefinition*, QuestItem);
+    DEFINE_PROPERTY(FName, QuestBackendObjectiveName);
+
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/BigPiano/PianoHints/Prop_QuestInteractable_SheetMusic_Parent.Prop_QuestInteractable_SheetMusic_Parent_C");
+};
+
 class AProp_QuestActor_FloatingLightningBolt_Parent_C : public ABuildingSMActor
 {
 public:

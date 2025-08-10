@@ -23,6 +23,7 @@ public:
     static void handle_apple_interaction(AFortPlayerController* player_controller, ACBGA_HealthSmall_C* apple);
     static void handle_mushroom_interaction(AFortPlayerController* player_controller, ACBGA_ShieldsSmall_C* mushroom);
     static void handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck);
+    static void handle_pianohint_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_SheetMusic_Parent_C* pianohint);
     static void handle_lightningbolt_interaction(AFortPlayerController* player_controller, AProp_QuestActor_FloatingLightningBolt_Parent_C* lightningbolt);
     static void handle_jigsaw_puzzle_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Jigsaw_Parent* jigsawpuzzle);
     static void handle_shadowstone_interaction(AFortPlayerController* player_controller, ACBGA_SpookyMist_C* spookymist);

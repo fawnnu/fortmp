@@ -61,7 +61,7 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     if (log_component::enable_debug_logs)
     {
         // Log receiving actor
-        spdlog::info(L"handle_interaction called on receiving_actor: {}", UKismetSystemLibrary::GetPathName(receiving_actor).c_str());
+        spdlog::info(L"handle_interaction called on receiving_actor: {}", receiving_actor->GetFullName().c_str());
     }
 
     if (receiving_actor->IsA(ABuildingContainer::StaticClass()))
@@ -163,10 +163,10 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with battle stars
         handle_hoprock_interaction(player_controller, reinterpret_cast<ACBGA_LowGravity_UsingJump_C*>(receiving_actor));
     }
-    else if (receiving_actor->IsA(AProp_QuestInteractable_RubberDuckies_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    else if (receiving_actor->IsA(AProp_QuestInteractable_SheetMusic_Parent_C::StaticClass(log_component::enable_debug_logs)))
     {
-        // Handle any interactions with battle stars
-        handle_rubberduck_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_RubberDuckies_Parent_C*>(receiving_actor));
+        // Handle interaction
+        handle_pianohint_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_SheetMusic_Parent_C*>(receiving_actor));
     }
 }
 
@@ -507,6 +507,20 @@ void interact_component::handle_rubberduck_interaction(AFortPlayerController* pl
     {
         // Send interaction event
         challenges_component::SendCustomEventWithObjective(player_controller, "interaction:rubber-duck", rubberduck->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_pianohint_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_SheetMusic_Parent_C* pianohint)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_pianohint_interaction is sending piano interaction.");
+    }
+    
+    if (pianohint->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:piano", pianohint->QuestBackendObjectiveName());
     }
 }
 
