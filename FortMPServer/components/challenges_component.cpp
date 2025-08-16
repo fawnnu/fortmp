@@ -24,6 +24,12 @@ challenges_component::challenges_component()
         { {FGameplayTag(L"Athena.Quests.Building.Wood.Palettes")}, "interaction:pallet" },
         { {FGameplayTag(L"Athena.Quests.Building.Cactus")}, "interaction:cactus" }
     };
+
+    AssetNameFilterForInteraction = {
+        { {L"Tree"}, "interaction:tree" },
+        { {L"Car"}, "interaction:car" },
+        { {L"Rocks"}, "interaction:rock" }
+    };
 }
 
 void challenges_component::Initialize()

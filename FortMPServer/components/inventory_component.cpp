@@ -1208,6 +1208,14 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     {
                         challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(PlayerController), "medkit", PlayerController->Pawn()->GetHealth() + 100 > 100 ? 100 - PlayerController->Pawn()->GetHealth() : 100);
                     }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/Bandage/Athena_Bandage.Athena_Bandage"))
+                    {
+                        challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(PlayerController), "bandage", PlayerController->Pawn()->GetHealth() + 15 > 75 ? 75 - PlayerController->Pawn()->GetHealth() : 15);
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/PurpleStuff/Athena_PurpleStuff.Athena_PurpleStuff"))
+                    {
+                        challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(PlayerController), "slurp_juice", 75);
+                    }
                     else // Check if it's a building resource
                     {
                         inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);

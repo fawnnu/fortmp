@@ -55,6 +55,7 @@ public:
 
     static inline std::map<UFortQuestItemDefinition*, std::string> QuestToInteractionMatch;
     static inline std::map<std::vector<FGameplayTag>, std::string> DestroyTagsToInteractionMatch;
+    static inline std::map<std::vector<std::wstring>, std::string> AssetNameFilterForInteraction;
 };
 
 struct progression_meta

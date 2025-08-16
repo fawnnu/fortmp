@@ -112,6 +112,35 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                 if (bIsDestroyed)
                 {
                     // Check if we're tracking any "damage prop" challenges
+                    for (auto& [key, val] : challenges_component::AssetNameFilterForInteraction)
+                    {
+                        for (std::wstring PossibleNameMatch : key)
+                        {
+                            if (wcsstr(building_actor->Class->GetName().c_str(), PossibleNameMatch.c_str()))
+                            {
+                                if (instigated_by->Pawn())
+                                {
+                                    std::string account_id = player_component::get_account_id(instigated_by);
+
+                                    if (account_id.size() > 0)
+                                    {
+                                        nlohmann::json Payload{
+                                                    {"x", instigated_by->Pawn()->K2_GetActorLocation().X},
+                                                    {"y", instigated_by->Pawn()->K2_GetActorLocation().Y}
+                                        };
+
+                                        if (log_component::enable_debug_logs)
+                                        {
+                                            spdlog::info("harvesting_component::handle_building_damaged sending {}.", val.c_str());
+                                        }
+
+                                        gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, val, Payload);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     for (auto& [key, val] : challenges_component::DestroyTagsToInteractionMatch)
                     {
                         for (FGameplayTag TargetTag : key)
