@@ -785,7 +785,7 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("no_shooting_gallery", nullptr);
     }
-        
+
     // Set default floating island location on season 6
     if(GetFortniteVersionEasy() >= 6 && GetFortniteVersionEasy() < 7)
     {
@@ -917,6 +917,15 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("halloween_bus", nullptr);
         era_mutators_component::Execute("no_cube", nullptr);
+
+        // Spawn battle stars/banners
+
+        { // WEEK 7 CUMULATIVE
+            FVector SpawnLocation = FVector(57257, -48190, -721);
+            FRotator SpawnRotation = FRotator();
+            FActorSpawnParameters SpawnParameters{};
+            UObject* SpawnedActor = SpawnActor(*GWorld, FindObject(L"/Game/Athena/Items/QuestInteractables/Cumulative/Prop_QuestInteractable_Cumulative_07.Prop_QuestInteractable_Cumulative_07_C"), &SpawnLocation, &SpawnRotation, SpawnParameters);
+        }
     }
 
     // Hotfix for unwanted death barrier in tilted towers shop basement on 8.51.

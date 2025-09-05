@@ -385,6 +385,12 @@ public:
     DEFINE_CLASS(L"/Game/Athena/DrivableVehicles/ShoppingCartVehicleSK.ShoppingCartVehicleSK_C")
 };
 
+class AGolfCartVehicleSK : public AFortAthenaVehicle
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/DrivableVehicles/Golf_Cart/Golf_Cart_Base/Blueprints/GolfCartVehicleSK.GolfCartVehicleSK_C")
+};
+
 class AFortOctopusVehicle : public AFortAthenaVehicle
 {
 public:

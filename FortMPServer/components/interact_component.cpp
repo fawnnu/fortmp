@@ -80,10 +80,13 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
     }
     else if (receiving_actor->IsA(AFortAthenaVehicle::StaticClass(log_component::enable_debug_logs)))
     {
-        // Handle any interactions with vending machines
         handle_vehicle_interaction(player_controller, reinterpret_cast<AFortAthenaVehicle*>(receiving_actor));
 
-        // Shopping carts
+        // Challenges related to vehicles
+        if (receiving_actor->IsA(AGolfCartVehicleSK::StaticClass(log_component::enable_debug_logs)))
+        {
+            handle_golfcart_interaction(player_controller, static_cast<AGolfCartVehicleSK*>(receiving_actor));
+        }
         if (receiving_actor->IsA(AShoppingCartVehicleSK::StaticClass(log_component::enable_debug_logs)))
         {
             handle_shoppingcart_interaction(player_controller, static_cast<AShoppingCartVehicleSK*>(receiving_actor));
@@ -370,6 +373,16 @@ void interact_component::handle_shoppingcart_interaction(AFortPlayerController* 
     }
     
     challenges_component::SendCustomEvent(player_controller, "interaction:cart");
+}
+
+void interact_component::handle_golfcart_interaction(AFortPlayerController* player_controller, AGolfCartVehicleSK* vehicle)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_shoppingcart_interaction is sending shopping cart interaction.");
+    }
+    
+    challenges_component::SendCustomEvent(player_controller, "interaction:golfcart");
 }
 
 void interact_component::handle_plane_interaction(AFortPlayerController* player_controller,

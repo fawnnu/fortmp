@@ -232,7 +232,11 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
 
                 if (DeathCause > 0)
                 {
-                    if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
+                    if (DeathCause == death_cause_enum->GetEnumIndex(L"Melee"))
+                    {
+                        weapon = "pickaxe"
+                    }
+                    else if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
                     {
                         weapon = "pistol";
 
@@ -754,6 +758,11 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
                     {"objective", sObjective}
             };
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"SendCustomEventWithObjective is sending ObjBackendName [{}].", ObjBackendName.ToString());
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
         }
