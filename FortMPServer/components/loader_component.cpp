@@ -940,6 +940,13 @@ void loader_component::handle_cl_specific_additions()
             FActorSpawnParameters SpawnParameters{};
             UObject* SpawnedActor = SpawnActor(*GWorld, FindObject(L"/Game/Athena/Items/QuestInteractables/Cumulative/Prop_QuestInteractable_Cumulative_09.Prop_QuestInteractable_Cumulative_09_C"), &SpawnLocation, &SpawnRotation, SpawnParameters);
         }
+        
+        { // WEEK 10 CUMULATIVE
+            FVector SpawnLocation = FVector(-41741, 24127, 975);
+            FRotator SpawnRotation = FRotator();
+            FActorSpawnParameters SpawnParameters{};
+            UObject* SpawnedActor = SpawnActor(*GWorld, FindObject(L"/Game/Athena/Items/QuestInteractables/Cumulative/Prop_QuestInteractable_Cumulative_10_Banner.Prop_QuestInteractable_Cumulative_10_Banner_C"), &SpawnLocation, &SpawnRotation, SpawnParameters);
+        }
     }
 
     // Hotfix for unwanted death barrier in tilted towers shop basement on 8.51.
