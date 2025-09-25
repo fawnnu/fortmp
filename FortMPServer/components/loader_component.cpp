@@ -38,6 +38,11 @@ void loader_component::pre_init()
 
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 ?? 57 48 83 EC ?? 49 8B F8 48 8B D9 E8 ?? ?? ?? ?? F6 83 ?? ?? 00 00"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
 
+    if (!loader_component_hooks::BuildingFoundation_PostUpdate)
+    {
+        REGISTER_FUNCTION_DETOUR(loader_component_hooks::BuildingFoundation_PostUpdate, memory_manager::find_pattern("48 89 5C 24 10 57 48 83 EC 50 49 8B F8 48 8B D9 E8 AB 8E 47 FF"), loader_component_hooks::BuildingFoundation_PostUpdate_Hook);
+    }
+    
     REGISTER_FUNCTION_DETOUR(loader_component_hooks::OnPlaylistDataLoaded, memory_manager::find_function_by_string(L"PLAYLIST: Playlist Object finished loading its assets and GameMode can now"), loader_component_hooks::OnPlaylistDataLoaded_Hook);
 
     DetourTransactionCommit();
@@ -541,6 +546,8 @@ void loader_component::handle_unloaded_foundations()
                             BuildingFoundation->EnableReadyForPostUpdate();
                             
                             spdlog::warn(L"handle_unloaded_foundations: Enabling {} (As the game did not attempt loading it)", UKismetSystemLibrary::GetPathName(BuildingFoundation).c_str());
+                            
+                            spdlog::info(loader_component_hooks::BuildingFoundation_PostUpdate == nullptr);
                             
                             loader_component_hooks::BuildingFoundation_PostUpdate(BuildingFoundation, 1, nullptr);
                         }
