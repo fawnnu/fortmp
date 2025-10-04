@@ -984,6 +984,86 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
     return -1;
 }
 
+int gameserver_client::SendEventToPlayerChannel(AFortPlayerController* PlayerObject, std::string channel, std::string event_type, nlohmann::json parameters, bool bOverrideLock, int OverrideMessageRef)
+{
+#ifdef _RELEASE
+    websocketpp::lib::error_code ec;
+    auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
+    
+    // Copy the message before bumping it
+    const int CurrentMessageReference = OverrideMessageRef >= 0 ? OverrideMessageRef : MessageRef++;
+    
+    // Archive every player:v2 message that was requested to be sent to re-send it (except for phx_join)
+    if (event_type != "phx_join")
+    {
+        if (static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bTrafficLocked == false || bOverrideLock)
+        {
+            if (std::find(static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.begin(), static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end(), CurrentMessageReference) == static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end())
+            {
+                static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.push_back(FEraPlayerTrafficHistoryElement(channel, event_type, parameters, CurrentMessageReference));
+            }
+        }
+        else
+        {
+            static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageQueue.push_back({channel, event_type, parameters, -1});
+            return -1;
+        }
+    }
+    
+    if (ec || Connection->get_state() != websocketpp::session::state::open)
+    {
+        spdlog::warn("gameserver_client::SendEventToChannel/2(): Invalid connection. Using message history.");
+        return -1;
+    }   
+    
+    if (Connection)
+    {
+        if (Connection->get_state() == websocketpp::session::state::open)
+        {
+            nlohmann::json payload = R"([])"_json;
+            
+            payload.push_back(0); // Channel Ref
+            payload.push_back(CurrentMessageReference); // Message ref
+            payload.push_back(channel); // Channel
+            payload.push_back(event_type); // Event Type
+            payload.push_back(parameters); // param
+
+            // Copy last message
+            LastMessagePayload = payload;
+            
+            // Send
+            websocketpp::lib::error_code ec2;
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+            
+            {
+                if (ec2)
+                {
+                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                }
+                else
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    }
+
+                    // Successful summary: block the history output in case of a disconnection
+                    if (event_type == "summary")
+                    {
+                        // Get player
+                        static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                    }
+                }
+            }
+
+            return CurrentMessageReference;
+        }
+    }
+
+#endif
+    return -1;
+}
+
 void scheduler_client::Initialize()
 {
     auto config = config_manager::get_server_config();

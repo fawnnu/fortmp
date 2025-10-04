@@ -109,7 +109,8 @@ UFortWorldItem* inventory_component::add_item(AFortPlayerController* player_cont
         return nullptr;
     }
 
-    if (GetEngineVersionEasy() < 421)
+    static float EngineVersionEasy = GetEngineVersionEasy();
+    if (EngineVersionEasy < 421)
     {
         if (item_definition->IsA(UFortGadgetItemDefinition::StaticClass()))
         {
@@ -502,8 +503,7 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
 
 UFortItem* inventory_component::get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid)
 {
-    if (!player_controller || memory_manager::is_bad_read_pointer(player_controller) ||
-        !player_controller->WorldInventory() || memory_manager::is_bad_read_pointer(player_controller->WorldInventory()))
+    if (!player_controller || !player_controller->WorldInventory())
     {
         spdlog::error(L"inventory_component::get_inventory_item_by_guid: NULL player_controller! Aborting.");
         

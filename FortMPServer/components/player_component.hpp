@@ -177,6 +177,7 @@ struct FEraPlayerInfo
     std::wstring PlayerPlatform;
     EEraPlatform PlayerPlatform_Enum;
     std::wstring AccountId;
+    std::string sAccountId;
     FDamageDealtMapValue DamageDealtTracker;
     FPlayerStats PlayerStatsTracker;
     int PositionNotChangedCount;
@@ -278,6 +279,7 @@ public:
     static void play_emote_item(AFortPlayerController* player_controller, UAthenaDanceItemDefinition* dance_asset, bool b_requires_validation = true);
     static AFortPlayerPawn* create_player(AFortPlayerController* player_controller, FTransform spawn_transform);
     static std::string get_account_id(AFortPlayerController* target_player_controller);
+    static std::string get_account_id_unsafe(AFortPlayerController* target_player_controller);
     static std::string get_account_id_from_unique_id(FUniqueNetIdRepl& UniqueId);
     static bool is_source_tag_enabled(AFortPlayerController* controller, std::wstring Tag);
     static AFortPlayerController* get_player_by_account_id(std::wstring in_account_id);

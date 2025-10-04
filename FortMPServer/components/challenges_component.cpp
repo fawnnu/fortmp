@@ -648,7 +648,7 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
     
     if (InteractingController && InteractingController->Pawn())
     {
-        std::string account_id = player_component::get_account_id(InteractingController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().sAccountId;
         
         // Convert FName to std::string
         std::string sObjective = BackendObjectiveName.sToString();
@@ -666,7 +666,7 @@ void challenges_component::SendPOIInteraction(AFortPlayerController* Interacting
                 {"poi", sObjective}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:poi", parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, "interaction:poi", parameters);
         }
         else
         {
@@ -695,7 +695,7 @@ void challenges_component::SendCustomEvent(AFortPlayerController* InteractingCon
     
     if (InteractingController)
     {
-        std::string account_id = player_component::get_account_id(InteractingController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().sAccountId;
          
         if (account_id.size() > 0)
         {
@@ -704,7 +704,7 @@ void challenges_component::SendCustomEvent(AFortPlayerController* InteractingCon
                      {"y", y_location}
             };
              
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, parameters);
         }
         else
         {
@@ -723,11 +723,11 @@ void challenges_component::SendCustomEventWithPayload(AFortPlayerController* Int
     
     if (InteractingController && InteractingController->Pawn())
     {
-        std::string account_id = player_component::get_account_id(InteractingController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().sAccountId;
         
         if (account_id.size() > 0)
         {
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, payload);
+            gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, payload);
         }
         else
         {
@@ -746,7 +746,7 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
     
     if (InteractingController && InteractingController->Pawn())
     {
-        std::string account_id = player_component::get_account_id(InteractingController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().sAccountId;
         
         // Convert FName to std::string
         std::string sObjective = ObjBackendName.sToString();
@@ -764,7 +764,7 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
                 spdlog::error(L"SendCustomEventWithObjective is sending ObjBackendName [{}].", ObjBackendName.ToString());
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, parameters);
         }
         else
         {
@@ -783,7 +783,7 @@ void challenges_component::SendCustomEventWithCount(AFortPlayerController* Inter
     
     if (InteractingController && InteractingController->Pawn())
     {
-        std::string account_id = player_component::get_account_id(InteractingController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().sAccountId;
         
         if (account_id.size() > 0)
         {
@@ -793,7 +793,7 @@ void challenges_component::SendCustomEventWithCount(AFortPlayerController* Inter
                         {"count", Count}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, event_type, parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, parameters);
         }
         else
         {
@@ -811,39 +811,36 @@ void challenges_component::SendPickupInteraction(AFortPlayerController* Interact
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
     
-    if (InteractingPlayerController && InteractingPlayerController->Pawn() && Pickup)
+    std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingPlayerController)->EraPlayerInfo().sAccountId;
+
+    // Convert tier to rarity enum
+    std::string rarity;
+
+    if (Pickup && Pickup->PrimaryPickupItemEntry().ItemDefinition())
     {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        rarity = Pickup->PrimaryPickupItemEntry().ItemDefinition()->GetRarity();
+    }
 
-        // Convert tier to rarity enum
-        std::string rarity;
-
-        if (Pickup && Pickup->PrimaryPickupItemEntry().ItemDefinition())
-        {
-            rarity = Pickup->PrimaryPickupItemEntry().ItemDefinition()->GetRarity();
-        }
-
-        if (account_id.size() > 0 && rarity.size() > 0)
-        {
-            nlohmann::json parameters{
-                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                {"rarity", rarity}
-            };
+    if (account_id.size() > 0 && rarity.size() > 0)
+    {
+        nlohmann::json parameters{
+            {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+            {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+            {"rarity", rarity}
+        };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:pickup", parameters);
-        }
-        else
+        gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:pickup", parameters);
+    }
+    else
+    {
+        if (account_id.size() <= 0)
         {
-            if (account_id.size() <= 0)
+            if (log_component::enable_debug_logs)
             {
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::error(L"Invalid account_id while sending event.");
-                }
+                spdlog::error(L"Invalid account_id while sending event.");
             }
         }
-    }  
+    }
 }
 
 void challenges_component::SendVisitInteraction(AFortPlayerController* InteractingPlayerController,
@@ -853,7 +850,7 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
     
     if (InteractingPlayerController && InteractingPlayerController->Pawn())
     {
-        std::string account_id = player_component::get_account_id(InteractingPlayerController);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingPlayerController)->EraPlayerInfo().sAccountId;
         
         // Convert FName to std::string
         std::string sObjective = POI.TagName.sToString();
@@ -892,7 +889,7 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                     {"objective", ObjectivesMap[sObjective]}
                 };
             
-                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:visit", parameters);
+                gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
             }
         }
         else

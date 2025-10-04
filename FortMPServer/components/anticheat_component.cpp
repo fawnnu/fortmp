@@ -117,11 +117,11 @@ float anticheat_component::GetBurstFiringRate(AFortWeapon* FortWeapon)
 
 bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena* Player, FVector BuildingLocation)
 {
-    if (!memory_manager::is_bad_read_pointer(Player, false) && Player)
+    if (!memory_manager::is_bad_read_pointer(Player) && Player)
     {
         if (Player->IsA(AFortPlayerControllerAthena::StaticClass()))
         {
-            if (!memory_manager::is_bad_read_pointer(Player->Pawn(), false) && Player->Pawn())
+            if (!memory_manager::is_bad_read_pointer(Player->Pawn()) && Player->Pawn())
             {
                 if (Player->Pawn()->IsA(AFortPlayerPawnAthena::StaticClass()))
                 {

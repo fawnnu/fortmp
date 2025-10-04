@@ -2096,6 +2096,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
 
             // Convert string
             TO_STRING(wAccountID, sAccountID);
+            static_cast<AFortPlayerControllerAthena*>(NewPlayer)->EraPlayerInfo().sAccountId = sAccountID;
 
             struct ProfileParsingParameters
             {
@@ -2587,6 +2588,7 @@ void player_component::play_emote_item(AFortPlayerController* player_controller,
             // set the ability in the newly created struct
             if (dance_asset->IsA(UAthenaSprayItemDefinition::StaticClass()))
             {
+                return;
                 if (era_mutators_component::IsActive("domino_event")) return;
                 
                 new_ability_spec.Ability = CreateDefaultObject<UObject>(UFortGameData::get_spray_gameplay_ability());
@@ -2674,6 +2676,18 @@ AFortPlayerPawn* player_component::create_player(AFortPlayerController* player_c
 std::string player_component::get_account_id(AFortPlayerController* target_player_controller)
 {
     if (!memory_manager::is_bad_read_pointer(target_player_controller) && target_player_controller && !static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().bIsDisconneting)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                
+        return converter.to_bytes(static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().AccountId);
+    }
+    
+    return "";
+}
+
+std::string player_component::get_account_id_unsafe(AFortPlayerController* target_player_controller)
+{
+    if (target_player_controller && !static_cast<AFortPlayerControllerAthena*>(target_player_controller)->EraPlayerInfo().bIsDisconneting)
     {
         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
                 
@@ -3470,6 +3484,7 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
 
 void player_component_hooks::ServerPlaySprayItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
 {
+    return;
     GET_PARAMETER(UAthenaSprayItemDefinition*, SprayAsset);
     
     player_component::play_emote_item(FortPlayerController, SprayAsset);
