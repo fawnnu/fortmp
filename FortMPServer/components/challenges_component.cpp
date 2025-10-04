@@ -527,7 +527,7 @@ void challenges_component::HandleSummaryReply(std::string Channel, nlohmann::jso
 {
     if (Channel.find("player:v2:") != std::string::npos)
     {
-        Channel = Channel.substr(Channel.find(":") + 1);
+        Channel = Channel.substr(Channel.find_last_of(":") + 1);
         TO_WSTRING(Channel, wChannel);
         
         if (AFortPlayerController* PlayerController = player_component::get_player_by_account_id(wChannel))

@@ -1022,6 +1022,7 @@ void loader_component::OnMapInfoLoaded()
     
     // event storm mutator
     era_mutators_component::Execute("event_begin", nullptr);
+    era_mutators_component::Execute("mooney_event_prep", nullptr);
     
     // Handle vehicle spawn rates
     TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
@@ -1087,6 +1088,8 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
             gameserver_client::Client->SendUpdate();
 
             player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
+
+            spdlog::info("loader_component::OnGamePhaseUpdated: {} starting_players", player_component::starting_players);
 
             if (player_component::starting_players <= 20)
             {

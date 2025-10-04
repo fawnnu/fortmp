@@ -65,12 +65,15 @@ public:
     int SendUpdate();
     int SendLeave();
     int SendBan(std::string uuid);
-    int SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters);
-    int SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters);
+    int SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters, bool bOvverideLock = false, int OverrideMessageRef = -1);
+    int SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters, bool bOvverideLock = false, int OverrideMessageRef = -1);
     int SendHeartbeat();
 
     // Client WS object
     websocketpp::client<websocketpp::config::asio_tls_client> Client_WS;
+
+    // Status
+    bool bPendingReconnection;
 
     // Connection handle
     websocketpp::connection_hdl Connection_Handle;

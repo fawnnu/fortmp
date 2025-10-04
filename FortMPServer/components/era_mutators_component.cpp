@@ -194,6 +194,8 @@ era_mutators_component::era_mutators_component()
 
         player_component::starting_players = gameserver_client::Client->GameServer_Status.number_of_players;
 
+        spdlog::info("era_mutator::era_festival_close: {} starting_players", player_component::starting_players);
+
         /*
          * Send a match_started event to director
          */
@@ -206,6 +208,44 @@ era_mutators_component::era_mutators_component()
                 }}
             }));
         }
+    });
+
+    new era_mutator("mooney_event_prep", [](LPVOID)
+    {
+        TArray<AActor*> mooney_loader = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_MooneyLoader_C::StaticClass());
+                                
+        for (auto actor : mooney_loader)
+        {
+            static_cast<ABP_MooneyLoader_C*>(actor)->LoadMooneyMap() = true;
+            static_cast<ABP_MooneyLoader_C*>(actor)->OnRep_LoadMooneyMap();
+        }
+
+        TArray<ABP_MooneyScripting_C*> mooney_scripter = UGameplayStatics::GetAllActorsOfClass<ABP_MooneyScripting_C>(*GWorld, ABP_MooneyScripting_C::StaticClass());
+
+        for (auto mooney_actor : mooney_scripter)
+        {
+            mooney_actor->LoadSequenceLevel();
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"era_mutator:mooney_event_prep: Ran LoadSequenceLevel. Event is ready.");
+            }
+        }
+    });
+
+    new era_mutator("mooney", [](LPVOID)
+    {
+        TArray<ABP_MooneyScripting_C*> mooney_scripter = UGameplayStatics::GetAllActorsOfClass<ABP_MooneyScripting_C>(*GWorld, ABP_MooneyScripting_C::StaticClass());
+
+        for (auto mooney_actor : mooney_scripter)
+        {
+            mooney_actor->OnReady_9968C1F648044523426FE198948B0CC9();
+            mooney_actor->BeginIceKingEvent();
+        }
+
+        spdlog::info(L"era_mutator:mooney: Playing event. [OnCustomEventEnd 90 SECONDS].");
+
+        // Restore match to normality (event_end mutator)
+        UKismetSystemLibrary::K2_SetTimer((*GWorld)->GameState(), L"OnCustomEventEnd", 90.0, false);
     });
     
     new era_mutator("event_begin", [](LPVOID)

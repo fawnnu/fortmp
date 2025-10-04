@@ -66,7 +66,7 @@ void HeartbeatThread()
         
         websocketpp::lib::error_code ec;
         auto Connection = gameserver_client::Client->Client_WS.get_con_from_hdl(gameserver_client::Client->Connection_Handle, ec);
-
+        
         if (Connection)
         {
             if (Connection->get_state() == websocketpp::session::state::open)
@@ -116,10 +116,15 @@ void gameserver_client::Initialize()
 {
 #ifdef _RELEASE
     {
+        // Init
+        bPendingReconnection = true;
+    }
+
+    {
         // Initialize our client object
         Aws::Client::ClientConfiguration ClientConfig;
-        ClientConfig.endpointOverride = "34e19315f44dab48bc0d496bea16a1d0.r2.cloudflarestorage.com"; 
-        Aws::Auth::AWSCredentials Credentials("a6dc961104a779468543630be4e6259b", "f989383ce3f277383fc3ff7fa6845438ff6c92faac0629dafa4aab1ea0dbee64");
+        ClientConfig.endpointOverride = "f08f53e6c3ea8e88d8d5bdf03db249cb.r2.cloudflarestorage.com"; 
+        Aws::Auth::AWSCredentials Credentials("beabfcce09c417490cada63adbf4ec82", "e90110cfc1afdebcdd6374b255e7dcb74957ab5542ccd7d92627a2d0b0b96370");
         S3Client = std::make_shared<Aws::S3::S3Client>(Credentials, Aws::MakeShared<Aws::S3::S3EndpointProvider>(Aws::S3::S3Client::ALLOCATION_TAG), ClientConfig);
     }
 
@@ -162,6 +167,8 @@ void gameserver_client::Initialize()
             Client_WS.run();
 
             Sleep(1000);
+            
+            bPendingReconnection = true;
         }
     }
     catch (std::exception& err)
@@ -322,6 +329,89 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
 {
 #ifdef _RELEASE
     Register();
+
+    // Resend EVERY archived event from alive players
+    if (bPendingReconnection)
+    {
+        // Mark every player as com-locked
+        if (*GWorld && (*GWorld)->NetDriver())
+        {
+            for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+            {
+                if (Connection)
+                {
+                    if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                    {
+                        static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().bTrafficLocked = true;
+                    }
+                }
+            }
+        }
+        
+        // Reset
+        bPendingReconnection = false;
+
+        CreateThread(nullptr, 0, [](LPVOID)->DWORD
+        {
+            if (*GWorld && (*GWorld)->NetDriver())
+            {
+                for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                {
+                    if (Connection)
+                    {
+                        if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                        {
+                            if (static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().bSentSummary == false)
+                            {
+                                // Re-join with the same parameters
+                                std::wstring wAccountId = static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().AccountId;
+                                TO_STRING(wAccountId, sAccountId);
+                                Client->SendEventToChannel("player:v2:" + sAccountId, "phx_join", static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().JoinParameters);
+
+                                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
+                                std::wstring wPlayer_name = Connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str();
+                                std::string player_name = name_converter.to_bytes(wPlayer_name);
+                                spdlog::info("Player '{}' REJOINED its channel. [SERVER: {}]", player_name.c_str(), Client->UUID.c_str());
+                                
+                                for (auto& val : static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().MessageHistory)
+                                {
+                                    if (val.message_type == Json)
+                                    {
+                                        Client->SendEventToChannel(val.channel, val.event_type, val.json_parameters, true, val.reference);                       
+                                    }
+                                    else if (val.message_type == Std)
+                                    {
+                                        Client->SendEventToChannel(val.channel, val.event_type, val.std_parameters, true, val.reference);                       
+                                    }
+                                }
+
+                                static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().bTrafficLocked = false;
+
+                                // Empty player's message queue
+                                while (!static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().MessageQueue.empty())
+                                {
+                                    FEraPlayerTrafficHistoryElement Message = static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().MessageQueue.front();
+                                    static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().MessageQueue.pop_front();
+
+                                    // Send message
+                                    if (Message.message_type == Json)
+                                    {
+                                        Client->SendEventToChannel(Message.channel, Message.event_type, Message.json_parameters, false, Message.reference);                       
+                                    }
+                                    else if (Message.message_type == Std)
+                                    {
+                                        Client->SendEventToChannel(Message.channel, Message.event_type, Message.std_parameters, false, Message.reference);                       
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return 0;
+        }, nullptr, 0, nullptr);
+    }
 #endif
 }
 
@@ -700,19 +790,44 @@ int gameserver_client::SendHeartbeat()
 #endif
 }
 
-int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters)
+int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, std::map<std::string, std::string> parameters, bool bOverrideLock, int OverrideMessageRef)
 {
 #ifdef _RELEASE
     try
     {
         websocketpp::lib::error_code ec;
         auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
-
+        
+        // Copy the message before bumping it
+        const int CurrentMessageReference = OverrideMessageRef >= 0 ? OverrideMessageRef : MessageRef++;
+    
+        // Archive every player:v2 message that was requested to be sent to re-send it (except for phx_join)
+        if (channel.find("player:v2:") != std::string::npos && event_type != "phx_join")
+        {
+            // Get player
+            std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+            TO_WSTRING(wAccountID, sAccountID);
+            if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+            {
+                if (static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bTrafficLocked == false || bOverrideLock)
+                {
+                    if (std::find(static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.begin(), static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end(), CurrentMessageReference) == static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end())
+                    {
+                        static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.push_back(FEraPlayerTrafficHistoryElement(channel, event_type, parameters, CurrentMessageReference));
+                    }
+                }
+                else
+                {
+                    static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageQueue.push_back({channel, event_type, parameters, -1});
+                    return -1;
+                }
+            }
+        }
+        
         if (ec || Connection->get_state() != websocketpp::session::state::open)
         {
-            spdlog::warn("gameserver_client::SendEventToChannel(): Invalid connection. Re-attempting message send in 100ms");
-            Sleep(100);
-            return SendEventToChannel(channel, event_type, parameters);
+            spdlog::warn("gameserver_client::SendEventToChannel/1(): Invalid connection. Re-attempting message send in 100ms");
+            return -1;
         }
 
         if (Connection)
@@ -721,11 +836,8 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             {
                 nlohmann::json payload = R"([])"_json;
 
-                // Copy the message before bumping it
-                const int CurrentMessageReference = MessageRef;
-
                 payload.push_back(0); // Channel Ref
-                payload.push_back(MessageRef++); // Message ref
+                payload.push_back(CurrentMessageReference); // Message ref
                 payload.push_back(channel); // Channel
                 payload.push_back(event_type); // Event Type
                 payload.push_back(parameters); // param
@@ -737,7 +849,6 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
                 websocketpp::lib::error_code ec2;
                 Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
 
-                if (log_component::enable_debug_logs)
                 {
                     if (ec2)
                     {
@@ -745,7 +856,25 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
                     }
                     else
                     {
-                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                        }
+
+                        // Successful summary: block the history output in case of a disconnection
+                        if (event_type == "summary")
+                        {
+                            if (channel.find("player:v2:") != std::string::npos)
+                            {
+                                // Get player
+                                std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+                                TO_WSTRING(wAccountID, sAccountID);
+                                if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+                                {
+                                    static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -761,23 +890,52 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
     return -1;
 }
 
-int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters)
+int gameserver_client::SendEventToChannel(std::string channel, std::string event_type, nlohmann::json parameters, bool bOverrideLock, int OverrideMessageRef)
 {
 #ifdef _RELEASE
     websocketpp::lib::error_code ec;
     auto Connection = Client->Client_WS.get_con_from_hdl(Client->Connection_Handle, ec);
-
+    
+    // Copy the message before bumping it
+    const int CurrentMessageReference = OverrideMessageRef >= 0 ? OverrideMessageRef : MessageRef++;
+    
+    // Archive every player:v2 message that was requested to be sent to re-send it (except for phx_join)
+    if (channel.find("player:v2:") != std::string::npos && event_type != "phx_join")
+    {
+        // Get player
+        std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+        TO_WSTRING(wAccountID, sAccountID);
+        if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+        {
+            if (static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bTrafficLocked == false || bOverrideLock)
+            {
+                if (std::find(static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.begin(), static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end(), CurrentMessageReference) == static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.end())
+                {
+                    static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageHistory.push_back(FEraPlayerTrafficHistoryElement(channel, event_type, parameters, CurrentMessageReference));
+                }
+            }
+            else
+            {
+                static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().MessageQueue.push_back({channel, event_type, parameters, -1});
+                return -1;
+            }
+        }
+    }
+    
+    if (ec || Connection->get_state() != websocketpp::session::state::open)
+    {
+        spdlog::warn("gameserver_client::SendEventToChannel/2(): Invalid connection. Using message history.");
+        return -1;
+    }   
+    
     if (Connection)
     {
         if (Connection->get_state() == websocketpp::session::state::open)
         {
             nlohmann::json payload = R"([])"_json;
-
-            // Copy the message before bumping it
-            const int CurrentMessageReference = MessageRef;
-
+            
             payload.push_back(0); // Channel Ref
-            payload.push_back(MessageRef++); // Message ref
+            payload.push_back(CurrentMessageReference); // Message ref
             payload.push_back(channel); // Channel
             payload.push_back(event_type); // Event Type
             payload.push_back(parameters); // param
@@ -788,8 +946,7 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             // Send
             websocketpp::lib::error_code ec2;
             Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
-
-            if (log_component::enable_debug_logs)
+            
             {
                 if (ec2)
                 {
@@ -797,7 +954,25 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
                 }
                 else
                 {
-                    spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    }
+
+                    // Successful summary: block the history output in case of a disconnection
+                    if (event_type == "summary")
+                    {
+                        if (channel.find("player:v2:") != std::string::npos)
+                        {
+                            // Get player
+                            std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+                            TO_WSTRING(wAccountID, sAccountID);
+                            if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+                            {
+                                static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                            }
+                        }
+                    }
                 }
             }
 

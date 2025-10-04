@@ -2043,6 +2043,8 @@ void player_component::PostLogin(AFortPlayerController* FortPlayerController)
                 {"match", Matches[account_id]},
                 {"team", team_id}
             };
+
+            static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().JoinParameters = parameters;
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "phx_join", parameters);
 

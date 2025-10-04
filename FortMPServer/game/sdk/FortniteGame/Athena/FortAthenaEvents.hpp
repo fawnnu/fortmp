@@ -303,6 +303,54 @@ public:
     }
 };
 
+class ABP_MooneyScripting_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Mooney/BP_MooneyScripting.BP_MooneyScripting_C")
+
+    void BeginIceKingEvent()
+    {
+        STATIC_FINDFUNCTION(BeginIceKingEvent)
+
+        spdlog::info(L"Calling {}", Function_BeginIceKingEvent->GetFullName().c_str());
+
+        Call(Function_BeginIceKingEvent);
+    }
+    void OnReady_9968C1F648044523426FE198948B0CC9()
+    {
+        STATIC_FINDFUNCTION(OnReady_9968C1F648044523426FE198948B0CC9)
+
+        Call(Function_OnReady_9968C1F648044523426FE198948B0CC9, (*GWorld)->GameState(), GetPlaylistEasy(), GetPlaylistEasy()->GameplayTagContainer());
+    }
+    void LoadSequenceLevel()
+    {
+        STATIC_FINDFUNCTION(LoadSequenceLevel)
+
+        Call(Function_LoadSequenceLevel);
+    }
+};
+
+class ABP_MooneyLoader_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Prototype/Blueprints/Mooney/BP_MooneyLoader.BP_MooneyLoader_C")
+
+    DEFINE_PROPERTY(bool, LoadMooneyMap);
+    
+    void LoadMap()
+    {
+        STATIC_FINDFUNCTION(LoadMap)
+
+        Call(Function_LoadMap);
+    }
+    void OnRep_LoadMooneyMap()
+    {
+        STATIC_FINDFUNCTION(OnRep_LoadMooneyMap)
+
+        Call(Function_OnRep_LoadMooneyMap);
+    }
+};
+
 class ACUBE_C : public AActor
 {
 public:

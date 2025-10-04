@@ -502,6 +502,14 @@ bool inventory_component::has_item_type(AFortPlayerController* player_controller
 
 UFortItem* inventory_component::get_inventory_item_by_guid(AFortPlayerController* player_controller, FGuid item_guid)
 {
+    if (!player_controller || memory_manager::is_bad_read_pointer(player_controller) ||
+        !player_controller->WorldInventory() || memory_manager::is_bad_read_pointer(player_controller->WorldInventory()))
+    {
+        spdlog::error(L"inventory_component::get_inventory_item_by_guid: NULL player_controller! Aborting.");
+        
+        return nullptr;
+    }
+    
     for (UFortItem* ItemInstance : player_controller->WorldInventory()->Inventory().ItemInstances())
     {
         if (static_cast<UFortWorldItem*>(ItemInstance)->ItemEntry().ItemGuid() == item_guid)

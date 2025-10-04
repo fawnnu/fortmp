@@ -128,6 +128,41 @@ enum EEraPlatform : uint8_t
     Switch = 3
 };
 
+enum EEraMessageType : uint8_t
+{
+    Json = 0,
+    Std = 1
+};
+
+struct FEraPlayerTrafficHistoryElement
+{
+    FEraPlayerTrafficHistoryElement() = default;
+    
+    FEraPlayerTrafficHistoryElement(std::string in_channel, std::string in_event_type, nlohmann::json in_json_parameters, int in_ref) :
+        channel(in_channel), event_type(in_event_type), json_parameters(in_json_parameters), reference(in_ref)
+    {
+        message_type = Json;
+    }
+    
+    FEraPlayerTrafficHistoryElement(std::string in_channel, std::string in_event_type, std::map<std::string, std::string> in_std_parameters, int in_ref) :
+        channel(in_channel), event_type(in_event_type), std_parameters(in_std_parameters), reference(in_ref)
+    {
+        message_type = Std;
+    }
+
+    bool operator==(int in_reference)
+    {
+        return reference == in_reference;
+    }
+    
+    std::string channel;
+    std::string event_type;
+    nlohmann::json json_parameters;
+    std::map<std::string, std::string> std_parameters;
+    EEraMessageType message_type;
+    int reference;
+};
+
 // Struct that keeps the player's data Era needs in PlayerController
 struct FEraPlayerInfo
 {
@@ -151,6 +186,13 @@ struct FEraPlayerInfo
     std::vector<FGameplayTag> CurrentPOIList;
     ABuildingGameplayActorSpawnMachine* CurrentSpawnMachine;
     int Competitive_PendingPayoutCurrency;
+
+    // Keep track of everything sent to handle eventual connection losses.
+    std::vector<FEraPlayerTrafficHistoryElement> MessageHistory;
+    std::deque<FEraPlayerTrafficHistoryElement> MessageQueue;
+    nlohmann::json JoinParameters; 
+    bool bSentSummary;
+    bool bTrafficLocked;
 };
 
 // Struct that keeps information about a shotgun pellet. We need this data to make

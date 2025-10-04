@@ -354,6 +354,13 @@ void renderer::CreateNewWindow()
                                     static_cast<ABP_GeodeScripting_C*>(actor)->LaunchSequence();
                                 }
                             }
+                            
+                            if (ImGui::Button("Experimental force connection loss", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                websocketpp::lib::error_code ec;
+                                auto Connection = gameserver_client::Client->Client_WS.get_con_from_hdl(gameserver_client::Client->Connection_Handle, ec);
+                                gameserver_client::Client->Client->Client_WS.close(Connection, 1000, "");
+                            }
 
                             if (ImGui::Button("Start End Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
                             {
@@ -455,6 +462,37 @@ void renderer::CreateNewWindow()
                                 for (auto actor : cube_scripter)
                                 {
                                     static_cast<ACUBE_C*>(actor)->NextStepDynamic();
+                                }
+                            }
+
+                            if (ImGui::Button("Ice King Event", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                game_thread_queue.push_back([]
+                                {
+                                    TArray<AActor*> mooney_scripting = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_MooneyScripting_C::StaticClass());
+                                
+                                    for (auto actor : mooney_scripting)
+                                    {
+                                
+                                        static_cast<ABP_MooneyScripting_C*>(actor)->LoadSequenceLevel();
+                                        spdlog::info(L"Called OnReady_9968C1F648044523426FE198948B0CC9");
+                                        static_cast<ABP_MooneyScripting_C*>(actor)->OnReady_9968C1F648044523426FE198948B0CC9();
+                                        spdlog::info(L"Called OnReady_9968C1F648044523426FE198948B0CC9");
+                                        static_cast<ABP_MooneyScripting_C*>(actor)->BeginIceKingEvent();
+                                        spdlog::info(L"Called BeginIceKingEvent");
+                                    } 
+                                });
+                            }
+
+                            if (ImGui::Button("Ice King Event PRE", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+                            {
+                                TArray<AActor*> mooney_loader = UGameplayStatics::GetAllActorsOfClass((*GWorld), ABP_MooneyLoader_C::StaticClass());
+                                
+                                for (auto actor : mooney_loader)
+                                {
+                                    static_cast<ABP_MooneyLoader_C*>(actor)->LoadMooneyMap() = true;
+                                    static_cast<ABP_MooneyLoader_C*>(actor)->OnRep_LoadMooneyMap();
+                                    spdlog::info(L"Called LoadMap");
                                 }
                             }
 

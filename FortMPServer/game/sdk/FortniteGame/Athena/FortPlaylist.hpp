@@ -29,7 +29,7 @@ class UFortPlaylistAthena : public UFortPlaylist
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlaylistAthena");
     DEFINE_PROPERTY(struct FScalableFloat, RespawnHeight);
-
+    DEFINE_PROPERTY(FGameplayTagContainer, GameplayTagContainer);
     DEFINE_PROPERTY(uint8_t, RespawnType);
     DEFINE_PROPERTY(uint8_t, AirCraftBehavior);
     DEFINE_PROPERTY(TArray<TSoftObjectPtr<class UObject>>, AdditionalLevels);
