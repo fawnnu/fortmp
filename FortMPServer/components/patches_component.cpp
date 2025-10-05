@@ -918,25 +918,11 @@ bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObje
 
 PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVOID a3)
 {
-    if (memory_manager::is_bad_read_pointer(a2))
-    {
-        spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: a2 is INVALID.");
-
-        return AbilityCrashFunction(a1,a2,a3);   
-    }
-    
     if (a2)
     {
         if (!a2[15])
         {
             spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is invalid.");
-            
-            return nullptr;
-        }
-        
-        if (memory_manager::is_bad_read_pointer(a2[15]))
-        {
-            spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is BAD READ PTR.");
             
             return nullptr;
         }
@@ -947,8 +933,7 @@ PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVO
 
 PVOID patches_component_hook::UnkFunc_Hook(PVOID a1, PVOID* a2)
 {
-    if (!a2 ||
-        memory_manager::is_bad_read_pointer(a2))
+    if (!a2)
     {
         return nullptr;
     }
@@ -959,9 +944,7 @@ PVOID patches_component_hook::UnkFunc_Hook(PVOID a1, PVOID* a2)
 bool patches_component_hook::FNetGUIDCache__SupportsObject_Hook(PVOID Self, UObject* Object, TWeakObjectPtr<UObject>* WeakObjectPtr)
 {
     if (!Object ||
-        memory_manager::is_bad_read_pointer(Object) ||
-        !Object->VTable ||
-        memory_manager::is_bad_read_pointer(Object->VTable))
+        !Object->VTable)
     {
         if (log_component::enable_debug_logs)
         {
@@ -976,20 +959,18 @@ bool patches_component_hook::FNetGUIDCache__SupportsObject_Hook(PVOID Self, UObj
 
 PVOID patches_component_hook::FGameplayTagContainerEquals_Hook(FGameplayTagContainer* Dst, FGameplayTagContainer* Src)
 {
-    if (Src && !memory_manager::is_bad_read_pointer(Src))
+    if (Src)
     {
         for (int i = 0; i < 8 * Src->GameplayTags.Num(); i++)
         {
-            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i) ||
-                memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i)))
+            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->GameplayTags.Data) + i))
             {
                 return Dst;
             }
         }
         for (int i = 0; i < 8 * Src->ParentTags.Num(); i++)
         {
-            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i) ||
-                memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i)))
+            if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src->ParentTags.Data) + i))
             {
                 return Dst;
             }
@@ -1008,29 +989,17 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
     {
         return nullptr;
     }
-
-    /*if (log_component::enable_debug_logs)
-    {
-        static int Log = 0;
-        Log++;
-        if (Log % 100 == 0)
-        {
-            spdlog::info(L"[DEBUG DATA] patches_component_hook::FGameplayTagContainerMemcpy_Hook is scanning memory blocks [SIZE {}]", Size);
-        }
-    }*/
     
     // Scan the addresses to make sure memcpy works fine
     for (int i = 0; i < Size; i++)
     {
         if (!reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Dst) + i) ||
-            !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i) ||
-            memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Dst) + i)) ||
-            memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src) + i)))
+            !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i))
         {
             spdlog::error(L"[DEBUG DATA] patches_component_hook::FGameplayTagContainerMemcpy_Hook is scanning memory blocks [SIZE {}]", Size);
             
-            bool bBadDst = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Dst) + i) || memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Dst) + i));
-            bool bBadSrc = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i) || memory_manager::is_bad_read_pointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Src) + i));
+            bool bBadDst = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Dst) + i);
+            bool bBadSrc = !reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(Src) + i);
             
             if (log_component::enable_debug_logs)
             {
@@ -1057,8 +1026,7 @@ PVOID patches_component_hook::FGameplayTagContainerMemcpy_Hook(void* Dst, void* 
 
 PVOID patches_component_hook::FGameplayTagContainer_Filter_Hook(PVOID Self, PVOID Unk, TArray<FGameplayTag>* Tags)
 {
-    if (!Tags->Data ||
-        memory_manager::is_bad_read_pointer(Tags->Data))
+    if (!Tags->Data)
     {
         if (Tags->Num() > 0)
         {
