@@ -3847,7 +3847,6 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
                 }
             }
         }
-        
 
         // Bonus pellet
         {
