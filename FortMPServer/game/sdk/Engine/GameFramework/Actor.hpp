@@ -106,12 +106,7 @@ public:
         return Call<bool>(Function_K2_SetActorTransform, NewTransform, bSweep, OutHitResult, bTeleport);
     }
     
-    FVector K2_GetActorLocation()
-    {
-        STATIC_FINDFUNCTION(K2_GetActorLocation)
-        
-        return Call<FVector>(Function_K2_GetActorLocation);
-    }
+    FVector K2_GetActorLocation();
 
     FVector GetActorForwardVector()
     {

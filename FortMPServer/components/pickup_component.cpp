@@ -132,7 +132,8 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
     // copy list
     for (float Value : GenericAttributeValues)
     {
-        if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
+        static bool HasProperty_GenericAttributeValues = FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues") != nullptr;
+        if (HasProperty_GenericAttributeValues)
         {
             fort_pickup->PrimaryPickupItemEntry().GenericAttributeValues().Add(Value);
         }
@@ -313,7 +314,7 @@ void pickup_component::handle_pickup_combination(AFortPickup* Pickup)
     // Construct parameters for SphereOverlapActors
     TArray<AActor*> ActorsToIgnore{};
     TArray<uint8_t> ObjectTypes;
-    UEnum* EObjectTypeQuery = FindObject<UEnum>(L"/Script/Engine.EObjectTypeQuery");
+    static UEnum* EObjectTypeQuery = FindObject<UEnum>(L"/Script/Engine.EObjectTypeQuery");
     for (uint8_t i = 0; i < EObjectTypeQuery->GetEnumIndex(L"ObjectTypeQuery_MAX"); i++)
     {
         ObjectTypes.Add(i);
@@ -468,7 +469,9 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
             }
 
             std::vector<float> GenericAttributeValues;
-            if (FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues"))
+
+            static bool HasProperty_GenericAttributeValues = FindPropertyByName(FFortItemEntry::GetClass(), L"GenericAttributeValues") != nullptr;
+            if (HasProperty_GenericAttributeValues)
             {
                 for (float Value : Pickup->PrimaryPickupItemEntry().GenericAttributeValues())
                 {

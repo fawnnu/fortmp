@@ -314,9 +314,11 @@ bool anticheat_component::CheckForBulletTP(UFortGameplayAbility_RangedWeapon* Ra
     // Any normal gun, ignoring shotguns
     if (InData.GetData().Num() == 1)
     {
-        const float TraceStartToWeaponDistance = sqrtf((InData.GetSingleData().Get()->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) * (InData.GetSingleData().Get()->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) +
-                                            (InData.GetSingleData().Get()->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) * (InData.GetSingleData().Get()->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) +
-                                            (InData.GetSingleData().Get()->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z) * (InData.GetSingleData().Get()->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z));
+        auto TraceStartVector = InData.GetSingleData().Get()->HitResult().TraceStart();
+        auto CurrentWeaponLocation = RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation();
+        const float TraceStartToWeaponDistance = sqrtf((TraceStartVector.X - CurrentWeaponLocation.X) * (TraceStartVector.X - CurrentWeaponLocation.X) +
+                                            (TraceStartVector.Y - CurrentWeaponLocation.Y) * (TraceStartVector.Y - CurrentWeaponLocation.Y) +
+                                            (TraceStartVector.Z - CurrentWeaponLocation.Z) * (TraceStartVector.Z - CurrentWeaponLocation.Z));
 
         // The distance should NEVER be more than 7.5 meters, in any scenario!
         if (TraceStartToWeaponDistance >= 750.0)
@@ -367,7 +369,7 @@ bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon*
         // If we didn't hit a pawn, trust the shot
         if (AActor* Actor = InData.GetSingleData().Get()->HitResult().Actor().Get())
         {
-            if (!Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+            if (Actor->Class != APlayerPawn_Athena_C::StaticClass())
             {
                 return true;
             }
@@ -385,7 +387,7 @@ bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon*
         {
             if (HitResults.Num() == 1)
             {
-                if (HitResults[0].Actor().Get() && !HitResults[0].Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
+                if (HitResults[0].Actor().Get() && HitResults[0].Actor().Get()->Class != APlayerPawn_Athena_C::StaticClass())
                 {
                     if (log_component::enable_debug_logs)
                     {
@@ -413,7 +415,7 @@ bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon*
                 // If we didn't hit a pawn, trust the shot
                 if (AActor* Actor = SingleTargetHit->HitResult().Actor().Get())
                 {
-                    if (!Actor->IsA(APlayerPawn_Athena_C::StaticClass()))
+                    if (Actor->Class != APlayerPawn_Athena_C::StaticClass())
                     {
                         continue;
                     }
@@ -431,7 +433,7 @@ bool anticheat_component::CheckShotTrajectory(UFortGameplayAbility_RangedWeapon*
                 {
                     if (HitResults.Num() == 1)
                     {
-                        if (HitResults[0].Actor().Get() && !HitResults[0].Actor().Get()->IsA(APlayerPawn_Athena_C::StaticClass()))
+                        if (HitResults[0].Actor().Get() && HitResults[0].Actor().Get() != APlayerPawn_Athena_C::StaticClass())
                         {
                             if (log_component::enable_debug_logs)
                             {

@@ -414,6 +414,9 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_01_C", false, true), L"Loot_AthenaFloorLoot");
         spawn_floor_loot(FindObject(L"Tiered_Athena_FloorLoot_Warmup_C", false, true), L"Loot_AthenaFloorLoot_Warmup");
 
+        // Prepare containers
+        initialize_containers();
+        
         // Handle foundations
         handle_unloaded_foundations();
 
@@ -741,6 +744,27 @@ void loader_component::initialize_bga()
             QueryInstance->OnQueryFinishedEvent().Bind(TScriptDelegate(QueryInstance, L"EQSQueryDoneSignature__DelegateSignature"));
         }
     }
+}
+
+void loader_component::initialize_containers()
+{
+    TArray<ABuildingContainer*> building_containers = UGameplayStatics::GetAllActorsOfClass<ABuildingContainer>(*GWorld, ABuildingContainer::StaticClass());
+
+    for (ABuildingContainer* BuildingContainer : building_containers)
+    {
+        BuildingContainer->EraContainerInfo().LootToSpawn.clear();
+    
+        auto picked_loot = looting_component::pick_loot(looting_component::redirect_tier_group(BuildingContainer->SearchLootTierGroup()));
+
+        for (auto& [key, val] : picked_loot)
+        {
+            BuildingContainer->EraContainerInfo().LootToSpawn.push_back({key, val});
+        }
+        
+        BuildingContainer->EraContainerInfo().bPreInitialized = true;
+    }
+
+    spdlog::info(L"loader_component::initialize_containers: Initialized {} containers.", building_containers.Num());
 }
 
 void loader_component::initialize_reboot_vans()

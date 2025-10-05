@@ -396,3 +396,8 @@ FCollisionQueryParams::FCollisionQueryParams(FName TagName, bool bTraceComplex, 
     TArray<AActor*> ActorsToIgnore = ActorToIgnore->GetAttachedActors();
     AddIgnoredActors(ActorsToIgnore);
 }
+
+FVector AActor::K2_GetActorLocation()
+{
+    return RootComponent() != nullptr ? RootComponent()->ComponentToWorld().Translation : FVector(0, 0, 0);
+}

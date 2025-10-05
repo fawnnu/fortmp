@@ -12,12 +12,14 @@ customproperties_component::customproperties_component()
         {
             CoreOffsets::StructPropertyParamsOffset = offsetof(UE_419_422_TEMPLATE::FStructPropertyParams, Offset);   
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_419_422_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("BuildingContainer", "/Script/FortniteGame.BuildingContainer", EraContainerInfo, UE_419_422_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_419_422_TEMPLATE);
         }
         else
         {
             CoreOffsets::StructPropertyParamsOffset = offsetof(UE_423_425_TEMPLATE::FStructPropertyParams, Offset);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_423_425_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("BuildingContainer", "/Script/FortniteGame.BuildingContainer", EraContainerInfo, UE_423_425_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_423_425_TEMPLATE);
         }
     }

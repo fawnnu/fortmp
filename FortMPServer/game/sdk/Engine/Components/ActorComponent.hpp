@@ -111,6 +111,14 @@ public:
     DEFINE_PROPERTY(USceneComponent*, AttachParent);
     DEFINE_PROPERTY(TArray<USceneComponent*>, AttachChildren);
 
+    FTransform& ComponentToWorld()
+    {
+        static void* native_property = FindPropertyByName(this->Class, L"RelativeScale3D");                                          
+        static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal) + 0x14;   
+        
+        return *reinterpret_cast<FTransform*>(__int64(this) + native_property_offset);                                        
+    }
+    
     bool K2_AttachToComponent(USceneComponent* Parent, FName SocketName, uint8_t LocationRule, uint8_t RotationRule, uint8_t ScaleRule, bool bWeldSimulatedBodies)
     {
         STATIC_FINDFUNCTION(K2_AttachToComponent)

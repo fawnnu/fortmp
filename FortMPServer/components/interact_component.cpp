@@ -8,6 +8,7 @@
 #include "log_component.hpp"
 #include "looting_component.hpp"
 #include "pickup_component.hpp"
+#include "player_component.hpp"
 #include "replication_component.hpp"
 #include "reviving_component.hpp"
 #include "vehicles_component.hpp"
@@ -188,12 +189,19 @@ void interact_component::handle_container_interaction(AFortPlayerController* pla
         FVector LootSpawnLocation = building_container->CalculateLootSpawnLocation();
         
         // Generate and spawn the loot
-        std::map<UFortItemDefinition*, int> loot_to_spawn = looting_component::pick_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
-
-        for (const auto& [ item_definition, count ] : loot_to_spawn)
+        if (!building_container->EraContainerInfo().bPreInitialized)
+        {
+            auto picked_loot = looting_component::pick_loot(looting_component::redirect_tier_group(building_container->SearchLootTierGroup()));
+            for (auto& [key, val] : picked_loot)
+            {
+                building_container->EraContainerInfo().LootToSpawn.push_back({key, val});
+            }
+        }
+        
+        for (auto& Items : building_container->EraContainerInfo().LootToSpawn)
         {
             // Spawn pickup
-            pickup_component::spawn_pickup(item_definition, LootSpawnLocation, count, looting_component::get_default_loaded_ammo(item_definition), true, nullptr, {}, building_container);
+            pickup_component::spawn_pickup(Items.ItemDefinition, LootSpawnLocation, Items.Count, looting_component::get_default_loaded_ammo(Items.ItemDefinition), true, nullptr, {}, building_container);
         }
 
         // Mark the container as open

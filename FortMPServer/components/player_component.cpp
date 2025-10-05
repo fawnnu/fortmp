@@ -3792,14 +3792,15 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
             float Distance;
             if (!anticheat_component::CheckForBulletTP(RangedWeaponAbility, InData, &Distance))
             {
-                if (RangedWeaponAbility->CurrentWeapon() &&
-                    RangedWeaponAbility->CurrentWeapon()->Owner())
+                if (log_component::enable_debug_logs)
                 {
-                    if (AFortPlayerPawnAthena* Pawn = RangedWeaponAbility->CurrentWeapon()->Owner()->Cast<AFortPlayerPawnAthena>())
+                    if (RangedWeaponAbility->CurrentWeapon() &&
+                        RangedWeaponAbility->CurrentWeapon()->Owner())
                     {
-                        if (log_component::enable_debug_logs)
+                        if (AFortPlayerPawnAthena* Pawn = RangedWeaponAbility->CurrentWeapon()->Owner()->Cast<AFortPlayerPawnAthena>())
                         {
                             spdlog::warn(L"player_component_hooks::OnTargetDataReadyCallback_Hook: Failed to pass Bullet TP checks for Player '{}'. Blanking shot, distance: {}.", Pawn->Controller()->MyPlayerInfo()->PlayerName().c_str(), Distance);
+                        
                         }
                     }
                 }

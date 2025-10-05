@@ -196,6 +196,26 @@ struct FEraPlayerInfo
     bool bTrafficLocked;
 };
 
+// For performance reasons, keep information about chest's items here
+struct FEraContainerInfo
+{
+    struct LootInfo
+    {
+        LootInfo(UFortItemDefinition* InItemDefinition, int InCount)
+        {
+            ItemDefinition= InItemDefinition;
+            Count = InCount;
+        }
+        LootInfo() = default;
+        
+        UFortItemDefinition* ItemDefinition;
+        int Count;
+    };
+    
+    std::vector<LootInfo> LootToSpawn;
+    bool bPreInitialized;
+};
+
 // Struct that keeps information about a shotgun pellet. We need this data to make
 struct FEraPelletInfo
 {
