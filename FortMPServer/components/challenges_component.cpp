@@ -234,7 +234,10 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                 {
                     if (DeathCause == death_cause_enum->GetEnumIndex(L"Melee"))
                     {
-                        weapon = "pickaxe";
+                        /*
+                         * Temporary: backend does not know how to handle "pickaxe", so we now use "trap". See 33bce082 for reference.
+                         */
+                        weapon = "trap"; 
                     }
                     else if (DeathCause == death_cause_enum->GetEnumIndex(L"Pistol"))
                     {
