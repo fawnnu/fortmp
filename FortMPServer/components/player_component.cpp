@@ -494,7 +494,7 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -523,7 +523,7 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
         }
     }
@@ -538,7 +538,7 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -556,7 +556,7 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage = 0;
         }
     }
@@ -571,7 +571,7 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -589,7 +589,7 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage = 0;
         }
     }
@@ -604,7 +604,7 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -622,7 +622,7 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage = 0;
         }
     }
@@ -637,7 +637,7 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -655,7 +655,7 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage = 0;
         }
     }
@@ -670,7 +670,7 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -688,7 +688,7 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage = 0;
         }
     }
@@ -703,7 +703,7 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -732,7 +732,7 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
         }
     }
@@ -747,7 +747,7 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -765,7 +765,7 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage = 0;
         }
     }
@@ -780,7 +780,7 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -798,7 +798,7 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage = 0;
         }
     }
@@ -813,7 +813,7 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -842,7 +842,7 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
         }
     }
@@ -857,7 +857,7 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -886,7 +886,7 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage = 0;
         }
     }
@@ -901,7 +901,7 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -930,7 +930,7 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage = 0;
         }
     }
@@ -945,7 +945,7 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -963,7 +963,7 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage = 0;
         }
     }
@@ -996,7 +996,7 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
         }
     }
@@ -1011,7 +1011,7 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1029,7 +1029,7 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage = 0;
         }
     }
@@ -1044,7 +1044,7 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1062,7 +1062,7 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage = 0;
         }
     }
@@ -1077,7 +1077,7 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1095,7 +1095,7 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage = 0;
         }
     }
@@ -1110,7 +1110,7 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1128,7 +1128,7 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage = 0;
         }
     }
@@ -1143,7 +1143,7 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1161,7 +1161,7 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage = 0;
         }
     }
@@ -1176,7 +1176,7 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1194,7 +1194,7 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage = 0;
         }
     }
@@ -1209,7 +1209,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1227,7 +1227,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage = 0;
         }
     }
@@ -1242,7 +1242,7 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1260,7 +1260,7 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage = 0;
         }
     }
@@ -1275,7 +1275,7 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1293,7 +1293,7 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage = 0;
         }
     }
@@ -1308,7 +1308,7 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1326,7 +1326,7 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
         }
     }
@@ -1341,7 +1341,7 @@ void player_component::SupplyDropDamageCallback(AFortPlayerController* Self, FFr
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1351,7 +1351,7 @@ void player_component::SupplyDropDamageCallback(AFortPlayerController* Self, FFr
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon}
             };
 
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon = 0;
         }
     }
@@ -1366,7 +1366,7 @@ void player_component::EnemyVehicleDamageCallback(AFortPlayerController* Self, F
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1376,7 +1376,7 @@ void player_component::EnemyVehicleDamageCallback(AFortPlayerController* Self, F
                 {"count", static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage}
             };
 
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage = 0;
         }
     }
@@ -1392,7 +1392,7 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
 
     if (Self && Self->Pawn())
     {
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1410,7 +1410,7 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage = 0;
         }
     }
@@ -1521,196 +1521,196 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"HandCannonPistolDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"HandCannonPistolDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HandCannonPistolDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Pistol:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PistolDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"PistolDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"PistolDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PistolDamageCallback", 3.0, false);
         break;
     case EDamageCauser::SuppressedPistol:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedPistolDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedPistolDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedPistolDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedPistolDamageCallback", 3.0, false);
         break;
     case EDamageCauser::PumpShotgun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PumpShotgunDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"PumpShotgunDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"PumpShotgunDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PumpShotgunDamageCallback", 3.0, false);
         break;
     case EDamageCauser::TacticalShotgun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"TacticalShotgunDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"TacticalShotgunDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"TacticalShotgunDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"TacticalShotgunDamageCallback", 3.0, false);
         break;
     case EDamageCauser::HeavyShotgun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeavyShotgunDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"HeavyShotgunDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavyShotgunDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavyShotgunDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Shotgun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"ShotgunDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"ShotgunDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"ShotgunDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"ShotgunDamageCallback", 3.0, false);
         break;
     case EDamageCauser::AssaultRifle:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"AssaultRifleDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"AssaultRifleDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"AssaultRifleDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"AssaultRifleDamageCallback", 3.0, false);
         break;
     case EDamageCauser::BurstAssaultRifle:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"BurstAssaultRifleDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"BurstAssaultRifleDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"BurstAssaultRifleDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"BurstAssaultRifleDamageCallback", 3.0, false);
         break;
     case EDamageCauser::SuppressedAssaultRifle:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedAssaultRifleDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedAssaultRifleDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedAssaultRifleDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedAssaultRifleDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Sniper:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SniperDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SniperDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"SniperDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SniperDamageCallback", 3.0, false);
         break;
     case EDamageCauser::HeavySniper:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeavySniperDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"HeavySniperDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavySniperDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeavySniperDamageCallback", 3.0, false);
         break;
     case EDamageCauser::HuntingSniper:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HuntingSniperDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"HuntingSniperDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"HuntingSniperDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HuntingSniperDamageCallback", 3.0, false);
         break;
     case EDamageCauser::BoltSniper:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"BoltSniperDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"BoltSniperDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"BoltSniperDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"BoltSniperDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Grenade:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"GrenadeDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"GrenadeDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeDamageCallback", 3.0, false);
         break;
     case EDamageCauser::StinkGrenade:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"StinkGrenadeDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"StinkGrenadeDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"StinkGrenadeDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"StinkGrenadeDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Clinger:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"ClingerDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"ClingerDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"ClingerDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"ClingerDamageCallback", 3.0, false);
         break;
     case EDamageCauser::SMG:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SMGDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SMGDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"SMGDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SMGDamageCallback", 3.0, false);
         break;
     case EDamageCauser::SuppressedSMG:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"SuppressedSMGDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"SuppressedSMGDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedSMGDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"SuppressedSMGDamageCallback", 3.0, false);
         break;
     case EDamageCauser::GrenadeLauncher:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"GrenadeLauncherDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"GrenadeLauncherDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeLauncherDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"GrenadeLauncherDamageCallback", 3.0, false);
         break;
     case EDamageCauser::LMG:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"LMGDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"LMGDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"LMGDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"LMGDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Minigun:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"MinigunDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"MinigunDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"MinigunDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"MinigunDamageCallback", 3.0, false);
         break;
     case EDamageCauser::RPG:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"RPGDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"RPGDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"RPGDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"RPGDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Pickaxe:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"PickaxeDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"PickaxeDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"PickaxeDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"PickaxeDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Headshot:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"HeadshotDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"HeadshotDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"HeadshotDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"HeadshotDamageCallback", 3.0, false);
         break;
     case EDamageCauser::Jewel:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"JewelDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"JewelDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"JewelDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"JewelDamageCallback", 3.0, false);
         break;
     case EDamageCauser::C4:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"C4BuildingDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"C4BuildingDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"C4BuildingDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"C4BuildingDamageCallback", 3.0, false);
         break;
     case EDamageCauser::CannonBall:
         if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"CannonBallDamageCallback"))
         {
             UKismetSystemLibrary::K2_ClearTimer(Self, L"CannonBallDamageCallback");
         }
-        UKismetSystemLibrary::K2_SetTimer(Self, L"CannonBallDamageCallback", 1.0, false);
+        UKismetSystemLibrary::K2_SetTimer(Self, L"CannonBallDamageCallback", 3.0, false);
         break;
     default:
         break;
@@ -1726,7 +1726,7 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1736,7 +1736,7 @@ void player_component::BuildingPlacedCallback(AFortPlayerController* Self, FFram
                 {"count", Value.TemporaryPlacedBuilds}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:structure", parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:structure", parameters);
             Value.TemporaryPlacedBuilds = 0;
         }
     }
@@ -1751,7 +1751,7 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1761,7 +1761,7 @@ void player_component::HarvestResourcesCallback(AFortPlayerController* Self, FFr
                     {"amount", Value.TemporaryMaterialsGathered}
             };
             
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:building-resource", parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:building-resource", parameters);
             Value.TemporaryMaterialsGathered = 0;
         }
     }
@@ -1801,7 +1801,7 @@ void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& Stack
     if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
     {
         FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
-        std::string account_id = get_account_id(Self);
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
 
         if (account_id.size() > 0)
         {
@@ -1816,7 +1816,7 @@ void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& Stack
                 spdlog::info(L"player_component::ShieldCallback is sending TemporaryObtainedShield: {}", Value.TemporaryObtainedShield);
             }
 
-            gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:shield", parameters);
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:shield", parameters);
             Value.TemporaryObtainedShield = 0;
         }
     }

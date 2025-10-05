@@ -918,14 +918,25 @@ bool patches_component_hook::SerializeObject_Hook(UObject* Self, void* Ar, UObje
 
 PVOID patches_component_hook::AbilityCrashFunction_Hook(PVOID a1, PVOID* a2, PVOID a3)
 {
-    if (a2 && !memory_manager::is_bad_read_pointer(a2))
+    if (memory_manager::is_bad_read_pointer(a2))
     {
-        if (!a2[15] || memory_manager::is_bad_read_pointer(a2[15]))
+        spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: a2 is INVALID.");
+
+        return AbilityCrashFunction(a1,a2,a3);   
+    }
+    
+    if (a2)
+    {
+        if (!a2[15])
         {
-            if (log_component::enable_debug_logs)
-            {
-                spdlog::warn(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is invalid.");
-            }
+            spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is invalid.");
+            
+            return nullptr;
+        }
+        
+        if (memory_manager::is_bad_read_pointer(a2[15]))
+        {
+            spdlog::error(L"patches_component_hook::AbilityCrashFunction_Hook: Aborting call as a2[15] is BAD READ PTR.");
             
             return nullptr;
         }
