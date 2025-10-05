@@ -163,9 +163,6 @@ void gameserver_client::Initialize()
         // Start the heartbeat thread
         CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&HeartbeatThread), 0,0,0);
 
-        // Start the message thread
-        CreateThread(0,0, reinterpret_cast<LPTHREAD_START_ROUTINE>(&MainSendThread), 0,0,0);
-    
         while (true)
         {
             Client_WS.run();
@@ -326,53 +323,6 @@ void gameserver_client::WaitForReply(int MessageReference, PVOID callback)
                 Client->MessagesMap[MessageReference] = callback;
             }
         }
-    }
-}
-
-void gameserver_client::MainSendThread()
-{
-    while (true)
-    {
-        while (!ToSendQueue.empty())
-        {
-            nlohmann::json Message = ToSendQueue.front();
-            ToSendQueue.pop_front();
-
-            // Send
-            websocketpp::lib::error_code ec2;
-            Client->Client_WS.send(Client->Connection_Handle, Message.dump(), websocketpp::frame::opcode::text, ec2);
-
-            {
-                if (ec2)
-                {
-                    spdlog::error("gameserver_client::MainSendThread error: {} [event: {}, channel: {}]", ec2.message().c_str(), Message.at(3).get<std::string>().c_str(), Message.at(2).get<std::string>().c_str());
-                }
-                else
-                {
-                    if (log_component::enable_debug_logs)
-                    {
-                        spdlog::info("Successfully sent {} in {}", Message.at(3).get<std::string>().c_str(), Message.at(2).get<std::string>().c_str());
-                    }
-
-                    // Successful summary: block the history output in case of a disconnection
-                    if (Message.at(3).get<std::string>() == "summary")
-                    {
-                        if (Message.at(2).get<std::string>().find("player:v2:") != std::string::npos)
-                        {
-                            // Get player
-                            std::string wAccountID = Message.at(2).get<std::string>().substr(Message.at(2).get<std::string>().find(":v2:") + 4);
-                            TO_WSTRING(wAccountID, sAccountID);
-                            if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
-                            {
-                                static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Sleep(1000 / 60);
     }
 }
 
@@ -897,7 +847,37 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
                 LastMessagePayload = payload;
             
                 // Send
-                ToSendQueue.push_back(payload);
+                websocketpp::lib::error_code ec2;
+                Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+
+                {
+                    if (ec2)
+                    {
+                        spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                    }
+                    else
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                        }
+
+                        // Successful summary: block the history output in case of a disconnection
+                        if (event_type == "summary")
+                        {
+                            if (channel.find("player:v2:") != std::string::npos)
+                            {
+                                // Get player
+                                std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+                                TO_WSTRING(wAccountID, sAccountID);
+                                if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+                                {
+                                    static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 return CurrentMessageReference;
             }
@@ -965,7 +945,37 @@ int gameserver_client::SendEventToChannel(std::string channel, std::string event
             LastMessagePayload = payload;
             
             // Send
-            ToSendQueue.push_back(payload);
+            websocketpp::lib::error_code ec2;
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+
+            {
+                if (ec2)
+                {
+                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                }
+                else
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    }
+
+                    // Successful summary: block the history output in case of a disconnection
+                    if (event_type == "summary")
+                    {
+                        if (channel.find("player:v2:") != std::string::npos)
+                        {
+                            // Get player
+                            std::string wAccountID = channel.substr(channel.find(":v2:") + 4);
+                            TO_WSTRING(wAccountID, sAccountID);
+                            if (AFortPlayerController* PlayerObject = player_component::get_player_by_account_id(sAccountID))
+                            {
+                                static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                            }
+                        }
+                    }
+                }
+            }
 
             return CurrentMessageReference;
         }
@@ -1023,7 +1033,29 @@ int gameserver_client::SendEventToPlayerChannel(AFortPlayerController* PlayerObj
             LastMessagePayload = payload;
             
             // Send
-            ToSendQueue.push_back(payload);
+            websocketpp::lib::error_code ec2;
+            Client_WS.send(Connection_Handle, payload.dump(), websocketpp::frame::opcode::text, ec2);
+            
+            {
+                if (ec2)
+                {
+                    spdlog::error("gameserver_client::SendEventToChannel error: {} [event: {}, channel: {}]", ec2.message().c_str(), event_type.c_str(), channel.c_str());
+                }
+                else
+                {
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info("Successfully sent {} in {}", event_type.c_str(), channel.c_str());
+                    }
+
+                    // Successful summary: block the history output in case of a disconnection
+                    if (event_type == "summary")
+                    {
+                        // Get player
+                        static_cast<AFortPlayerControllerAthena*>(PlayerObject)->EraPlayerInfo().bSentSummary = true;
+                    }
+                }
+            }
 
             return CurrentMessageReference;
         }

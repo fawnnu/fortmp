@@ -3851,7 +3851,7 @@ long long player_component_hooks::OnTargetDataReadyCallback_Hook(UFortGameplayAb
         // Bonus pellet
         {
             // DOES THIS EVEN WORK!????
-            //player_component::apply_bonus_pellets(RangedWeaponAbility, InData);
+            player_component::apply_bonus_pellets(RangedWeaponAbility, InData);
         }
     
         return OnTargetDataReadyCallback(RangedWeaponAbility, InData, ApplicationTag);
