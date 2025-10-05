@@ -55,9 +55,13 @@ void trap_component_hooks::ServerSpawnDeco_Hook(AFortDecoTool* FortDecoTool, FVe
 
 ABuildingActor* trap_component::CreateBuilding(AFortPlayerController* BuildingOwner, UObject** Class, FVector* Location, FRotator* Rotation)
 {
-    ABuildingActor* NewBuildingActor;
-    building_component::spawn_building_actor(*Class, *Location, *Rotation, false, BuildingOwner, EFortBuildPreviewMarkerOptionalAdjustment::None, false, &NewBuildingActor);
+    ABuildingActor* NewBuildingActor = nullptr;
 
+    if (BuildingOwner)
+    {
+        building_component::spawn_building_actor(*Class, *Location, *Rotation, false, BuildingOwner, EFortBuildPreviewMarkerOptionalAdjustment::None, false, &NewBuildingActor);
+    }
+    
     return NewBuildingActor;
 }
 

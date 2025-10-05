@@ -338,9 +338,11 @@ bool anticheat_component::CheckForBulletTP(UFortGameplayAbility_RangedWeapon* Ra
         {
             if (FFortGameplayAbilityTargetData_SingleTargetHit* SingleTargetHit = InData.Get(i))
             {
-                const float TraceStartToWeaponDistance = sqrtf((SingleTargetHit->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) * (SingleTargetHit->HitResult().TraceStart().X - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().X) +
-                                            (SingleTargetHit->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) * (SingleTargetHit->HitResult().TraceStart().Y - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Y) +
-                                            (SingleTargetHit->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z) * (SingleTargetHit->HitResult().TraceStart().Z - RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation().Z));
+                auto TraceStartVector = SingleTargetHit->HitResult().TraceStart();
+                auto CurrentWeaponLocation = RangedWeaponAbility->CurrentWeapon()->K2_GetActorLocation();
+                const float TraceStartToWeaponDistance = sqrtf((TraceStartVector.X - CurrentWeaponLocation.X) * (TraceStartVector.X - CurrentWeaponLocation.X) +
+                                            (TraceStartVector.Y - CurrentWeaponLocation.Y) * (TraceStartVector.Y - CurrentWeaponLocation.Y) +
+                                            (TraceStartVector.Z - CurrentWeaponLocation.Z) * (TraceStartVector.Z - CurrentWeaponLocation.Z));
 
                 // The distance should NEVER be more than 7.5 meters, in any scenario!
                 if (TraceStartToWeaponDistance >= 750.0)

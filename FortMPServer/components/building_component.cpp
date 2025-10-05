@@ -40,6 +40,10 @@ void building_component_hooks::ServerEndEditingBuildingActor_Hook(AFortPlayerCon
 
 bool building_component::spawn_building_actor(UObject* building_class, FVector building_location, FRotator building_rotation, bool is_mirrored, AFortPlayerController* building_owner, EFortBuildPreviewMarkerOptionalAdjustment MarkerOptionalAdjustment, bool is_building_free, ABuildingActor** OutBuildingActor)
 {
+    // Save the guid of the item to remove for building payment
+    FGuid BuildingResource{};
+    UFortItemDefinition* ResourceItemDefinition = nullptr;
+    
     if (is_building_class_valid(building_class))
     {
         // Check if the player has enough materials (Only if not in creative)
@@ -47,10 +51,13 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
         {
             if (ABuildingSMActor* BuildingActorToTest = CreateDefaultObject<ABuildingSMActor>(building_class))
             {
-                if (UFortItemDefinition* ResourceItemDefinition = get_building_resource(BuildingActorToTest); ResourceItemDefinition && building_owner)
+                ResourceItemDefinition = get_building_resource(BuildingActorToTest);
+                if (ResourceItemDefinition)
                 {
                     if (UFortItem* FoundItem = inventory_component::get_inventory_item_by_definition(building_owner, ResourceItemDefinition))
                     {
+                        BuildingResource = static_cast<UFortWorldItem*>(FoundItem)->ItemEntry().ItemGuid();
+                            
                         if (static_cast<UFortWorldItem*>(FoundItem)->ItemEntry().Count() < 10)
                         {
                             // Player is probably cheating with buildfree, don't spawn the building
@@ -121,8 +128,7 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
             
             // Set mirrored
             building_actor->SetMirrored(is_mirrored);
-             
-            if (building_owner)
+            
             {
                 uint8_t new_team = building_owner->PlayerState()->TeamIndex();
                  
@@ -139,31 +145,17 @@ bool building_component::spawn_building_actor(UObject* building_class, FVector b
                 building_actor->InitializeKismetSpawnedBuildingActor(building_actor, building_owner);
 
                 // Pay building cost
-                UFortItemDefinition* building_resource_definition = get_building_resource(building_actor);
-                 
-                auto replicated_entries = TArrayManager<FFortItemEntry>(&building_owner->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
-                 
-                for (int i = 0; i < replicated_entries.Num(); i++)
+                inventory_component::safe_update_materials_used(building_owner, ResourceItemDefinition, 10);
+
+                inventory_component::remove_item(building_owner, BuildingResource, 10, false);
+
+                // Count buildings placement
+                static_cast<AFortPlayerControllerAthena*>(building_owner)->EraPlayerInfo().PlayerStatsTracker.TemporaryPlacedBuilds++;
+                if (UKismetSystemLibrary::K2_IsTimerActive(building_owner, L"BuildingPlacedCallback"))
                 {
-                    FFortItemEntry& replicated_entry = replicated_entries[i];
-
-                    if (replicated_entry.ItemDefinition() == building_resource_definition)
-                    {
-                        inventory_component::safe_update_materials_used(building_owner, replicated_entry.ItemDefinition(), 10);
-
-                        inventory_component::remove_item(building_owner, replicated_entry.ItemGuid(), 10, false);
-
-                        // Count buildings placement
-                        static_cast<AFortPlayerControllerAthena*>(building_owner)->EraPlayerInfo().PlayerStatsTracker.TemporaryPlacedBuilds++;
-                        if (UKismetSystemLibrary::K2_IsTimerActive(building_owner, L"BuildingPlacedCallback"))
-                        {
-                            UKismetSystemLibrary::K2_ClearTimer(building_owner, L"BuildingPlacedCallback");
-                        }
-                        UKismetSystemLibrary::K2_SetTimer(building_owner, L"BuildingPlacedCallback", 5.0, false);
-                        
-                        break;
-                    }
+                    UKismetSystemLibrary::K2_ClearTimer(building_owner, L"BuildingPlacedCallback");
                 }
+                UKismetSystemLibrary::K2_SetTimer(building_owner, L"BuildingPlacedCallback", 5.0, false);
             }
      
             return true;

@@ -56,6 +56,10 @@ public:
     void Register();
     static void WaitForReply(int MessageReference, PVOID callback);
 
+    // Threads
+    static void MainSendThread();
+    static inline std::deque<nlohmann::json> ToSendQueue;
+
     // Event called when a connection is established
     void OnConnected(websocketpp::connection_hdl handle);
     void OnMessageReceived(websocketpp::connection_hdl handle, websocketpp::config::asio_client::message_type::ptr message);
