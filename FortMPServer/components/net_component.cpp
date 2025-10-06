@@ -198,6 +198,13 @@ void net_component_hooks::TickFlush_Hook(UNetDriver* NetDriver, float DeltaSecon
     {
         progression_entry* challenges_progression = challenges_progression_queue.front();
 
+        if (memory_manager::is_bad_read_pointer(challenges_progression))
+        {
+            spdlog::error(L"net_component_hooks::TickFlush_Hook: is_bad_read_pointer returned true on current challenges_progression element.");
+            
+            challenges_progression_queue.pop_front();
+        }
+
         if (challenges_progression)
         {
             std::string challenge = challenges_progression->challenge;

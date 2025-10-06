@@ -552,7 +552,7 @@ void gameserver_client::OnMessageReceived(websocketpp::connection_hdl handle, we
                 {
                     std::string sEncryptionToken = std::string(JsonPayloadData["account_id"]) + ":" + std::string(JsonPayloadData["session_id"]);
                     std::wstring wEncryptionToken = std::wstring(sEncryptionToken.begin(), sEncryptionToken.end());
-           
+
                     // Add to the valid EncryptionToken list
                     player_component::EncryptionTokenList.push_back(wEncryptionToken);
 

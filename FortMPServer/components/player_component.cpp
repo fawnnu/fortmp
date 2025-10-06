@@ -1970,28 +1970,33 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
 
         if (Platforms.contains(sAccountID))
         {
+            /*
+             * What happened here?
+             *
+             * The checks for each platform ("mobile_ios", "mobile_android" and "pc") have been temporarily
+             * removed due to the backend not updating them properly. This may cause a security breakthrough
+             * and is to be investigated and fixed soon.
+             */
+        
             // Currently supported platforms
             if (Platform == TEXT("AND"))
             {
-                if (Platforms[sAccountID] == "mobile_android")
                 {
-                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'mobile_android' Era platform.");
+                    spdlog::info("player_component::PlatformLogin: authenticated player on '{}' Era platform.", Platforms[sAccountID]);
                     return true;    
                 }
             }
             if (Platform == TEXT("WIN"))
             {
-                if (Platforms[sAccountID] == "pc")
                 {
-                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'pc' Era platform.");
+                    spdlog::info("player_component::PlatformLogin: authenticated player on '{}' Era platform.", Platforms[sAccountID]);
                     return true;
                 }
             }
             if (Platform == TEXT("IOS"))
             {
-                if (Platforms[sAccountID] == "mobile_ios")
                 {
-                    spdlog::info(L"player_component::PlatformLogin: authenticated player on 'mobile_ios' Era platform.");
+                    spdlog::info("player_component::PlatformLogin: authenticated player on '{}' Era platform.", Platforms[sAccountID]);
                     return true;
                 }
             }
