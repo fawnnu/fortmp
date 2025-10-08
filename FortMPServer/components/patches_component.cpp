@@ -1066,6 +1066,39 @@ void patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook(A
     float NewWheelSpinVelocityFL = VelocityMultiplier * Self->WheelSpinVelocityFL() + Self->WheelSpinFL();
     float NewWheelSpinVelocityBR = VelocityMultiplier * Self->WheelSpinVelocityBR() + Self->WheelSpinBR();
     float NewWheelSpinVelocityBL = VelocityMultiplier * Self->WheelSpinVelocityBL() + Self->WheelSpinBL();
+
+    static float MaxValue = 32767.0;
+    static float MinValue = -32767.0;
+    static bool bLogged = false;
+
+    if (NewWheelSpinVelocityFR > MaxValue ||
+        NewWheelSpinVelocityFL > MaxValue ||
+        NewWheelSpinVelocityBR > MaxValue ||
+        NewWheelSpinVelocityBL > MaxValue)
+    {
+        if (bLogged == false)
+        {
+            bLogged = true;
+
+            spdlog::error(L"patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook has a bigger value than 32767. Aborting.");
+        }
+
+        return;
+    }
+    if (NewWheelSpinVelocityFR < MinValue ||
+        NewWheelSpinVelocityFL < MinValue ||
+        NewWheelSpinVelocityBR < MinValue ||
+        NewWheelSpinVelocityBL < MinValue)
+    {
+        if (bLogged == false)
+        {
+            bLogged = true;
+
+            spdlog::error(L"patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook has a smaller value than -32767. Aborting.");
+        }
+
+        return;
+    }
     
     if ( !isnan(NewWheelSpinVelocityFR) )
     {
