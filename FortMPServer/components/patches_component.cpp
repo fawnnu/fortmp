@@ -31,6 +31,9 @@ patches_component::patches_component()
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
 
+    // Docs @ impl
+    REGISTER_FUNCTION_DETOUR(patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity, memory_manager::find_pattern("48 83 EC 18 F3 0F 10 25 ? ? ? ? 0F 28 C1 F3 0F 59 81 ? ? ? ? 0F 29 34 24 F3 0F 10 35 ? ? ? ? F3 0F 58 81 ? ? ? ? 0F 2F C4 76 09 F3 0F 58 C6 0F 2F C4 77 F7 F3 0F 10 1D ? ? ? ? 0F 2F C3 F3 0F 10 2D ? ? ? ? 73 0B"), patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook);
+
     // Hook ReplicateActor to patch a crash
     REGISTER_FUNCTION_DETOUR(patches_component_hook::ReplicateActor, memory_manager::find_function_by_string(L"ReplicateActor: bPausedUntilReliableACK"), patches_component_hook::ReplicateActor_Hook);
 
@@ -1037,4 +1040,63 @@ PVOID patches_component_hook::FGameplayTagContainer_Filter_Hook(PVOID Self, PVOI
     }
 
     return FGameplayTagContainer_Filter(Self, Unk, Tags);
+}
+
+/*
+ * AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook: What is this for?
+ *
+ * This was implemented specifically for Era's instance of 7.20.
+ * The loops, like:
+ 
+   for ( ; NewWheelSpinVelocityFR > 180.0; NewWheelSpinVelocityFR = NewWheelSpinVelocityFR + -360.0 )
+            ;
+
+ * Cause a never-ending loop if the value (NewWheelSpinVelocityFR) is NaN, therefore resulting in a hang on the Game Thread,
+ * which detected by Era's game thread heartbeat system, will shutdown FortMP after around 200 seconds.
+ *
+ * The fix itself was implemented in 7.40's binaries, simply checking, among other things (not implemented here) if the values are valid numbers.
+ *
+ * This may be caused by the fact that the vehicle is pending destruction. It is also possible it's related to movement bugs with vehicles in 7.20.
+ *
+ * The function is part of AFortAthenaSKVehicle's VTable.
+ */
+void patches_component_hook::AFortAthenaSKVehicle_UpdateWheelSpinVelocity_Hook(AFortAthenaSKVehicle* Self, float VelocityMultiplier)
+{
+    float NewWheelSpinVelocityFR = VelocityMultiplier * Self->WheelSpinVelocityFR() + Self->WheelSpinFR();
+    float NewWheelSpinVelocityFL = VelocityMultiplier * Self->WheelSpinVelocityFL() + Self->WheelSpinFL();
+    float NewWheelSpinVelocityBR = VelocityMultiplier * Self->WheelSpinVelocityBR() + Self->WheelSpinBR();
+    float NewWheelSpinVelocityBL = VelocityMultiplier * Self->WheelSpinVelocityBL() + Self->WheelSpinBL();
+    
+    if ( !isnan(NewWheelSpinVelocityFR) )
+    {
+        for ( ; NewWheelSpinVelocityFR > 180.0; NewWheelSpinVelocityFR = NewWheelSpinVelocityFR + -360.0 )
+            ;
+        for ( ; NewWheelSpinVelocityFR < -180.0; NewWheelSpinVelocityFR = NewWheelSpinVelocityFR + 360.0 )
+            ;
+        Self->WheelSpinVelocityFR() = NewWheelSpinVelocityFR;
+    }
+    if ( !isnan(NewWheelSpinVelocityFL) )
+    {
+        for ( ; NewWheelSpinVelocityFL > 180.0; NewWheelSpinVelocityFL = NewWheelSpinVelocityFL + -360.0 )
+            ;
+        for ( ; NewWheelSpinVelocityFL < -180.0; NewWheelSpinVelocityFL = NewWheelSpinVelocityFL + 360.0 )
+            ;
+        Self->WheelSpinVelocityFL() = NewWheelSpinVelocityFL;
+    }
+    if ( !isnan(NewWheelSpinVelocityBR) )
+    {
+        for ( ; NewWheelSpinVelocityBR > 180.0; NewWheelSpinVelocityBR = NewWheelSpinVelocityBR + -360.0 )
+            ;
+        for ( ; NewWheelSpinVelocityBR < -180.0; NewWheelSpinVelocityBR = NewWheelSpinVelocityBR + 360.0 )
+            ;
+        Self->WheelSpinVelocityBR() = NewWheelSpinVelocityBR;
+    }
+    if ( !isnan(NewWheelSpinVelocityBL) )
+    {
+        for ( ; NewWheelSpinVelocityBL > 180.0; NewWheelSpinVelocityBL = NewWheelSpinVelocityBL + -360.0 )
+            ;
+        for ( ; NewWheelSpinVelocityBL < -180.0; NewWheelSpinVelocityBL = NewWheelSpinVelocityBL + 360.0 )
+            ;
+        Self->WheelSpinVelocityBL() = NewWheelSpinVelocityBL;
+    }
 }

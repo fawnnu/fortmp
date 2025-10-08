@@ -118,6 +118,9 @@ namespace patches_component_hook
     DEFINE_FUNCTION_HOOK(PVOID, UnkFunc, (PVOID a1, PVOID* a2));
     DEFINE_FUNCTION_HOOK(bool, FNetGUIDCache__SupportsObject, (PVOID Self, UObject* Object, TWeakObjectPtr<UObject>* WeakObjectPtr));
     DEFINE_FUNCTION_HOOK(PVOID, FGameplayTagContainer_Filter, (PVOID Self, PVOID Unk, TArray<FGameplayTag>* Tags));
+
+    // Docs in patches_component.cpp's implementation of the hook
+    DEFINE_FUNCTION_HOOK(void, AFortAthenaSKVehicle_UpdateWheelSpinVelocity, (class AFortAthenaSKVehicle* Self, float VelocityMultiplier));
 };
 
 inline int TimesLoggedMSGSIZEExploit;

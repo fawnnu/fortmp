@@ -379,6 +379,19 @@ public:
     }
 };
 
+class AFortAthenaSKVehicle : public AFortAthenaVehicle
+{
+public:
+    DEFINE_PROPERTY(float, WheelSpinFR);
+    DEFINE_PROPERTY(float, WheelSpinFL);
+    DEFINE_PROPERTY(float, WheelSpinBR);
+    DEFINE_PROPERTY(float, WheelSpinBL);
+    DEFINE_PROPERTY(float, WheelSpinVelocityFR);
+    DEFINE_PROPERTY(float, WheelSpinVelocityFL);
+    DEFINE_PROPERTY(float, WheelSpinVelocityBR);
+    DEFINE_PROPERTY(float, WheelSpinVelocityBL);
+};
+
 class AShoppingCartVehicleSK : public AFortAthenaVehicle
 {
 public:
