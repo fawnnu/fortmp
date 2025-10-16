@@ -24,6 +24,11 @@ class AFortVolume;
 struct FMinigamePlayer : public FFastArraySerializerItem
 {
 public:
+    bool operator==(AFortPlayerState* cmp)
+    {
+        return PlayerState() == cmp;
+    }
+    
     DEFINE_STRUCT_PROPERTY(AActor*, ClaimedPlayerStart);
     DEFINE_STRUCT_PROPERTY(AFortPlayerState*, PlayerState);
 
@@ -33,7 +38,7 @@ public:
 struct FMinigamePlayers : public FFastArraySerializer
 {
 public:
-    DEFINE_STRUCT_PROPERTY(TArray<FMinigamePlayer>*, Players);
+    DEFINE_STRUCT_PROPERTY(TArray<FMinigamePlayer>, Players);
     DEFINE_STRUCT_PROPERTY(class AFortMinigame*, Owner);
 	
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.MinigamePlayers")
@@ -48,7 +53,15 @@ public:
     DEFINE_PROPERTY(AFortVolume*, Volume);
     DEFINE_PROPERTY(FMinigamePlayers, PlayerArray);
     DEFINE_PROPERTY(uint8, CurrentState);
+    DEFINE_PROPERTY(bool, bAllowJoinInProgress);
 
+    bool IsPlayerInOurVolume(AFortPlayerState* PlayerState)
+    {
+        STATIC_FINDFUNCTION(IsPlayerInOurVolume)
+
+        return Call<bool>(Function_IsPlayerInOurVolume, PlayerState);
+    }
+    
     AActor* ChoosePlayerStart(AController* Player)
     {
         STATIC_FINDFUNCTION(ChoosePlayerStart)

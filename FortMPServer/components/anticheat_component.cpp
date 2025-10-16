@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "anticheat_component.hpp"
 
+#include "creative_component.hpp"
 #include "log_component.hpp"
 #include "looting_component.hpp"
 #include "moderation_component.hpp"
@@ -141,6 +142,26 @@ bool anticheat_component::ValidateBuildingPlacement(AFortPlayerControllerAthena*
                     {
                         Player->EraPlayerInfo().IllegalBuildingPlacements++;
                         spdlog::error("Player attempting illegal building placement. Aborting. Count: {}", Player->EraPlayerInfo().IllegalBuildingPlacements);
+
+                        return false;
+                    }
+
+                    // Creative checks!
+                    if (creative_component::is_creative_enabled())
+                    {
+                        if (Player->Cast<AFortPlayerControllerAthena>())
+                        {
+                            if (auto Minigame = Player->GetMinigame())
+                            {
+                                if (Minigame->IsPlayerInOurVolume(Player->PlayerState()))
+                                {
+                                    /*
+                                     * Only allow building within the minigame volume (island)
+                                     */
+                                    return true;
+                                }
+                            }
+                        }
 
                         return false;
                     }

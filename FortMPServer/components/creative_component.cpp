@@ -21,16 +21,50 @@ creative_component::creative_component()
             REGISTER_VTABLE_HOOK(CreateDefaultObject<UFortLevelSaveComponent>()->VTable, creative_component_hooks::SaveOutLevelRecord_Index, creative_component_hooks::SaveOutLevelRecord);
         }
     }
+
+    if (UFunction* HandleMinigameStarted = FindObject<UFunction>(L"/Script/FortniteGame.FortMinigame.HandleMinigameStarted"))
+    {
+        if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(HandleMinigameStarted->get_native_function()), {0x48, 0xFF, 0xA0}))
+        {
+            creative_component_hooks::HandleMinigameStarted_Index = *reinterpret_cast<int*>(Result + 3) / 8;
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortMinigame>()->VTable, creative_component_hooks::HandleMinigameStarted_Index, creative_component_hooks::HandleMinigameStarted);
+        }
+    }
+
+    if (UFunction* HandleMinigameEnded = FindObject<UFunction>(L"/Script/FortniteGame.FortMinigame.HandleMinigameEnded"))
+    {
+        if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(HandleMinigameEnded->get_native_function()), {0x48, 0xFF, 0xA0}))
+        {
+            creative_component_hooks::HandleMinigameEnded_Index = *reinterpret_cast<int*>(Result + 3) / 8;
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortMinigame>()->VTable, creative_component_hooks::HandleMinigameEnded_Index, creative_component_hooks::HandleMinigameEnded);
+        }
+    }
     
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordRead", creative_component_hooks::OnFinishedRecordRead_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.LevelSaveBaseComponent.OnFinishedRecordWrite", creative_component_hooks::OnFinishedRecordWrite_Hook);
     REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.PlaysetLevelStreamComponent.OnFinishedLoading", creative_component_hooks::OnFinishedLoading_Hook);
-    REGISTER_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortMinigame.HandleMinigameStarted", creative_component_hooks::HandleMinigameStarted_Hook);
-    REGISTER_POST_PROCESS_EVENT_DETOUR(L"/Script/FortniteGame.FortMinigame.HandleMinigameEnded", creative_component_hooks::HandleMinigameEnded_Hook);
     REGISTER_CALL_DETOUR(L"/Script/FortniteGame.FortAthenaCreativePortal.TeleportPlayerToLinkedVolume", creative_component_hooks::TeleportPlayerToLinkedVolume_Hook);
     
     DetourTransactionBegin();
     DetourUpdateThread(GetCurrentThread());
+
+    // Hook native entering/exited playspace (island) events to avoid people carrying inventories on the main island accidentally (due to fortnite's own bugs)
+    if (UFunction* NativeEnteringPlayspaceEvent = FindObject<UFunction>(L"/Script/FortniteGame.FortMinigame.NativeEnteringPlayspaceEvent"))
+    {
+        if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(NativeEnteringPlayspaceEvent->get_native_function()), {0xE8, 0x100, 0x100, 0x100, 0xFF}))
+        {
+            uint64 TargetFunction = Result + 5 + *reinterpret_cast<int32*>(Result + 1);
+            REGISTER_FUNCTION_DETOUR(creative_component_hooks::NativeEnteringPlayspaceEvent, TargetFunction, creative_component_hooks::NativeEnteringPlayspaceEvent_Hook);
+        }
+    }
+    if (UFunction* NativeExitedPlayspaceEvent = FindObject<UFunction>(L"/Script/FortniteGame.FortMinigame.NativeExitedPlayspaceEvent"))
+    {
+        if (const uint64 Result = memory_manager::scan_for(reinterpret_cast<uintptr_t>(NativeExitedPlayspaceEvent->get_native_function()), {0xE8, 0x100, 0x100, 0x100, 0xFF}))
+        {
+            uint64 TargetFunction = Result + 5 + *reinterpret_cast<int32*>(Result + 1);
+            REGISTER_FUNCTION_DETOUR(creative_component_hooks::NativeExitedPlayspaceEvent, TargetFunction, creative_component_hooks::NativeExitedPlayspaceEvent_Hook);
+        }
+    }
     
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerGiveCreativeItem, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerGiveCreativeItem", creative_component_hooks::ServerGiveCreativeItem_Hook);
     REGISTER_FUNCTION_DETOUR(creative_component_hooks::AddMiniGamePlayer, memory_manager::find_function_by_string(L".AddMinigamePlayer - %s added"), creative_component_hooks::AddMiniGamePlayer_Hook);
@@ -45,7 +79,7 @@ creative_component::creative_component()
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 84 C0 75 38 80 3D ? ? ? ? ? 72 2A 48 8B 05 ? ? ? ? 4C 8D 45 28 48 89 45 28"), creative_component_hooks::LoadFileToArray);
     
     DetourTransactionCommit();
-
+    
     // Register custom function
     REGISTER_CUSTOM_UFUNCTION(TeleportPlayerToLobbyIslandWithTimer, AFortPlayerControllerAthena::StaticClass())
     REGISTER_CUSTOM_UFUNCTION(TeleportPlayerToIsland, AFortPlayerControllerAthena::StaticClass())
@@ -62,15 +96,25 @@ void creative_component_hooks::SetTeamForPlayer_Hook(AFortMinigame* Self, AFortP
 
 void creative_component_hooks::AddMiniGamePlayer_Hook(AFortMinigame* MiniGame, AFortPlayerState* PlayerState)
 {
+    if (log_component::enable_debug_logs)
+    {
+        if (STATIC_HASPROPERTY(MiniGame, bAllowJoinInProgress))
+        {
+            spdlog::info(L"creative_component:AddMiniGamePlayer_Hook: bAllowJoinInProgress {}", MiniGame->bAllowJoinInProgress());
+        }
+    }
+    
     AddMiniGamePlayer(MiniGame, PlayerState);
     
     if(MiniGame->Volume())
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
-            MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()++;
+            {
+                MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation() = MiniGame->PlayerArray().Players().Num();
             
-            spdlog::info(L"creative_component:AddMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
+                spdlog::info(L"[{}] creative_component:AddMiniGamePlayer_Hook: Updating Island population {}", MiniGame->GetFullName().c_str(), MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
+            }
         }
     }
 }
@@ -83,7 +127,7 @@ void creative_component_hooks::RemoveMiniGamePlayer_Hook(AFortMinigame* MiniGame
     {
         if(MiniGame->Volume()->LinkedPortals()[0])
         {
-            MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation()--;
+            MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation() = MiniGame->PlayerArray().Players().Num();
             
             spdlog::info(L"creative_component:RemoveMiniGamePlayer_Hook: Updating Island population {}", MiniGame->Volume()->LinkedPortals()[0]->CurrentPopulation());
         }
@@ -751,14 +795,27 @@ bool creative_component_hooks::LoadFileToArray_Hook(TArray<uint8>& Self, const T
     return false;
 }
 
-void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObject*, void*)
+void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object)
 {
+    // Call native function
+    HandleMinigameStarted(Object);
+
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: processing players.");   
+    }
+    
     AFortMinigame* Minigame = static_cast<AFortMinigame*>(Object);
     
     TArrayManager Players = TArrayManager<FMinigamePlayer>(&Minigame->PlayerArray().Players(), FMinigamePlayer::GetStructSize());
     
     for (FMinigamePlayer& Player : Players)
     {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: processing {}", Player.PlayerState()->GetName().c_str());
+        }
+        
         if  (!Player.PlayerState() || !Player.PlayerState()->Owner())
         {
             continue;
@@ -775,22 +832,24 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
             inventory_component::remove_item(PlayerController, Item->GetItemGuid(), -1, false);
         }
 
-        if (!Player.ClaimedPlayerStart())
-        {
-            Player.ClaimedPlayerStart() = Minigame->ChoosePlayerStart(PlayerController);
-        }
+        AActor* ClaimedPlayerStart = Minigame->ChoosePlayerStart(PlayerController);
         
-        if (Player.ClaimedPlayerStart())
+        if (ClaimedPlayerStart)
         {
             // Destroy current pawn, and restart
             if (AFortPawn* PlayerPawn = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn())
             {
                 PlayerPawn->K2_DestroyActor();
             
-                (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, Player.ClaimedPlayerStart());
+                (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, ClaimedPlayerStart);
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: restarted {} at picked Player Start", Player.PlayerState()->GetName().c_str());
+                }
             }
             
-            Player.ClaimedPlayerStart() = nullptr;
+            ClaimedPlayerStart = nullptr;
         }
         else
         {
@@ -811,14 +870,27 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object, UObje
                     {
                         PlayerController->Pawn()->BeginSkydiving(false);
                     }
+
+                    if (log_component::enable_debug_logs)
+                    {
+                        spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: restarted {} at picked Spawn Location. Skydiving: {}", Player.PlayerState()->GetName().c_str(), !bOutRespawningOnGround);
+                    }
                 }
             }
         }
     }
 }
 
-void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object, UObject*, void*)
+void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object)
 {
+    // Call native function
+    HandleMinigameEnded(Object);
+    
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"creative_component_hooks::HandleMinigameEnded_Hook: processing players.");   
+    }
+    
     AFortMinigame* Minigame = static_cast<AFortMinigame*>(Object);
     FUniqueNetIdRepl AccountIdOfOwner{};
     bool bFoundOwner = false;
@@ -868,7 +940,7 @@ void creative_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerS
 
     if (log_component::enable_debug_logs)
     {
-        spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request...");
+        spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook received permissions update request ({}, {})...", bCanEdit, WhiteList.Num());
     }
 
     if (creative_component::is_creative_enabled())
@@ -884,21 +956,64 @@ void creative_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerS
                         UFortLevelSaveComponent* LevelSaveComponent = reinterpret_cast<UFortLevelSaveComponent*>(Component);
 
                         // Change permissions
-                        LevelSaveComponent->PlotPermissions().Permission() = bCanEdit;
+                        if (STATIC_HASPROPERTY(LevelSaveComponent, PlotPermissions))
+                        {
+                            LevelSaveComponent->PlotPermissions().Permission() = bCanEdit;
                         
-                        // Recreate WhiteList array
-                        TArrayManager WhiteListArray = TArrayManager(&LevelSaveComponent->PlotPermissions().WhiteList(), sizeof FString);
-                        WhiteListArray.Clear(FindPropertyByName(LevelSaveComponent->PlotPermissions().GetClass(), TEXT("WhiteList")));
-                        for (FString& WhitelistElement : WhiteList)
-                        {
-                            LevelSaveComponent->PlotPermissions().WhiteList().Add(std::wstring(WhitelistElement.c_str()));
+                            // Recreate WhiteList array
+                            TArrayManager WhiteListArray = TArrayManager(&LevelSaveComponent->PlotPermissions().WhiteList(), sizeof FString);
+                            WhiteListArray.Clear(FindPropertyByName(LevelSaveComponent->PlotPermissions().GetClass(), TEXT("WhiteList")));
+                            for (FString& WhitelistElement : WhiteList)
+                            {
+                                LevelSaveComponent->PlotPermissions().WhiteList().Add(std::wstring(WhitelistElement.c_str()));
+                            }
+
+                            LevelSaveComponent->OnRep_PlotPermissionsChanged();
+
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"Changed plot permissions for {}. New permission: '{}', WhiteList.Num: {}", Self->GetName().c_str(), LevelSaveComponent->PlotPermissions().Permission() ? L"Public" : L"Private", LevelSaveComponent->PlotPermissions().WhiteList().Num());
+                            }
                         }
-
-                        LevelSaveComponent->OnRep_PlotPermissionsChanged();
-
-                        if (log_component::enable_debug_logs)
+                        else
                         {
-                            spdlog::info(L"Changed plot permissions for {}. New permission: '{}', WhiteList.Num: {}", Self->GetName().c_str(), LevelSaveComponent->PlotPermissions().Permission() ? L"Public" : L"Private", LevelSaveComponent->PlotPermissions().WhiteList().Num());
+                            if (auto Minigame = Self->Owner()->Cast<AFortPlayerControllerAthena>()->GetMinigame())
+                            {
+                                if (log_component::enable_debug_logs)
+                                {
+                                    spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook changing everyone's bCanEdit permissions.");
+                                }
+
+                                // Safe
+                                if (*GWorld && (*GWorld)->NetDriver())
+                                {
+                                    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                                    {
+                                        if (Connection)
+                                        {
+                                            if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                                            {
+                                                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()->PlayerState()) && Connection->PlayerController()->PlayerState())
+                                                {
+                                                    if (Minigame->IsPlayerInOurVolume(Connection->PlayerController()->PlayerState()))
+                                                    {
+                                                        // Change permission
+                                                        Connection->PlayerController()->PlayerState()->bCanEditCreativeIsland() = bCanEdit;
+                                                            
+                                                        if (log_component::enable_debug_logs)
+                                                        {
+                                                            spdlog::info(L"player_component_hooks::Server_SetCanEditCreativeIsland_Hook updated permission for {} as player is in the Minigame's volume.",
+                                                                Connection->PlayerController()->PlayerState()->GetFullName().c_str());
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Now set individual permissions
+                            }
                         }
                     }
                 }
@@ -913,3 +1028,43 @@ void creative_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerS
         }
     }
 }
+
+void creative_component_hooks::NativeEnteringPlayspaceEvent_Hook(AFortMinigame* Self, class APlayerState* PlayerState, class AFortVolume* EnteredVolume)
+{
+    NativeEnteringPlayspaceEvent(Self, PlayerState, EnteredVolume);
+}
+
+void creative_component_hooks::NativeExitedPlayspaceEvent_Hook(AFortMinigame* Self, class APlayerState* PlayerState, class AFortVolume* ExitedVolume)
+{
+    NativeExitedPlayspaceEvent(Self, PlayerState, ExitedVolume);
+    
+    // After fortnite's own code, make sure there's nothing in the inventory anymore.
+    // This is not only used as one is permanently leaving the island, but also when the island is left by temporarily crossing its boundaries
+
+    if (!memory_manager::is_bad_read_pointer(PlayerState) && PlayerState)
+    {
+        if (!memory_manager::is_bad_read_pointer(PlayerState->Owner()) && PlayerState->Owner() && PlayerState->Owner()->Cast<AFortPlayerControllerAthena>())
+        {
+            AFortPlayerControllerAthena* PlayerController = PlayerState->Owner()->Cast<AFortPlayerControllerAthena>();
+            
+            // clear inventory ( in case game fails to )
+            inventory_component::clear_primary_inventory(PlayerController, false);
+        
+            // Remove phone ( in case game fails to )
+            if (UFortItem* Item = inventory_component::get_inventory_item_by_definition(PlayerController, FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Weapons/Prototype/WID_CreativeTool.WID_CreativeTool")))
+            {
+                inventory_component::remove_item(PlayerController, Item->GetItemGuid(), -1, false);
+            }
+
+            // reset perms, just in case
+            PlayerState->Cast<AFortPlayerStateAthena>()->bCanEditCreativeIsland() = false;
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"creative_component_hooks::NativeExitedPlayspaceEvent_Hook: Cleared inventory for: {} (Leaving Playspace)", PlayerController->GetName().c_str());
+                spdlog::info(L"creative_component_hooks::NativeExitedPlayspaceEvent_Hook: Reset island permissions for: {} (Leaving Playspace)", PlayerController->GetName().c_str());
+            }
+        }
+    }
+}
+

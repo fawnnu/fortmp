@@ -3295,7 +3295,13 @@ void player_component_hooks::ServerChangeName_Hook(AFortPlayerController*, FFram
 
 void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer)
 {
-    // Call native function
+    // Handle creative first.
+    creative_component::handle_player_join(NewPlayer->NetConnection());
+    
+    /*
+     * Call native function:
+     * This handles HandleStartingNewPlayer, which ends up calling RestartPlayer, finally spawning the pawn for the controller in question.
+     */
     PostLogin(FortGameModeAthena, NewPlayer);
 
     // Kick the player if a ban record exists
@@ -3588,8 +3594,6 @@ void player_component_hooks::ServerReadyToStartMatch_Hook(AFortPlayerController*
                 FortPlayerController->ServerExecuteInventoryItem(inventory_component::get_pickaxe(FortPlayerController)->ItemEntry().ItemGuid());
             }
     
-            creative_component::handle_player_join(FortPlayerController->NetConnection());
-
             UKismetSystemLibrary::SetBoolPropertyByName(FortPlayerController->PlayerState(), L"bHasStartedPlaying", true);
         }   
     }
@@ -3718,6 +3722,8 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
 
         // Implementable event
         (*GWorld)->AuthorityGameMode()->OnPawnFinishedSpawning(NewPlayer->Pawn());
+
+        // Fix creative spawn bugs
     }
 }
 

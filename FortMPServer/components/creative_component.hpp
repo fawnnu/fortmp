@@ -47,8 +47,8 @@ namespace creative_component_hooks
 
     DEFINE_FUNCTION_HOOK(void, OnFinishedRecordRead, (UObject*, UObject*, void*));
     DEFINE_FUNCTION_HOOK(void, OnFinishedRecordWrite, (UObject*, UObject*, void*));
-    DEFINE_FUNCTION_HOOK(void, HandleMinigameStarted, (UObject*, UObject*, void*));
-    DEFINE_FUNCTION_HOOK(void, HandleMinigameEnded, (UObject*, UObject*, void*));
+    DEFINE_FUNCTION_HOOK(void, HandleMinigameStarted, (UObject*));
+    DEFINE_FUNCTION_HOOK(void, HandleMinigameEnded, (UObject*));
     DEFINE_FUNCTION_HOOK(void, HandleMinigameWarmup, (UObject*, UObject*, void*));
     DEFINE_FUNCTION_HOOK(void, OnFinishedLoading, (UObject*, UObject*, void*));
     DEFINE_FUNCTION_HOOK(void, SaveOutLevelRecord, (UFortLevelSaveComponent* Self))
@@ -56,7 +56,11 @@ namespace creative_component_hooks
     DEFINE_FUNCTION_HOOK(bool, LoadFileToArray, (TArray<uint8>& Self, const TCHAR* FileName, uint32 WriteFlags))
     DEFINE_FUNCTION_HOOK(void, SetTeamForPlayer, (AFortMinigame* Self, AFortPlayerController* AFortPlayerController, uint8_t TeamIndex));
     DEFINE_FUNCTION_HOOK(void, Server_SetCanEditCreativeIsland, (AFortPlayerStateAthena* Self, FFrame& StackFrame));
+    DEFINE_FUNCTION_HOOK(void, NativeEnteringPlayspaceEvent, (AFortMinigame* Self, class APlayerState* PlayerState, class AFortVolume* EnteredVolume));
+    DEFINE_FUNCTION_HOOK(void, NativeExitedPlayspaceEvent, (AFortMinigame* Self, class APlayerState* PlayerState, class AFortVolume* ExitedVolume));
     inline int SaveOutLevelRecord_Index;
+    inline int HandleMinigameStarted_Index;
+    inline int HandleMinigameEnded_Index;
 }
 
 // Used to load a creative playset

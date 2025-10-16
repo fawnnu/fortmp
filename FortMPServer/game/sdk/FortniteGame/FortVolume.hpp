@@ -106,6 +106,20 @@ public:
         return Call<AFortVolume*>(Function_GetVolumeForPlayerState, PlayerState);
     }
 
+    AFortVolume* GetVolumeForActor(AActor* Actor)
+    {
+        STATIC_FINDFUNCTION(GetVolumeForActor);
+
+        return Call<AFortVolume*>(Function_GetVolumeForActor, Actor);
+    }
+
+    AFortVolume* GetVolumeForLocation(FVector Location)
+    {
+        STATIC_FINDFUNCTION(GetVolumeForLocation);
+
+        return Call<AFortVolume*>(Function_GetVolumeForLocation, Location);
+    }
+
     TArray<AFortPlayerControllerAthena*> GetAllPlayersInVolume(AFortVolume* Volume)
     {
         STATIC_FINDFUNCTION(GetAllPlayersInVolume);

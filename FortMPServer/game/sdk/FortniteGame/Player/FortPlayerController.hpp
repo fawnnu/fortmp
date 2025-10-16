@@ -721,6 +721,14 @@ public:
         return Call<AFortMinigame*>(Function_GetMinigame);
     }
 
+
+    AFortVolume* GetCurrentVolume()
+    {
+        STATIC_FINDFUNCTION(GetCurrentVolume)
+        
+        return Call<AFortVolume*>(Function_GetCurrentVolume);
+    }
+
     void PostLobbyIslandTeleport(AFortPlayerPawn* FortPlayerPawn)
     {
         STATIC_FINDFUNCTION(PostLobbyIslandTeleport)

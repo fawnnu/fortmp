@@ -75,7 +75,7 @@ struct TArray
 
 		return false;
 	}
-
+	
 	int Slack()
 	{
 		return Max - Count;
@@ -554,6 +554,20 @@ public:
         return *reinterpret_cast<T*>(uintptr_t(TArr.Data) + Idx * ElementSize);
     }
 
+	template<typename T1 = T>
+	bool Find(T1 ElementToFind)
+    {
+    	for (auto Element : *this)
+    	{
+    		if (ElementToFind == Element)
+    		{
+    			return true;
+    		}
+    	}
+
+    	return false;
+    }
+	
     int Add(PVOID NewElement)
     {
         auto& TArr = *reinterpret_cast<TArray<Struct>*>(Array); 
