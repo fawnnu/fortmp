@@ -495,7 +495,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
         // Open the portal
         creative_portal->bPortalOpen() = true;
-        creative_portal->bDisallowPortalInteract() = false;
+        creative_portal->bDisallowPortalInteract() = true;
         
         player_controller_athena->OwnedPortal() = creative_portal;
         
