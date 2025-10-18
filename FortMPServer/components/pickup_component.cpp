@@ -284,6 +284,18 @@ void pickup_component::handle_pickup(AFortPickup* Pickup, AFortPlayerPawn* Playe
     
     // Prevent additional pickups
     Pickup->bPickedUp() = true;
+
+    // Fire delegate(s)
+    for (auto Invocation : Pickup->OnPickup().InvocationList)
+    {
+        if (Invocation.Object.Get())
+        {
+            if (UObject* Function = FindFunctionByName(Invocation.Object.Get()->Class, Invocation.FunctionName, 1))
+            {
+                Invocation.Object.Get()->Call(Function, Pickup, PlayerPawn, Pickup->PrimaryPickupItemEntry().ItemDefinition(), PickupLoc);
+            }
+        }
+    }
 }
 
 void pickup_component::initialize_pickup(AFortPickup* pickup, UFortItemDefinition* item_definition, int count)

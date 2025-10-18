@@ -253,10 +253,20 @@ void creative_component::LoadIsland(AFortVolume* Owner)
             {
                 std::filesystem::remove(Path);
             }
-        }
 
-        // Load level record
-        LevelSaveComponent->LoadLevelRecord();
+            // There will be a new record: prepare the island
+
+            // Log
+            spdlog::info(L"creative_component::LoadIsland: Using clean island (No record on R2). Processing ResetVolumeAndLevelRecord");
+            
+            // Generate island
+            (*GWorld)->GameState()->VolumeManager()->ResetVolumeAndLevelRecord(Owner, nullptr);
+        }
+        else
+        {
+            // Load level record
+            LevelSaveComponent->LoadLevelRecord();
+        }
     }
 }
 
@@ -348,8 +358,65 @@ AFortPlayerControllerAthena* creative_component::GetVolumeOwner(AFortVolume* Vol
     return nullptr;
 }
 
+void creative_component::OnRespawn(AController* PlayerController, AActor*& PickedStart)
+{
+    // Creative?
+    if (is_creative_enabled() && PickedStart)
+    {
+        // Safety checks 
+        if (!memory_manager::is_bad_read_pointer(PlayerController) && PlayerController)
+        {
+            // Class
+            if (AFortPlayerControllerAthena* AthenaPlayerController = PlayerController->Cast<AFortPlayerControllerAthena>())
+            {
+                TArray<AFortPlayerStartCreative*> PlayerStarts = UGameplayStatics::GetAllActorsOfClass<AFortPlayerStartCreative>();
+                
+                // If we're on an island DO NOT ever use spawn island player starts
+                if (AthenaPlayerController->CreativePlotLinkedVolume())
+                {
+                    // Spawn island?
+                    if (AFortPlayerStartCreative* PickedStartCreative = PickedStart->Cast<AFortPlayerStartCreative>())
+                    {
+                        if (PickedStartCreative->PlayerStartTags().GameplayTags.Find(FGameplayTag(TEXT("Playground.LobbyIsland.Spawn"))) ||
+                            PickedStartCreative->PlayerStartTags().GameplayTags.Find(FGameplayTag(TEXT("Playground.IslandDock.Spawn"))))
+                        {
+                            // Pick a new start
+                            for (AFortPlayerStartCreative* PlayerStart : PlayerStarts)
+                            {
+                                if (PlayerStart->CreativeLinkComponent())
+                                {
+                                    if (PlayerStart->CreativeLinkComponent()->LinkedVolume() == AthenaPlayerController->CreativePlotLinkedVolume())
+                                    {
+                                        if (PlayerStart->PlayerStartTags().GameplayTags.Find(FGameplayTag(TEXT("Creative.Island.Spawn"))))
+                                        {
+                                            // log
+                                            if (log_component::enable_debug_logs)
+                                            {
+                                                spdlog::info(L"creative_component::OnRespawn: Spawn redirected. Picked start {} (before: {}) for player {}.",
+                                                    PlayerStart->GetName().c_str(),
+                                                    PickedStart->GetName().c_str(),
+                                                    AthenaPlayerController->GetName().c_str());
+                                            }
+                                        
+                                            // Found new start
+                                            PickedStart = PlayerStart;
+                                        
+                                            // Return
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void creative_component::TeleportPlayerToLobbyIslandWithTimer(AFortPlayerControllerAthena* FortPlayerControllerAthena,
-    FFrame& StackFrame)
+                                                              FFrame& StackFrame)
 {
     INIT_CUSTOM_FUNCTION();
 
@@ -500,10 +567,6 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
                         creative_portal->LinkedVolume()->LinkedPortals().Add(creative_portal);
                         
                         (*GWorld)->GameState()->VolumeManager()->UpdateVolumeLevelStreams();
-
-                        // TODO: Proper
-                        auto NewVolume = (*GWorld)->GameState()->VolumeManager()->SpawnVolume(FindObject(L"/Game/Athena/BuildingActors/FortVolumeActor_PrefabGrenades.FortVolumeActor_PrefabGrenades_C", true), Playset, creative_portal->LinkedVolume()->K2_GetActorLocation(), creative_portal->LinkedVolume()->K2_GetActorRotation());
-                        if (NewVolume) NewVolume->K2_DestroyActor();
                         
                         // Log
                         spdlog::info(L"Created and loaded Island ('{}') for portal '{}'", Plot->GetName().c_str(), creative_portal->GetName().c_str());
@@ -832,51 +895,33 @@ void creative_component_hooks::HandleMinigameStarted_Hook(UObject* Object)
             inventory_component::remove_item(PlayerController, Item->GetItemGuid(), -1, false);
         }
 
-        AActor* ClaimedPlayerStart = Minigame->ChoosePlayerStart(PlayerController);
-        
-        if (ClaimedPlayerStart)
+        // Get a respawn location
+        FVector Loc;
+        FRotator Rot;
+        bool bOutRespawningOnGround;
+        if (static_cast<AFortMinigame*>(Object)->DetermineSpawnLocation(static_cast<AFortPlayerStateAthena*>(Player.PlayerState()), &Loc, &Rot, &bOutRespawningOnGround))
         {
             // Destroy current pawn, and restart
             if (AFortPawn* PlayerPawn = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn())
             {
                 PlayerPawn->K2_DestroyActor();
-            
-                (*GWorld)->AuthorityGameMode()->RestartPlayerAtPlayerStart(PlayerController, ClaimedPlayerStart);
+                
+                (*GWorld)->AuthorityGameMode()->RestartPlayerAtTransform(PlayerController, UKismetMathLibrary::MakeTransform(Loc, Rot, FVector(1, 1, 1)));
+
+                if (!bOutRespawningOnGround)
+                {
+                    PlayerController->Pawn()->BeginSkydiving(false);
+                }
 
                 if (log_component::enable_debug_logs)
                 {
-                    spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: restarted {} at picked Player Start", Player.PlayerState()->GetName().c_str());
+                    spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: restarted {} at picked Spawn Location. Skydiving: {}", Player.PlayerState()->GetName().c_str(), !bOutRespawningOnGround);
                 }
             }
-            
-            ClaimedPlayerStart = nullptr;
         }
         else
         {
-            // Get a respawn location
-            FVector Loc;
-            FRotator Rot;
-            bool bOutRespawningOnGround;
-            if (static_cast<AFortMinigame*>(Object)->DetermineSpawnLocation(static_cast<AFortPlayerStateAthena*>(Player.PlayerState()), &Loc, &Rot, &bOutRespawningOnGround))
-            {
-                // Destroy current pawn, and restart
-                if (AFortPawn* PlayerPawn = reinterpret_cast<AFortPlayerController*>(Player.PlayerState()->Owner())->Pawn())
-                {
-                    PlayerPawn->K2_DestroyActor();
-                
-                    (*GWorld)->AuthorityGameMode()->RestartPlayerAtTransform(PlayerController, UKismetMathLibrary::MakeTransform(Loc, Rot, FVector(1, 1, 1)));
-
-                    if (!bOutRespawningOnGround)
-                    {
-                        PlayerController->Pawn()->BeginSkydiving(false);
-                    }
-
-                    if (log_component::enable_debug_logs)
-                    {
-                        spdlog::info(L"creative_component_hooks::HandleMinigameStarted_Hook: restarted {} at picked Spawn Location. Skydiving: {}", Player.PlayerState()->GetName().c_str(), !bOutRespawningOnGround);
-                    }
-                }
-            }
+            spdlog::error(L"creative_component_hooks::HandleMinigameStarted_Hook: DetermineSpawnLocation failed.");
         }
     }
 }

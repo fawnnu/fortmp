@@ -23,6 +23,9 @@ public:
 
     static AFortPlayerControllerAthena* GetVolumeOwner(AFortVolume* Volume);
 
+    // Respawn fixes (Game bugs)
+    static void OnRespawn(AController* PlayerController, AActor*& PickedStart);
+
     // Custom functions
     static void TeleportPlayerToLobbyIslandWithTimer(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame);
     static void TeleportPlayerToIsland(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame);

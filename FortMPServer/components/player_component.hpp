@@ -405,7 +405,11 @@ namespace player_component_hooks
     // Reimplement AGID anim bp functionality
     DEFINE_FUNCTION_HOOK(void, PopAnimBPOverride, (AFortPlayerPawn* Self, int Priority, UObject* AnimBPOverride))
 
+    // Spray stuff
     DEFINE_FUNCTION_HOOK(void, AFortSprayDecalInstance_BeginPlay, (AFortSprayDecalInstance* Target));
+
+    // For creative respawn bugs
+    DEFINE_FUNCTION_HOOK(AActor*, AGameModeBase_FindPlayerStart_Implementation, (AGameModeBase* Self, AController* Controller, FString& IncomingName))
 }
 
 inline void (*UpdateZiplineState)(AFortPlayerPawn* FortPlayerPawn);

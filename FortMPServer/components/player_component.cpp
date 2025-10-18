@@ -127,7 +127,8 @@ player_component::player_component()
     REGISTER_FUNCTION_DETOUR(player_component_hooks::OnTargetDataReadyCallback, memory_manager::find_function_by_string(L"STAT_FortGA_Ranged_OnTargetDataReadyCB"), player_component_hooks::OnTargetDataReadyCallback_Hook);
     REGISTER_UFUNCTION_DETOUR(player_component_hooks::HandleStartingNewPlayer, L"/Script/Engine.GameModeBase.HandleStartingNewPlayer", player_component_hooks::HandleStartingNewPlayer_Hook);
     REGISTER_FUNCTION_DETOUR(player_component_hooks::GetOrInitializeHero, memory_manager::find_function_by_string(L"GetOrInitializeHero called with valid player info"), player_component_hooks::GetOrInitializeHero_Hook)
-
+    REGISTER_FUNCTION_DETOUR(player_component_hooks::AGameModeBase_FindPlayerStart_Implementation, memory_manager::find_function_by_string(L"FindPlayerStart: ShouldSpawnAtStartSpot returned true but the Player StartSpot was null."), player_component_hooks::AGameModeBase_FindPlayerStart_Implementation_Hook);
+    
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
@@ -4132,4 +4133,22 @@ void player_component_hooks::PopAnimBPOverride_Hook(AFortPlayerPawn* Self, int P
         Self->AnimBPOverride() = nullptr;
         Self->OnRep_AnimBPOverride();
     }
+}
+
+AActor* player_component_hooks::AGameModeBase_FindPlayerStart_Implementation_Hook(AGameModeBase* Self, AController* Controller, FString& IncomingName)
+{
+    // Native call
+    AActor* ReturnValue = AGameModeBase_FindPlayerStart_Implementation(Self, Controller, IncomingName);
+
+    // Log
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"player_component_hooks::AGameModeBase_FindPlayerStart_Implementation_Hook is calling other components' function overrides.");
+    }
+    
+    // implementations
+    creative_component::OnRespawn(Controller, ReturnValue);
+
+    // Return
+    return ReturnValue;
 }

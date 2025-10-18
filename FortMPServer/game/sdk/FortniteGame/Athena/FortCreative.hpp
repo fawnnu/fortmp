@@ -69,37 +69,75 @@ public:
         return Call<AActor*>(Function_ChoosePlayerStart, Player);
     }
 
-    bool DetermineSpawnLocation(class AFortPlayerStateAthena* PlayerState, struct FVector* OutLocation, struct FRotator* OutRotation, bool* bOutRespawningOnGround)
+    bool DetermineSpawnLocation(AFortPlayerStateAthena* PlayerState, FVector* OutLocation, FRotator* OutRotation, bool* bOutRespawningOnGround)
     {
         STATIC_FINDFUNCTION(DetermineSpawnLocation)
-
-        struct 
-        {
-            AFortPlayerStateAthena* PlayerState;
-            FVector OutLocation;
-            FRotator OutRotation;
-            bool bOutRespawningOnGround;
-            bool ReturnValue;
-        } parameters;
-
-        parameters.PlayerState = PlayerState;
         
-        ProcessEvent(this, Function_DetermineSpawnLocation, &parameters);
+        if (FindPropertyByName(Function_DetermineSpawnLocation, TEXT("bShouldClaim")))
+        {
+            spdlog::info(L"Native:DetermineSpawnLocation: Running 'bShouldClaim' version.");
+            
+            struct 
+            {
+                AFortPlayerStateAthena* PlayerState;
+                bool bShouldClaim;
+                FVector OutLocation;
+                FRotator OutRotation;
+                bool bShouldSkydive;
+                bool ReturnValue;
+            } parameters;
 
-        if (OutLocation)
-        {
-            *OutLocation = parameters.OutLocation;
-        }
-        if (OutRotation)
-        {
-            *OutRotation = parameters.OutRotation;
-        }
-        if (bOutRespawningOnGround)
-        {
-            *bOutRespawningOnGround = parameters.bOutRespawningOnGround;
-        }
+            parameters.bShouldClaim = false;
         
-        return parameters.ReturnValue;
+            parameters.PlayerState = PlayerState;
+        
+            ProcessEvent(this, Function_DetermineSpawnLocation, &parameters);
+
+            if (OutLocation)
+            {
+                *OutLocation = parameters.OutLocation;
+            }
+            if (OutRotation)
+            {
+                *OutRotation = parameters.OutRotation;
+            }
+            if (bOutRespawningOnGround)
+            {
+                *bOutRespawningOnGround = !parameters.bShouldSkydive;
+            }
+        
+            return parameters.ReturnValue;
+        }
+        else
+        {
+            struct 
+            {
+                AFortPlayerStateAthena* PlayerState;
+                FVector OutLocation;
+                FRotator OutRotation;
+                bool bOutRespawningOnGround;
+                bool ReturnValue;
+            } parameters;
+        
+            parameters.PlayerState = PlayerState;
+        
+            ProcessEvent(this, Function_DetermineSpawnLocation, &parameters);
+
+            if (OutLocation)
+            {
+                *OutLocation = parameters.OutLocation;
+            }
+            if (OutRotation)
+            {
+                *OutRotation = parameters.OutRotation;
+            }
+            if (bOutRespawningOnGround)
+            {
+                *bOutRespawningOnGround = parameters.bOutRespawningOnGround;
+            }
+        
+            return parameters.ReturnValue;
+        }
     }
 };
 
@@ -186,10 +224,36 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerStart")
 };
 
-class AFortPlayerStartCreative : public AFortPlayerStart
+class UFortCreativeVolumeLinkComponent : public UActorComponent
 {
 public:
+    DEFINE_PROPERTY(AFortVolume*, LinkedVolume);
+};
+
+class AFortPlayerStartCreative : public AActor
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortPlayerStartCreative")
+
+    bool operator==(FGameplayTag OtherTag)
+    {
+        if (this->PlayerStartTags().GameplayTags.Find(OtherTag))
+        {
+            return true;
+        }
+        
+        if (this->PlayerStartTags().ParentTags.Find(OtherTag))
+        {
+            return true;
+        }
+    
+        return false;
+    }
+    
     DEFINE_PROPERTY(int, PortalIndex);
+    DEFINE_PROPERTY(FGameplayTagContainer, PlayerStartTags);
+    DEFINE_PROPERTY(bool, bUseAsIslandStart);
+    DEFINE_PROPERTY(UFortCreativeVolumeLinkComponent*, CreativeLinkComponent)
 };
 
 class AFortCreativePortalManager : public AActor

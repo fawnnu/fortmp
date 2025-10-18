@@ -23,7 +23,7 @@ public:
     DEFINE_PROPERTY(bool, bServerStoppedSimulation);
     DEFINE_PROPERTY(bool, bRandomRotation);
     DEFINE_PROPERTY(bool, bPickedUp);
-
+    DEFINE_PROPERTY(TScriptMulticastDelegate<UObject>, OnPickup);
     DEFINE_PROPERTY(UFortWorldItem*, PrimaryPickupDummyItem);
     DEFINE_PROPERTY(TWeakObjectPtr<AActor>, PickupEffectBlueprint);
     DEFINE_PROPERTY(FFortItemEntry, PrimaryPickupItemEntry);

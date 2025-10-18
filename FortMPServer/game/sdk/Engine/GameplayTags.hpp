@@ -22,6 +22,16 @@ struct FGameplayTag
         return cmp.TagName == TagName;
     }
 
+    bool operator==(FName cmp)
+    {
+        return cmp == TagName;
+    }
+
+    bool operator==(const FName cmp) const
+    {
+        return cmp == TagName;
+    }
+
     FORCEINLINE bool operator<(FGameplayTag cmp) const
     {
         return TagName < cmp.TagName;
