@@ -305,7 +305,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     }
     
     // Listen for connections
-    const FURL in_url((*GWorld)->GetName().c_str(), UKismetMathLibrary::RandomIntegerInRange(1024, 49151));
+    const FURL in_url((*GWorld)->GetName().c_str(), 7777);
 
     //make sure we weren't listening already
     if (net_component::listen(in_url))
