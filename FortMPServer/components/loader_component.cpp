@@ -296,8 +296,6 @@ void loader_component::parse_game_data_hotfixes(UFortPlaylistAthena* in_playlist
 
 void loader_component::start_match(UFortPlaylistAthena* in_playlist)
 {
-    constexpr int listen_port = 7777;
-    
     auto config = config_manager::get_server_config();
 
     // Get UI Ready
@@ -307,7 +305,7 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
     }
     
     // Listen for connections
-    const FURL in_url((*GWorld)->GetName().c_str(), listen_port);
+    const FURL in_url((*GWorld)->GetName().c_str(), UKismetMathLibrary::RandomIntegerInRange(1024, 49151));
 
     //make sure we weren't listening already
     if (net_component::listen(in_url))
