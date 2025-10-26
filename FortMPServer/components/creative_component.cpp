@@ -690,6 +690,11 @@ void creative_component_hooks::ServerGiveCreativeItem_Hook(AFortPlayerController
 
 void creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook(AFortPlayerControllerAthena* FortPlayerControllerAthena, FFrame& StackFrame)
 {
+    if (!creative_component::is_creative_enabled())
+    {
+        spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Called outside creative. Aborted.");
+    }
+    
     if (FortPlayerControllerAthena == nullptr || FortPlayerControllerAthena->Pawn() == nullptr)
     {
         spdlog::error(L"creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook: Invalid PlayerController or Pawn.");
@@ -980,6 +985,11 @@ void creative_component_hooks::HandleMinigameEnded_Hook(UObject* Object)
 
 void creative_component_hooks::Server_SetCanEditCreativeIsland_Hook(AFortPlayerStateAthena* Self, FFrame& StackFrame)
 {
+    if (!creative_component::is_creative_enabled())
+    {
+        spdlog::error(L"creative_component_hooks::Server_SetCanEditCreativeIsland_Hook: Called outside creative. Aborted.");
+    }
+    
     GET_PARAMETER(bool, bCanEdit);   
     GET_PARAMETER(TArray<FString>, WhiteList);
 
