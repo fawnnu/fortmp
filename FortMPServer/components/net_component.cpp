@@ -438,9 +438,15 @@ void net_component_hooks::NetConnection__Close_Hook(UNetConnection* Self)
                             director_client::client->Send(eudp_packet({
                                 {"type", "player_left"},
                                 {"payload", {
-                                    {"account_id", account_id}
+                                    {"account_id", account_id},
+                                    {"ip_address", static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().IP}
                                 }}
                             }));
+
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info("net_component_hooks::NetConnection__Close_Hook: Removing IP {}", static_cast<AFortPlayerControllerAthena*>(FortPlayerController)->EraPlayerInfo().IP.c_str());
+                            }
                         }
                     }
                 }

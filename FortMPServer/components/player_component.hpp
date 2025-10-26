@@ -178,6 +178,7 @@ struct FEraPlayerInfo
     EEraPlatform PlayerPlatform_Enum;
     std::wstring AccountId;
     std::string sAccountId;
+    std::string IP;
     FDamageDealtMapValue DamageDealtTracker;
     FPlayerStats PlayerStatsTracker;
     int PositionNotChangedCount;

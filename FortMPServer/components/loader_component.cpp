@@ -1123,6 +1123,7 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
              */
             if (director_client::client)
             {
+                spdlog::info(L"loader_component::OnGamePhaseUpdated: Sending IPs.");
                 nlohmann::json Payload = {
                     {"type", "match_started"},
                     {"payload", {
@@ -1132,6 +1133,7 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
                 };
 
                 // Add every player, manually.
+                int IPNum = 0;
                 if (*GWorld && (*GWorld)->NetDriver())
                 {
                     for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
@@ -1145,13 +1147,19 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
                                     // Send to director
                                     std::string ip_address = Connection->PlayerController()->PlayerState()->SavedNetworkAddress().AnsiString().c_str();
                                     Payload["payload"]["ips"].push_back(ip_address);
+                                    static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().IP = ip_address;
+                                    IPNum++;
                                 }
                             }
                         }
                     }
                 }
+                spdlog::info(L"loader_component::OnGamePhaseUpdated: Gathered {} IPs.", IPNum);
                 
-                director_client::client->Send(eudp_packet(Payload));
+                if (director_client::client->Send(eudp_packet(Payload)))
+                {
+                    spdlog::info(L"loader_component::OnGamePhaseUpdated: Sent {} IPs.", IPNum);
+                }
             }
         }
     }
