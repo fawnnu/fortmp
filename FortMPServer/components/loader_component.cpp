@@ -1123,12 +1123,35 @@ void loader_component::OnGamePhaseUpdated(AFortGameStateAthena* Self, FFrame& St
              */
             if (director_client::client)
             {
-                director_client::client->Send(eudp_packet({
+                nlohmann::json Payload = {
                     {"type", "match_started"},
                     {"payload", {
-                        {"starting_players", player_component::starting_players}
+                            {"starting_players", player_component::starting_players},
+                            {"ips", R"([])"_json}
                     }}
-                }));
+                };
+
+                // Add every player, manually.
+                if (*GWorld && (*GWorld)->NetDriver())
+                {
+                    for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                    {
+                        if (Connection)
+                        {
+                            if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                            {
+                                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()->PlayerState()) && Connection->PlayerController()->PlayerState())
+                                {
+                                    // Send to director
+                                    std::string ip_address = Connection->PlayerController()->PlayerState()->SavedNetworkAddress().AnsiString().c_str();
+                                    Payload["payload"]["ips"].push_back(ip_address);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                director_client::client->Send(eudp_packet(Payload));
             }
         }
     }
