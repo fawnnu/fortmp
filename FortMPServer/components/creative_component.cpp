@@ -73,6 +73,18 @@ creative_component::creative_component()
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland, L"/Script/FortniteGame.FortPlayerControllerAthena.ServerTeleportToPlaygroundLobbyIsland", creative_component_hooks::ServerTeleportToPlaygroundLobbyIsland_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::ResetMyCurrentCreativePlot, L"/Script/FortniteGame.FortPlayerControllerAthena.ResetMyCurrentCreativePlot", creative_component_hooks::ResetMyCurrentCreativePlot_Hook);
     REGISTER_UFUNCTION_DETOUR(creative_component_hooks::Server_SetCanEditCreativeIsland, L"/Script/FortniteGame.FortPlayerStateAthena.Server_SetCanEditCreativeIsland", creative_component_hooks::Server_SetCanEditCreativeIsland_Hook);
+    REGISTER_UFUNCTION_DETOUR(creative_component_hooks::HandleVolumeStateChanged, L"/Script/FortniteGame.FortVolumeManager.HandleVolumeStateChanged", creative_component_hooks::HandleVolumeStateChanged_Hook);
+
+    const UObject* DefaultFortPlayerControllerAthenaObject = FindObject(L"/Script/FortniteGame.Default__FortPlayerControllerAthena");
+    if (const int validate_target_index = memory_manager::find_function_by_string(L"ServerLoadPlotForPortal_Validate", {0xFF, 0x90}, 2, true, false))
+    {
+        REGISTER_VTABLE_HOOK(DefaultFortPlayerControllerAthenaObject->VTable, validate_target_index / 8, creative_component_hooks::ServerLoadPlotForPortal_Validate)
+    }
+    if (const int impl_target_index = memory_manager::find_function_by_string(L"ServerLoadPlotForPortal_Validate", {0xFF, 0x90}, 2, false, false))
+    {
+        REGISTER_VTABLE_HOOK(DefaultFortPlayerControllerAthenaObject->VTable, impl_target_index / 8, creative_component_hooks::ServerLoadPlotForPortal_Impl)
+    }
+    
     INIT_POINTER(LoadPlayset, memory_manager::find_function_by_string(L"UPlaysetLevelStreamComponent::LoadPlayset Error: no owner for %s"));
 
     REGISTER_CALL_DETOUR_WITH_SAVE(memory_manager::find_pattern("E8 ? ? ? ? 0F B6 F8 44 89 75 EF 44 39 75 F3 74 0B 33 D2 48 8D 4D E7 E8 ? ? ? ?"), creative_component_hooks::SaveArrayToFile);
@@ -230,10 +242,10 @@ void creative_component::LoadIsland(AFortVolume* Owner)
         // Perform request
         Aws::S3::Model::GetObjectRequest Request;
         Request.SetBucket("creativeislands");
-        Request.SetKey(account_id + "/" + sPlaysetName + ".sav");
+        Request.SetKey(Owner->EraVolumeInfo().bIsFeaturedCreativeIsland ? "featured.sav" : account_id + "/" + sPlaysetName + ".sav" );
         std::wstring VolumeName = Owner->GetName().c_str();
         TO_STRING(VolumeName, sVolumeName);
-        std::string Path = AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
+        std::string Path = Owner->EraVolumeInfo().bIsFeaturedCreativeIsland ? UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append("featured.sav") : AccountSavePath.append("/").append(sVolumeName).append("LevelSave.sav");
         Request.SetResponseStreamFactory(
         [=]() {
                return Aws::New<Aws::FStream>("dl", Path, std::ios_base::out | std::ios_base::binary);
@@ -302,7 +314,7 @@ const TCHAR* creative_component::GetEraSaveFileName(const TCHAR* OldName)
 
                             std::string AccountSavePath = UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append(account_id);
                             std::filesystem::create_directories(AccountSavePath);
-                            std::string Path = AccountSavePath.append("/").append(sLocalFileName).append("LevelSave.sav");
+                            std::string Path = Volume->EraVolumeInfo().bIsFeaturedCreativeIsland ? UKismetSystemLibrary::GetProjectSavedDirectory().AnsiString().append("SaveGames/").append("featured.sav") : AccountSavePath.append("/").append(sLocalFileName).append("LevelSave.sav");
                             TO_WSTRING(Path, wPath);
 
                             if (log_component::enable_debug_logs)
@@ -467,6 +479,14 @@ void creative_component::TeleportPlayerToIsland(AFortPlayerControllerAthena* Pla
 
     Portal->NotifyTeleportedPlayerPawn(PlayerPawn);
     Portal->OnPlayerPawnTeleported(PlayerPawn);
+    
+    // Load the record, which will then apply the save to world
+    if (Portal->LinkedVolume()->EraVolumeInfo().bPendingReload)
+    {
+        Portal->LinkedVolume()->EraVolumeInfo().bPendingReload = false;
+        
+        LoadIsland(Portal->LinkedVolume());
+    }
 }
 
 void creative_component::FinalizeTeleport(AFortPlayerControllerAthena* PlayerController, FFrame& StackFrame)
@@ -485,6 +505,26 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
         AFortAthenaCreativePortal* creative_portal = creative_portal_manager->AvailablePortals()[PortalIndex];
 
         AFortPlayerControllerAthena* player_controller_athena = reinterpret_cast<AFortPlayerControllerAthena*>(NetConnection->PlayerController());
+
+        // Give islands
+        {
+            TArrayManager CreativeIslands = player_controller_athena->CreativeIslands();
+
+            {
+                FCreativeIslandData* Island = new FCreativeIslandData();
+                UKismetTextLibrary::Conv_StringToText(std::wstring(L"My Era Island"), &Island->IslandName());
+                Island->McpId() = std::wstring(L"island");
+                CreativeIslands.Add(Island);
+            }
+
+            // Common featured island
+            {
+                FCreativeIslandData* Island = new FCreativeIslandData();
+                UKismetTextLibrary::Conv_StringToText(std::wstring(L"Nuketown Sniper Map (FEATURED)"), &Island->IslandName());
+                Island->McpId() = std::wstring(L"featured");
+                CreativeIslands.Add(Island);
+            }
+        }
         
         /* @ Setting the portal owner ship.
          * @ Allows the player to interact in the portal and teleport through it once the stripped functions are re-implemented.*/
@@ -495,7 +535,7 @@ void creative_component::assign_portal_to_player(UNetConnection* NetConnection, 
 
         // Open the portal
         creative_portal->bPortalOpen() = true;
-        creative_portal->bDisallowPortalInteract() = true;
+        creative_portal->bDisallowPortalInteract() = false;
         
         player_controller_athena->OwnedPortal() = creative_portal;
         
@@ -839,6 +879,23 @@ void creative_component_hooks::SaveOutLevelRecord_Hook(UFortLevelSaveComponent* 
         spdlog::info(L"creative_component_hooks::SaveOutLevelRecord_Hook: saving island.");
     }
 
+    if (Self->GetOwner())
+    {
+        if (Self->GetOwner()->Cast<AFortVolume>())
+        {
+            if (Self->GetOwner()->Cast<AFortVolume>()->EraVolumeInfo().bIsFeaturedCreativeIsland ||
+                Self->GetOwner()->Cast<AFortVolume>()->EraVolumeInfo().bPendingReload)
+            {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"creative_component_hooks::SaveOutLevelRecord_Hook: ABORTING! The target island is featured and cannot be edited.");
+                }
+                
+                return;
+            }
+        }
+    }
+    
     // Call base function to perform saving
     reinterpret_cast<void (*)(UFortLevelSaveComponent*)>(CreateDefaultObject<ULevelSaveComponent>()->VTable[SaveOutLevelRecord_Index])(Self);
 }
@@ -1123,3 +1180,66 @@ void creative_component_hooks::NativeExitedPlayspaceEvent_Hook(AFortMinigame* Se
     }
 }
 
+bool creative_component_hooks::ServerLoadPlotForPortal_Validate_Hook(AFortPlayerControllerAthena* Self, FFrame& StackFrame)
+{
+    // Always validate as true
+    return true;
+}
+
+void creative_component_hooks::ServerLoadPlotForPortal_Impl_Hook(AFortPlayerControllerAthena* Self, AFortAthenaCreativePortal* Portal, FString& PlotItemId)
+{
+    if (creative_component::is_creative_enabled() &&
+        Portal && Portal->LinkedVolume() &&
+        Portal->CurrentPopulation() == 0)
+    {
+        // Process island reload when anyone joins.
+        Portal->LinkedVolume()->EraVolumeInfo().bPendingReload = true;
+    
+        // Determine island status
+        Portal->LinkedVolume()->EraVolumeInfo().bIsFeaturedCreativeIsland = PlotItemId == std::wstring(L"featured");
+
+        // Close portal
+        Portal->bPortalOpen() = false;
+        Portal->PortalOpenChanged();
+        
+        // Reset island
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"creative_component_hooks::ServerLoadPlotForPortal_Impl_Hook is changing island destination.");
+        }
+        (*GWorld)->GameState()->VolumeManager()->ResetVolumeAndLevelRecord(Portal->LinkedVolume(), Self);
+    }
+}
+    
+void creative_component_hooks::HandleVolumeStateChanged_Hook(AFortVolumeManager* Self, FFrame& StackFrame)
+{
+    GET_PARAMETER(uint8_t, NewState);
+    GET_PARAMETER(AFortVolume*, Volume);
+    
+    HandleVolumeStateChanged(Self, StackFrame);
+    
+    if (NewState == 3)
+    {
+        if (Volume->EraVolumeInfo().bPendingReload)
+        {
+            Volume->ServerClearVolume();
+            
+            for (UActorComponent* Component : Volume->BlueprintCreatedComponents())
+            {
+                if (Component)
+                {
+                    if (Component->IsA(UFortLevelSaveComponent::StaticClass()))
+                    {
+                        UFortLevelSaveComponent* LevelSaveComponent = static_cast<UFortLevelSaveComponent*>(Component);
+                
+                        LevelSaveComponent->ConstructNewLevelRecord(Volume);
+                    }
+                }
+            }
+
+            // Reopen
+            Volume->LinkedPortals()[0]->bPortalOpen() = true;
+            Volume->LinkedPortals()[0]->PortalOpenChanged();
+        }
+    }
+}

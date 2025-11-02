@@ -12,6 +12,12 @@ public:
     DEFINE_STATIC_CLASS(L"/Script/Engine.KillZVolume");
 };
 
+struct FEraVolumeInfo
+{
+    bool bIsFeaturedCreativeIsland;
+    bool bPendingReload;
+};
+
 class AFortVolume : public AActor
 {
 public:
@@ -22,6 +28,7 @@ public:
     DEFINE_PROPERTY(class UFortPlaysetItemDefinition*, CurrentPlayset);
     DEFINE_PROPERTY(UFortPlaysetItemDefinition*, OverridePlayset);
     DEFINE_PROPERTY(uint8, VolumeState);
+    DEFINE_PROPERTY(FEraVolumeInfo, EraVolumeInfo);
 
     void SetCurrentPlayset(UFortPlaysetItemDefinition* NewPlayset)
     {

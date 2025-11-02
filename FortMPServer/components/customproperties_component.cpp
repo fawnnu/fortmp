@@ -14,6 +14,7 @@ customproperties_component::customproperties_component()
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_419_422_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("BuildingContainer", "/Script/FortniteGame.BuildingContainer", EraContainerInfo, UE_419_422_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_419_422_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortVolume", "/Script/FortniteGame.FortVolume", EraVolumeInfo, UE_419_422_TEMPLATE);
         }
         else
         {
@@ -21,6 +22,7 @@ customproperties_component::customproperties_component()
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPlayerControllerAthena", "/Script/FortniteGame.FortPlayerControllerAthena", EraPlayerInfo, UE_423_425_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("BuildingContainer", "/Script/FortniteGame.BuildingContainer", EraContainerInfo, UE_423_425_TEMPLATE);
             CREATE_CUSTOM_PROPERTY_CONTAINER("FortPoiVolume", "/Script/FortniteGame.FortPoiVolume", EraPoiInfo, UE_423_425_TEMPLATE);
+            CREATE_CUSTOM_PROPERTY_CONTAINER("FortVolume", "/Script/FortniteGame.FortVolume", EraVolumeInfo, UE_423_425_TEMPLATE);
         }
     }
     else

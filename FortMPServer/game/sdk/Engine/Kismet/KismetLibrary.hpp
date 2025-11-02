@@ -454,6 +454,28 @@ public:
     }
 };
 
+class UKismetTextLibrary : public UObject
+{
+public:
+    static void Conv_StringToText(std::wstring inString, FText* Out)
+    {
+        static UKismetTextLibrary* Default__KismetTextLibrary = FindObject<UKismetTextLibrary>(L"/Script/Engine.Default__KismetTextLibrary");;
+
+        static UFunction* function = FindObject<UFunction>(L"/Script/Engine.KismetTextLibrary.Conv_StringToText");
+        
+        struct {
+            FString String;
+            FText ReturnValue;
+        } function_params;
+
+        function_params.String = inString;
+
+        ProcessEvent(Default__KismetTextLibrary, function, &function_params);
+        
+        memcpy(Out, &function_params.ReturnValue, sizeof FText);
+    }
+};
+
 class UFortKismetLibrary : public UObject
 {
 public:

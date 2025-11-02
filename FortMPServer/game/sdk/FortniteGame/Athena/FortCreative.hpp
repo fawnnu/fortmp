@@ -151,6 +151,8 @@ public:
     DEFINE_PROPERTY(AFortPlayerState*, CachedOwningPlayerState);
     DEFINE_PROPERTY(bool, bDisallowPortalInteract);
     DEFINE_PROPERTY(FString, ImageUrl);
+    DEFINE_PROPERTY(FString, CreatorName);
+    DEFINE_PROPERTY(FString, UserDescription);
     DEFINE_PROPERTY(FVector, TeleportLocation);
     DEFINE_PROPERTY(TArray<struct FUniqueNetIdRepl>, PlayersReady);
     DEFINE_PROPERTY(uint8, CurrentPopulation);

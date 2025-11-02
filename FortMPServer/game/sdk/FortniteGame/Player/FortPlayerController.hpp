@@ -438,6 +438,15 @@ struct FAthenaRewardResult
     DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.AthenaRewardResult");
 };
 
+struct FCreativeIslandData
+{
+    DEFINE_STRUCT_PROPERTY(FText, IslandName);
+    DEFINE_STRUCT_PROPERTY(FString, McpId);
+
+    OVERLOAD_NEW_OPERATOR();
+    DEFINE_STRUCT_CLASS(L"/Script/FortniteGame.CreativeIslandData");
+};
+
 class AFortPlayerControllerAthena : public AFortPlayerController
 {
 public:
@@ -459,6 +468,7 @@ public:
     DEFINE_BIT_PROPERTY(bool, bPlayerIsWaiting);
     DEFINE_PROPERTY(UAthenaResurrectionComponent*, ResurrectionComponent);
     DEFINE_PROPERTY(bool, bDelayedTeleporting);
+    DEFINE_PROPERTY(TArray<FCreativeIslandData>, CreativeIslands);
 
     void PlayWinEffects()
     {
