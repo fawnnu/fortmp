@@ -881,7 +881,8 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Location.Meta.SevenSeals.04", "battlepass_visit_athena_location_seal_04"},
                 {"Athena.Location.Meta.SevenSeals.05", "battlepass_visit_athena_location_seal_05"},
                 {"Athena.Location.Meta.SevenSeals.06", "battlepass_visit_athena_location_seal_06"},
-                {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"}
+                {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"},
+                {"Athena.Location.Visit.Quest.NOMS", "athena_battlepass_visit_noms_05"}
             };
 
             if (ObjectivesMap.contains(sObjective))
