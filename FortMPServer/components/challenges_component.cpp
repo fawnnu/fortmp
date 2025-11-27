@@ -148,6 +148,12 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
                 });
         }
     }
+    else if (GetCL() == 4727874)
+    {
+        {
+            SendCustomEvent(PlayerController, "interaction:ice-puck");
+        }
+    }
 }
 
 void challenges_component::SendSummary(AFortPlayerController* PlayerController, int Placement)
