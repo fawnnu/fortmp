@@ -882,7 +882,14 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Location.Meta.SevenSeals.05", "battlepass_visit_athena_location_seal_05"},
                 {"Athena.Location.Meta.SevenSeals.06", "battlepass_visit_athena_location_seal_06"},
                 {"Athena.Location.Meta.SevenSeals.07", "battlepass_visit_athena_location_seal_07"},
-                {"Athena.Location.Visit.Quest.NOMS", "athena_battlepass_visit_noms_05"}
+                {"Athena.Location.Visit.Quest.NOMS", "athena_battlepass_visit_noms_05"},
+                {"Athena.Quests.Location.ExplorerOutposts.A", "battlepass_visit_athena_expeditionoutpost_a"},
+                {"Athena.Quests.Location.ExplorerOutposts.B", "battlepass_visit_athena_expeditionoutpost_b"},
+                {"Athena.Quests.Location.ExplorerOutposts.C", "battlepass_visit_athena_expeditionoutpost_c"},
+                {"Athena.Quests.Location.ExplorerOutposts.D", "battlepass_visit_athena_expeditionoutpost_d"},
+                {"Athena.Quests.Location.ExplorerOutposts.E", "battlepass_visit_athena_expeditionoutpost_e"},
+                {"Athena.Quests.Location.ExplorerOutposts.F", "battlepass_visit_athena_expeditionoutpost_f"},
+                {"Athena.Quests.Location.ExplorerOutposts.G", "battlepass_visit_athena_expeditionoutpost_g"}
             };
 
             if (ObjectivesMap.contains(sObjective))
