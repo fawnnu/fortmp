@@ -404,6 +404,13 @@ era_mutators_component::era_mutators_component()
     {
         (*GWorld)->GameState()->ChangeBattleBusCosmetic(FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Cosmetics/BattleBuses/BBID_WinterBus.BBID_WinterBus", true, false));
     });
+
+    new era_mutator("sp", [](LPVOID){});
+    new era_mutator("SP", [](LPVOID){});
+    new era_mutator("WDK", [](LPVOID){});
+    new era_mutator("P1", [](LPVOID){});
+    new era_mutator("R1", [](LPVOID){});
+    new era_mutator("snowmen", [](LPVOID){});
     
     new era_mutator("holiday_supplydrop", [](LPVOID Parameters)
     {
