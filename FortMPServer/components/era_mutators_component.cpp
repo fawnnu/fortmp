@@ -219,7 +219,10 @@ era_mutators_component::era_mutators_component()
             static_cast<ABP_MooneyLoader_C*>(actor)->LoadMooneyMap() = true;
             static_cast<ABP_MooneyLoader_C*>(actor)->OnRep_LoadMooneyMap();
         }
+    });
 
+    new era_mutator("pre_mooney", [](LPVOID)
+    {
         TArray<ABP_MooneyScripting_C*> mooney_scripter = UGameplayStatics::GetAllActorsOfClass<ABP_MooneyScripting_C>(*GWorld, ABP_MooneyScripting_C::StaticClass());
 
         for (auto mooney_actor : mooney_scripter)
@@ -229,7 +232,7 @@ era_mutators_component::era_mutators_component()
             {
                 spdlog::info(L"era_mutator:mooney_event_prep: Ran LoadSequenceLevel. Event is ready.");
             }
-        }
+        } 
     });
 
     new era_mutator("mooney", [](LPVOID)
