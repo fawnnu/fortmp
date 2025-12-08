@@ -153,6 +153,25 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
         {
             SendCustomEvent(PlayerController, "interaction:ice-puck");
         }
+        
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_03"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_04"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_05"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_06"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_07"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_08"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_09"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_destroy_goldballoon_10"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("complete_timed_trial_stormwing_01"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("complete_timed_trial_stormwing_02"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_a"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_b"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_c"));
+            SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_d"));
+        }
     }
 }
 
