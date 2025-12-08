@@ -942,6 +942,10 @@ void loader_component::handle_cl_specific_additions()
     {
         era_mutators_component::Execute("holiday_supplydrop", nullptr);
     }
+    if (GetCL() == 4727874)
+    {
+        era_mutators_component::Execute("infinity_blade", nullptr);
+    }
     if (GetCL() == 4526925)
     {
         era_mutators_component::Execute("halloween_bus", nullptr);

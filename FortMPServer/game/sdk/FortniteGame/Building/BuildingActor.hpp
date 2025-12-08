@@ -517,6 +517,12 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/ForagedItems/LowGravity/CBGA_LowGravity_UsingJump.CBGA_LowGravity_UsingJump_C");
 };
 
+class ACBGA_Blade_Athena_C : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Gameplay/Sword/CBGA_Blade_Athena.CBGA_Blade_Athena_C");
+};
+
 class ACBGA_HealthSmall_C : public AActor
 {
 public:

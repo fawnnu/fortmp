@@ -19,6 +19,33 @@ era_mutator::era_mutator(std::string in_mutator_name, ExecuteCallback in_callbac
 
 era_mutators_component::era_mutators_component()
 {
+    new era_mutator("infinity_blade", [](LPVOID)
+    {
+        if (GetPlaylistEasy() != nullptr && GetPlaylistEasy() == FindObject(L"/Game/Athena/Playlists/Blades/Playlist_Blades_Solo.Playlist_Blades_Solo"))
+        {
+            TArray<AActor*> StaticMeshActors = UGameplayStatics::GetAllActorsOfClass<>(*GWorld, FindObject(L"/Script/FortniteGame.FortStaticMeshActor"));
+
+            for (AActor* StaticMeshActor : StaticMeshActors)
+            {
+                if (StaticMeshActor->GetName() == TEXT("SM_Corrupt_Rock_A9"))
+                {
+                    spdlog::info(L"era_mutators_component:infinity_blade is replacing SM_Corrupt_Rock_A9 with the Infinity Blade actor.");
+
+                    FVector BladeSpawnLocation = StaticMeshActor->K2_GetActorLocation();
+
+                    // Destroy the actor
+                    StaticMeshActor->SetActorHiddenInGame(true);
+
+                    // Spawn the blade
+                    FActorSpawnParameters spawn_parameters = {};
+                    SpawnActor(*GWorld, ACBGA_Blade_Athena_C::StaticClass(), &BladeSpawnLocation, nullptr, spawn_parameters);
+                
+                    break;
+                }
+            }
+        }
+    });
+    
     new era_mutator("no_shooting_gallery", [](LPVOID)
     {
         TArray<AProp_Quest_ClayPidgeonLauncher_C*> ShootingGalleries = UGameplayStatics::GetAllActorsOfClass<AProp_Quest_ClayPidgeonLauncher_C>();
