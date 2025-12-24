@@ -27,7 +27,7 @@ eudp_server::eudp_server(int in_port, OnClientConnectionOpen InClientConnectionO
 
         // Initialize local address
         sockaddr_in server_address;
-        ZeroMemory(&server_address, sizeof sockaddr_in);
+        ZeroMemory(&server_address, sizeof(sockaddr_in));
         server_address.sin_family = AF_INET;
         server_address.sin_port = htons(server->port);
         server_address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -42,7 +42,7 @@ eudp_server::eudp_server(int in_port, OnClientConnectionOpen InClientConnectionO
         }
 
         // bind the socket to our address
-        if (bind(server->server_socket, reinterpret_cast<sockaddr*>(&server_address), sizeof sockaddr_in) < 0)
+        if (bind(server->server_socket, reinterpret_cast<sockaddr*>(&server_address), sizeof(sockaddr_in)) < 0)
         {
             LOG("Failed to bind server_socket.")
             thread_manager::suppress_thread("main");
@@ -51,7 +51,7 @@ eudp_server::eudp_server(int in_port, OnClientConnectionOpen InClientConnectionO
 
         // Initialize local client_address variable
         sockaddr_in client_address;
-        int client_address_size = sizeof sockaddr_in;
+        int client_address_size = sizeof(sockaddr_in);
         ZeroMemory(&client_address, client_address_size);
 
         // Local 'buffer' variable
@@ -297,11 +297,11 @@ eudp_client::eudp_client(std::string in_addr, int in_port, std::string in_key, O
         }
 
         // Initialize local address
-        ZeroMemory(&client->server_addr, sizeof sockaddr_in);
+        ZeroMemory(&client->server_addr, sizeof(sockaddr_in));
         client->server_addr.sin_family = AF_INET;
         client->server_addr.sin_port = htons(client->port);
         client->server_addr.sin_addr.s_addr = inet_addr(client->addr.c_str());
-        int server_addr_len = sizeof sockaddr_in;
+        int server_addr_len = sizeof(sockaddr_in);
 
         // Initialize socket
         client->client_socket = socket(AF_INET, SOCK_DGRAM, 0);

@@ -7,7 +7,7 @@ auto Construct##ContainerName = []() -> UObject*\
             if (!ContainerName)\
             {\
                 Template::FStructParams StructParams;\
-                ZeroMemory(&StructParams, sizeof Template::FStructParams);\
+                ZeroMemory(&StructParams, sizeof(Template::FStructParams));\
                 StructParams.OuterFunc = []\
                 {\
                     return FindObject(TEXT("/Script/FortniteGame"));  \
@@ -20,7 +20,7 @@ auto Construct##ContainerName = []() -> UObject*\
                 StructParams.NameUTF8 = #ContainerName;\
                 StructParams.ObjectFlags = RF_Public | RF_Transient | RF_MarkAsRootSet;\
                 StructParams.StructFlags = 0;\
-                StructParams.SizeOf = sizeof F##ContainerName;\
+                StructParams.SizeOf = sizeof(F##ContainerName);\
                 StructParams.AlignOf = alignof(F##ContainerName);\
                 StructParams.PropertyArray = nullptr;\
                 StructParams.NumProperties = 0;\
