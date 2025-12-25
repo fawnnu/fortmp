@@ -15,9 +15,15 @@ void unreal_manager::pre_init()
     debug_log << L"unreal_manager::pre_init: Initializing custom properties (pre-init)." << std::endl;
 #endif
     
+    // Init
+    INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
+    
     // hook
-    customproperties_component::pre_init();
-
+    if (GetEngineVersionEasy() > 419)
+    {
+        customproperties_component::pre_init();
+    }
+    
 #ifdef ERA_LL_LOGS
     debug_log << L"unreal_manager::pre_init: Successfully processed custom properties' pre-init stage." << std::endl;
 #endif
@@ -30,10 +36,6 @@ void unreal_manager::pre_init()
         {
             INIT_POINTER(FMemory_Malloc_, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
         }
-    }));
-    early_async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
     }));
     early_async_initializers.push_back(new async_wrapper([&]
     {

@@ -465,7 +465,7 @@ public:
         // Heap alloc 1 byte to mark copied VTables.
         static void* MemoryMark = malloc(1);
         
-        if (static bool legacy = GetCL() == 3807424)
+        if (static bool legacy = GetEngineVersionEasy() < 420)
         {
             // Hardcoded method: 0x1000 is far beyond most/any VTable. Safe to put our mark there, and our struct at 0x1001
             if (VTable[0x1000] != MemoryMark)
