@@ -25,10 +25,16 @@ director_client::director_client()
         key = sCommandLine;
 
         // Create new UDP client and connect to the director (localhost:6000)
+#ifdef ERA_LL_LOGS
+        debug_log << L"director_client::director_client: Initializing local UDP client (GS to Director connection)." << std::endl;
+#endif
         client = new eudp_client("127.0.0.1", 6000, key, [](eudp_client* client)
         {
             client->On("config", [](eudp_client* client, nlohmann::json payload)
             {
+#ifdef ERA_LL_LOGS
+debug_log << L"director_client::director_client: received config event." << std::endl;
+#endif
                 // Set config
                 config_manager::bReceivedConfig = true;
                 config_manager::config = payload;
@@ -36,6 +42,9 @@ director_client::director_client()
 
             client->On("power_change", [](eudp_client*, nlohmann::json payload)
             {
+#ifdef ERA_LL_LOGS
+debug_log << L"director_client::director_client: received power_change event." << std::endl;
+#endif
                 try
                 {
                     if (payload["status"] == "off_graceful")
@@ -51,6 +60,9 @@ director_client::director_client()
 
             client->On("entity", [](eudp_client*, nlohmann::json payload)
             {
+#ifdef ERA_LL_LOGS
+debug_log << L"director_client::director_client: received entity event." << std::endl;
+#endif
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info("Received entity control message. Unpacking it and handling team.");

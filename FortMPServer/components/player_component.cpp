@@ -98,7 +98,10 @@ player_component::player_component()
         }
 
         // Hook begin play for the classes we need
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+        if (AFortSprayDecalInstance::StaticClass())
+        {
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+        }
     }
     else
     {
@@ -1966,6 +1969,12 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
         // Register this player in the local Players map
         std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
 
+        // Log
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"player_component::PlatformLogin: Processing login for '{}' on platform '{}'.", wAccountID.c_str(), Platform.c_str());
+        }
+            
         // Convert string
         TO_STRING(wAccountID, sAccountID);
 
@@ -2001,6 +2010,22 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
                     return true;
                 }
             }
+            
+            // Legacy
+            if (GetEngineVersionEasy() < 420)
+            {
+                if (Platform == TEXT("Windows"))
+                {
+                    {
+                        spdlog::info("player_component::PlatformLogin: authenticated player on '{}' Era platform.", Platforms[sAccountID]);
+                        return true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            spdlog::error(L"Couldn't find platform for Account ID: {}, Platform: {}.", wAccountID.c_str(), Platform.c_str());
         }
     }
     else
@@ -2411,22 +2436,25 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                         UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
 
                                         // Check if the backend didn't send a literal random item definition
-                                        UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
-
-                                        if (athena_game_data)
+                                        if (GetEngineVersionEasy() > 419)
                                         {
-                                            if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
+                                            UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
+
+                                            if (athena_game_data)
                                             {
-                                                for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
+                                                if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
                                                 {
-                                                    if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
+                                                    for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
                                                     {
-                                                        if (Object == ShuffleTileItem)
+                                                        if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
                                                         {
-                                                            Object = nullptr;
+                                                            if (Object == ShuffleTileItem)
+                                                            {
+                                                                Object = nullptr;
+                                                            }
                                                         }
-                                                    }
-                                                } 
+                                                    } 
+                                                }
                                             }
                                         }
                                 
@@ -2464,7 +2492,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                         }
                                     }
                                 }
-                                if (elem.value().contains("variants"))
+                                if (elem.value().contains("variants") && GetEngineVersionEasy() > 419)
                                 {
                                     nlohmann::json variants = elem.value()["variants"];
 
@@ -3627,7 +3655,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
                 NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
             }
         }
-        NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
+        
+        if (NewPlayer->PlayerState()->HasProperty(L"CachedPreviousWorldPlayerId"))
+        {
+            NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
+        }
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
         ability_component::apply_playlist_modifiers(NewPlayer->Pawn());

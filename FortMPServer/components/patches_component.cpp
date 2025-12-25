@@ -426,6 +426,10 @@ void patches_component::pre_init()
             }
         }
     }
+
+#ifdef ERA_LL_LOGS
+    debug_log << L"patches_component::pre_init: Processed early patches." << std::endl;
+#endif
 }
 
 void patches_component::revert_pre_init()
