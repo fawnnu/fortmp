@@ -462,48 +462,26 @@ public:
     
     struct FEraPlayerInfo& EraPlayerInfo()
     {
+        // Heap alloc 1 byte to mark copied VTables.
+        static void* MemoryMark = malloc(1);
+        
         if (static bool legacy = GetCL() == 3807424)
         {
-            bool IsFortPlayerControllerAthena = false;
-            
-            for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+            // Hardcoded method: 0x1000 is far beyond most/any VTable. Safe to put our mark there, and our struct at 0x1001
+            if (VTable[0x1000] != MemoryMark)
             {
-                static UObject* UClass = FindObject(L"/Script/CoreUObject.Class");
-                
-                // Stop at the first C classs
-                if (CurrentClass->Class == UClass)
-                {
-                    if (CurrentClass == StaticClass())
-                    {
-                        IsFortPlayerControllerAthena = true;
-                    }
-                    break;
-                }
-            }
-            
-            if (IsFortPlayerControllerAthena)
-            {
-                // Hardcoded method
-                if (VTable[0x334] == reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x42D120))
-                {
-                    // Copy the VTable to a new one
-                    void** NewVTable = new void*[0x335];
-                    memcpy(NewVTable, VTable, 0x334 * 8);
-                    VTable = NewVTable;
-                    FEraPlayerInfo* StructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
-                    ZeroMemory(StructInstance, 584);
-                    VTable[0x334] = StructInstance;
-                }
-                else
-                {
-                    return *reinterpret_cast<FEraPlayerInfo*>(VTable[0x334]);
-                }
+                // Copy the VTable to a new one
+                void** NewVTable = new void*[0x1002];
+                memcpy(NewVTable, VTable, 0x1000 * 8);
+                VTable = NewVTable;
+                FEraPlayerInfo* StructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
+                ZeroMemory(StructInstance, 584);
+                VTable[0x1000] = MemoryMark;
+                VTable[0x1001] = StructInstance;
             }
             else
             {
-                FEraPlayerInfo* DummyStructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
-                ZeroMemory(DummyStructInstance, 584);
-                return *DummyStructInstance;
+                return *reinterpret_cast<FEraPlayerInfo*>(VTable[0x1001]);
             }
         }
         else

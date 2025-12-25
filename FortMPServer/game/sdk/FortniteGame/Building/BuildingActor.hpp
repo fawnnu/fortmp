@@ -300,48 +300,26 @@ public:
     
     struct FEraContainerInfo& EraContainerInfo()
     {
+        // Heap alloc 1 byte to mark copied VTables.
+        static void* MemoryMark = malloc(1);
+        
         if (static bool legacy = GetCL() == 3807424)
         {
-            bool IsCBuildingContainer = false;
-            
-            for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+            // Hardcoded method
+            if (VTable[0x1000] != MemoryMark)
             {
-                static UObject* UClass = FindObject(L"/Script/CoreUObject.Class");
-                
-                // Stop at the first C classs
-                if (CurrentClass->Class == UClass)
-                {
-                    if (CurrentClass == StaticClass())
-                    {
-                        IsCBuildingContainer = true;
-                    }
-                    break;
-                }
-            }
-            
-            if (IsCBuildingContainer)
-            {
-                // Hardcoded method
-                if (VTable[0x1AF] == reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x49F990))
-                {
-                    // Copy the VTable to a new one
-                    void** NewVTable = new void*[0x1B0];
-                    memcpy(NewVTable, VTable, 0x1AF * 8);
-                    VTable = NewVTable;
-                    FEraContainerInfo* StructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
-                    ZeroMemory(StructInstance, 32);
-                    VTable[0x1AF] = StructInstance;
-                }
-                else
-                {
-                    return *reinterpret_cast<FEraContainerInfo*>(VTable[0x1AF]);
-                }
+                // Copy the VTable to a new one
+                void** NewVTable = new void*[0x1002];
+                memcpy(NewVTable, VTable, 0x1000 * 8);
+                VTable = NewVTable;
+                FEraContainerInfo* StructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
+                ZeroMemory(StructInstance, 32);
+                VTable[0x1000] = MemoryMark;
+                VTable[0x1001] = StructInstance;
             }
             else
             {
-                FEraContainerInfo* DummyStructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
-                ZeroMemory(DummyStructInstance, 32);
-                return *DummyStructInstance;
+                return *reinterpret_cast<FEraContainerInfo*>(VTable[0x1001]);
             }
         }
         else

@@ -423,5 +423,7 @@ FCollisionQueryParams::FCollisionQueryParams(FName TagName, bool bTraceComplex, 
 
 FVector AActor::K2_GetActorLocation()
 {
-    return RootComponent() != nullptr ? RootComponent()->ComponentToWorld().Translation : FVector(0, 0, 0);
+    STATIC_FINDFUNCTION(K2_GetActorLocation)
+
+    return Call<FVector>(Function_K2_GetActorLocation);
 }

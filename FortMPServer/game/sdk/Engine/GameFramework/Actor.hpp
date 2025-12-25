@@ -185,6 +185,13 @@ public:
         Call(Function_FlushNetDormancy);
     }
     
+    void SetNetDormancy(ENetDormancy NewDormancy)
+    {
+        STATIC_FINDFUNCTION(SetNetDormancy)
+        
+        Call(Function_SetNetDormancy, NewDormancy);
+    }
+    
     void ForceNetUpdate()
     {
         STATIC_FINDFUNCTION(ForceNetUpdate)

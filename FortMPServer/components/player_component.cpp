@@ -3393,6 +3393,14 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
         }
 
+        // Legacy teams
+        if (GetEngineVersionEasy() < 420)
+        {
+            team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 
+                team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(),
+       team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+        }
+        
         // Prevent camera from shaking while spectating or when using the guided missile
         NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
         NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
@@ -4082,10 +4090,11 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
     if (Self)
     {
         AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller();
-        FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker;
-
+        
         if (PlayerController)
         {
+            FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker;
+
             if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Trap.CozyCampfire")))
             {
                 PlayerStats.TemporaryCampfireHealth += 2;

@@ -14,6 +14,10 @@ harvesting_component::harvesting_component()
     DetourUpdateThread(GetCurrentThread());
 
     REGISTER_FUNCTION_DETOUR(harvesting_component_hooks::OnBuildingDamaged, memory_manager::find_function_by_string(L"Player %s reported hitting weak spot on building %s, but none found!"), harvesting_component_hooks::OnBuildingDamaged_Hook);
+    if (!harvesting_component_hooks::OnBuildingDamaged)
+    {
+        REGISTER_FUNCTION_DETOUR(harvesting_component_hooks::OnBuildingDamaged, memory_manager::find_pattern("48 8B C4 48 89 58 08 4C 89 40 18 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ? ? ? ? 48 81 EC ? ? ? ? 4C 8B BD ? ? ? ? 49 8B D9 0F 29 70 B8 49 8B F8 0F 29 78 A8 0F 28 F1 44 0F 29 40 ? 48 8B F1 48 8B 85 ? ? ? ? 48 89 44 24 ? 4C 89 7C 24 ?"), harvesting_component_hooks::OnBuildingDamaged_Hook);
+    }
     
     DetourTransactionCommit();
 }

@@ -961,6 +961,16 @@ int inventory_component::get_override_max_stack_size_for_material(UFortItemDefin
                 }
             }
         }
+        else
+        {
+            // Legacy builds do not have playlists; do not return -1.
+            if (item_definition == WoodItemData ||
+                item_definition == StoneItemData ||
+                item_definition == MetalItemData)
+            {
+                return 999;
+            }
+        }
     }
     
     return -1;

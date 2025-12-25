@@ -544,8 +544,6 @@ void replication_component::ServerReplicateActors_BuildConsiderList(UNetDriver* 
 
 int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, std::vector<FNetworkObjectInfo*> ConsiderList, bool bCPUSaturated, FActorPriority*& OutPriorityList, FActorPriority**& OutPriorityActors)
 {
-    // Temporary solution for TSparseArray issues
-    return 0;
     NetDriver->NetTag()++;
 
     for ( int32 j = 0; j < Connection->SentTemporaries().Num(); j++ )
@@ -562,7 +560,7 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
     const bool bLowNetBandwidth = false;
 
     // !!! UNCOMMENT THIS OUT WHENEVER WORKING WITH LEGACY REP AGAIN
-    //UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
+    UE::TMap<FNetworkGUID, FActorDestructionInfo>& DestroyedStartupOrDormantActors = *reinterpret_cast<UE::TMap<FNetworkGUID, FActorDestructionInfo>*>(uintptr_t(NetDriver) + NetworkOffsets::DestroyedStartupOrDormantActors_NetDriver);
     
     const int MaxSortedActors = ConsiderList.size();
     
@@ -659,8 +657,6 @@ int replication_component::ServerReplicateActors_PrioritizeActors(UNetDriver* Ne
 
 int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDriver* NetDriver, UNetConnection* Connection, TArray<FNetViewer>& ConnectionViewers, FActorPriority** PriorityActors, int FinalSortedCount, int& OutUpdated)
 {
-    // Temporary solution for TSparseArray issues
-    return 0;
     int ActorUpdatesThisConnection = 0;
     int ActorUpdatesThisConnectionSent = 0;
     int FinalRelevantCount = 0;
@@ -689,7 +685,7 @@ int replication_component::ServerReplicateActors_ProcessPrioritizedActors(UNetDr
                 SetChannelActorForDestroy(Channel, PriorityActors[j]->DestructionInfo);
 
                 // !!! UNCOMMENT THIS OUT WHENEVER WORKING WITH LEGACY REP AGAIN
-                //reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors)->Remove(PriorityActors[j]->DestructionInfo->NetGUID);
+                reinterpret_cast<UE::TSet<FNetworkGUID>*>(uintptr_t(Connection) + NetworkOffsets::DestroyedStartupOrDormantActors)->Remove(PriorityActors[j]->DestructionInfo->NetGUID);
             }
 
             continue;
@@ -837,8 +833,8 @@ int replication_component::ServerReplicateActors(UNetDriver* NetDriver, float De
 
     bool bCPUSaturated = false;
 
-    // Default Fortnite tick rate for legacy replication
-    float ServerTickTime = 20.0f;
+    // Tick rate
+    float ServerTickTime = 30.0f;
 
     if (ServerTickTime == 0.f)
     {
