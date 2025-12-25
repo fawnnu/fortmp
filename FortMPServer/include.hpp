@@ -95,3 +95,8 @@
 
 #include "utils/Containers.hpp"
 #include "components/blueprint_component.hpp"
+
+
+#ifdef ERA_LL_LOGS
+inline std::wofstream debug_log(L"era.log");
+#endif

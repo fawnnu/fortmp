@@ -28,7 +28,10 @@ ability_component::ability_component()
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerTryActivateAbilityWithEventData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerTryActivateAbilityWithEventData", ability_component_hooks::ServerTryActivateAbilityWithEventData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerSetReplicatedTargetData, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerSetReplicatedTargetData", ability_component_hooks::ServerSetReplicatedTargetData_Hook);
     REGISTER_UFUNCTION_DETOUR(ability_component_hooks::ServerAbilityRPCBatch, L"/Script/GameplayAbilities.AbilitySystemComponent.ServerAbilityRPCBatch", ability_component_hooks::ServerAbilityRPCBatch_Hook);
-    REGISTER_FUNCTION_DETOUR(ability_component_hooks::HandleGliderRedeploy, memory_manager::find_pattern("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 56 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 D8 0F 29 78 C8 48 8B 05 ? ? ? ?"), ability_component_hooks::HandleGliderRedeploy_Hook);
+    if (GetEngineVersionEasy() > 419)
+    {
+        REGISTER_FUNCTION_DETOUR(ability_component_hooks::HandleGliderRedeploy, memory_manager::find_pattern("48 8B C4 48 89 58 10 48 89 70 18 55 57 41 56 48 8D 68 ? 48 81 EC ? ? ? ? 0F 29 70 D8 0F 29 78 C8 48 8B 05 ? ? ? ?"), ability_component_hooks::HandleGliderRedeploy_Hook);
+    }
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::UGameplayAbility__CommitCheck, memory_manager::find_function_by_string(L"UGameplayAbility::CommitCheck provided an invalid handle or actor info or couldn't find ability spec: %s Handle Valid"), ability_component_hooks::UGameplayAbility__CommitCheck_Hook);
     REGISTER_FUNCTION_DETOUR(ability_component_hooks::MeleeCombatActivated, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B 01 48 8B D9 FF 90 ? ? ? ? 84 C0 74 3D F3 0F 10 8B ? ? ? ? 48 8B 8B ? ? ? ? E8 ? ? ? ? 48 83 BB ? ? ? ? ? 74 1F 48 8B 03 48 8B CB"), ability_component_hooks::MeleeCombatActivated_Hook);
     

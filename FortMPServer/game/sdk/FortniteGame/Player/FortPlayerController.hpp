@@ -460,7 +460,59 @@ public:
         return *reinterpret_cast<FFortAthenaLoadout*>(__int64(this) + native_property_offset);                
     }
     
-    DEFINE_PROPERTY(struct FEraPlayerInfo, EraPlayerInfo);
+    struct FEraPlayerInfo& EraPlayerInfo()
+    {
+        if (static bool legacy = GetCL() == 3807424)
+        {
+            bool IsFortPlayerControllerAthena = false;
+            
+            for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+            {
+                static UObject* UClass = FindObject(L"/Script/CoreUObject.Class");
+                
+                // Stop at the first C classs
+                if (CurrentClass->Class == UClass)
+                {
+                    if (CurrentClass == StaticClass())
+                    {
+                        IsFortPlayerControllerAthena = true;
+                    }
+                    break;
+                }
+            }
+            
+            if (IsFortPlayerControllerAthena)
+            {
+                // Hardcoded method
+                if (VTable[0x334] == reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x42D120))
+                {
+                    // Copy the VTable to a new one
+                    void** NewVTable = new void*[0x335];
+                    memcpy(NewVTable, VTable, 0x334 * 8);
+                    VTable = NewVTable;
+                    FEraPlayerInfo* StructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
+                    ZeroMemory(StructInstance, 584);
+                    VTable[0x334] = StructInstance;
+                }
+                else
+                {
+                    return *reinterpret_cast<FEraPlayerInfo*>(VTable[0x334]);
+                }
+            }
+            else
+            {
+                FEraPlayerInfo* DummyStructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
+                ZeroMemory(DummyStructInstance, 584);
+                return *DummyStructInstance;
+            }
+        }
+        else
+        {
+            static void* native_property = FindPropertyByName(this->Class, "EraPlayerInfo");
+            static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+            return *reinterpret_cast<struct FEraPlayerInfo*>(__int64(this) + native_property_offset);
+        }
+    };
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);

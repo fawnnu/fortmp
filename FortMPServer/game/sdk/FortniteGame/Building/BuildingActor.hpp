@@ -297,7 +297,60 @@ public:
     DEFINE_PROPERTY(float, LootTossConeHalfAngle_Athena);
     DEFINE_PROPERTY(FVector, LootSpawnLocation);
     DEFINE_PROPERTY(FFortSearchBounceData, SearchBounceData);
-    DEFINE_PROPERTY(struct FEraContainerInfo, EraContainerInfo);
+    
+    struct FEraContainerInfo& EraContainerInfo()
+    {
+        if (static bool legacy = GetCL() == 3807424)
+        {
+            bool IsCBuildingContainer = false;
+            
+            for (UObject* CurrentClass = Class; CurrentClass; CurrentClass = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(CurrentClass) + CoreOffsets::SuperStruct))
+            {
+                static UObject* UClass = FindObject(L"/Script/CoreUObject.Class");
+                
+                // Stop at the first C classs
+                if (CurrentClass->Class == UClass)
+                {
+                    if (CurrentClass == StaticClass())
+                    {
+                        IsCBuildingContainer = true;
+                    }
+                    break;
+                }
+            }
+            
+            if (IsCBuildingContainer)
+            {
+                // Hardcoded method
+                if (VTable[0x1AF] == reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x49F990))
+                {
+                    // Copy the VTable to a new one
+                    void** NewVTable = new void*[0x1B0];
+                    memcpy(NewVTable, VTable, 0x1AF * 8);
+                    VTable = NewVTable;
+                    FEraContainerInfo* StructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
+                    ZeroMemory(StructInstance, 32);
+                    VTable[0x1AF] = StructInstance;
+                }
+                else
+                {
+                    return *reinterpret_cast<FEraContainerInfo*>(VTable[0x1AF]);
+                }
+            }
+            else
+            {
+                FEraContainerInfo* DummyStructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
+                ZeroMemory(DummyStructInstance, 32);
+                return *DummyStructInstance;
+            }
+        }
+        else
+        {
+            static void* native_property = FindPropertyByName(this->Class, "EraContainerInfo");
+            static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+            return *reinterpret_cast<struct FEraContainerInfo*>(__int64(this) + native_property_offset);
+        }
+    };
     DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
     DEFINE_BIT_PROPERTY(bool, bStartAlreadySearched_Athena);
 
@@ -332,6 +385,12 @@ public:
 
         return FinalLocation;
     }
+};
+
+class AKeepItemContainer : public ABuildingContainer
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.KeepItemContainer");
 };
 
 class ABuildingFoundation : public ABuildingSMActor

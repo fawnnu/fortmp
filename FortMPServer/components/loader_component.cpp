@@ -575,7 +575,7 @@ bool loader_component::initialize_playlist(UFortPlaylistAthena* in_playlist)
 
         return false;
     }
-    else
+    else if (in_playlist)
     {
         spdlog::info(L"initialize_playlist: Current Playlist: {}", in_playlist->GetName().c_str());
         if (STATIC_HASPROPERTY((*GWorld)->GameState(), CurrentPlaylistData))

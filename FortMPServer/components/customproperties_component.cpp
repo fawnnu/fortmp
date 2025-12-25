@@ -101,7 +101,7 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
 {
     // Wait for everything to be initialized; block the thread until then.
     customproperties_component::wait_for_initialization();
-    
+
     // Get class name and apply any pending custom property
     if (NewClass)
     {
@@ -145,6 +145,10 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
             }
             
             spdlog::info(L"Applied property [{}] to {}. PropertyNum: {}", CustomPropertyData.PropertyName.c_str(), CustomPropertyData.ClassName.c_str(), PropertyNum);
+        
+#ifdef ERA_LL_LOGS
+            debug_log << L"customproperties_component_hooks::ConstructUProperty_Hook: Created new property." << std::endl;
+#endif
         }
     }
     

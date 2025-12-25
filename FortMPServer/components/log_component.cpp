@@ -7,11 +7,20 @@
 
 log_component::log_component()
 {
+#ifdef ERA_LL_LOGS
+    debug_log << L"log_component::log_component: initialized logs." << std::endl;
+#endif
+    
     auto config = config_manager::get_server_config();
+    
     if (config.contains("enable_debug_logs") && config["enable_debug_logs"].is_boolean())
     {
         enable_debug_logs = bool(config["enable_debug_logs"]);
     }
+    
+#ifdef ERA_LL_LOGS
+    debug_log << L"log_component::log_component: enable_debug_logs is " << enable_debug_logs << std::endl;
+#endif
     
     // Setup file sink for logging
     const time_t current_time = std::time(nullptr);
@@ -23,6 +32,10 @@ log_component::log_component()
     std::string log_file_path(dll_utils::get_current_path());
     log_file_path.append("/FortMP/FortMP.log");
 
+#ifdef ERA_LL_LOGS
+    debug_log << L"log_component::log_component: new log file?  " << !std::filesystem::exists(log_file_path) << std::endl;
+#endif
+    
     if (std::filesystem::exists(log_file_path))
     {
         std::string backup_log_path = log_file_path.substr(0, log_file_path.find("FortMP.log"));
@@ -74,6 +87,10 @@ log_component::log_component()
     spdlog::default_logger()->sinks().push_back(std::make_shared<fmp_log_sink<std::mutex>>());
 
     spdlog::default_logger()->flush_on(spdlog::level::debug);
+    
+#ifdef ERA_LL_LOGS
+    debug_log << L"log_component::log_component: finished logs setup." << std::endl;
+#endif
 }
 
 log_component::log_msg::log_msg(std::string in_message, spdlog::level::level_enum in_level)
