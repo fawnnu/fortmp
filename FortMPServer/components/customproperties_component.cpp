@@ -101,6 +101,11 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
 {
     // Wait for everything to be initialized; block the thread until then.
     customproperties_component::wait_for_initialization();
+    
+    if (GetEngineVersionEasy() < 420)
+    {
+        return ConstructUProperty(NewClass, PropertyArray, PropertyNum);
+    }
 
     // Get class name and apply any pending custom property
     if (NewClass)

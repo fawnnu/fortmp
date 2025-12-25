@@ -119,7 +119,10 @@ void unreal_manager::pre_init()
     isUnrealInitialized = true;
     
     // Create custom properties component
-    new customproperties_component();
+    if (GetEngineVersionEasy() > 419)
+    {
+        new customproperties_component();
+    }
     
 #ifdef ERA_LL_LOGS
     debug_log << L"unreal_manager::pre_init: created customproperties_component." << std::endl;
