@@ -3526,6 +3526,18 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
         spdlog::error(L"Failed to override hero definition for hero '{}', as specified hero definition does not exist",
             Hero->GetName().c_str());
     }
+    
+    if (log_component::enable_debug_logs)
+    {
+        if (!Hero)
+        {
+            spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook called with invalid Hero.");
+        }
+        else
+        {
+            spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook called with '{}'", Hero->GetFullName().c_str());
+        }
+    }
 
     return hero_definition;
 }
