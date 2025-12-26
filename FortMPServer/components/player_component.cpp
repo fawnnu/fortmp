@@ -3521,7 +3521,7 @@ void player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook(AFortGameSta
     if (AFortPlayerController* Controller = ASC->OwnerActor()->Owner()->Cast<AFortPlayerController>())
     {
         // Make sure profile is there
-        int DebugIterations = 0;
+        int DebugIterations = 0; 
         bool DebugLog = false;
         while (true)
         {
