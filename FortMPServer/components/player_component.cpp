@@ -135,7 +135,7 @@ player_component::player_component()
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
-        REGISTER_FUNCTION_DETOUR(player_component_hooks::GetHeroDefinition, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set.", { 0xE8, 0x100, 0x100, 0x100, 0xff }, 1), player_component_hooks::GetHeroDefinition_Hook);
+        REGISTER_FUNCTION_DETOUR(player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set."), player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook);
     }
     
     REGISTER_FUNCTION_DETOUR(player_component_hooks::K2_OnRestartPlayer, memory_manager::find_pe_function(L"K2_OnRestartPlayer"), player_component_hooks::K2_OnRestartPlayer_Hook);
@@ -3514,36 +3514,50 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     }
 }
 
-UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
+void player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook(AFortGameState* Self, UObject* Unk, UFortMcpProfileAccount* Profile, UObject* ASCInterface, UObject* Hero, char A6, uint8_t A7)
 {
-    static UObject* hero_definition = FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) ?
-        FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) :
-        FindObject(L"/Game/Athena/Heroes/HID_Commando_Athena_25.HID_Commando_Athena_25", true);
+    UAbilitySystemComponent* ASC = reinterpret_cast<UAbilitySystemComponent* (*)(UObject*)>(ASCInterface->VTable[2])(ASCInterface);
     
-    if (log_component::enable_debug_logs)
+    if (AFortPlayerController* Controller = ASC->OwnerActor()->Owner()->Cast<AFortPlayerController>())
     {
-        if (!Hero)
+        // Make sure profile is there
+        int DebugIterations = 0;
+        bool DebugLog = false;
+        while (true)
         {
-            spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook called with invalid Hero.");
-        }
-        else
-        {
-            spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook called with '{}'", Hero->GetFullName().c_str());
-        }
-    }
-    
-    if (Hero)
-    {
-        if (Hero->Cast<UFortHero>())
-        {
-            if (AFortPlayerController* Controller = Hero->Cast<UFortHero>()->GetOwningController())
+            if (static_cast<AFortPlayerControllerAthena*>(Controller)->EraPlayerInfo().bPendingKick)
             {
-                spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook: Hero is owned by {}", Controller->GetFullName().c_str());
+                Controller->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer. [EC 1]"));
+                return;
             }
+            
+            if (static_cast<AFortPlayerControllerAthena*>(Controller)->EraPlayerInfo().bProfileReady)
+            {
+                break;
+            }
+
+            DebugIterations++;
+
+            if (DebugIterations > 100 && !DebugLog)
+            {
+                DebugLog = true;
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook: Profile parsing is taking too long.");
+                }
+            }
+            
+            Sleep(1000 / 30);
         }
+                        
+        spdlog::info(L"player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook: Profile parsed. Processing...");
+        
+        // Override Hero
+        Hero = GetOrInitializeHero_Hook(Controller);
     }
 
-    return hero_definition;
+    
+    return ApplyHomebaseEffectsOnPlayerSetup(Self, Unk, Profile, ASCInterface, Hero, A6, A7);
 }
 
 void player_component_hooks::ServerPlaySprayItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)

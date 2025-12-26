@@ -45,6 +45,12 @@ struct FViewTargetTransitionParams
     uint8_t data[0x10];
 };
 
+class UFortMcpProfileAccount : public UObject
+{
+public:
+    
+};
+
 class UFortRegisteredPlayerInfo : public UObject
 {
 public:
@@ -54,6 +60,7 @@ public:
     DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
     DEFINE_PROPERTY(uint8_t, TeamAssignment);
     DEFINE_PROPERTY(int, PlayerIndex);
+    DEFINE_PROPERTY(UFortMcpProfileAccount*, AccountProfile);
 };
 
 class UFortClientSettingsRecord : public UObject
@@ -201,6 +208,7 @@ public:
     DEFINE_BIT_PROPERTY(bool, bInfiniteAmmo);
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
     DEFINE_PROPERTY(UFortRegisteredPlayerInfo*, MyPlayerInfo);
+    DEFINE_PROPERTY(UFortMcpProfileAccount*, MainMcpProfile);
     DEFINE_PROPERTY(TArray<struct FFortUpdatedObjectiveStat>, UpdatedObjectiveStats);
     DEFINE_PROPERTY(AFortPlayerPawn*, MyFortPawn);
     DEFINE_PROPERTY(UFortPlayerControllerAthenaXPComponent*, XPComponent);
