@@ -510,11 +510,18 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                                     {
                                         if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()))
                                         {
-                                            spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Found dead player still in AlivePlayers.");
+                                            if ((*GWorld)->GameState()->GamePhase() > EAthenaGamePhase::Aircraft())
+                                            {
+                                                spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Found dead player still in AlivePlayers.");
                                             
-                                            RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), Connection->PlayerController(), 0);
+                                                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), Connection->PlayerController(), 0);
                                             
-                                            spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Attempted to remove exceeding player from AlivePlayers. Success: {}", !(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()));
+                                                spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Attempted to remove exceeding player from AlivePlayers. Success: {}", !(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()));
+                                            }
+                                            else
+                                            {
+                                                spdlog::info(L"elimination_component_hooks::ClientOnPawnDied_Hook skipping correction as player might still be on the bus.");
+                                            }
                                         }
                                     }
                                 }

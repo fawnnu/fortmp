@@ -280,6 +280,14 @@ struct TeamsArrayContainer
     UE::TSparseArray<UE::TArray<TWeakObjectPtr<AFortPlayerStateAthena>>> SquadsArray{};
 };
 
+class EAthenaGamePhase : public UEnum
+{
+public:
+    DEFINE_STATIC_ENUM_CLASS(L"/Script/FortniteGame.EAthenaGamePhase")
+    
+    ENUM_PROPERTY(Aircraft)
+};
+
 class AFortGameStateAthena : public AFortGameState
 {
 public:
