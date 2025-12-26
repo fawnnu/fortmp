@@ -3536,23 +3536,9 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     {
         if (Hero->Cast<UFortHero>())
         {
-            if (Hero->Cast<UFortHero>()->Gender() == EFortCustomGender::Female())
+            if (AFortPlayerController* Controller = Hero->Cast<UFortHero>()->GetOwningController())
             {
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook is returning default female hero.");
-                }
-                
-                return FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true);   
-            }
-            if (Hero->Cast<UFortHero>()->Gender() == EFortCustomGender::Male())
-            {
-                if (log_component::enable_debug_logs)
-                {
-                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook is returning default male hero.");
-                }
-                
-                return FindObject(L"/Game/Athena/Heroes/HID_005_Athena_Commando_M.HID_005_Athena_Commando_M", true);
+                spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook: Hero is owned by {}", Controller->GetFullName().c_str());
             }
         }
     }

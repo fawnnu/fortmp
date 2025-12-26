@@ -16,6 +16,13 @@ public:
         return Call<UFortItemDefinition*>(Function_GetItemDefinitionBP);
     }
 
+    AFortPlayerController* GetOwningController()
+    {
+        STATIC_FINDFUNCTION(GetOwningController)
+        
+        return Call<AFortPlayerController*>(Function_GetOwningController);
+    }
+    
     FGuid GetItemGuid()
     {
         STATIC_FINDFUNCTION(GetItemGuid)
