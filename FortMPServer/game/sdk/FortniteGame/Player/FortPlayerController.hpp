@@ -465,7 +465,14 @@ public:
         // Heap alloc 1 byte to mark copied VTables.
         static void* MemoryMark = malloc(1);
         
-        if (static bool legacy = GetEngineVersionEasy() < 420)
+        static auto EngineVerson = GetEngineVersionEasy();
+        static bool bLog = false;
+        if (!bLog)
+        {
+            bLog = true;
+            spdlog::info(L"[ENGINE] Custom property system for 'EraPlayerInfo': [LEGACY: {}]", EngineVerson < 420);
+        }
+        if (EngineVerson < 420)
         {
             // Hardcoded method: 0x1000 is far beyond most/any VTable. Safe to put our mark there, and our struct at 0x1001
             if (VTable[0x1000] != MemoryMark)

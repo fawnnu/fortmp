@@ -303,7 +303,8 @@ public:
         // Heap alloc 1 byte to mark copied VTables.
         static void* MemoryMark = malloc(1);
         
-        if (static bool legacy = GetEngineVersionEasy() < 420)
+        static auto EngineVerson = GetEngineVersionEasy();
+        if (EngineVerson < 420)
         {
             // Hardcoded method
             if (VTable[0x1000] != MemoryMark)
