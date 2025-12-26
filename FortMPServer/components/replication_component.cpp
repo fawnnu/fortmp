@@ -355,7 +355,7 @@ int replication_component::ServerReplicateActors_PrepConnections(UNetDriver* Net
     int NumClientsToTick = NetDriver->ClientConnections().Num();
 
     // Don't process more than 50 clients every tick
-    NumClientsToTick = FMath::Min(NumClientsToTick, 50);
+    //NumClientsToTick = FMath::Min(NumClientsToTick, 50);
 
     // Decides whether any connections are ready to tick yet
     bool bFoundReadyConnection = false;
