@@ -3519,13 +3519,6 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     static UObject* hero_definition = FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) ?
         FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) :
         FindObject(L"/Game/Athena/Heroes/HID_Commando_Athena_25.HID_Commando_Athena_25", true);
-
-    if (hero_definition == nullptr)
-    {
-        // Failed to find hero definition
-        spdlog::error(L"Failed to override hero definition for hero '{}', as specified hero definition does not exist",
-            Hero->GetName().c_str());
-    }
     
     if (log_component::enable_debug_logs)
     {
@@ -3543,14 +3536,23 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
     {
         if (Hero->Cast<UFortHero>())
         {
-            if (auto HeroType = Hero->Cast<UFortHero>()->GetHeroTypeBP())
+            if (Hero->Cast<UFortHero>()->Gender() == EFortCustomGender::Female())
             {
                 if (log_component::enable_debug_logs)
                 {
-                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook returning HeroType '{}'", HeroType->GetFullName().c_str());
+                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook is returning default female hero.");
                 }
-        
-                return HeroType;
+                
+                return FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true);   
+            }
+            if (Hero->Cast<UFortHero>()->Gender() == EFortCustomGender::Male())
+            {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook is returning default male hero.");
+                }
+                
+                return FindObject(L"/Game/Athena/Heroes/HID_005_Athena_Commando_M.HID_005_Athena_Commando_M", true);
             }
         }
     }

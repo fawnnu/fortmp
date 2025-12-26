@@ -38,7 +38,13 @@ public:
     }
 };
 
-class UFortHero : public UFortItem
+class UFortWorker : public UFortItem
+{
+public:
+    DEFINE_PROPERTY(uint8_t, Gender);
+};
+
+class UFortHero : public UFortWorker
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortHero");
