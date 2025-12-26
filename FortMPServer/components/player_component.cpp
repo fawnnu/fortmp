@@ -3538,6 +3538,22 @@ UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
             spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook called with '{}'", Hero->GetFullName().c_str());
         }
     }
+    
+    if (Hero)
+    {
+        if (Hero->Cast<UFortHero>())
+        {
+            if (auto HeroType = Hero->Cast<UFortHero>()->GetHeroTypeBP())
+            {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"player_component_hooks::GetHeroDefinition_Hook returning HeroType '{}'", HeroType->GetFullName().c_str());
+                }
+        
+                return HeroType;
+            }
+        }
+    }
 
     return hero_definition;
 }
