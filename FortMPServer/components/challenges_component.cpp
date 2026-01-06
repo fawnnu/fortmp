@@ -172,6 +172,10 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
             SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_c"));
             SendCustomEventWithObjective(PlayerController, "interaction:autocomplete", TEXT("battlepass_visit_athena_expeditionoutpost_singlematch_d"));
         }
+
+        {
+            SendCustomEvent(PlayerController, "interaction:destroy-plane");
+        }
     }
 }
 
