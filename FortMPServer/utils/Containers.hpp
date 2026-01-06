@@ -401,7 +401,7 @@ namespace UE
                 , Mask(InMask)
             {
             }
-            FORCEINLINE const FBitReference(const uint32_t& InData, const uint32_t InMask)
+            FORCEINLINE FBitReference(const uint32_t& InData, const uint32_t InMask)
                 : Data(const_cast<uint32_t&>(InData))
                 , Mask(InMask)
             {
@@ -439,13 +439,13 @@ namespace UE
             const TBitArray& IteratedArray;
 
         public:
-            FORCEINLINE const FBitIterator(const TBitArray& ToIterate, const int StartIndex) // Begin
+            FORCEINLINE FBitIterator(const TBitArray& ToIterate, const int StartIndex) // Begin
                 : IteratedArray(ToIterate)
                 , Index(StartIndex)
                 , FRelativeBitReference(StartIndex)
             {
             }
-            FORCEINLINE const FBitIterator(const TBitArray& ToIterate) // End
+            FORCEINLINE FBitIterator(const TBitArray& ToIterate) // End
                 : IteratedArray(ToIterate)
                 , Index(ToIterate.NumBits)
                 , FRelativeBitReference(ToIterate.NumBits)
@@ -716,10 +716,10 @@ namespace UE
         }
 
         /** This is used for legacy replication, but causes some memory issues on later seasons so its commented out*/
-        /*TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
+        TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
         {
             return TSparseArrayElementOrListLink(Other.PrevFreeIndex, Other.NextFreeIndex);
-        }*/
+        }
 
         /** If the element is allocated, its value is stored here. */
         ElementType ElementData;

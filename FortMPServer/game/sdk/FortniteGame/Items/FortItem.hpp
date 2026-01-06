@@ -16,6 +16,13 @@ public:
         return Call<UFortItemDefinition*>(Function_GetItemDefinitionBP);
     }
 
+    AFortPlayerController* GetOwningController()
+    {
+        STATIC_FINDFUNCTION(GetOwningController)
+        
+        return Call<AFortPlayerController*>(Function_GetOwningController);
+    }
+    
     FGuid GetItemGuid()
     {
         STATIC_FINDFUNCTION(GetItemGuid)
@@ -38,7 +45,13 @@ public:
     }
 };
 
-class UFortHero : public UFortItem
+class UFortWorker : public UFortItem
+{
+public:
+    DEFINE_PROPERTY(uint8_t, Gender);
+};
+
+class UFortHero : public UFortWorker
 {
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortHero");

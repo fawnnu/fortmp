@@ -45,6 +45,12 @@ struct FViewTargetTransitionParams
     uint8_t data[0x10];
 };
 
+class UFortMcpProfileAccount : public UObject
+{
+public:
+    
+};
+
 class UFortRegisteredPlayerInfo : public UObject
 {
 public:
@@ -54,6 +60,7 @@ public:
     DEFINE_PROPERTY(FUniqueNetIdRepl, PlayerID);
     DEFINE_PROPERTY(uint8_t, TeamAssignment);
     DEFINE_PROPERTY(int, PlayerIndex);
+    DEFINE_PROPERTY(UFortMcpProfileAccount*, AccountProfile);
 };
 
 class UFortClientSettingsRecord : public UObject
@@ -201,6 +208,7 @@ public:
     DEFINE_BIT_PROPERTY(bool, bInfiniteAmmo);
     DEFINE_PROPERTY(AFortPlayerPawn*, Pawn);
     DEFINE_PROPERTY(UFortRegisteredPlayerInfo*, MyPlayerInfo);
+    DEFINE_PROPERTY(UFortMcpProfileAccount*, MainMcpProfile);
     DEFINE_PROPERTY(TArray<struct FFortUpdatedObjectiveStat>, UpdatedObjectiveStats);
     DEFINE_PROPERTY(AFortPlayerPawn*, MyFortPawn);
     DEFINE_PROPERTY(UFortPlayerControllerAthenaXPComponent*, XPComponent);
@@ -460,7 +468,44 @@ public:
         return *reinterpret_cast<FFortAthenaLoadout*>(__int64(this) + native_property_offset);                
     }
     
-    DEFINE_PROPERTY(struct FEraPlayerInfo, EraPlayerInfo);
+    struct FEraPlayerInfo& EraPlayerInfo()
+    {
+        // Heap alloc 1 byte to mark copied VTables.
+        static void* MemoryMark = malloc(1);
+        
+        static auto EngineVerson = GetEngineVersionEasy();
+        static bool bLog = false;
+        if (!bLog)
+        {
+            bLog = true;
+            spdlog::info(L"[ENGINE] Custom property system for 'EraPlayerInfo': [LEGACY: {}]", EngineVerson < 420);
+        }
+        if (EngineVerson < 420)
+        {
+            // Hardcoded method: 0x1000 is far beyond most/any VTable. Safe to put our mark there, and our struct at 0x1001
+            if (VTable[0x1000] != MemoryMark)
+            {
+                // Copy the VTable to a new one
+                void** NewVTable = new void*[0x1002];
+                memcpy(NewVTable, VTable, 0x1000 * 8);
+                VTable = NewVTable;
+                FEraPlayerInfo* StructInstance = reinterpret_cast<FEraPlayerInfo*>(malloc(584));
+                ZeroMemory(StructInstance, 584);
+                VTable[0x1000] = MemoryMark;
+                VTable[0x1001] = StructInstance;
+            }
+            else
+            {
+                return *reinterpret_cast<FEraPlayerInfo*>(VTable[0x1001]);
+            }
+        }
+        else
+        {
+            static void* native_property = FindPropertyByName(this->Class, "EraPlayerInfo");
+            static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+            return *reinterpret_cast<struct FEraPlayerInfo*>(__int64(this) + native_property_offset);
+        }
+    };
     DEFINE_PROPERTY(TScriptMulticastDelegate<AFortPlayerController>, OnStartedRespawn);
     DEFINE_PROPERTY(AFortAthenaCreativePortal*, OwnedPortal);
     DEFINE_PROPERTY(AFortVolume*, CreativePlotLinkedVolume);

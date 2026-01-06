@@ -297,7 +297,39 @@ public:
     DEFINE_PROPERTY(float, LootTossConeHalfAngle_Athena);
     DEFINE_PROPERTY(FVector, LootSpawnLocation);
     DEFINE_PROPERTY(FFortSearchBounceData, SearchBounceData);
-    DEFINE_PROPERTY(struct FEraContainerInfo, EraContainerInfo);
+    
+    struct FEraContainerInfo& EraContainerInfo()
+    {
+        // Heap alloc 1 byte to mark copied VTables.
+        static void* MemoryMark = malloc(1);
+        
+        static auto EngineVerson = GetEngineVersionEasy();
+        if (EngineVerson < 420)
+        {
+            // Hardcoded method
+            if (VTable[0x1000] != MemoryMark)
+            {
+                // Copy the VTable to a new one
+                void** NewVTable = new void*[0x1002];
+                memcpy(NewVTable, VTable, 0x1000 * 8);
+                VTable = NewVTable;
+                FEraContainerInfo* StructInstance = reinterpret_cast<FEraContainerInfo*>(malloc(32));
+                ZeroMemory(StructInstance, 32);
+                VTable[0x1000] = MemoryMark;
+                VTable[0x1001] = StructInstance;
+            }
+            else
+            {
+                return *reinterpret_cast<FEraContainerInfo*>(VTable[0x1001]);
+            }
+        }
+        else
+        {
+            static void* native_property = FindPropertyByName(this->Class, "EraContainerInfo");
+            static int native_property_offset = *reinterpret_cast<int*>(__int64(native_property) + CoreOffsets::Offset_Internal);
+            return *reinterpret_cast<struct FEraContainerInfo*>(__int64(this) + native_property_offset);
+        }
+    };
     DEFINE_BIT_PROPERTY(bool, bAlreadySearched);
     DEFINE_BIT_PROPERTY(bool, bStartAlreadySearched_Athena);
 
@@ -332,6 +364,12 @@ public:
 
         return FinalLocation;
     }
+};
+
+class AKeepItemContainer : public ABuildingContainer
+{
+public:
+    DEFINE_STATIC_CLASS(L"/Script/FortniteGame.KeepItemContainer");
 };
 
 class ABuildingFoundation : public ABuildingSMActor

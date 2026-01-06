@@ -145,6 +145,10 @@ void customproperties_component_hooks::ConstructUProperty_Hook(UObject* NewClass
             }
             
             spdlog::info(L"Applied property [{}] to {}. PropertyNum: {}", CustomPropertyData.PropertyName.c_str(), CustomPropertyData.ClassName.c_str(), PropertyNum);
+        
+#ifdef ERA_LL_LOGS
+            debug_log << L"customproperties_component_hooks::ConstructUProperty_Hook: Created new property." << std::endl;
+#endif
         }
     }
     

@@ -333,8 +333,8 @@ namespace player_component_hooks
     // Called when a player joins the server
     DEFINE_FUNCTION_HOOK(void, PostLogin, (AFortGameModeAthena* FortGameModeAthena, APlayerController* NewPlayer));
 
-    // Called to override the hero type
-    DEFINE_FUNCTION_HOOK(UObject*, GetHeroDefinition, (UObject* Hero));
+    // Manipulated to override the hero type
+    DEFINE_FUNCTION_HOOK(void, ApplyHomebaseEffectsOnPlayerSetup, (AFortGameState* Self, UObject* Unk, UFortMcpProfileAccount* Profile, UObject* ASCInterface, UObject* Hero, char A6, uint8_t A7));
 
     DEFINE_FUNCTION_HOOK(UObject*, GetOrInitializeHero, (AFortPlayerController* Controller));
     

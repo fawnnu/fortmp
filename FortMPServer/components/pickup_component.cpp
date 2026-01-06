@@ -101,7 +101,7 @@ AFortPickup* pickup_component::spawn_pickup(UFortItemDefinition* item_definition
 
     // Spawn pickup in world
     AFortPickup* fort_pickup = reinterpret_cast<AFortPickup*>(SpawnActor(*GWorld, pickup_class, &pickup_location, nullptr, FActorSpawnParameters {}));
-
+    
     if (fort_pickup == nullptr)
     {
         return nullptr;
@@ -515,24 +515,35 @@ bool pickup_component_hooks::OnAboutToEnterBackpack_Hook(AFortPickup* Pickup)
 
                     STATIC_HASPROPERTY(SwapItemDefinition, bCanBeReplacedByPickup);
                     if (static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeDropped() &&
-                        bExists_bCanBeReplacedByPickup &&
-                        static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeReplacedByPickup() &&
                         inventory_component::has_item_type(PlayerController, SwapItemDefinition))
                     {
-                        // Swap item
-                        inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);
-
-                        if (spawned_item)
+                        bool bCanBeReplacedByPickup = true;
+                        
+                        if (bExists_bCanBeReplacedByPickup)
                         {
-                            if (TryAddToQuickBar)
+                            if (!static_cast<UFortWorldItemDefinition*>(SwapItemDefinition)->bCanBeReplacedByPickup())
                             {
-                                TryAddToQuickBar(PlayerController, spawned_item);
+                                bCanBeReplacedByPickup = false;
                             }
+                        }
+                        
+                        if (bCanBeReplacedByPickup)
+                        {
+                            // Swap item
+                            inventory_component::remove_item(PlayerController, SwapItemGuid, -1, true, true);
 
-                            // Equip item on client
-                            if (bShouldFocusOnSwappedItem)
+                            if (spawned_item)
                             {
-                                PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                                if (TryAddToQuickBar)
+                                {
+                                    TryAddToQuickBar(PlayerController, spawned_item);
+                                }
+
+                                // Equip item on client
+                                if (bShouldFocusOnSwappedItem)
+                                {
+                                    PlayerController->ClientEquipItem(spawned_item->ItemEntry().ItemGuid(), true);
+                                }
                             }
                         }
                     }

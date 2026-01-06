@@ -189,6 +189,9 @@ bool building_component::edit_building_actor(ABuildingActor* building_actor, UOb
             constexpr int replacement_destruction_reason = 1;
             constexpr int building_level = 0;
             
+            // Refresh the actor right before updating it
+            building_actor->SetNetDormancy(ENetDormancy::DORM_Awake);
+            
             // Edit building actor
             auto building_actor_new = ReplaceBuildingActor(building_actor, replacement_destruction_reason, building_class, building_level, rotation_iterations, is_mirrored, nullptr);
             if (building_actor_new)

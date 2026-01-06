@@ -38,6 +38,7 @@ net_component::net_component()
     if (UFortReplicationGraph::StaticClass() == nullptr)
     {
         REGISTER_CALL_DETOUR_WITH_ADDRESS(memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8E ? ? ? ? 48 85 C9 74 0D 48 3B CF 74 08 48 8B D3"), FlushActorDormancy);
+        REGISTER_CALL_DETOUR_WITH_ADDRESS(memory_manager::find_pattern("E8 ? ? ? ? 48 8B 8D ? ? ? ? 48 85 C9 74 0D 48 3B CE 74 08 48 8B D3 E8 ? ? ? ? 48 8B 6C 24 ? 48 8B 74 24 ?"), FlushActorDormancy);
     }
     
     DetourTransactionCommit();

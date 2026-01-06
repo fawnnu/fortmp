@@ -493,6 +493,42 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                 {
                     spdlog::warn(L"elimination_component_hooks::ClientOnPawnDied_Hook attempted removing an already removed player.");
                 }
+                
+                // Re-sync dead players on legacy builds
+                if (GetEngineVersionEasy() < 420)
+                {
+                    if (*GWorld && (*GWorld)->NetDriver())
+                    {
+                        for (UNetConnection* Connection : (*GWorld)->NetDriver()->ClientConnections())
+                        {
+                            if (Connection)
+                            {
+                                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()) && Connection->PlayerController())
+                                {
+                                    // Dead player
+                                    if (Connection->PlayerController()->Pawn() == nullptr)
+                                    {
+                                        if ((*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()))
+                                        {
+                                            if ((*GWorld)->GameState()->GamePhase() > EAthenaGamePhase::Aircraft())
+                                            {
+                                                spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Found dead player still in AlivePlayers.");
+                                            
+                                                RemoveFromAlivePlayerList((*GWorld)->AuthorityGameMode(), Connection->PlayerController(), 0);
+                                            
+                                                spdlog::error(L"elimination_component_hooks::ClientOnPawnDied_Hook: Attempted to remove exceeding player from AlivePlayers. Success: {}", !(*GWorld)->AuthorityGameMode()->AlivePlayers().Find(Connection->PlayerController()));
+                                            }
+                                            else
+                                            {
+                                                spdlog::info(L"elimination_component_hooks::ClientOnPawnDied_Hook skipping correction as player might still be on the bus.");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         
             if (RemoveFromAlivePlayers)

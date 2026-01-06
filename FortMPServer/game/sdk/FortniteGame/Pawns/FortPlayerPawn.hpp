@@ -16,6 +16,15 @@ public:
     DEFINE_PROPERTY(uint8_t, GenderPermitted);
 };
 
+class EFortCustomGender : public UEnum
+{
+public:
+    DEFINE_STATIC_ENUM_CLASS(L"/Script/FortniteGame.EFortCustomGender");
+    
+    ENUM_PROPERTY(Male);
+    ENUM_PROPERTY(Female);
+};
+
 class UFortHeroSpecialization : public UObject
 {
 public:

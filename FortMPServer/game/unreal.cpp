@@ -11,8 +11,22 @@ void unreal_manager::pre_init()
     // Init
     isUnrealInitialized = false;
     
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: Initializing custom properties (pre-init)." << std::endl;
+#endif
+    
+    // Init
+    INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
+    
     // hook
-    customproperties_component::pre_init();
+    if (GetEngineVersionEasy() > 419)
+    {
+        customproperties_component::pre_init();
+    }
+    
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: Successfully processed custom properties' pre-init stage." << std::endl;
+#endif
     
     std::vector<async_wrapper*> early_async_initializers;
     early_async_initializers.push_back(new async_wrapper([&]
@@ -22,10 +36,6 @@ void unreal_manager::pre_init()
         {
             INIT_POINTER(FMemory_Malloc_, memory_manager::find_pattern("48 89 5C 24 ? 57 48 83 EC 20 48 8B F9 8B DA 48 8B 0D ? ? ? ? 48 85 C9 75 0C E8 ? ? ? ? 48 8B 0D ? ? ? ? 48 8B 01 44 8B C3 48 8B D7 48 8B 5C 24 ? 48 83 C4 20 5F 48 FF 60 10"));
         }
-    }));
-    early_async_initializers.push_back(new async_wrapper([&]
-    {
-        INIT_POINTER(GetEngineVersion, memory_manager::find_pattern("40 53 48 83 EC 20 48 8B D9 E8 ? ? ? ? 48 8B C8 41 B8 04 ? ? ? 48 8B D3"));
     }));
     early_async_initializers.push_back(new async_wrapper([&]
     {
@@ -52,6 +62,10 @@ void unreal_manager::pre_init()
         INIT_POINTER(FMemory_Free, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 0F 48 89 0B 4C 89 37 8B 47 08 89 43 08 8B 47 0C 89 43 0C 4C 89 77 08", true, 1));
     }));
     async_wrapper::wait_for_wrappers(early_async_initializers);
+
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: Processed basic wrappers." << std::endl;
+#endif
     
     // initialize offsets
     if (GetEngineVersionEasy() == 416 ||
@@ -100,10 +114,21 @@ void unreal_manager::pre_init()
         CoreOffsets::Script = 0x60;
     }
 
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: Finished UNREAL initialization.." << std::endl;
+#endif
+    
     isUnrealInitialized = true;
     
     // Create custom properties component
-    new customproperties_component();
+    if (GetEngineVersionEasy() > 419)
+    {
+        new customproperties_component();
+    }
+    
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: created customproperties_component." << std::endl;
+#endif
     
     std::vector<async_wrapper*> async_initializers;
     async_initializers.push_back(new async_wrapper([&]
@@ -123,6 +148,10 @@ void unreal_manager::pre_init()
         INIT_POINTER(StaticLoadObject, memory_manager::find_pattern("E8 ? ? ? ? 48 8B 4C 24 ? 48 8B F0 48 85 C9 74 05 E8 ? ? ? ? 48 8B 7C 24 ? 48 8B C6 48 8B 74 24 ?", true, 1));
     }));
     async_wrapper::wait_for_wrappers(async_initializers);
+
+#ifdef ERA_LL_LOGS
+    debug_log << L"unreal_manager::pre_init: pre-init completed." << std::endl;
+#endif
     
     gameserver_client::PreInitialize();
 }
@@ -399,5 +428,7 @@ FCollisionQueryParams::FCollisionQueryParams(FName TagName, bool bTraceComplex, 
 
 FVector AActor::K2_GetActorLocation()
 {
-    return RootComponent() != nullptr ? RootComponent()->ComponentToWorld().Translation : FVector(0, 0, 0);
+    STATIC_FINDFUNCTION(K2_GetActorLocation)
+
+    return Call<FVector>(Function_K2_GetActorLocation);
 }

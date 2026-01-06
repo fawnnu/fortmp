@@ -98,7 +98,10 @@ player_component::player_component()
         }
 
         // Hook begin play for the classes we need
-        REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+        if (AFortSprayDecalInstance::StaticClass())
+        {
+            REGISTER_VTABLE_HOOK(CreateDefaultObject<AFortSprayDecalInstance>()->VTable, BeginPlayIndex, player_component_hooks::AFortSprayDecalInstance_BeginPlay);
+        }
     }
     else
     {
@@ -132,7 +135,7 @@ player_component::player_component()
     if (GetEngineVersionEasy() < 420)
     {
         // Hooking this on later versions causes issues
-        REGISTER_FUNCTION_DETOUR(player_component_hooks::GetHeroDefinition, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set.", { 0xE8, 0x100, 0x100, 0x100, 0xff }, 1), player_component_hooks::GetHeroDefinition_Hook);
+        REGISTER_FUNCTION_DETOUR(player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup, memory_manager::find_function_by_string(L"Trying to apply homebase effects on player setup but hero or herotype is not set."), player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook);
     }
     
     REGISTER_FUNCTION_DETOUR(player_component_hooks::K2_OnRestartPlayer, memory_manager::find_pe_function(L"K2_OnRestartPlayer"), player_component_hooks::K2_OnRestartPlayer_Hook);
@@ -1966,6 +1969,12 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
         // Register this player in the local Players map
         std::wstring wAccountID = wToken.substr(0, wToken.find(L":"));
 
+        // Log
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"player_component::PlatformLogin: Processing login for '{}' on platform '{}'.", wAccountID.c_str(), Platform.c_str());
+        }
+            
         // Convert string
         TO_STRING(wAccountID, sAccountID);
 
@@ -2001,6 +2010,22 @@ bool player_component::PlatformLogin(const FUniqueNetIdRepl& PlayerID, const FSt
                     return true;
                 }
             }
+            
+            // Legacy
+            if (GetEngineVersionEasy() < 420)
+            {
+                if (Platform == TEXT("Windows"))
+                {
+                    {
+                        spdlog::info("player_component::PlatformLogin: authenticated player on '{}' Era platform.", Platforms[sAccountID]);
+                        return true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            spdlog::error(L"Couldn't find platform for Account ID: {}, Platform: {}.", wAccountID.c_str(), Platform.c_str());
         }
     }
     else
@@ -2411,22 +2436,25 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                         UObject* Object = FindObject(std::wstring(value.begin(), value.end()).c_str(), false, true);
 
                                         // Check if the backend didn't send a literal random item definition
-                                        UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
-
-                                        if (athena_game_data)
+                                        if (GetEngineVersionEasy() > 419)
                                         {
-                                            if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
+                                            UAthenaGameData* athena_game_data = UFortGameData::get_athena_game_data();
+
+                                            if (athena_game_data)
                                             {
-                                                for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
+                                                if (athena_game_data->HasProperty("ShuffleTileItemDefinitions"))
                                                 {
-                                                    if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
+                                                    for (auto shuffle_tile_soft_item : athena_game_data->ShuffleTileItemDefinitions())
                                                     {
-                                                        if (Object == ShuffleTileItem)
+                                                        if (UFortItemDefinition* ShuffleTileItem = shuffle_tile_soft_item.Get())
                                                         {
-                                                            Object = nullptr;
+                                                            if (Object == ShuffleTileItem)
+                                                            {
+                                                                Object = nullptr;
+                                                            }
                                                         }
-                                                    }
-                                                } 
+                                                    } 
+                                                }
                                             }
                                         }
                                 
@@ -2464,7 +2492,7 @@ void player_component::Setup(AFortPlayerController* NewPlayer, const FString& Op
                                         }
                                     }
                                 }
-                                if (elem.value().contains("variants"))
+                                if (elem.value().contains("variants") && GetEngineVersionEasy() > 419)
                                 {
                                     nlohmann::json variants = elem.value()["variants"];
 
@@ -3365,6 +3393,14 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
         }
 
+        // Legacy teams
+        if (GetEngineVersionEasy() < 420)
+        {
+            team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 
+                team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(),
+       team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+        }
+        
         // Prevent camera from shaking while spectating or when using the guided missile
         NewPlayer->PlayerCameraManager()->ViewRollMin() = 0.f;
         NewPlayer->PlayerCameraManager()->ViewRollMax() = 0.f;
@@ -3478,20 +3514,50 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
     }
 }
 
-UObject* player_component_hooks::GetHeroDefinition_Hook(UObject* Hero)
+void player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook(AFortGameState* Self, UObject* Unk, UFortMcpProfileAccount* Profile, UObject* ASCInterface, UObject* Hero, char A6, uint8_t A7)
 {
-    static UObject* hero_definition = FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) ?
-        FindObject(L"/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F", true) :
-        FindObject(L"/Game/Athena/Heroes/HID_Commando_Athena_25.HID_Commando_Athena_25", true);
-
-    if (hero_definition == nullptr)
+    UAbilitySystemComponent* ASC = reinterpret_cast<UAbilitySystemComponent* (*)(UObject*)>(ASCInterface->VTable[2])(ASCInterface);
+    
+    if (AFortPlayerController* Controller = ASC->OwnerActor()->Owner()->Cast<AFortPlayerController>())
     {
-        // Failed to find hero definition
-        spdlog::error(L"Failed to override hero definition for hero '{}', as specified hero definition does not exist",
-            Hero->GetName().c_str());
+        // Make sure profile is there
+        int DebugIterations = 0; 
+        bool DebugLog = false;
+        while (true)
+        {
+            if (static_cast<AFortPlayerControllerAthena*>(Controller)->EraPlayerInfo().bPendingKick)
+            {
+                Controller->ClientReturnToMainMenu(TEXT("Profile query failed. Please report the issue to a Developer. [EC 1]"));
+                return;
+            }
+            
+            if (static_cast<AFortPlayerControllerAthena*>(Controller)->EraPlayerInfo().bProfileReady)
+            {
+                break;
+            }
+
+            DebugIterations++;
+
+            if (DebugIterations > 100 && !DebugLog)
+            {
+                DebugLog = true;
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::error(L"player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook: Profile parsing is taking too long.");
+                }
+            }
+            
+            Sleep(1000 / 30);
+        }
+                        
+        spdlog::info(L"player_component_hooks::ApplyHomebaseEffectsOnPlayerSetup_Hook: Profile parsed. Processing...");
+        
+        // Override Hero
+        Hero = GetOrInitializeHero_Hook(Controller);
     }
 
-    return hero_definition;
+    
+    return ApplyHomebaseEffectsOnPlayerSetup(Self, Unk, Profile, ASCInterface, Hero, A6, A7);
 }
 
 void player_component_hooks::ServerPlaySprayItem_Hook(AFortPlayerController* FortPlayerController, FFrame& StackFrame)
@@ -3627,7 +3693,11 @@ void player_component_hooks::K2_OnRestartPlayer_Hook(AFortGameMode* GameMode, AF
                 NewPlayer->MyPlayerInfo()->PlayerIndex() = WorldPlayerId;
             }
         }
-        NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
+        
+        if (NewPlayer->PlayerState()->HasProperty(L"CachedPreviousWorldPlayerId"))
+        {
+            NewPlayer->PlayerState()->CachedPreviousWorldPlayerId() = WorldPlayerId;
+        }
         
         ability_component::apply_ability_set(NewPlayer->Pawn(), ability_set);
         ability_component::apply_playlist_modifiers(NewPlayer->Pawn());
@@ -4050,10 +4120,11 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
     if (Self)
     {
         AFortPlayerController* PlayerController = static_cast<AFortPawn*>(Self)->Controller();
-        FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker;
-
+        
         if (PlayerController)
         {
+            FPlayerStats& PlayerStats = static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().PlayerStatsTracker;
+
             if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Trap.CozyCampfire")))
             {
                 PlayerStats.TemporaryCampfireHealth += 2;
