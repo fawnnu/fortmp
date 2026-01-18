@@ -458,7 +458,7 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
                     {
                         if (log_component::enable_debug_logs)
                         {
-                            spdlog::info(L"team_component::find_free_team: player '{}' found a fillable team ({}).", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_instance->bound_team_index);
+                            spdlog::info(L"team_component::find_free_team: player '{}' found a fillable team ({}) with {} members and size {}.", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_instance->bound_team_index, team_instance->get_team_members(), get_squad_size());
                         }
                         
                         if (team_instance->get_team_members() + number_of_teammates <= get_squad_size())
