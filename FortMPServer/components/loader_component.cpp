@@ -376,6 +376,10 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                     spdlog::info("loader_component::start_match: using legacy playlists ('{}'), overriding max_team_size_override with {}.", playlist->names[0].c_str(), team_component::max_team_size_override);
                 }
             }
+            else
+            {
+                spdlog::error(L"loader_component::start_match: failed to find any playlist. Config: {}.", wOverridePlaylist.c_str());
+            }
 
             bool bExists_bEnableCreativeMode = false;
             if (in_playlist)
