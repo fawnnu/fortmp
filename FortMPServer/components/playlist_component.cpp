@@ -1,6 +1,8 @@
 ﻿#include "include.hpp"
 #include "playlist_component.hpp"
 
+#include "log_component.hpp"
+
 playlist_component::playlist_component()
 {
     // Legacy playlists
@@ -35,6 +37,11 @@ era_playlist* playlist_component::find_playlist(std::string playlist_name)
             // Convert both to lowercase and compare
             std::transform(name.begin(), name.end(), name.begin(), tolower);
             std::transform(playlist_name.begin(), playlist_name.end(), playlist_name.begin(), tolower);
+
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info("playlist_component::find_playlist: comparing '{}' and '{}' [Equal? {}].", name.c_str(), playlist_name.c_str(), name == playlist_name);
+            }
             
             if (name == playlist_name)
             {

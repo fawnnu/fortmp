@@ -136,6 +136,7 @@ void Setup()
                 LocalPlayers.Remove(0, FindPropertyByName((*GWorld)->OwningGameInstance()->Class, L"LocalPlayers"));
 
                 loader_component::pre_init();
+                new playlist_component();
                 new hook_manager();
                 new net_component();
                 new loader_component();
@@ -160,7 +161,6 @@ void Setup()
                 new replication_component();
                 new creative_component();
                 new moderation_component();
-                new playlist_component();
                 new anticheat_component();
                 new challenges_component();
                 new competitive_component();
