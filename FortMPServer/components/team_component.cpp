@@ -2,6 +2,7 @@
 #include "team_component.hpp"
 
 #include "loader_component.hpp"
+#include "log_component.hpp"
 
 team_component::team_component()
 {
@@ -49,6 +50,11 @@ uint8_t team_component::PickTeam_Implementation(uint8_t InTeamIndex, AFortPlayer
     else
     {
         era_team* FoundTeam = find_free_team(FortPlayerController);
+
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"team_component::PickTeam_Implementation: playlist-less implementation picked team {} for player '{}'.", FoundTeam->bound_team_index, FortPlayerController->Cast<AFortPlayerControllerAthena>()->MyPlayerInfo()->PlayerName().c_str());
+        }
 
         if (FoundTeam)
         {
@@ -407,6 +413,11 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
             if (TeamMember == player_controller)
             {
                 number_of_teammates = team_information.TeamMembers.size();
+                
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"team_component::find_free_team: Found team {} for player '{}', teammates: {}.", current_team_id, player_controller->MyPlayerInfo()->PlayerName().c_str(), number_of_teammates);
+                }
 
                 if (number_of_teammates > 0)
                 {
@@ -428,31 +439,65 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
         // Check if there's an appropriate team available for filling
         if (team_info->fill)
         {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"team_component::find_free_team: player '{}' got a fill: true team.", player_controller->MyPlayerInfo()->PlayerName().c_str());
+            }
+            
             // Make sure preferred team is invalid
             if (team_info->preferred_team < get_default_first_team() || team_info->preferred_team > get_default_last_team())
             {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"team_component::find_free_team: player '{}' got an invalid preferred team ({}).", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_info->preferred_team);
+                }
+                
                 for (era_team* team_instance : TeamsList)
                 {
                     if (team_instance->status == era_team_status::available_for_fill)
                     {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"team_component::find_free_team: player '{}' found a fillable team ({}).", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_instance->bound_team_index);
+                        }
+                        
                         if (team_instance->get_team_members() + number_of_teammates <= get_squad_size())
                         {
+                            if (log_component::enable_debug_logs)
+                            {
+                                spdlog::info(L"team_component::find_free_team: player '{}' is filling into a team ({}) [Current number of teammates: {}].", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_instance->bound_team_index, team_instance->get_team_members() + number_of_teammates);
+                            }
+                            
                             team_info->preferred_team = team_instance->get_team_index();
                             team_instance->get_team_members() += number_of_teammates;
                         }
                     }
                 }
             }
+            else
+            {
+                spdlog::warn(L"team_component::find_free_team: player '{}' already got a valid preferred team ({}).", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_info->preferred_team);
+            }
         }
     
         if (team_info->preferred_team >= get_default_first_team() && team_info->preferred_team <= get_default_last_team())
         {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"team_component::find_free_team: player '{}' got a valid preferred team ({}).", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_info->preferred_team);
+            }
+            
             for (era_team* team_instance : TeamsList)
             {
                 if (team_instance->status == era_team_status::available_for_fill || team_instance->status == era_team_status::available_for_teammates)
                 {
                     if (team_instance->get_team_index() == team_info->preferred_team && team_instance->get_team_members() <= get_squad_size())
                     {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"team_component::find_free_team: player '{}' has a preferred team ({}) which is available [Number of teammates {}].", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_info->preferred_team, team_instance->get_team_members());
+                        }
+                        
                         // Add player to the team
                         team_instance->bound_era_team_info->TeamMembersControllers.push_back(player_controller);
 
@@ -467,6 +512,11 @@ era_team* team_component::find_free_team(AFortPlayerController* player_controlle
         {
             if (team_instance->status == era_team_status::empty)
             {
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"team_component::find_free_team: player '{}' is claiming a team as no other option was viable. New team: {}.", player_controller->MyPlayerInfo()->PlayerName().c_str(), team_instance->get_team_index());
+                }
+                
                 // Claim the team for teammates
                 team_instance->status = team_info->fill ? era_team_status::available_for_fill : era_team_status::available_for_teammates;
 

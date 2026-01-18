@@ -370,6 +370,11 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
                 }
 
                 team_component::max_team_size_override = playlist->team_size;
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info("loader_component::start_match: using legacy playlists ('{}'), overriding max_team_size_override with {}.", playlist->names[0].c_str(), team_component::max_team_size_override);
+                }
             }
 
             bool bExists_bEnableCreativeMode = false;
