@@ -393,7 +393,7 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 
                    if (PawnToShoot && !memory_manager::is_bad_read_pointer(PawnToShoot, false))
                    {
-                       spdlog::info(L"Vehicle {}", Vehicle->GetName().c_str());
+                       spdlog::info(L"vehicles_component_hooks::ServerFireActorInCannon_Hook(): Vehicle {}", Vehicle->GetName().c_str());
                        if (Vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
                        {
                            AFortAthenaSKPushCannon* PushCannon = static_cast<AFortAthenaSKPushCannon*>(Vehicle);
@@ -402,7 +402,7 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                            {
                                if (LaunchDir.IsValid())
                                {
-                                   spdlog::info(L"PushCannon {}, launching player", PushCannon->GetName().c_str());
+                                   spdlog::info(L"vehicles_component_hooks::ServerFireActorInCannon_Hook(): PushCannon {}, launching player", PushCannon->GetName().c_str());
                                    
                                    static UFunction* Function_OnPreLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnPreLaunchPawn");
 
@@ -420,11 +420,13 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
                                        ProcessEvent(PushCannon, Function_OnPreLaunchPawn, &params);   
                                    }
 
-                                   static UFunction* Function_ServerOnExitVehicle = FindObject<UFunction>(L"/Script/FortniteGame.FortPlayerPawn.ServerOnExitVehicle");
+                                   static uintptr_t ServerOnExitVehicleInternal = memory_manager::find_function_by_string(L"AFortPlayerPawn::ServerOnExitVehicle: Tried to exit");
 
-                                   if (Function_ServerOnExitVehicle)
+                                   if (ServerOnExitVehicleInternal)
                                    {
-                                       ProcessEvent(Pawn, Function_ServerOnExitVehicle, nullptr);   
+                                        spdlog::info(L"vehicles_component_hooks::ServerFireActorInCannon_Hook(): Internal calling ServerOnExitVehicle.");
+                                       
+                                       reinterpret_cast<void* (*)(void*)>(ServerOnExitVehicleInternal)(Pawn);   
                                    }
                                    
                                    static UFunction* Function_OnLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
