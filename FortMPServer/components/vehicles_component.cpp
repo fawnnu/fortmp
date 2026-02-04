@@ -424,7 +424,7 @@ void vehicles_component_hooks::ServerFireActorInCannon_Hook(AFortWeaponRangedFor
 
                                    if (Function_ServerOnExitVehicle)
                                    {
-                                       ProcessEvent(PushCannon, Function_ServerOnExitVehicle, nullptr);   
+                                       ProcessEvent(Pawn, Function_ServerOnExitVehicle, nullptr);   
                                    }
                                    
                                    static UFunction* Function_OnLaunchPawn = FindObject<UFunction>(L"/Game/Athena/DrivableVehicles/PushCannon.PushCannon_C.OnLaunchPawn");
