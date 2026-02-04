@@ -1068,9 +1068,12 @@ void loader_component::OnMapInfoLoaded()
         {
             vehicle->K2_DestroyActor();
 
-            if (log_component::enable_debug_logs)
+            if (era_mutators_component::IsActive("NoCannonVehicle"))
             {
-                spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
+                }
             }
         }
         
