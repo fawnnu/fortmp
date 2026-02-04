@@ -1086,11 +1086,15 @@ void loader_component::OnMapInfoLoaded()
             {
                 if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), AFortAthenaJackalVehicle::StaticClass()) == false)
                 {
+                    spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for class '{}'", vehicle->GetFullName().c_str());
+                    
                     vehicle->K2_DestroyActor();
                 }
             }
             else if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
             {
+                spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for class '{}'", vehicle->GetFullName().c_str());
+                
                 vehicle->K2_DestroyActor();
             }
         }
