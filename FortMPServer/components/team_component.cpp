@@ -180,16 +180,10 @@ era_team* team_component::find_main_team(AFortPlayerController* player_controlle
 
 void team_component::set_team(AFortPlayerController* player_controller, uint8_t team_index, uint8_t squad_id)
 {
-    // Set team
-    player_controller->PlayerState()->TeamIndex() = team_index;
-
-    if (STATIC_HASPROPERTY(player_controller->PlayerState(), SquadId))
-    {
-        player_controller->PlayerState()->SquadId() = squad_id;
-    }
-    
     if (FGameMemberInfo::GetClass())
     {
+        spdlog::info(L"team_component::set_team: current team settings for '{}': [{}, {}]", player_controller->MyPlayerInfo()->PlayerName().c_str(), player_controller->PlayerState()->TeamIndex(), player_controller->PlayerState()->SquadId());
+        
         FGameMemberInfo game_member_info {};
 
         // Setup game member info
@@ -202,6 +196,16 @@ void team_component::set_team(AFortPlayerController* player_controller, uint8_t 
 
         // Mark last item for replication
         (*GWorld)->GameState()->GameMemberInfoArray().MarkItemDirty((*GWorld)->GameState()->GameMemberInfoArray().Members()[(*GWorld)->GameState()->GameMemberInfoArray().Members().Num() - 1]);
+    }
+    else
+    {
+        // Set team
+        player_controller->PlayerState()->TeamIndex() = team_index;
+
+        if (STATIC_HASPROPERTY(player_controller->PlayerState(), SquadId))
+        {
+            player_controller->PlayerState()->SquadId() = squad_id;
+        }
     }
 }
 

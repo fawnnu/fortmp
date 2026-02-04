@@ -3393,12 +3393,12 @@ void player_component_hooks::PostLogin_Hook(AFortGameModeAthena* FortGameModeAth
             static_cast<AFortPlayerController*>(NewPlayer)->ClientReturnToMainMenu(L"");
         }
 
-        // Legacy teams
-        if (GetEngineVersionEasy() < 420)
+        // Legacy teams or after Season 7
+        if (GetEngineVersionEasy() < 420 || GetEngineVersionEasy() > 422)
         {
             team_component::set_team(static_cast<AFortPlayerController*>(NewPlayer), 
                 team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), true)->get_team_index(),
-       team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
+        team_component::find_era_team(reinterpret_cast<AFortPlayerController*>(NewPlayer), false)->get_team_index());
         }
         
         // Prevent camera from shaking while spectating or when using the guided missile

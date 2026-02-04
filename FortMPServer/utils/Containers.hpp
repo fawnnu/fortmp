@@ -716,10 +716,10 @@ namespace UE
         }
 
         /** This is used for legacy replication, but causes some memory issues on later seasons so its commented out*/
-        TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
+        /*TSparseArrayElementOrListLink<ElementType> operator=(const TSparseArrayElementOrListLink<ElementType>& Other)
         {
             return TSparseArrayElementOrListLink(Other.PrevFreeIndex, Other.NextFreeIndex);
-        }
+        }*/
 
         /** If the element is allocated, its value is stored here. */
         ElementType ElementData;
