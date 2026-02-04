@@ -1066,10 +1066,10 @@ void loader_component::OnMapInfoLoaded()
     {
         if (vehicle->IsA(AFortAthenaSKPushCannon::StaticClass()))
         {
-            vehicle->K2_DestroyActor();
-
             if (era_mutators_component::IsActive("NoCannonVehicle"))
             {
+                vehicle->K2_DestroyActor();
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::warn(L"Destroying FortAthenaSKPushCannon vehicle. era_mutator:NoCannonVehicle is enabled.");
@@ -1079,23 +1079,44 @@ void loader_component::OnMapInfoLoaded()
         
         if (loader_component_hooks::ShouldSpawnVehicleInternal)
         {
-            /* So for some reason Fortnite has set the VehicleClass in MapInfo for HoverBoards to the c++ class, and the ShouldSpawnVehicle function
-             * checks if it's a blueprint class (or if it's the exact same one as the already spawned vehicle class, which is a bp one).
-             * Therefore it has to be hotfixed, by forcing the game to check if the C++ class actor can be spawned (because once again, that's what they set it to in the map info, for some reason)*/
-            if (vehicle->IsA(AFortAthenaJackalVehicle::StaticClass()))
+            // Run this as debug only!!
             {
-                if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), AFortAthenaJackalVehicle::StaticClass()) == false)
+                /* So for some reason Fortnite has set the VehicleClass in MapInfo for HoverBoards to the c++ class, and the ShouldSpawnVehicle function
+                 * checks if it's a blueprint class (or if it's the exact same one as the already spawned vehicle class, which is a bp one).
+                 * Therefore it has to be hotfixed, by forcing the game to check if the C++ class actor can be spawned (because once again, that's what they set it to in the map info, for some reason)*/
+                if (vehicle->IsA(AFortAthenaJackalVehicle::StaticClass()))
                 {
-                    spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for class '{}'", vehicle->GetFullName().c_str());
-                    
-                    vehicle->K2_DestroyActor();
+                    if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), AFortAthenaJackalVehicle::StaticClass()) == false)
+                    {
+                        spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for '{}'", vehicle->GetFullName().c_str());
+                    }
+                }
+                else if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
+                {
+                    spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for '{}'", vehicle->GetFullName().c_str());
                 }
             }
-            else if (loader_component_hooks::ShouldSpawnVehicleInternal((*GWorld)->AuthorityGameMode(), vehicle->Class) == false)
+            
+            try
             {
-                spdlog::info(L"loader_component::OnMapInfoLoaded(): ShouldSpawnVehicleInternal returned false for class '{}'", vehicle->GetFullName().c_str());
-                
-                vehicle->K2_DestroyActor();
+                auto config = config_manager::get_server_config();
+                for (auto& elem : config["blacklisted_vehicle_classes"].items())
+                {
+                    std::string blacklisted_class = std::string(elem.value());
+                    TO_WSTRING(blacklisted_class, wblacklisted_class);
+                    UObject* blacklisted_class_object = FindObject(wblacklisted_class.c_str(), true);
+
+                    if (vehicle->IsA(blacklisted_class_object))
+                    {
+                        vehicle->K2_DestroyActor();
+
+                        spdlog::info(L"loader_component::OnMapInfoLoaded(): destroyed vehicle '{}' as it belongs to blacklisted_vehicle_classes.", vehicle->GetFullName().c_str());
+                    }
+                }
+            }
+            catch (std::exception& e)
+            {
+                spdlog::error("loader_component::OnMapInfoLoaded(): error '{}' while reading json config.", e.what());
             }
         }
     }
