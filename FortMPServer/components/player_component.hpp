@@ -117,6 +117,9 @@ struct FPlayerStats
     int TemporaryMaterialsGathered;
     int TemporaryTrickPoints;
     int TemporaryObtainedShield;
+    int TemporaryObtainedMushroomShield;
+    int TemporaryObtainedMiniShield;
+    int TemporaryObtainedBigShield;
     int TemporaryCampfireHealth;
 };
 
@@ -289,6 +292,11 @@ public:
 
     // Health debounced events
     static void ShieldCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    // Shields debounced events
+    static void MushroomShieldCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void MiniShieldCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void BigShieldCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    
     static void CampfireHealthCallback(AFortPlayerController* Self, FFrame& StackFrame);
     
     static bool Login(const FUniqueNetIdRepl& PlayerID, const FString& Options);

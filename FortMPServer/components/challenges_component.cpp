@@ -81,10 +81,6 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
     if (GetCL() == 4363240)
     {
         {
-            SendCustomEventWithCount(PlayerController, "interaction:destroy-structures-with-cannon-ball", 25);
-        }
-
-        {
             SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_01"));
             SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_02"));
             SendCustomEventWithObjective(PlayerController, "interaction:timed-trial", TEXT("battlepass_complete_timed_trials_03"));
@@ -175,6 +171,12 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
 
         {
             SendCustomEvent(PlayerController, "interaction:destroy-plane");
+        }
+    }
+    else if (GetCL() == 6165369)
+    {
+        {
+            SendCustomEventWithCount(PlayerController, "interaction:destroy-structures-with-cannon-ball", 25);
         }
     }
 }
@@ -397,6 +399,16 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     "Athena.Quests.Location.ExplorerOutposts.F",
                     "Athena.Quests.Location.ExplorerOutposts.G"
                 };
+                
+                static std::vector<std::string> POITagsForPirateCamps = {
+                    "Athena.Quests.Location.PirateCamp.01",
+                    "Athena.Quests.Location.PirateCamp.02",
+                    "Athena.Quests.Location.PirateCamp.03",
+                    "Athena.Quests.Location.PirateCamp.04",
+                    "Athena.Quests.Location.PirateCamp.05",
+                    "Athena.Quests.Location.PirateCamp.06",
+                    "Athena.Quests.Location.PirateCamp.07"
+                };
 
                 // Accumulate rewards for competitive
                 competitive_component::on_elimination(static_cast<AFortPlayerControllerAthena*>(KillerPlayerController));
@@ -423,6 +435,18 @@ void challenges_component::SendElimination(AFortPlayerController* KillerPlayerCo
                     {
                         // Found one of the POI tags: break and add to elimination payload
                         parameters["meta"]["in_expedition_outpost"] = true;
+                        
+                        break;
+                    }
+                }
+                for (std::string POITag : POITagsForPirateCamps)
+                {
+                    TO_WSTRING(POITag, wPOITag);
+                    FGameplayTag POIGameplayTag(wPOITag.c_str());
+                    if (std::find(POIList.begin(), POIList.end(), POIGameplayTag) != POIList.end())
+                    {
+                        // Found one of the POI tags: break and add to elimination payload
+                        parameters["meta"]["in_pirate_camp"] = true;
                         
                         break;
                     }
@@ -918,7 +942,15 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.ExplorerOutposts.D", "battlepass_visit_athena_expeditionoutpost_d"},
                 {"Athena.Quests.Location.ExplorerOutposts.E", "battlepass_visit_athena_expeditionoutpost_e"},
                 {"Athena.Quests.Location.ExplorerOutposts.F", "battlepass_visit_athena_expeditionoutpost_f"},
-                {"Athena.Quests.Location.ExplorerOutposts.G", "battlepass_visit_athena_expeditionoutpost_g"}
+                {"Athena.Quests.Location.ExplorerOutposts.G", "battlepass_visit_athena_expeditionoutpost_g"},
+                {"Athena.Location.Meta.AnimalBuilding.Rabbit", "battlepass_visit_athena_location_wooden_rabbit"},
+                {"Athena.Location.Meta.AnimalBuilding.Llama", "battlepass_visit_athena_location_metal_llama"},
+                {"Athena.Location.Meta.AnimalBuilding.Pig", "battlepass_visit_athena_location_stone_pig"},
+                {"Athena.Quests.Location.HighestElevation.01", "battlepass_visit_highest_elevation_01"},
+                {"Athena.Quests.Location.HighestElevation.02", "battlepass_visit_highest_elevation_02"},
+                {"Athena.Quests.Location.HighestElevation.03", "battlepass_visit_highest_elevation_03"},
+                {"Athena.Quests.Location.HighestElevation.04", "battlepass_visit_highest_elevation_04"},
+                {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"}
             };
 
             if (ObjectivesMap.contains(sObjective))

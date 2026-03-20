@@ -187,6 +187,9 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(TrickPointsCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CampfireHealthCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(ShieldCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(MushroomShieldCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(MiniShieldCallback, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(BigShieldCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
 }
 
@@ -1822,6 +1825,96 @@ void player_component::ShieldCallback(AFortPlayerController* Self, FFrame& Stack
 
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:shield", parameters);
             Value.TemporaryObtainedShield = 0;
+        }
+    }
+}
+
+void player_component::MushroomShieldCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    CHECK_CREATIVE()
+    
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"count", Value.TemporaryObtainedMushroomShield}
+            };
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"player_component::MushroomShieldCallback is sending TemporaryObtainedMushroomShield: {}", Value.TemporaryObtainedMushroomShield);
+            }
+
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:mushroom-shield", parameters);
+            Value.TemporaryObtainedMushroomShield = 0;
+        }
+    }
+}
+
+void player_component::MiniShieldCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    CHECK_CREATIVE()
+    
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"count", Value.TemporaryObtainedMiniShield}
+            };
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"player_component::ShieldCallback is sending TemporaryObtainedMiniShield: {}", Value.TemporaryObtainedMiniShield);
+            }
+
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:small-shield", parameters);
+            Value.TemporaryObtainedMiniShield = 0;
+        }
+    }
+}
+
+void player_component::BigShieldCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION()
+
+    CHECK_CREATIVE()
+    
+    if (!memory_manager::is_bad_read_pointer(Self) && Self && !memory_manager::is_bad_read_pointer(Self->Pawn()) && Self->Pawn())
+    {
+        FPlayerStats& Value = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().PlayerStatsTracker;
+        std::string account_id = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().sAccountId;
+
+        if (account_id.size() > 0)
+        {
+            nlohmann::json parameters{
+                {"x", Self->Pawn()->K2_GetActorLocation().X},
+                {"y", Self->Pawn()->K2_GetActorLocation().Y},
+                {"count", Value.TemporaryObtainedBigShield}
+            };
+            
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"player_component::ShieldCallback is sending TemporaryObtainedBigShield: {}", Value.TemporaryObtainedBigShield);
+            }
+
+            gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:big-shield", parameters);
+            Value.TemporaryObtainedBigShield = 0;
         }
     }
 }
@@ -4144,6 +4237,13 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
                         UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ShieldCallback");
                     }
                     UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
+                    
+                    PlayerStats.TemporaryObtainedMiniShield += 25;
+                    if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"MiniShieldCallback"))
+                    {
+                        UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"MiniShieldCallback");
+                    }
+                    UKismetSystemLibrary::K2_SetTimer(PlayerController, L"MiniShieldCallback", 5.0, false);
                 }
                 else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.ShieldPotion")))
                 {
@@ -4153,6 +4253,13 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
                         UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ShieldCallback");
                     }
                     UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
+                    
+                    PlayerStats.TemporaryObtainedBigShield += 50;
+                    if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"BigShieldCallback"))
+                    {
+                        UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"BigShieldCallback");
+                    }
+                    UKismetSystemLibrary::K2_SetTimer(PlayerController, L"BigShieldCallback", 5.0, false);
                 }
                 else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.SlurpJuice")))
                 {

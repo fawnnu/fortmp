@@ -1209,10 +1209,127 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                         reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SuperTowerGrenade/Levels/PortAFort_A/Athena_SuperTowerGrenade_A.Athena_SuperTowerGrenade_A") )
                     {
                         challenges_component::SendCustomEvent(PlayerController, "interaction:port-a-fort");
+
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "port_a_fort_grenade"}
+                            });
+                        }
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/DanceGrenade/Athena_DanceGrenade.Athena_DanceGrenade"))
                     {
                         challenges_component::SendCustomEvent(PlayerController, "interaction:boogie-bomb");
+
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "dance_grenade"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/Grenade/Athena_Grenade.Athena_Grenade"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "grenade"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/TNT/Athena_TNT.Athena_TNT"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "tnt"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/GasGrenade/Athena_GasGrenade.Athena_GasGrenade"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "gas_grenade"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/StickyGrenade/Athena_StickyGrenade.Athena_StickyGrenade"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "sticky_grenade"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SuperTowerGrenade/Levels/GiftBox/Athena_GiftBox.Athena_GiftBox"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "present"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/FireworksMortar/Athena_FireworksMortar.Athena_FireworksMortar"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "bottle_rocket"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/BoomBox/BoomBox_Athena.BoomBox_Athena"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "boom_box"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/KnockGrenade/Athena_KnockGrenade.Athena_KnockGrenade"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "impulse"}
+                            });
+                        }
+                    }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/C4/Athena_C4.Athena_C4"))
+                    {
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "c4"}
+                            });
+                        }
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/RiftItem/Athena_Rift_Item.Athena_Rift_Item"))
                     {
@@ -1221,6 +1338,15 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SneakySnowman/Athena_SneakySnowman.Athena_SneakySnowman"))
                     {
                         challenges_component::SendCustomEvent(PlayerController, "interaction:snowman");
+
+                        if (PlayerController->Pawn() && !memory_manager::is_bad_read_pointer(PlayerController->Pawn()))
+                        {
+                            challenges_component::SendCustomEventWithPayload(PlayerController, "interaction:throw", nlohmann::json{
+                                {"x", PlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", PlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"weapon", "sneaky_snowman"}
+                            });
+                        }
                     }
                     else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/Medkit/Athena_Medkit.Athena_Medkit"))
                     {

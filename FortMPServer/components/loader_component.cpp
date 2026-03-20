@@ -139,6 +139,7 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
             if (tag.TagName == L"Athena.Quests.Guyser")
             {
                 challenges_component::SendCustomEvent(player_controller, "interaction:geyser");
+                challenges_component::SendCustomEventWithObjective(player_controller, "interaction:environment-object", TEXT("athena_battlepass_use_geyser_01"));
             }
             else if (tag.TagName == L"Gameplay.Action.Player.ThankBusDriver")
             {
@@ -147,6 +148,7 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
             else if (tag.TagName == L"Gameplay.Action.Player.Ziplining")
             {
                 challenges_component::SendCustomEvent(player_controller, "interaction:zipline");
+                challenges_component::SendCustomEventWithObjective(player_controller, "interaction:environment-object", TEXT("athena_battlepass_use_zipline_02"));
             }
         }
     }

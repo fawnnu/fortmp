@@ -352,6 +352,11 @@ void interact_component::handle_vehicle_interaction(AFortPlayerController* playe
     {
         if (player_controller->Pawn()->IsInVehicle())
         {
+            // Notify backend
+            {
+                challenges_component::SendCustomEventWithObjective(player_controller, "interaction:environment-object", TEXT("athena_battlepass_use_vehicle_01"));
+            }
+            
             unsigned char SeatIndex = player_controller->Pawn()->GetVehicleSeatIndex();
 
             if (UFortVehicleSeatWeaponComponent* SeatWeaponComponent = vehicle->GetSeatWeaponComponent(SeatIndex))
@@ -515,6 +520,17 @@ void interact_component::handle_mushroom_interaction(AFortPlayerController* play
     
     // Send interaction event
     challenges_component::SendCustomEvent(player_controller, "interaction:mushroom");
+
+    // mushroom shield
+    if (AFortPlayerControllerAthena* player_controller_athena = player_controller->Cast<AFortPlayerControllerAthena>())
+    {
+        player_controller_athena->EraPlayerInfo().PlayerStatsTracker.TemporaryObtainedMushroomShield += 5;
+        if (UKismetSystemLibrary::K2_IsTimerActive(player_controller_athena, L"MushroomShieldCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(player_controller_athena, L"MushroomShieldCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(player_controller_athena, L"MushroomShieldCallback", 5.0, false);
+    }
 }
 
 void interact_component::handle_rubberduck_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_RubberDuckies_Parent_C* rubberduck)
