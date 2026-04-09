@@ -921,13 +921,6 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.PirateCamp.05", "battlepass_visit_athena_piratecamp_05"},
                 {"Athena.Quests.Location.PirateCamp.06", "battlepass_visit_athena_piratecamp_06"},
                 {"Athena.Quests.Location.PirateCamp.07", "battlepass_visit_athena_piratecamp_07"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.01", "battlepass_visit_athena_piratecamp_singlematch_01"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.02", "battlepass_visit_athena_piratecamp_singlematch_02"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.03", "battlepass_visit_athena_piratecamp_singlematch_03"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.04", "battlepass_visit_athena_piratecamp_singlematch_04"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.05", "battlepass_visit_athena_piratecamp_singlematch_05"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.06", "battlepass_visit_athena_piratecamp_singlematch_06"},
-                {"Athena.Quests.Location.PirateCamp.SingleMatch.07", "battlepass_visit_athena_piratecamp_singlematch_07"},
                 {"Athena.Quests.Location.GiantFace.Desert", "battlepass_visit_athena_location_cliff_face_desert"},
                 {"Athena.Quests.Location.GiantFace.Jungle", "battlepass_visit_athena_location_cliff_face_jungle"},
                 {"Athena.Quests.Location.GiantFace.Snow", "battlepass_visit_athena_location_cliff_face_snow"},
@@ -960,6 +953,16 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"}
             };
 
+            static std::map<std::string, std::string> SingleMatchObjectivesMap = {
+                {"Athena.Quests.Location.PirateCamp.01", "battlepass_visit_athena_piratecamp_singlematch_01"},
+                {"Athena.Quests.Location.PirateCamp.02", "battlepass_visit_athena_piratecamp_singlematch_02"},
+                {"Athena.Quests.Location.PirateCamp.03", "battlepass_visit_athena_piratecamp_singlematch_03"},
+                {"Athena.Quests.Location.PirateCamp.04", "battlepass_visit_athena_piratecamp_singlematch_04"},
+                {"Athena.Quests.Location.PirateCamp.05", "battlepass_visit_athena_piratecamp_singlematch_05"},
+                {"Athena.Quests.Location.PirateCamp.06", "battlepass_visit_athena_piratecamp_singlematch_06"},
+                {"Athena.Quests.Location.PirateCamp.07", "battlepass_visit_athena_piratecamp_singlematch_07"},
+            };
+
             if (ObjectivesMap.contains(sObjective))
             {
                 nlohmann::json parameters{
@@ -967,7 +970,18 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                     {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
                     {"objective", ObjectivesMap[sObjective]}
                 };
-            
+
+                gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
+            }
+
+            if (SingleMatchObjectivesMap.contains(sObjective))
+            {
+                nlohmann::json parameters{
+                    {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", SingleMatchObjectivesMap[sObjective]}
+                };
+
                 gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
             }
         }
