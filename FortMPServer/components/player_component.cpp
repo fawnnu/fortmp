@@ -530,6 +530,16 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage = 0;
         }
@@ -563,6 +573,16 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage = 0;
         }
@@ -596,6 +616,16 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage = 0;
         }
@@ -629,6 +659,16 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage = 0;
         }
@@ -662,6 +702,16 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage = 0;
         }
@@ -695,6 +745,16 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage = 0;
         }
@@ -739,6 +799,16 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage = 0;
         }
@@ -772,6 +842,16 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage = 0;
         }
@@ -805,6 +885,16 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage = 0;
         }
@@ -849,6 +939,16 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage = 0;
         }
@@ -893,6 +993,16 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage = 0;
         }
@@ -937,6 +1047,16 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage = 0;
         }
@@ -970,6 +1090,16 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage = 0;
         }
@@ -1003,6 +1133,16 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage = 0;
         }
@@ -1036,6 +1176,16 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage = 0;
         }
@@ -1069,6 +1219,16 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage = 0;
         }
@@ -1102,6 +1262,16 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage = 0;
         }
@@ -1135,6 +1305,16 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage = 0;
         }
@@ -1168,6 +1348,16 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage = 0;
         }
@@ -1201,6 +1391,16 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage = 0;
         }
@@ -1234,6 +1434,16 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage = 0;
         }
@@ -1267,6 +1477,16 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage = 0;
         }
@@ -1300,6 +1520,16 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage = 0;
         }
@@ -1333,6 +1563,16 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage = 0;
         }
@@ -1417,6 +1657,16 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
             
+            if (static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState().bIsZiplining())
+            {
+                payload["meta"]["on_zipline"] = true;
+            }
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.bLastDamageFromAbove)
+            {
+                payload["meta"]["from_above"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage = 0;
         }
@@ -2976,6 +3226,13 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     }
                 }
                 
+                if (HitActor && Instigator->Pawn())
+                {
+                    FVector AttackerPos = Instigator->Pawn()->K2_GetActorLocation();
+                    FVector VictimPos = HitActor->K2_GetActorLocation();
+                    Value.bLastDamageFromAbove = (AttackerPos.Z > VictimPos.Z);
+                }
+
                 if (STATIC_HASPROPERTY(ItemDefinition, GameplayTags))
                 {
                     switch (get_damage_causer(ItemDefinition->GameplayTags()))

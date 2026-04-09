@@ -81,6 +81,7 @@ struct FDamageDealtMapValue
     int PickaxeDamage;
     int CannonBallDamage;
     FSpecialDamageDealt SpecialDamage;
+    bool bLastDamageFromAbove = false;
 };
 
 struct FPlayerStats
