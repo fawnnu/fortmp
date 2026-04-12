@@ -33,12 +33,20 @@ enum class EDamageCauser : uint8_t
     CannonBall
 };
 
+struct FWeaponDamageEntry
+{
+    FWeaponDamageEntry() = default;
+
+    int Damage = 0;
+    bool bFromAbove = false;
+};
+
 struct FSpecialDamageDealt
 {
     FSpecialDamageDealt() = default;
-    
-    int JewelOpponent;
-    int C4BuildingDamage;
+
+    FWeaponDamageEntry JewelOpponent;
+    FWeaponDamageEntry C4BuildingDamage;
 };
 
 struct FDamageDealtMapValue
@@ -47,39 +55,39 @@ struct FDamageDealtMapValue
 
     int GetPlayerDamage()
     {
-        return PistolDamage + ShotgunDamage + AssaultRifleDamage + SniperDamage + GrenadeDamage + SMGDamage + GrenadeLauncherDamage + RPGDamage + LMGDamage + MinigunDamage + PickaxeDamage;
+        return PistolDamage.Damage + ShotgunDamage.Damage + AssaultRifleDamage.Damage + SniperDamage.Damage + GrenadeDamage.Damage + SMGDamage.Damage + GrenadeLauncherDamage.Damage + RPGDamage.Damage + LMGDamage.Damage + MinigunDamage.Damage + PickaxeDamage.Damage;
     }
 
-    int HandCannonPistolDamage;
-    int PistolDamage;
-    int PumpShotgunDamage;
-    int TacticalShotgunDamage;
-    int HeavyShotgunDamage;
-    int ShotgunDamage;
-    int AssaultRifleDamage;
-    int BurstAssaultRifleDamage;
-    int SuppressedAssaultRifleDamage;
-    int SniperDamage;
-    int BoltSniperDamage;
-    int HeavySniperDamage;
-    int HuntingSniperDamage;
-    int GrenadeDamage;
-    int ClingerDamage;
-    int StinkGrenadeDamage;
-    int SMGDamage;
-    int GrenadeLauncherDamage;
-    int RPGDamage;
-    int SuppressedSMGDamage;
-    int SuppressedPistolDamage;
-    int MinigunDamage;
-    int LMGDamage;
-    int StructureDamage;
-    int EnemyStructureDamage;
-    int EnemyVehicleDamage;
-    int SupplyDropBalloon;
-    int HeadshotDamage;
-    int PickaxeDamage;
-    int CannonBallDamage;
+    FWeaponDamageEntry HandCannonPistolDamage;
+    FWeaponDamageEntry PistolDamage;
+    FWeaponDamageEntry PumpShotgunDamage;
+    FWeaponDamageEntry TacticalShotgunDamage;
+    FWeaponDamageEntry HeavyShotgunDamage;
+    FWeaponDamageEntry ShotgunDamage;
+    FWeaponDamageEntry AssaultRifleDamage;
+    FWeaponDamageEntry BurstAssaultRifleDamage;
+    FWeaponDamageEntry SuppressedAssaultRifleDamage;
+    FWeaponDamageEntry SniperDamage;
+    FWeaponDamageEntry BoltSniperDamage;
+    FWeaponDamageEntry HeavySniperDamage;
+    FWeaponDamageEntry HuntingSniperDamage;
+    FWeaponDamageEntry GrenadeDamage;
+    FWeaponDamageEntry ClingerDamage;
+    FWeaponDamageEntry StinkGrenadeDamage;
+    FWeaponDamageEntry SMGDamage;
+    FWeaponDamageEntry GrenadeLauncherDamage;
+    FWeaponDamageEntry RPGDamage;
+    FWeaponDamageEntry SuppressedSMGDamage;
+    FWeaponDamageEntry SuppressedPistolDamage;
+    FWeaponDamageEntry MinigunDamage;
+    FWeaponDamageEntry LMGDamage;
+    FWeaponDamageEntry StructureDamage;
+    FWeaponDamageEntry EnemyStructureDamage;
+    FWeaponDamageEntry EnemyVehicleDamage;
+    FWeaponDamageEntry SupplyDropBalloon;
+    FWeaponDamageEntry HeadshotDamage;
+    FWeaponDamageEntry PickaxeDamage;
+    FWeaponDamageEntry CannonBallDamage;
     FSpecialDamageDealt SpecialDamage;
 };
 

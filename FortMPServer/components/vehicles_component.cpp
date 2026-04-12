@@ -476,7 +476,11 @@ void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float
         
         if (driver->PlayerState()->TeamIndex() != DamageInstigator->PlayerState()->TeamIndex())
         {
-            DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage += Damage;
+            {
+                const bool bFromAbove = DamageInstigator->Pawn() && (DamageInstigator->Pawn()->K2_GetActorLocation().Z > Vehicle->K2_GetActorLocation().Z);
+                DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.Damage += Damage;
+                DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.bFromAbove |= bFromAbove;
+            }
             if (UKismetSystemLibrary::K2_IsTimerActive(DamageInstigator, L"EnemyVehicleDamageCallback"))
             {
                 UKismetSystemLibrary::K2_ClearTimer(DamageInstigator, L"EnemyVehicleDamageCallback");

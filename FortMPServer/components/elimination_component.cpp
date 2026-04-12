@@ -735,7 +735,7 @@ void elimination_component::SendEndMatchStats(AFortPlayerControllerAthena* Self,
             if (FindPropertyByName(FAthenaWeaponStats::GetClass(), TEXT("Stats")))
             {
                 NewWeaponStats->Stats()[3] = Self->EraPlayerInfo().DamageDealtTracker.GetPlayerDamage();
-                NewWeaponStats->Stats()[5] = Self->EraPlayerInfo().DamageDealtTracker.StructureDamage;
+                NewWeaponStats->Stats()[5] = Self->EraPlayerInfo().DamageDealtTracker.StructureDamage.Damage;
                 NewWeaponStats->Stats()[8] = Self->EraPlayerInfo().PlayerStatsTracker.Hits;
                 NewWeaponStats->Stats()[11] = Self->EraPlayerInfo().PlayerStatsTracker.HeadShots;
                 if (FindPropertyByName(FAthenaMatchStats::GetClass(), TEXT("WeaponStats")))

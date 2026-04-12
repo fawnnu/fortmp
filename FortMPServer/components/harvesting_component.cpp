@@ -56,7 +56,7 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     {
                         if (supply_drop->K2_GetActorLocation().Z - supply_drop->GroundLocation().Z > 100)
                         {
-                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon += damage;
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon.Damage += damage;
                             if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"SupplyDropDamageCallback"))
                             {
                                 UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"SupplyDropDamageCallback");
@@ -70,7 +70,11 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
         else if (building_actor->IsA(ABuildingSMActor::StaticClass()))
         {
             // Track damage inflicted to building actors
-            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage += damage;
+            {
+                const bool bFromAbove = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z > building_actor->K2_GetActorLocation().Z);
+                static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage.Damage += damage;
+                static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage.bFromAbove |= bFromAbove;
+            }
 
             const bool bIsPlayerBuiltStructure = building_actor->AttributeInitLevelSource() == 1;
             
@@ -83,7 +87,11 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     // Check team
                     if (building_actor->Team() != instigated_by->PlayerState()->TeamIndex())
                     {
-                        static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage += damage;
+                        {
+                            const bool bFromAbove = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z > building_actor->K2_GetActorLocation().Z);
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.Damage += damage;
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromAbove |= bFromAbove;
+                        }
                         if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"EnemyStructureDamageCallback"))
                         {
                             UKismetSystemLibrary::K2_ClearTimer(instigated_by, L"EnemyStructureDamageCallback");
