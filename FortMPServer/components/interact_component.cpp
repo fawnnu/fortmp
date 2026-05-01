@@ -121,6 +121,12 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle any interactions with battle stars
         handle_battlestar_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_HiddenStar_Parent_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AProp_Quest_TreasuremapSignPost_01_C::StaticClass(log_component::enable_debug_logs)) ||
+             receiving_actor->IsA(AProp_Quest_TreasuremapSignPost_02_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle any interactions with signposts
+        handle_signpost_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_Parent_C*>(receiving_actor));
+    }
     else if (receiving_actor->IsA(ACBGA_HealthSmall_C::StaticClass(log_component::enable_debug_logs)))
     {
         // Handle any interaction with apples, for challenges
@@ -483,6 +489,20 @@ void interact_component::handle_battlestar_interaction(AFortPlayerController* pl
     {
         // Send interaction event
         challenges_component::SendCustomEventWithObjective(player_controller, "interaction:star", battlestar->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_signpost_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Parent_C* signpost)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_signpost_interaction is sending signpost interaction.");
+    }
+    
+    if (signpost->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:signpost", signpost->QuestBackendObjectiveName());
     }
 }
 

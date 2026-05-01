@@ -761,12 +761,37 @@ void inventory_component::safe_update_materials_gathered(AFortPlayerController* 
             item_definition == MetalItemData)
         {
             static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.MaterialsGathered += item_count;
-            static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.TemporaryMaterialsGathered += item_count;
-            if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"HarvestResourcesCallback"))
+
+            if (item_definition == WoodItemData)
             {
-                UKismetSystemLibrary::K2_ClearTimer(player_controller, L"HarvestResourcesCallback");
+                static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.TemporaryMaterialsGathered.Wood += item_count;
+                
+                if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"WoodResourceCallback"))
+                {
+                    UKismetSystemLibrary::K2_ClearTimer(player_controller, L"WoodResourceCallback");
+                }
+                UKismetSystemLibrary::K2_SetTimer(player_controller, L"WoodResourceCallback", 5.0, false);
             }
-            UKismetSystemLibrary::K2_SetTimer(player_controller, L"HarvestResourcesCallback", 5.0, false);
+            if (item_definition == StoneItemData)
+            {
+                static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.TemporaryMaterialsGathered.Stone += item_count;
+                
+                if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"StoneResourceCallback"))
+                {
+                    UKismetSystemLibrary::K2_ClearTimer(player_controller, L"StoneResourceCallback");
+                }
+                UKismetSystemLibrary::K2_SetTimer(player_controller, L"StoneResourceCallback", 5.0, false);
+            }
+            if (item_definition == MetalItemData)
+            {
+                static_cast<AFortPlayerControllerAthena*>(player_controller)->EraPlayerInfo().PlayerStatsTracker.TemporaryMaterialsGathered.Metal += item_count;
+                
+                if (UKismetSystemLibrary::K2_IsTimerActive(player_controller, L"MetalResourceCallback"))
+                {
+                    UKismetSystemLibrary::K2_ClearTimer(player_controller, L"MetalResourceCallback");
+                }
+                UKismetSystemLibrary::K2_SetTimer(player_controller, L"MetalResourceCallback", 5.0, false);
+            }
         }
     }
 }

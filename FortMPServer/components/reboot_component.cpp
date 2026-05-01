@@ -1,6 +1,7 @@
 ﻿#include "include.hpp"
 #include "reboot_component.hpp"
 
+#include "challenges_component.hpp"
 #include "function_component.hpp"
 #include "player_component.hpp"
 
@@ -57,6 +58,8 @@ void reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawn
     if (ControllersToReboot.size() > 0)
     {
         ControllersToReboot[0]->RebootPlayerWithDelay();
+
+        challenges_component::SendReboot(InteractController);
     }
 
     // Reboot the other players each 2 seconds
@@ -64,6 +67,8 @@ void reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawn
     {
         UKismetSystemLibrary::K2_SetTimer(ControllersToReboot[i], L"RebootPlayerWithDelay", 2.0 * i, false);
 
+        challenges_component::SendReboot(InteractController);
+        
         if (i + 1 == ControllersToReboot.size())
         {
             auto BP_OnResurrectionCompleted = FindObject<UFunction>(L"/Game/Athena/Items/EnvironmentalItems/SCMachine/BGA_Athena_SCMachine.BGA_Athena_SCMachine_C.OnResurrectionCompleted");

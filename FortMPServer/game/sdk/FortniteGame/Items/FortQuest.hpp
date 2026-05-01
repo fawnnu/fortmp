@@ -152,6 +152,18 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/HiddenStars/Prop_QuestInteractable_HiddenStar_Parent.Prop_QuestInteractable_HiddenStar_Parent_C");
 };
 
+class AProp_Quest_TreasuremapSignPost_01_C : public AProp_QuestInteractable_Parent_C
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/HiddenStars/TreasureMapPosts/Prop_Quest_TreasuremapSignPost_01.Prop_Quest_TreasuremapSignPost_01_C");
+};
+
+class AProp_Quest_TreasuremapSignPost_02_C : public AProp_QuestInteractable_Parent_C
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/HiddenStars/TreasureMapPosts/Prop_Quest_TreasuremapSignPost_02.Prop_Quest_TreasuremapSignPost_02_C");
+};
+
 class ABA_QuestInteractable_DancePlatforms : public AActor
 {
 public:

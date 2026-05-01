@@ -508,6 +508,37 @@ void challenges_component::SendRevive(AFortPlayerController* ExecutingPlayerCont
     }
 }
 
+void challenges_component::SendReboot(AFortPlayerController* ExecutingPlayerController)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+    
+    if (ExecutingPlayerController)
+    {
+        const std::string executing_account_id = player_component::get_account_id(ExecutingPlayerController);
+
+        if (executing_account_id.size() > 0)
+        {
+            if (!memory_manager::is_bad_read_pointer(ExecutingPlayerController->Pawn()) && ExecutingPlayerController->Pawn())
+            {
+                nlohmann::json parameters{
+                    {"x", ExecutingPlayerController->Pawn()->K2_GetActorLocation().X},
+                    {"y", ExecutingPlayerController->Pawn()->K2_GetActorLocation().Y}
+                };
+            
+                gameserver_client::Client->SendEventToChannel("player:v2:" + executing_account_id, "event:reboot", parameters);
+            }
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"Invalid account_id while sending event.");
+            }
+        }
+    }
+}
+
 void challenges_component::SendDanceInteraction(AFortPlayerController* InteractingController, UAthenaDanceItemDefinition* EmoteAsset)
 {
     CHECK_PAST_WARMUP()
@@ -553,7 +584,10 @@ void challenges_component::SendDanceInteraction(AFortPlayerController* Interacti
                   {"Athena.Quests.DanceLocation.Generic.21", "battlepass_dance_chain_athena_scavengerhunt_locations_03_a"},
                   {"Athena.Quests.DanceLocation.Generic.22", "battlepass_dance_chain_athena_scavengerhunt_locations_03_b"},
                   {"Athena.Quests.DanceLocation.Generic.23", "battlepass_dance_chain_athena_scavengerhunt_locations_03_c"},
-                {"EraEvent.FortmasDanceArea.01", "FDF_dance_athena_christmas_tree_01"}
+                {"EraEvent.FortmasDanceArea.01", "FDF_dance_athena_christmas_tree_01"},
+                {"Athena.Quests.Location.BetweenDinosaurs", "battlepass_dance_chain_athena_scavengerhunt_locations_04_b"},
+                {"Athena.Quests.Location.BetweenHotsprings", "battlepass_dance_chain_athena_scavengerhunt_locations_04_c"},
+                {"Athena.Quests.Location.BetweenIceStatues", "battlepass_dance_chain_athena_scavengerhunt_locations_04_a"},
             };
 
             for (FGameplayTag Tag : static_cast<AFortPlayerControllerAthena*>(InteractingController)->EraPlayerInfo().CurrentPOIList)

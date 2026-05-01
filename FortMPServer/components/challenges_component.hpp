@@ -37,6 +37,7 @@ public:
     static void SendSummary(AFortPlayerController* PlayerController, int Placement);
     static void SendElimination(AFortPlayerController* KillerPlayerController, AFortPlayerController* VictimPlayerController, uint8_t DeathCause, FGameplayTagContainer GameplayTags, std::string rarity);
     static void SendRevive(AFortPlayerController* ExecutingPlayerController, AFortPlayerController* VictimPlayerController);
+    static void SendReboot(AFortPlayerController* ExecutingPlayerController);
     static void SendDanceInteraction(AFortPlayerController* InteractingController, UAthenaDanceItemDefinition* EmoteAsset);
     static void SendPOIInteraction(AFortPlayerController* InteractingController, FName BackendObjectiveName);
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);

@@ -11,6 +11,8 @@ enum class EDamageCauser : uint8_t
     HeavyShotgun,
     Shotgun,
     AssaultRifle,
+    HeavyAssaultRifle,
+    InfantryAssaultRifle,
     SuppressedAssaultRifle,
     BurstAssaultRifle,
     Sniper,
@@ -66,6 +68,8 @@ struct FDamageDealtMapValue
     FWeaponDamageEntry ShotgunDamage;
     FWeaponDamageEntry AssaultRifleDamage;
     FWeaponDamageEntry BurstAssaultRifleDamage;
+    FWeaponDamageEntry HeavyAssaultRifleDamage;
+    FWeaponDamageEntry InfantryAssaultRifleDamage;
     FWeaponDamageEntry SuppressedAssaultRifleDamage;
     FWeaponDamageEntry SniperDamage;
     FWeaponDamageEntry BoltSniperDamage;
@@ -107,8 +111,15 @@ struct FPlayerStats
         HeadShots = 0;
         Placement = 0;
         TemporaryPlacedBuilds = 0;
-        TemporaryMaterialsGathered = 0;
+        TemporaryMaterialsGathered = {0, 0, 0};
     }
+
+    struct FMaterialSats
+    {
+        int Wood;
+        int Stone;
+        int Metal;
+    };
     
     int Eliminations;
     int Assists;
@@ -122,7 +133,7 @@ struct FPlayerStats
     int HeadShots;
     int Placement;
     int TemporaryPlacedBuilds;
-    int TemporaryMaterialsGathered;
+    FMaterialSats TemporaryMaterialsGathered;
     int TemporaryTrickPoints;
     int TemporaryObtainedShield;
     int TemporaryObtainedMushroomShield;
@@ -199,6 +210,8 @@ struct FEraPlayerInfo
     std::vector<FGameplayTag> CurrentPOIList;
     ABuildingGameplayActorSpawnMachine* CurrentSpawnMachine;
     int Competitive_PendingPayoutCurrency;
+    bool bJustUsedGeyser;
+    bool bJustLandedFromGeyser;
 
     // Keep track of everything sent to handle eventual connection losses.
     std::vector<FEraPlayerTrafficHistoryElement> MessageHistory;
@@ -251,6 +264,7 @@ public:
     player_component();
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
+    static void ClearJustLandedFromGeyser(AFortPlayerPawn* Self, FFrame& StackFrame);
     static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     static void DelayedEndConnection(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
 
@@ -261,6 +275,8 @@ public:
     static void TacticalShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void HeavyShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void ShotgunDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void HeavyAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void InfantryAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void AssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void BurstAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void SuppressedAssaultRifleDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
@@ -293,7 +309,9 @@ public:
     static void BuildingPlacedCallback(AFortPlayerController* Self, FFrame& StackFrame);
 
     // Debounced harvesting tracking
-    static void HarvestResourcesCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void WoodResourceCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void StoneResourceCallback(AFortPlayerController* Self, FFrame& StackFrame);
+    static void MetalResourceCallback(AFortPlayerController* Self, FFrame& StackFrame);
 
     // Debounced trick points tracking
     static void TrickPointsCallback(AFortPlayerController* Self, FFrame& StackFrame);
