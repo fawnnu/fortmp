@@ -478,8 +478,10 @@ void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float
         {
             {
                 const bool bFromAbove = DamageInstigator->Pawn() && (DamageInstigator->Pawn()->K2_GetActorLocation().Z > Vehicle->K2_GetActorLocation().Z);
+                const bool bFromBelow = DamageInstigator->Pawn() && (DamageInstigator->Pawn()->K2_GetActorLocation().Z < Vehicle->K2_GetActorLocation().Z);
                 DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.Damage += Damage;
                 DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.bFromAbove |= bFromAbove;
+                DamageInstigator->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.bFromBelow |= bFromBelow;
             }
             if (UKismetSystemLibrary::K2_IsTimerActive(DamageInstigator, L"EnemyVehicleDamageCallback"))
             {

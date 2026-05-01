@@ -583,10 +583,15 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -596,6 +601,7 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.bFromBelow = false;
         }
     }
 }
@@ -650,10 +656,15 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -663,6 +674,7 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HandCannonPistolDamage.bFromBelow = false;
         }
     }
 }
@@ -717,10 +729,15 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -730,6 +747,7 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.bFromBelow = false;
         }
     }
 }
@@ -784,10 +802,15 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -797,6 +820,7 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.TacticalShotgunDamage.bFromBelow = false;
         }
     }
 }
@@ -851,10 +875,15 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -864,6 +893,7 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.bFromBelow = false;
         }
     }
 }
@@ -918,10 +948,15 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -931,6 +966,7 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ShotgunDamage.bFromBelow = false;
         }
     }
 }
@@ -995,11 +1031,16 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1009,6 +1050,7 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.bFromBelow = false;
         }
     }
 }
@@ -1073,11 +1115,16 @@ void player_component::HeavyAssaultRifleDamageCallback(AFortPlayerController* Se
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyAssaultRifleDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1087,6 +1134,7 @@ void player_component::HeavyAssaultRifleDamageCallback(AFortPlayerController* Se
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyAssaultRifleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyAssaultRifleDamage.bFromBelow = false;
         }
     }
 }
@@ -1151,11 +1199,16 @@ void player_component::InfantryAssaultRifleDamageCallback(AFortPlayerController*
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1165,6 +1218,7 @@ void player_component::InfantryAssaultRifleDamageCallback(AFortPlayerController*
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.bFromBelow = false;
         }
     }
 }
@@ -1218,11 +1272,16 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1232,6 +1291,7 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.bFromBelow = false;
         }
     }
 }
@@ -1285,11 +1345,16 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1299,6 +1364,7 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedAssaultRifleDamage.bFromBelow = false;
         }
     }
 }
@@ -1363,11 +1429,16 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1377,6 +1448,7 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SniperDamage.bFromBelow = false;
         }
     }
 }
@@ -1441,7 +1513,12 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
@@ -1455,6 +1532,7 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavySniperDamage.bFromBelow = false;
         }
     }
 }
@@ -1519,11 +1597,16 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1533,6 +1616,7 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.bFromBelow = false;
         }
     }
 }
@@ -1586,11 +1670,16 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1600,6 +1689,7 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HuntingSniperDamage.bFromBelow = false;
         }
     }
 }
@@ -1653,11 +1743,16 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1667,6 +1762,7 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.bFromBelow = false;
         }
     }
 }
@@ -1720,11 +1816,16 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1734,6 +1835,7 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StinkGrenadeDamage.bFromBelow = false;
         }
     }
 }
@@ -1787,11 +1889,16 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1801,6 +1908,7 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.bFromBelow = false;
         }
     }
 }
@@ -1854,11 +1962,16 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1868,6 +1981,7 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SMGDamage.bFromBelow = false;
         }
     }
 }
@@ -1921,11 +2035,16 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -1935,6 +2054,7 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.bFromBelow = false;
         }
     }
 }
@@ -1988,11 +2108,16 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2002,6 +2127,7 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.RPGDamage.bFromBelow = false;
         }
     }
 }
@@ -2055,11 +2181,16 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2069,6 +2200,7 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.bFromBelow = false;
         }
     }
 }
@@ -2122,11 +2254,16 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2136,6 +2273,7 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedPistolDamage.bFromBelow = false;
         }
     }
 }
@@ -2189,11 +2327,16 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2203,6 +2346,7 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.bFromBelow = false;
         }
     }
 }
@@ -2256,11 +2400,16 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2270,6 +2419,7 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.bFromBelow = false;
         }
     }
 }
@@ -2323,11 +2473,16 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2337,6 +2492,7 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromBelow = false;
         }
     }
 }
@@ -2363,6 +2519,7 @@ void player_component::SupplyDropDamageCallback(AFortPlayerController* Self, FFr
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SupplyDropBalloon.bFromBelow = false;
         }
     }
 }
@@ -2389,6 +2546,7 @@ void player_component::EnemyVehicleDamageCallback(AFortPlayerController* Self, F
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.EnemyVehicleDamage.bFromBelow = false;
         }
     }
 }
@@ -2435,11 +2593,16 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
             {
                 payload["meta"]["from_above"] = true;
             }
-            
+
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bJustLandedFromGeyser)
             {
                 payload["after_volcano_vent"] = true;
-                
+
                 if (log_component::enable_debug_logs)
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
@@ -2449,6 +2612,7 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PickaxeDamage.bFromBelow = false;
         }
     }
 }
@@ -2473,6 +2637,7 @@ void player_component::HeadshotDamageCallback(AFortPlayerController* Self, FFram
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:headshot-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeadshotDamage.bFromBelow = false;
         }
     }
 }
@@ -2500,9 +2665,15 @@ void player_component::JewelDamageCallback(AFortPlayerController* Self, FFrame& 
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:special-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.JewelOpponent.bFromBelow = false;
         }
     }
 }
@@ -2530,9 +2701,15 @@ void player_component::C4BuildingDamageCallback(AFortPlayerController* Self, FFr
                 payload["meta"]["from_above"] = true;
             }
 
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.bFromBelow)
+            {
+                payload["meta"]["from_below"] = true;
+            }
+
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:special-damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.bFromBelow = false;
         }
     }
 }
@@ -2568,6 +2745,7 @@ void player_component::CannonBallDamageCallback(AFortPlayerController* Self, FFr
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.bFromAbove = false;
+            static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.bFromBelow = false;
         }
     }
 }
@@ -4047,9 +4225,11 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
             if (UFortItemDefinition* ItemDefinition = static_cast<AFortWeapon*>(DamageCauser)->WeaponData())
             {
                 bool bFromAbove = false;
+                bool bFromBelow = false;
                 if (HitActor && Instigator->Pawn())
                 {
                     bFromAbove = (Instigator->Pawn()->K2_GetActorLocation().Z > HitActor->K2_GetActorLocation().Z);
+                    bFromBelow = (Instigator->Pawn()->K2_GetActorLocation().Z < HitActor->K2_GetActorLocation().Z);
                 }
 
                 // Bump hits
@@ -4063,6 +4243,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                         // Track headshot damage
                         Value.HeadshotDamage.Damage += Damage;
                         Value.HeadshotDamage.bFromAbove |= bFromAbove;
+                        Value.HeadshotDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Headshot);
 
                         if (HitActor)
@@ -4098,6 +4279,7 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                                 {
                                     Value.SpecialDamage.JewelOpponent.Damage += Damage;
                                     Value.SpecialDamage.JewelOpponent.bFromAbove |= bFromAbove;
+                                    Value.SpecialDamage.JewelOpponent.bFromBelow |= bFromBelow;
                                     HandleDebouncedDamage(Instigator, EDamageCauser::Jewel);
                                 }
                             }
@@ -4112,86 +4294,103 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     case EDamageCauser::Pickaxe:
                         Value.PickaxeDamage.Damage += Damage;
                         Value.PickaxeDamage.bFromAbove |= bFromAbove;
+                        Value.PickaxeDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Pickaxe);
                         break;
                     case EDamageCauser::Sniper:
                         Value.SniperDamage.Damage += Damage;
                         Value.SniperDamage.bFromAbove |= bFromAbove;
+                        Value.SniperDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Sniper);
                         break;
                     case EDamageCauser::HeavySniper:
                         Value.HeavySniperDamage.Damage += Damage;
                         Value.HeavySniperDamage.bFromAbove |= bFromAbove;
+                        Value.HeavySniperDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HeavySniper);
                         break;
                     case EDamageCauser::BoltSniper:
                         Value.BoltSniperDamage.Damage += Damage;
                         Value.BoltSniperDamage.bFromAbove |= bFromAbove;
+                        Value.BoltSniperDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::BoltSniper);
                         break;
                     case EDamageCauser::HuntingSniper:
                         Value.HuntingSniperDamage.Damage += Damage;
                         Value.HuntingSniperDamage.bFromAbove |= bFromAbove;
+                        Value.HuntingSniperDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HuntingSniper);
                         break;
                     case EDamageCauser::SuppressedPistol:
                         Value.SuppressedPistolDamage.Damage += Damage;
                         Value.SuppressedPistolDamage.bFromAbove |= bFromAbove;
+                        Value.SuppressedPistolDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedPistol);
                         break;
                     case EDamageCauser::HandCannonPistol:
                         Value.HandCannonPistolDamage.Damage += Damage;
                         Value.HandCannonPistolDamage.bFromAbove |= bFromAbove;
+                        Value.HandCannonPistolDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HandCannonPistol);
                         break;
                     case EDamageCauser::Pistol:
                         Value.PistolDamage.Damage += Damage;
                         Value.PistolDamage.bFromAbove |= bFromAbove;
+                        Value.PistolDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Pistol);
                         break;
                     case EDamageCauser::PumpShotgun:
                         Value.PumpShotgunDamage.Damage += Damage;
                         Value.PumpShotgunDamage.bFromAbove |= bFromAbove;
+                        Value.PumpShotgunDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::PumpShotgun);
                         break;
                     case EDamageCauser::TacticalShotgun:
                         Value.TacticalShotgunDamage.Damage += Damage;
                         Value.TacticalShotgunDamage.bFromAbove |= bFromAbove;
+                        Value.TacticalShotgunDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::TacticalShotgun);
                         break;
                     case EDamageCauser::HeavyShotgun:
                         Value.HeavyShotgunDamage.Damage += Damage;
                         Value.HeavyShotgunDamage.bFromAbove |= bFromAbove;
+                        Value.HeavyShotgunDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HeavyShotgun);
                         break;
                     case EDamageCauser::Shotgun:
                         Value.ShotgunDamage.Damage += Damage;
                         Value.ShotgunDamage.bFromAbove |= bFromAbove;
+                        Value.ShotgunDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Shotgun);
                         break;
                     case EDamageCauser::HeavyAssaultRifle:
                         Value.HeavyAssaultRifleDamage.Damage += Damage;
                         Value.HeavyAssaultRifleDamage.bFromAbove |= bFromAbove;
+                        Value.HeavyAssaultRifleDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::HeavyAssaultRifle);
                         break;
                     case EDamageCauser::InfantryAssaultRifle:
                         Value.InfantryAssaultRifleDamage.Damage += Damage;
                         Value.InfantryAssaultRifleDamage.bFromAbove |= bFromAbove;
+                        Value.InfantryAssaultRifleDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::InfantryAssaultRifle);
                         break;
                     case EDamageCauser::SuppressedAssaultRifle:
                         Value.SuppressedAssaultRifleDamage.Damage += Damage;
                         Value.SuppressedAssaultRifleDamage.bFromAbove |= bFromAbove;
+                        Value.SuppressedAssaultRifleDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedAssaultRifle);
                         break;
                     case EDamageCauser::BurstAssaultRifle:
                         Value.BurstAssaultRifleDamage.Damage += Damage;
                         Value.BurstAssaultRifleDamage.bFromAbove |= bFromAbove;
+                        Value.BurstAssaultRifleDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::BurstAssaultRifle);
                         break;
                     case EDamageCauser::AssaultRifle:
                         Value.AssaultRifleDamage.Damage += Damage;
                         Value.AssaultRifleDamage.bFromAbove |= bFromAbove;
+                        Value.AssaultRifleDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::AssaultRifle);
                         break;
                     case EDamageCauser::SMG:
@@ -4200,12 +4399,14 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                             {
                                 Value.SuppressedSMGDamage.Damage += Damage;
                                 Value.SuppressedSMGDamage.bFromAbove |= bFromAbove;
+                                Value.SuppressedSMGDamage.bFromBelow |= bFromBelow;
                                 HandleDebouncedDamage(Instigator, EDamageCauser::SuppressedSMG);
                             }
                             else
                             {
                                 Value.SMGDamage.Damage += Damage;
                                 Value.SMGDamage.bFromAbove |= bFromAbove;
+                                Value.SMGDamage.bFromBelow |= bFromBelow;
                                 HandleDebouncedDamage(Instigator, EDamageCauser::SMG);
                             }
                             break;
@@ -4213,21 +4414,25 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                     case EDamageCauser::GrenadeLauncher:
                         Value.GrenadeLauncherDamage.Damage += Damage;
                         Value.GrenadeLauncherDamage.bFromAbove |= bFromAbove;
+                        Value.GrenadeLauncherDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::GrenadeLauncher);
                         break;
                     case EDamageCauser::LMG:
                         Value.LMGDamage.Damage += Damage;
                         Value.LMGDamage.bFromAbove |= bFromAbove;
+                        Value.LMGDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::LMG);
                         break;
                     case EDamageCauser::Minigun:
                         Value.MinigunDamage.Damage += Damage;
                         Value.MinigunDamage.bFromAbove |= bFromAbove;
+                        Value.MinigunDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::Minigun);
                         break;
                     case EDamageCauser::RPG:
                         Value.RPGDamage.Damage += Damage;
                         Value.RPGDamage.bFromAbove |= bFromAbove;
+                        Value.RPGDamage.bFromBelow |= bFromBelow;
                         HandleDebouncedDamage(Instigator, EDamageCauser::RPG);
                         break;
                     default:
@@ -5247,9 +5452,11 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
         else if (Self->IsA(APlayerPawn_Athena_C::StaticClass()) && Self != InstigatedBy->Pawn())
         {
             bool bFromAbove = false;
+            bool bFromBelow = false;
             if (InstigatedBy->Pawn())
             {
                 bFromAbove = (InstigatedBy->Pawn()->K2_GetActorLocation().Z > static_cast<AFortPlayerPawn*>(Self)->K2_GetActorLocation().Z);
+                bFromBelow = (InstigatedBy->Pawn()->K2_GetActorLocation().Z < static_cast<AFortPlayerPawn*>(Self)->K2_GetActorLocation().Z);
             }
 
             if (DamageCauser->IsA(AB_Prj_Athena_GasGrenade_C::StaticClass()))
@@ -5257,6 +5464,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.StinkGrenadeDamage.Damage += Damage;
                 Value.StinkGrenadeDamage.bFromAbove |= bFromAbove;
+                Value.StinkGrenadeDamage.bFromBelow |= bFromBelow;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::StinkGrenade);
             }
             else if (DamageCauser->IsA(AB_Prj_Athena_StickyGrenade_C::StaticClass()))
@@ -5264,6 +5472,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.ClingerDamage.Damage += Damage;
                 Value.ClingerDamage.bFromAbove |= bFromAbove;
+                Value.ClingerDamage.bFromBelow |= bFromBelow;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Clinger);
             }
             else if (DamageCauser->IsA(AB_Prj_Athena_Grenade_Base_C::StaticClass()))
@@ -5271,6 +5480,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.GrenadeDamage.Damage += Damage;
                 Value.GrenadeDamage.bFromAbove |= bFromAbove;
+                Value.GrenadeDamage.bFromBelow |= bFromBelow;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::Grenade);
             }
             else if (DamageCauser->IsA(AB_Prj_Athena_ShipCannon_C::StaticClass()))
@@ -5278,6 +5488,7 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                 FDamageDealtMapValue& Value = static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker;
                 Value.CannonBallDamage.Damage += Damage;
                 Value.CannonBallDamage.bFromAbove |= bFromAbove;
+                Value.CannonBallDamage.bFromBelow |= bFromBelow;
                 player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::CannonBall);
             }
         }
@@ -5295,12 +5506,15 @@ void player_component_hooks::OnDamageServer_Hook(UObject* Self, UObject* Functio
                         if (Structure->Team() != InstigatedBy->PlayerState()->TeamIndex())
                         {
                             bool bFromAbove = false;
+                            bool bFromBelow = false;
                             if (InstigatedBy->Pawn())
                             {
                                 bFromAbove = (InstigatedBy->Pawn()->K2_GetActorLocation().Z > Structure->K2_GetActorLocation().Z);
+                                bFromBelow = (InstigatedBy->Pawn()->K2_GetActorLocation().Z < Structure->K2_GetActorLocation().Z);
                             }
                             static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.Damage += Damage;
                             static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.bFromAbove |= bFromAbove;
+                            static_cast<AFortPlayerControllerAthena*>(InstigatedBy)->EraPlayerInfo().DamageDealtTracker.SpecialDamage.C4BuildingDamage.bFromBelow |= bFromBelow;
                             player_component::HandleDebouncedDamage(InstigatedBy, EDamageCauser::C4);
                         }
                     }

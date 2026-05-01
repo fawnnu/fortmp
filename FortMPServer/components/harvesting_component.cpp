@@ -72,8 +72,10 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
             // Track damage inflicted to building actors
             {
                 const bool bFromAbove = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z > building_actor->K2_GetActorLocation().Z);
+                const bool bFromBelow = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z < building_actor->K2_GetActorLocation().Z);
                 static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage.Damage += damage;
                 static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage.bFromAbove |= bFromAbove;
+                static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.StructureDamage.bFromBelow |= bFromBelow;
             }
 
             const bool bIsPlayerBuiltStructure = building_actor->AttributeInitLevelSource() == 1;
@@ -89,8 +91,10 @@ void harvesting_component::handle_building_damaged(ABuildingSMActor* building_ac
                     {
                         {
                             const bool bFromAbove = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z > building_actor->K2_GetActorLocation().Z);
+                            const bool bFromBelow = instigated_by->Pawn() && (instigated_by->Pawn()->K2_GetActorLocation().Z < building_actor->K2_GetActorLocation().Z);
                             static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.Damage += damage;
                             static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromAbove |= bFromAbove;
+                            static_cast<AFortPlayerControllerAthena*>(instigated_by)->EraPlayerInfo().DamageDealtTracker.EnemyStructureDamage.bFromBelow |= bFromBelow;
                         }
                         if (UKismetSystemLibrary::K2_IsTimerActive(instigated_by, L"EnemyStructureDamageCallback"))
                         {
