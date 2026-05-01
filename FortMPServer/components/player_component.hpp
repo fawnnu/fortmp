@@ -41,6 +41,7 @@ struct FWeaponDamageEntry
 
     int Damage = 0;
     bool bFromAbove = false;
+    bool bFromBelow = false;
 };
 
 struct FSpecialDamageDealt
