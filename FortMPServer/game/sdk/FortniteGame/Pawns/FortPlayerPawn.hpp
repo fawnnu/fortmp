@@ -288,6 +288,12 @@ public:
 
         return Call<bool>(Function_IsInVehicle);
     }
+    int GetNumActiveBalloons()
+    {
+        STATIC_FINDFUNCTION(GetNumActiveBalloons)
+
+        return Call<int>(Function_GetNumActiveBalloons);
+    }
     bool IsSkydiving()
     {
         STATIC_FINDFUNCTION(IsSkydiving)

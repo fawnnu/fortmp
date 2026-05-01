@@ -549,6 +549,14 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
 
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
+
             if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
             {
                 if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
@@ -618,6 +626,14 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -675,6 +691,14 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -736,6 +760,14 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -793,6 +825,14 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -854,6 +894,14 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -911,6 +959,14 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -983,6 +1039,14 @@ void player_component::HeavyAssaultRifleDamageCallback(AFortPlayerController* Se
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
             {
@@ -1051,6 +1115,14 @@ void player_component::InfantryAssaultRifleDamageCallback(AFortPlayerController*
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1124,6 +1196,14 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
                 }
             }
             
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
+            
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
                 FZiplinePawnState& ZiplineState = static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState();
@@ -1180,6 +1260,14 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1239,6 +1327,14 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
 
@@ -1312,6 +1408,14 @@ void player_component::HeavySniperDamageCallback(AFortPlayerController* Self, FF
                 }
             }
 
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
+
             if (auto CurrentWeapon = Self->Pawn()->CurrentWeapon())
             {
                 if (CurrentWeapon->HasFunction(L"UseScopeTargeting"))
@@ -1379,6 +1483,14 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
 
@@ -1451,6 +1563,14 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -1508,6 +1628,14 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1569,6 +1697,14 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -1626,6 +1762,14 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1687,6 +1831,14 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -1744,6 +1896,14 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1805,6 +1965,14 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -1862,6 +2030,14 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -1923,6 +2099,14 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
                     payload["meta"]["in_vehicle"] = true;
                 }
             }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
             
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
@@ -1980,6 +2164,14 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             
@@ -2042,6 +2234,14 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
             
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
+                }
+            }
+            
             if (STATIC_HASPROPERTY(static_cast<AFortPlayerPawn*>(Self->Pawn()), ZiplineState))
             {
                 FZiplinePawnState& ZiplineState = static_cast<AFortPlayerPawn*>(Self->Pawn())->ZiplineState();
@@ -2098,6 +2298,14 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
                 if (Self->Pawn()->IsInVehicle())
                 {
                     payload["meta"]["in_vehicle"] = true;
+                }
+            }
+
+            if (Self->Pawn()->HasFunction(L"GetNumActiveBalloons"))
+            {
+                if (Self->Pawn()->GetNumActiveBalloons() > 0)
+                {
+                    payload["meta"]["on_balloon"] = true;
                 }
             }
             

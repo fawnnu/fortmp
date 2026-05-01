@@ -178,6 +178,11 @@ void challenges_component::AutocompleteChallenges(AFortPlayerController* PlayerC
         {
             SendCustomEventWithCount(PlayerController, "interaction:destroy-structures-with-cannon-ball", 25);
         }
+
+        {
+            SendCustomEventWithObjective(PlayerController, "interaction:bigphone", TEXT("battlepass_bigphone_chain_input_1"));
+            SendCustomEventWithObjective(PlayerController, "interaction:bigphone", TEXT("battlepass_bigphone_chain_input_2"));
+        }
     }
 }
 
