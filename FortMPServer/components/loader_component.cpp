@@ -1067,6 +1067,7 @@ void loader_component::OnMapInfoLoaded()
     // Implement llamas
     initialize_llamas();
 
+    // initialize reboot vans
     initialize_reboot_vans();
     
     // event storm mutator
