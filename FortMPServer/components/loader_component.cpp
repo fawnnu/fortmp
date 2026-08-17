@@ -132,6 +132,11 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
         if (log_component::enable_debug_logs)
         {
             spdlog::warn(L"FortQuestObjectiveStat::ComplexCustom event being sent with tag {}", tag.TagName.c_str());
+
+            for (auto context_tag : ContextTags.GameplayTags)
+            {
+                spdlog::info(L"FortQuestObjectiveStat::ComplexCustom event {} has flag {}.", tag.TagName.c_str(), context_tag.TagName.c_str());   
+            }
         }
 
         if (auto player_controller = player_component::get_player_by_quest_manager(QuestManager))
