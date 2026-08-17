@@ -481,6 +481,15 @@ class UFortKismetLibrary : public UObject
 public:
     DEFINE_STATIC_CLASS(L"/Script/FortniteGame.FortKismetLibrary")
 
+    static bool IsActorWithinGoldenPOI(UWorld* World, AActor* Actor)
+    {
+        static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");
+
+        STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortKismetLibrary.IsActorWithinGoldenPOI")
+        
+        return Default__FortKismetLibrary->Call<bool>(FunctionObject, World, Actor);
+    }
+
     static uint8_t GetActorTeam(class AActor* Actor)
     {
         static UObject* Default__FortKismetLibrary = FindObject(L"/Script/FortniteGame.Default__FortKismetLibrary");

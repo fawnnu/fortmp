@@ -430,7 +430,10 @@ void loader_component::start_match(UFortPlaylistAthena* in_playlist)
         
         // Handle foundations
         handle_unloaded_foundations();
-
+        
+        // initialize golden pois
+        initialize_golden_pois();
+        
         // initialize BGAs
         initialize_bga();
 
@@ -662,6 +665,13 @@ void loader_component::spawn_floor_loot(UObject* Class, FName LootTier)
 
         // Actor might be dormant
         floor_loot_actor->ForceNetUpdate();
+    }
+}
+
+void loader_component::initialize_golden_pois()
+{
+    if (STATIC_HASPROPERTY((*GWorld)->GameState(), GoldenPoiLocationTags))
+    {
     }
 }
 

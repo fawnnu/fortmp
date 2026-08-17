@@ -549,6 +549,14 @@ public:
     DEFINE_PROPERTY(TArray<FFortItemEntry>, ConsumablesToSpawn);
 };
 
+class AB_Athena_SuperDingo_Spawner : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/Consumables/SuperDingo/B_Athena_SuperDingo_Spawner.B_Athena_SuperDingo_Spawner_C")
+
+    DEFINE_PROPERTY(bool, AlwaysSpawn);
+};
+
 class ACBGA_LowGravity_UsingJump_C : public AActor
 {
 public:

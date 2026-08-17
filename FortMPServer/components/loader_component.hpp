@@ -14,6 +14,7 @@ public:
     static int get_max_players();
     static void spawn_floor_loot(UObject* Class, FName LootTier);
     static void initialize_vending_machines();
+    static void initialize_golden_pois();
     static void initialize_llamas();
     static void initialize_bga();
     static void initialize_containers();

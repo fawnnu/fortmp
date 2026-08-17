@@ -330,6 +330,15 @@ public:
     DEFINE_PROPERTY(class AFortSpecialActorReplicationInfo*, SpecialActorData);
 
     DEFINE_PROPERTY(uint8_t, FriendlyFireType);
+
+    DEFINE_PROPERTY(FGameplayTagContainer, GoldenPoiLocationTags);
+
+    void OnRep_GoldenPoiLocationTags()
+    {
+        STATIC_FINDFUNCTION(OnRep_GoldenPoiLocationTags)
+        
+        Call(Function_OnRep_GoldenPoiLocationTags);
+    }
     
     TeamsArrayContainer* GetTeamsArrayContainer()
     {

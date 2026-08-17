@@ -38,3 +38,23 @@ public:
     DEFINE_PROPERTY(bool, bIsLargeTeamGame);
     DEFINE_PROPERTY(int, PlaylistId);
 };
+
+class UFortAsyncAction_CurrentPlaylistReady : public UObject
+{
+public:
+    DEFINE_PROPERTY(TScriptMulticastDelegate<UWorld>, OnReady);
+    
+    static UFortAsyncAction_CurrentPlaylistReady* PlaylistDataReadyAsync()
+    {
+        UObject* DefaultObject = CreateDefaultObject<UObject>(FindObject(L"/Script/FortniteGame.FortAsyncAction_CurrentPlaylistReady"));
+
+        if (DefaultObject)
+        {
+            STATIC_FINDFUNCTIONOBJECT(L"/Script/FortniteGame.FortAsyncAction_CurrentPlaylistReady.PlaylistDataReadyAsync")
+
+            return DefaultObject->Call<UFortAsyncAction_CurrentPlaylistReady*>(FunctionObject, *GWorld);
+        }
+
+        return nullptr;
+    }
+};
