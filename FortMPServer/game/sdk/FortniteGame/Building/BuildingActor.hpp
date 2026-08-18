@@ -555,6 +555,13 @@ public:
     DEFINE_CLASS(L"/Game/Athena/Items/Consumables/SuperDingo/B_Athena_SuperDingo_Spawner.B_Athena_SuperDingo_Spawner_C")
 
     DEFINE_PROPERTY(bool, AlwaysSpawn);
+
+    void OnReady_B0BE7F084F1885AE13A829BB40DE8390()
+    {
+        STATIC_FINDFUNCTION(OnReady_B0BE7F084F1885AE13A829BB40DE8390)
+
+        Call(Function_OnReady_B0BE7F084F1885AE13A829BB40DE8390, (*GWorld)->GameState(), GetPlaylistEasy(), GetPlaylistEasy()->GameplayTagContainer());
+    }
 };
 
 class ACBGA_LowGravity_UsingJump_C : public AActor
