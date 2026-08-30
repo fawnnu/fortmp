@@ -369,10 +369,20 @@ void gameserver_client::OnConnected(websocketpp::connection_hdl handle)
                                 TO_STRING(wAccountId, sAccountId);
                                 Client->SendEventToChannel("player:v2:" + sAccountId, "phx_join", static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().JoinParameters);
 
-                                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
-                                std::wstring wPlayer_name = Connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str();
-                                std::string player_name = name_converter.to_bytes(wPlayer_name);
-                                spdlog::info("Player '{}' REJOINED its channel. [SERVER: {}]", player_name.c_str(), Client->UUID.c_str());
+                                // This runs on a background thread while the game thread may be tearing the
+                                // connection down (player disconnecting) - re-validate before touching it.
+                                if (memory_manager::is_bad_read_pointer(Connection->PlayerController()) || !Connection->PlayerController())
+                                {
+                                    continue;
+                                }
+
+                                if (!memory_manager::is_bad_read_pointer(Connection->PlayerController()->MyPlayerInfo()) && Connection->PlayerController()->MyPlayerInfo())
+                                {
+                                    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> name_converter;
+                                    std::wstring wPlayer_name = Connection->PlayerController()->MyPlayerInfo()->PlayerName().c_str();
+                                    std::string player_name = name_converter.to_bytes(wPlayer_name);
+                                    spdlog::info("Player '{}' REJOINED its channel. [SERVER: {}]", player_name.c_str(), Client->UUID.c_str());
+                                }
                                 
                                 for (auto& val : static_cast<AFortPlayerControllerAthena*>(Connection->PlayerController())->EraPlayerInfo().MessageHistory)
                                 {

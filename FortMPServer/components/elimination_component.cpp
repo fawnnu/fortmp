@@ -701,8 +701,11 @@ void elimination_component::NotifyWon(UObject* Object, UObject* Function, void* 
             Sleep(1000);
 
             // The winner could have disconnected during this delay, leaving a stale/freed
-            // controller pointer - guard against it before dereferencing.
-            if (TeamMember == nullptr || memory_manager::is_bad_read_pointer(TeamMember))
+            // controller pointer - guard against it before dereferencing. bIsDisconneting is
+            // also checked since a freed-but-still-mapped object won't be caught by
+            // is_bad_read_pointer alone.
+            if (TeamMember == nullptr || memory_manager::is_bad_read_pointer(TeamMember) ||
+                static_cast<AFortPlayerControllerAthena*>(TeamMember)->EraPlayerInfo().bIsDisconneting)
             {
                 return 0;
             }
