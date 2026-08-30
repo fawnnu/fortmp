@@ -349,9 +349,14 @@ void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame&
 {
     INIT_CUSTOM_FUNCTION();
 
-    if (Self == nullptr || Self->Controller() == nullptr)
+    if (Self == nullptr || Self->Controller() == nullptr || memory_manager::is_bad_read_pointer(Self->Controller()))
     {
         return;
+    }
+
+    if (Self->Controller()->Cast<AFortPlayerControllerAthena>() == nullptr)
+    {
+        return; // Different controller type, this could should not run 
     }
 
     if (STATIC_HASPROPERTY(Self, bIsSkydivingFromBus))
