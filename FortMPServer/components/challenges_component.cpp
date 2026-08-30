@@ -210,7 +210,9 @@ void challenges_component::SendSummary(AFortPlayerController* PlayerController, 
             {
                 for (AController* TeamMember : TeamInfo->TeamMembers())
                 {
-                    if (TeamMember && TeamMember != PlayerController)
+                    // A teammate who already disconnected can still linger in this list briefly -
+                    // skip a null/stale controller pointer instead of dereferencing it.
+                    if (!memory_manager::is_bad_read_pointer(TeamMember) && TeamMember && TeamMember != PlayerController)
                     {
                         if (std::find_if(ClientConnections.begin(), ClientConnections.end(), [&TeamMember](const UNetConnection* x){ return TeamMember->NetConnection() == x; }) != ClientConnections.end())
                         {

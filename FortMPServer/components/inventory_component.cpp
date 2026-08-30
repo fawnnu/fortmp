@@ -79,6 +79,13 @@ inventory_component::inventory_component()
 
 void inventory_component::clear_primary_inventory(AFortPlayerController* fort_player_controller, bool should_drop_item)
 {
+    // A player leaving/disconnecting before their inventory has been fully set up can reach
+    // this with a null WorldInventory - guard against it to avoid a crash on match leave.
+    if (!fort_player_controller || !fort_player_controller->WorldInventory())
+    {
+        return;
+    }
+
     auto replicated_entries = TArrayManager<FFortItemEntry>(&fort_player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
     static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
@@ -87,7 +94,7 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
     {
         FFortItemEntry& item_entry = replicated_entries[i];
 
-        if (item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
+        if (item_entry.ItemDefinition() == nullptr || item_entry.ItemDefinition()->FilterOverride() == EFortInventoryFilter->GetEnumIndex(L"Invisible") || item_entry.Count() < 1)
         {
             continue;
         }
@@ -347,7 +354,12 @@ void inventory_component::remove_item(AFortPlayerController* player_controller, 
             }
             
             UFortWorldItemDefinition* world_item_definition = static_cast<UFortWorldItemDefinition*>(replicated_entry.ItemDefinition());
-            
+
+            if (world_item_definition == nullptr)
+            {
+                return;
+            }
+
             if (should_drop_item && world_item_definition->bCanBeDropped())
             {
                 std::vector<float> GenericAttributeValues{};

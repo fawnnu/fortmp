@@ -467,13 +467,25 @@ void vehicles_component_hooks::OnDamaged_Hook(AFortAthenaVehicle* Vehicle, float
 
     if (auto driver = Vehicle->GetDriver())
     {
+        // The vehicle's driver or the damage instigator may have already disconnected,
+        // leaving a null/stale controller or PlayerState - bail out instead of crashing.
+        if (EventInstigator == nullptr || driver->PlayerState() == nullptr)
+        {
+            return;
+        }
+
         AFortPlayerControllerAthena* DamageInstigator = EventInstigator->Cast<AFortPlayerControllerAthena>();
-        
+
+        if (DamageInstigator == nullptr || DamageInstigator->PlayerState() == nullptr)
+        {
+            return;
+        }
+
         if (player_component::is_live_spectator(DamageInstigator))
         {
             return;
         }
-        
+
         if (driver->PlayerState()->TeamIndex() != DamageInstigator->PlayerState()->TeamIndex())
         {
             {
