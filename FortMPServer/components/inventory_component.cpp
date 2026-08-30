@@ -79,6 +79,13 @@ inventory_component::inventory_component()
 
 void inventory_component::clear_primary_inventory(AFortPlayerController* fort_player_controller, bool should_drop_item)
 {
+    // A player leaving/disconnecting before their inventory has been fully set up can reach
+    // this with a null WorldInventory - guard against it to avoid a crash on match leave.
+    if (!fort_player_controller || !fort_player_controller->WorldInventory())
+    {
+        return;
+    }
+
     auto replicated_entries = TArrayManager<FFortItemEntry>(&fort_player_controller->WorldInventory()->Inventory().ReplicatedEntries(), FFortItemEntry::GetStructSize());
 
     static UEnum* EFortInventoryFilter = FindObject<UEnum>(L"/Script/FortniteGame.EFortInventoryFilter");
