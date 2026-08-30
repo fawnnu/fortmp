@@ -157,19 +157,24 @@ void elimination_component::SpectateKillerPawnOnDeath(AFortPlayerControllerAthen
         return;
     }
 
-    if (AFortPlayerStateAthena* FinisherOrDowner = static_cast<AFortPlayerStateAthena*>(Self->PlayerState()->DeathInfo().FinisherOrDowner()))
+    // The victim's own PlayerState can already be gone if they disconnected in this window.
+    if (!memory_manager::is_bad_read_pointer(Self->PlayerState()) && Self->PlayerState())
     {
-        if (FinisherOrDowner->Owner())
+        if (AFortPlayerStateAthena* FinisherOrDowner = static_cast<AFortPlayerStateAthena*>(Self->PlayerState()->DeathInfo().FinisherOrDowner()))
         {
-            if (AFortPlayerPawn* Pawn = reinterpret_cast<AFortPlayerController*>(FinisherOrDowner->Owner())->Pawn())
+            // The killer may have disconnected too - guard the possibly stale Owner pointer.
+            if (!memory_manager::is_bad_read_pointer(FinisherOrDowner->Owner()) && FinisherOrDowner->Owner())
             {
-                if (STATIC_HASPROPERTY(Self, PlayerToSpectateOnDeath))
+                if (AFortPlayerPawn* Pawn = reinterpret_cast<AFortPlayerController*>(FinisherOrDowner->Owner())->Pawn())
                 {
-                    Self->PlayerToSpectateOnDeath() = Pawn;
+                    if (STATIC_HASPROPERTY(Self, PlayerToSpectateOnDeath))
+                    {
+                        Self->PlayerToSpectateOnDeath() = Pawn;
 
-                    Self->SpectateOnDeath();
-                    
-                    return;
+                        Self->SpectateOnDeath();
+
+                        return;
+                    }
                 }
             }
         }
@@ -559,9 +564,16 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                     {
                         for (AController* TeamMember : TeamInfo->TeamMembers())
                         {
+                            // A teammate who already disconnected can still linger in this list briefly -
+                            // skip a null/stale controller pointer instead of dereferencing it.
+                            if (TeamMember == nullptr || memory_manager::is_bad_read_pointer(TeamMember))
+                            {
+                                continue;
+                            }
+
                             // Add to ignore list
                             IgnoreList.push_back(reinterpret_cast<AFortPlayerController*&&>(TeamMember));
-                        
+
                             // Send summary
                             competitive_component::on_placement(reinterpret_cast<AFortPlayerControllerAthena*>(TeamMember), placement);
                             competitive_component::on_summary(reinterpret_cast<AFortPlayerControllerAthena*>(TeamMember));
@@ -579,6 +591,12 @@ void elimination_component_hooks::ClientOnPawnDied_Hook(UObject* Object, UObject
                         {
                             for (AController* TeamMember : TeamInfo->TeamMembers())
                             {
+                                // Same as above - a disconnected teammate's controller pointer could be stale.
+                                if (TeamMember == nullptr || memory_manager::is_bad_read_pointer(TeamMember))
+                                {
+                                    continue;
+                                }
+
                                 if (std::find(IgnoreList.begin(), IgnoreList.end(), reinterpret_cast<AFortPlayerController*>(TeamMember)) == IgnoreList.end())
                                 {
                                     // Send placement
@@ -681,11 +699,18 @@ void elimination_component::NotifyWon(UObject* Object, UObject* Function, void* 
         CreateThread(nullptr, 0, [](LPVOID TeamMember) -> DWORD
         {
             Sleep(1000);
-                    
+
+            // The winner could have disconnected during this delay, leaving a stale/freed
+            // controller pointer - guard against it before dereferencing.
+            if (TeamMember == nullptr || memory_manager::is_bad_read_pointer(TeamMember))
+            {
+                return 0;
+            }
+
             competitive_component::on_placement(static_cast<AFortPlayerControllerAthena*>(TeamMember), 1);
             competitive_component::on_summary(static_cast<AFortPlayerControllerAthena*>(TeamMember));
             challenges_component::SendSummary(static_cast<AFortPlayerController*>(TeamMember), 1);
-                        
+
             return 0;
         }, Controller, 0, nullptr);
     }   

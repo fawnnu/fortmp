@@ -5309,6 +5309,13 @@ void player_component_hooks::ServerAddMapMarker_Hook(UAthenaMarkerComponent* Mar
     {
         for (auto TeamMember : TeamInfo->TeamMembers())
         {
+            // A teammate who already disconnected can still linger in this list briefly -
+            // skip a null/stale controller pointer instead of dereferencing it.
+            if (memory_manager::is_bad_read_pointer(TeamMember) || TeamMember == nullptr)
+            {
+                continue;
+            }
+
             AFortPlayerControllerAthena* TeamPlayerController = static_cast<AFortPlayerControllerAthena*>(TeamMember);
 
             // Only do for teammates

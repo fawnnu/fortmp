@@ -38,8 +38,19 @@ void reboot_component_hooks::SpawnPawnsOnReboot_Hook(ABuildingGameplayActorSpawn
     
     for (UNetConnection* NetConnection : (*GWorld)->NetDriver()->ClientConnections())
     {
+        // A connection can sit here with a null PlayerController while mid-login or mid-disconnect.
+        if (!NetConnection || memory_manager::is_bad_read_pointer(NetConnection->PlayerController()) || !NetConnection->PlayerController())
+        {
+            continue;
+        }
+
         auto PlayerState = NetConnection->PlayerController()->PlayerState();
         if (!PlayerState) continue;
+
+        if (!PlayerState->Owner())
+        {
+            continue;
+        }
 
         auto Controller = PlayerState->Owner()->Cast<AFortPlayerControllerAthena>();
         if (!Controller) continue;
