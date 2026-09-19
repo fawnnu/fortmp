@@ -1035,7 +1035,7 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
             {
                 if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
                                 AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
-                                TEXT("Athena.Location.Quest.SkyPlatform")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                                FName(TEXT("Athena.Location.Quest.SkyPlatform"))) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
                 {
                     static std::map<std::string, std::string> SkyPlatformObjectivesMap = {
                         {"Athena.Location.Quest.Visit.Generic.04", "battlepass_visit_athena_location_generic_4"},

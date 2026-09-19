@@ -163,7 +163,7 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
                 {
                     if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
                                     AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
-                                    TEXT("Athena.Location.POI.TiltedTowers")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                                    FName(TEXT("Athena.Location.POI.TiltedTowers"))) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
                     {
                         if (log_component::enable_debug_logs)
                         {
@@ -176,7 +176,7 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
                     }
                     else if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
                                     AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
-                                    TEXT("Athena.Location.POI.RetailRow")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                                    FName(TEXT("Athena.Location.POI.RetailRow"))) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
                     {
                         if (log_component::enable_debug_logs)
                         {
