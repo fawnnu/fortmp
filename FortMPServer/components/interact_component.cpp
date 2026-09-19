@@ -705,7 +705,7 @@ void interact_component::handle_fortbyte_interaction(AFortPlayerController* play
     if (fortbyte->HasProperty(L"QuestBackendObjectiveName"))
     {
         // Send interaction event
-        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:glyph", fortbyte->QuestBackendObjectiveName());
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:glyph", fortbyte->QuestBackendObjectiveName(), true);
     }
 }
 

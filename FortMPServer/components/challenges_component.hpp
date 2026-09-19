@@ -43,7 +43,7 @@ public:
     static void HandleItemAdded(AFortPlayerController* InteractingPlayerController, UFortItemDefinition* ItemDefinition);
     static void SendCustomEvent(AFortPlayerController* InteractingController, std::string event_type);
     static void SendCustomEventWithPayload(AFortPlayerController* InteractingController, std::string event_type, nlohmann::json payload);
-    static void SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName);
+    static void SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName, bool tolower = false);
     static void SendCustomEventWithCount(AFortPlayerController* InteractingController, std::string event_type, int Count);
     static void SendPickupInteraction(AFortPlayerController* InteractingPlayerController, AFortPickup* Pickup);
     static void SendVisitInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag POI);

@@ -836,7 +836,7 @@ void challenges_component::SendCustomEventWithPayload(AFortPlayerController* Int
     }  
 }
 
-void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName)
+void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName, bool tolower)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -855,10 +855,15 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
                     {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
                     {"objective", sObjective}
             };
+
+            if (tolower)
+            {
+                std::transform(sObjective.begin(), sObjective.end(), sObjective.begin(), tolower);
+            }
             
             if (log_component::enable_debug_logs)
             {
-                spdlog::error(L"SendCustomEventWithObjective is sending ObjBackendName [{}].", ObjBackendName.ToString());
+                spdlog::info(L"SendCustomEventWithObjective is sending ObjBackendName [{}].", ObjBackendName.ToString());
             }
             
             gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, parameters);
