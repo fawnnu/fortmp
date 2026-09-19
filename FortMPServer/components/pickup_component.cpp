@@ -687,16 +687,6 @@ void pickup_component_hooks::OnCapsuleBeginOverlap_Hook(UObject* Object, UObject
                 challenges_component::SendCustomEventWithObjective(PlayerPawn->Controller(), "interaction:flaming-ring", static_cast<AActor_QuestObject_Touch_FlamingHoops_Parent*>(OtherActor)->ObjBackendName());
             }
         }
-        else if (OtherActor->IsA(AActor_QuestObject_Touch_WindTunnel_Parent::StaticClass()))
-        {
-            // Season 9 W1 "BrUseWindTunnelChainNeoTilted"/"BrUseWindTunnelChainMegaMall": both
-            // chain stages listen for this same hook and only the currently-granted stage is
-            // active for a given player, so firing unconditionally on any Wind Tunnel is correct.
-            if (PlayerPawn->Controller())
-            {
-                challenges_component::SendCustomEvent(PlayerPawn->Controller(), "interaction:wind-tunnel");
-            }
-        }
         else if (OtherActor->IsA(AFortPickup::StaticClass()))
         {
             // Cast overlap capsule to FortPickup instance

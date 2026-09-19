@@ -157,6 +157,38 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
                 challenges_component::SendCustomEvent(player_controller, "interaction:zipline");
                 challenges_component::SendCustomEventWithObjective(player_controller, "interaction:environment-object", TEXT("athena_battlepass_use_zipline_02"));
             }
+            else if (tag.TagName == "Athena.Quests.WindTunnel")
+            {
+                if (AFortPlayerControllerAthena* AthenaPlayerController = player_controller->Cast<AFortPlayerControllerAthena>())
+                {
+                    if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
+                                    AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
+                                    TEXT("Athena.Location.POI.TiltedTowers")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info("loader_component_hooks::NotifyCustomStatEvent_Hook: sending interaction:wind-tunnel event with 'neo' payload (Player is in Tilted Towers).");
+                        }
+                        
+                        challenges_component::SendCustomEventWithPayload(player_controller, "interaction:wind-tunnel", nlohmann::json{
+                                {"tunnel", "neo"}
+                                });
+                    }
+                    else if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
+                                    AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
+                                    TEXT("Athena.Location.POI.RetailRow")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info("loader_component_hooks::NotifyCustomStatEvent_Hook: sending interaction:wind-tunnel event with 'mall' payload (Player is in Mega Mall).");
+                        }
+                        
+                        challenges_component::SendCustomEventWithPayload(player_controller, "interaction:wind-tunnel", nlohmann::json{
+                                {"tunnel", "mall"}
+                                });
+                    }
+                }
+            }
         }
     }
 }

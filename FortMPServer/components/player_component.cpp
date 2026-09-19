@@ -360,6 +360,11 @@ void player_component::ClearUsedShadowBomb(AFortPlayerController* Self, FFrame& 
         return;
     }
 
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: set bUsedShadowBombRecently to false for {}.", Self->GetName().c_str());
+    }
+
     static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently = false;
 }
 
@@ -5945,18 +5950,6 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
                     }
                     UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
                 }
-            }
-            else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.ShadowBomb")))
-            {
-                // Season 9 W1 "BrDamageAfterShadowBomb": opens a 10s window during which damage
-                // dealt is reported with "after_shadow_bomb", mirroring bJustLandedFromGeyser.
-                static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().bUsedShadowBombRecently = true;
-
-                if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ClearUsedShadowBomb"))
-                {
-                    UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ClearUsedShadowBomb");
-                }
-                UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ClearUsedShadowBomb", 10.0, false);
             }
         }
     }

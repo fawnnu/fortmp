@@ -1397,6 +1397,23 @@ bool inventory_component_hooks::RemoveInventoryItem_Hook(void* Interface, FGuid 
                     {
                         challenges_component::SendHealInteraction(static_cast<AFortPlayerControllerAthena*>(PlayerController), "slurp_juice", 75);
                     }
+                    else if (reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition() == FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Consumables/SmokeBomb_Athena/Athena_SmokeBomb.Athena_SmokeBomb"))
+                    {
+                        if (log_component::enable_debug_logs)
+                        {
+                            spdlog::info(L"inventory_component_hooks::RemoveInventoryItem_Hook: set bUsedShadowBombRecently to true for {}.", PlayerController->GetName().c_str());
+                        }
+                        
+                        // Season 9 W1 "BrDamageAfterShadowBomb": opens a 10s window during which damage
+                        // dealt is reported with "after_shadow_bomb", mirroring bJustLandedFromGeyser.
+                        static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().bUsedShadowBombRecently = true;
+
+                        if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ClearUsedShadowBomb"))
+                        {
+                            UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ClearUsedShadowBomb");
+                        }
+                        UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ClearUsedShadowBomb", 10.0, false);
+                    }
                     else // Check if it's a building resource
                     {
                         inventory_component::safe_update_materials_used(PlayerController, reinterpret_cast<UFortWorldItem*>(Item)->ItemEntry().ItemDefinition(), Count);

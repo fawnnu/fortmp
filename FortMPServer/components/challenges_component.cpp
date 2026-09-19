@@ -997,15 +997,6 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.HighestElevation.03", "battlepass_visit_highest_elevation_03"},
                 {"Athena.Quests.Location.HighestElevation.04", "battlepass_visit_highest_elevation_04"},
                 {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"},
-                // Season 9 W1 "BrVisitSkyPlatforms": 6 of its 7 locations are new Sky Platform
-                // points (the 7th reuses the existing SevenSeals.07 entry above, which is already
-                // wired to "battlepass_visit_athena_location_seal_07").
-                {"Athena.Quests.Location.Generic.04", "battlepass_visit_athena_location_generic_4"},
-                {"Athena.Quests.Location.Generic.05", "battlepass_visit_athena_location_generic_5"},
-                {"Athena.Quests.Location.Generic.06", "battlepass_visit_athena_location_generic_6"},
-                {"Athena.Quests.Location.Generic.07", "battlepass_visit_athena_location_generic_7"},
-                {"Athena.Quests.Location.Generic.08", "battlepass_visit_athena_location_generic_8"},
-                {"Athena.Quests.Location.Generic.09", "battlepass_visit_athena_location_generic_9"}
             };
 
             static std::map<std::string, std::string> SingleMatchObjectivesMap = {
@@ -1038,6 +1029,35 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 };
 
                 gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
+            }
+
+            if (AFortPlayerControllerAthena* AthenaPlayerController = InteractingPlayerController->Cast<AFortPlayerControllerAthena>())
+            {
+                if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
+                                AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
+                                TEXT("Athena.Location.Quest.SkyPlatform")) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                {
+                    static std::map<std::string, std::string> SkyPlatformObjectivesMap = {
+                        {"Athena.Location.Quest.Visit.Generic.04", "battlepass_visit_athena_location_generic_4"},
+                        {"Athena.Location.Quest.Visit.Generic.05", "battlepass_visit_athena_location_generic_5"},
+                        {"Athena.Location.Quest.Visit.Generic.06", "battlepass_visit_athena_location_generic_6"},
+                        {"Athena.Location.Quest.Visit.Generic.07", "battlepass_visit_athena_location_generic_7"},
+                        {"Athena.Location.Quest.Visit.Generic.08", "battlepass_visit_athena_location_generic_8"},
+                        {"Athena.Location.Quest.Visit.Generic.09", "battlepass_visit_athena_location_generic_9"},
+                        {"Athena.Location.Quest.Visit.Generic.10", "battlepass_visit_athena_location_seal_07"}
+                    };
+
+                    if (SkyPlatformObjectivesMap.contains(sObjective))
+                    {
+                        nlohmann::json parameters{
+                            {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                            {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                            {"objective", SkyPlatformObjectivesMap[sObjective]}
+                        };
+
+                        gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
+                    }
+                }
             }
         }
         else
