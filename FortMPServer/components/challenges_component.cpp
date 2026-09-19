@@ -850,20 +850,20 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
         
         if (account_id.size() > 0)
         {
-            nlohmann::json parameters{
-                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
-                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
-                    {"objective", sObjective}
-            };
-
             if (tolower_val)
             {
                 std::transform(sObjective.begin(), sObjective.end(), sObjective.begin(), tolower);
             }
             
+            nlohmann::json parameters{
+                    {"x", InteractingController->Pawn()->K2_GetActorLocation().X},
+                    {"y", InteractingController->Pawn()->K2_GetActorLocation().Y},
+                    {"objective", sObjective}
+            };
+            
             if (log_component::enable_debug_logs)
             {
-                spdlog::info(L"SendCustomEventWithObjective is sending ObjBackendName [{}].", ObjBackendName.ToString());
+                spdlog::info("SendCustomEventWithObjective is sending ObjBackendName [{}].", sObjective.c_str());
             }
             
             gameserver_client::Client->SendEventToPlayerChannel(InteractingController, "player:v2:" + account_id, event_type, parameters);
