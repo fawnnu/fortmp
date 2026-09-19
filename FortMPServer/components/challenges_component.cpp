@@ -836,7 +836,7 @@ void challenges_component::SendCustomEventWithPayload(AFortPlayerController* Int
     }  
 }
 
-void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName, bool tolower)
+void challenges_component::SendCustomEventWithObjective(AFortPlayerController* InteractingController, std::string event_type, FName ObjBackendName, bool tolower_val)
 {
     CHECK_PAST_WARMUP()
     CHECK_CREATIVE()
@@ -856,7 +856,7 @@ void challenges_component::SendCustomEventWithObjective(AFortPlayerController* I
                     {"objective", sObjective}
             };
 
-            if (tolower)
+            if (tolower_val)
             {
                 std::transform(sObjective.begin(), sObjective.end(), sObjective.begin(), tolower);
             }
