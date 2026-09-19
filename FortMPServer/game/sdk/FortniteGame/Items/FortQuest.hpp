@@ -280,6 +280,15 @@ public:
     DEFINE_PROPERTY(FName, ObjBackendName);
 };
 
+// Season 9 W1 "BrUseWindTunnelChainNeoTilted"/"BrUseWindTunnelChainMegaMall": the ride-through
+// trigger for the Neo Tilted / Mega Mall Wind Tunnels (Slipstreams). Named after the same
+// QuestInteractables "Actor_QuestObject_Touch_<Feature>_Parent" convention as FlamingHoops above.
+class AActor_QuestObject_Touch_WindTunnel_Parent : public AActor
+{
+public:
+    DEFINE_CLASS(L"/Game/Athena/Items/QuestInteractables/WindTunnel/Actor_QuestObject_Touch_WindTunnel_Parent.Actor_QuestObject_Touch_WindTunnel_Parent_C");
+};
+
 class AProp_QuestInteractable_Jigsaw_Parent : public AActor
 {
 public:
