@@ -178,6 +178,11 @@ void interact_component::handle_interaction(AFortPlayerController* player_contro
         // Handle interaction
         handle_pianohint_interaction(player_controller, reinterpret_cast<AProp_QuestInteractable_SheetMusic_Parent_C*>(receiving_actor));
     }
+    else if (receiving_actor->IsA(AQuestGlyph_Interactable_Parent_C::StaticClass(log_component::enable_debug_logs)))
+    {
+        // Handle interactions with fortbytes
+        handle_fortbyte_interaction(player_controller, reinterpret_cast<AQuestGlyph_Interactable_Parent_C*>(receiving_actor));
+    }
 }
 
 void interact_component::handle_container_interaction(AFortPlayerController* player_controller, ABuildingContainer* building_container)
@@ -686,6 +691,21 @@ void interact_component::handle_fireworks_interaction(AFortPlayerController* pla
     {
         // Send interaction event
         challenges_component::SendCustomEventWithObjective(player_controller, "interaction:firework", firework->QuestBackendObjectiveName());
+    }
+}
+
+void interact_component::handle_fortbyte_interaction(AFortPlayerController* player_controller,
+    AQuestGlyph_Interactable_Parent_C* fortbyte)
+{
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"interact_component::handle_fortbyte_interaction is sending fortbyte interaction.");
+    }
+    
+    if (fortbyte->HasProperty(L"QuestBackendObjectiveName"))
+    {
+        // Send interaction event
+        challenges_component::SendCustomEventWithObjective(player_controller, "interaction:glyph", fortbyte->QuestBackendObjectiveName());
     }
 }
 

@@ -32,7 +32,8 @@ public:
     static void handle_doorbell_interaction(AFortPlayerController* player_controller, AProp_Athena_Doorbell_Interactable_C* doorbell);
     static void handle_noms_interaction(AFortPlayerController* player_controller, AProp_QuestInteractable_Noms_Base* noms);
     static void handle_fireworks_interaction(AFortPlayerController* player_controller, ABP_FrozenFireworkLauncher_Parent* firework);
-
+    static void handle_fortbyte_interaction(AFortPlayerController* player_controller, AQuestGlyph_Interactable_Parent_C* fortbyte);
+    
     static void DespenseOutputItems(ABuildingItemCollectorActor* vending_machine, FFrame& StackFrame);
 };
 
