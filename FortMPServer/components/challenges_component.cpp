@@ -991,7 +991,16 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.HighestElevation.02", "battlepass_visit_highest_elevation_02"},
                 {"Athena.Quests.Location.HighestElevation.03", "battlepass_visit_highest_elevation_03"},
                 {"Athena.Quests.Location.HighestElevation.04", "battlepass_visit_highest_elevation_04"},
-                {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"}
+                {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"},
+                // Season 9 W1 "BrVisitSkyPlatforms": 6 of its 7 locations are new Sky Platform
+                // points (the 7th reuses the existing SevenSeals.07 entry above, which is already
+                // wired to "battlepass_visit_athena_location_seal_07").
+                {"Athena.Quests.Location.Generic.04", "battlepass_visit_athena_location_generic_4"},
+                {"Athena.Quests.Location.Generic.05", "battlepass_visit_athena_location_generic_5"},
+                {"Athena.Quests.Location.Generic.06", "battlepass_visit_athena_location_generic_6"},
+                {"Athena.Quests.Location.Generic.07", "battlepass_visit_athena_location_generic_7"},
+                {"Athena.Quests.Location.Generic.08", "battlepass_visit_athena_location_generic_8"},
+                {"Athena.Quests.Location.Generic.09", "battlepass_visit_athena_location_generic_9"}
             };
 
             static std::map<std::string, std::string> SingleMatchObjectivesMap = {

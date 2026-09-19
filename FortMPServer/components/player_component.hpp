@@ -32,7 +32,9 @@ enum class EDamageCauser : uint8_t
     Headshot,
     Jewel,
     C4,
-    CannonBall
+    CannonBall,
+    // Season 9 W1 "BrDamageAbove2/4/6Stories": weapon-agnostic height-difference damage.
+    StoryHeight
 };
 
 struct FWeaponDamageEntry
@@ -50,6 +52,18 @@ struct FSpecialDamageDealt
 
     FWeaponDamageEntry JewelOpponent;
     FWeaponDamageEntry C4BuildingDamage;
+};
+
+// Season 9 W1 "BrDamageAbove2/4/6Stories": independent damage accumulators per height
+// threshold. A single hit can count toward more than one (e.g. damage from 6 stories up
+// also counts as "above 2 stories" and "above 4 stories").
+struct FStoryHeightDamageDealt
+{
+    FStoryHeightDamageDealt() = default;
+
+    int Above2Stories = 0;
+    int Above4Stories = 0;
+    int Above6Stories = 0;
 };
 
 struct FDamageDealtMapValue
@@ -94,6 +108,7 @@ struct FDamageDealtMapValue
     FWeaponDamageEntry PickaxeDamage;
     FWeaponDamageEntry CannonBallDamage;
     FSpecialDamageDealt SpecialDamage;
+    FStoryHeightDamageDealt StoryHeightDamage;
 };
 
 struct FPlayerStats
@@ -213,6 +228,8 @@ struct FEraPlayerInfo
     int Competitive_PendingPayoutCurrency;
     bool bJustUsedGeyser;
     bool bJustLandedFromGeyser;
+    // Season 9 W1 "BrDamageAfterShadowBomb": set on Shadow Bomb consumption, cleared 10s later.
+    bool bUsedShadowBombRecently;
 
     // Keep track of everything sent to handle eventual connection losses.
     std::vector<FEraPlayerTrafficHistoryElement> MessageHistory;
@@ -266,6 +283,8 @@ public:
 
     static void OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame);
     static void ClearJustLandedFromGeyser(AFortPlayerPawn* Self, FFrame& StackFrame);
+    // Season 9 W1 "BrDamageAfterShadowBomb"
+    static void ClearUsedShadowBomb(AFortPlayerController* Self, FFrame& StackFrame);
     static void GatherDistanceTraveled(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
     static void DelayedEndConnection(AFortPlayerControllerAthena* Self, FFrame& StackFrame);
 
@@ -303,7 +322,9 @@ public:
     static void JewelDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void C4BuildingDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
     static void CannonBallDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
-    
+    // Season 9 W1 "BrDamageAbove2/4/6Stories"
+    static void StoryHeightDamageCallback(AFortPlayerController* Self, FFrame& StackFrame);
+
     static void HandleDebouncedDamage(AFortPlayerController* Self, EDamageCauser DamageCauser);
 
     // Debounced buildings tracking

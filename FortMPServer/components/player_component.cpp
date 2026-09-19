@@ -196,6 +196,10 @@ player_component::player_component()
     REGISTER_CUSTOM_UFUNCTION(MiniShieldCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(BigShieldCallback, AFortPlayerController::StaticClass());
     REGISTER_CUSTOM_UFUNCTION(CannonBallDamageCallback, AFortPlayerController::StaticClass());
+
+    // Season 9 W1 "BrDamageAfterShadowBomb" / "BrDamageAbove2/4/6Stories"
+    REGISTER_CUSTOM_UFUNCTION(ClearUsedShadowBomb, AFortPlayerController::StaticClass());
+    REGISTER_CUSTOM_UFUNCTION(StoryHeightDamageCallback, AFortPlayerController::StaticClass());
 }
 
 UObject* player_component_hooks::GetOrInitializeHero_Hook(AFortPlayerController* Controller)
@@ -343,6 +347,20 @@ void player_component::ClearJustLandedFromGeyser(AFortPlayerPawn* Self, FFrame& 
     }
 
     Self->Controller()->Cast<AFortPlayerControllerAthena>()->EraPlayerInfo().bJustLandedFromGeyser = false;
+}
+
+// Season 9 W1 "BrDamageAfterShadowBomb": expires the 10s "recently used a Shadow Bomb" window.
+void player_component::ClearUsedShadowBomb(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+    CHECK_CREATIVE()
+
+    if (Self == nullptr)
+    {
+        return;
+    }
+
+    static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently = false;
 }
 
 void player_component::OnPawnLandedImplementation(AFortPlayerPawn* Self, FFrame& StackFrame)
@@ -603,6 +621,12 @@ void player_component::PistolDamageCallback(AFortPlayerController* Self, FFrame&
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PistolDamage.bFromAbove = false;
@@ -674,6 +698,12 @@ void player_component::HandCannonPistolDamageCallback(AFortPlayerController* Sel
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -749,6 +779,12 @@ void player_component::PumpShotgunDamageCallback(AFortPlayerController* Self, FF
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.PumpShotgunDamage.bFromAbove = false;
@@ -820,6 +856,12 @@ void player_component::TacticalShotgunDamageCallback(AFortPlayerController* Self
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -895,6 +937,12 @@ void player_component::HeavyShotgunDamageCallback(AFortPlayerController* Self, F
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.HeavyShotgunDamage.bFromAbove = false;
@@ -966,6 +1014,12 @@ void player_component::ShotgunDamageCallback(AFortPlayerController* Self, FFrame
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -1052,6 +1106,12 @@ void player_component::AssaultRifleDamageCallback(AFortPlayerController* Self, F
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.AssaultRifleDamage.bFromAbove = false;
@@ -1134,6 +1194,12 @@ void player_component::HeavyAssaultRifleDamageCallback(AFortPlayerController* Se
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -1220,6 +1286,12 @@ void player_component::InfantryAssaultRifleDamageCallback(AFortPlayerController*
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.InfantryAssaultRifleDamage.bFromAbove = false;
@@ -1293,6 +1365,12 @@ void player_component::BurstAssaultRifleDamageCallback(AFortPlayerController* Se
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BurstAssaultRifleDamage.bFromAbove = false;
@@ -1364,6 +1442,12 @@ void player_component::SuppressedAssaultRifleDamageCallback(AFortPlayerControlle
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
@@ -1448,6 +1532,12 @@ void player_component::SniperDamageCallback(AFortPlayerController* Self, FFrame&
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -1618,6 +1708,12 @@ void player_component::BoltSniperDamageCallback(AFortPlayerController* Self, FFr
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.BoltSniperDamage.bFromAbove = false;
@@ -1689,6 +1785,12 @@ void player_component::HuntingSniperDamageCallback(AFortPlayerController* Self, 
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -1764,6 +1866,12 @@ void player_component::GrenadeDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeDamage.bFromAbove = false;
@@ -1835,6 +1943,12 @@ void player_component::StinkGrenadeDamageCallback(AFortPlayerController* Self, F
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -1910,6 +2024,12 @@ void player_component::ClingerDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.ClingerDamage.bFromAbove = false;
@@ -1981,6 +2101,12 @@ void player_component::SMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -2056,6 +2182,12 @@ void player_component::GrenadeLauncherDamageCallback(AFortPlayerController* Self
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.GrenadeLauncherDamage.bFromAbove = false;
@@ -2127,6 +2259,12 @@ void player_component::RPGDamageCallback(AFortPlayerController* Self, FFrame& St
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -2202,6 +2340,12 @@ void player_component::SuppressedSMGDamageCallback(AFortPlayerController* Self, 
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.SuppressedSMGDamage.bFromAbove = false;
@@ -2273,6 +2417,12 @@ void player_component::SuppressedPistolDamageCallback(AFortPlayerController* Sel
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -2348,6 +2498,12 @@ void player_component::MinigunDamageCallback(AFortPlayerController* Self, FFrame
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.MinigunDamage.bFromAbove = false;
@@ -2421,6 +2577,12 @@ void player_component::LMGDamageCallback(AFortPlayerController* Self, FFrame& St
                 }
             }
 
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
+
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.LMGDamage.bFromAbove = false;
@@ -2492,6 +2654,12 @@ void player_component::EnemyStructureDamageCallback(AFortPlayerController* Self,
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self,"player:v2:" + account_id, "interaction:damage", payload);
@@ -2612,6 +2780,12 @@ void player_component::PickaxeDamageCallback(AFortPlayerController* Self, FFrame
                 {
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
+            }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
             }
 
             gameserver_client::Client->SendEventToPlayerChannel(Self, "player:v2:" + account_id, "interaction:damage", payload);
@@ -2746,11 +2920,66 @@ void player_component::CannonBallDamageCallback(AFortPlayerController* Self, FFr
                     spdlog::info(L"[DAMAGE DEBUG INFORMATION] Dealt damage with 'after_volcano_vent' [TRUE].");
                 }
             }
+
+            // Season 9 W1 "BrDamageAfterShadowBomb": damage dealt within 10s of using a Shadow Bomb.
+            if (static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().bUsedShadowBombRecently)
+            {
+                payload["after_shadow_bomb"] = true;
+            }
             
             gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", payload);
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.Damage = 0;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.bFromAbove = false;
             static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.CannonBallDamage.bFromBelow = false;
+        }
+    }
+}
+
+// Season 9 W1 "BrDamageAbove2/4/6Stories": flushes the weapon-agnostic story-height damage
+// accumulators. Each threshold is reported as its own "interaction:damage" event since the
+// backend tracks "battlepass_damage_athena_player_above_Nstories" as separate objectives.
+void player_component::StoryHeightDamageCallback(AFortPlayerController* Self, FFrame& StackFrame)
+{
+    INIT_CUSTOM_FUNCTION();
+
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (Self)
+    {
+        std::string account_id = get_account_id(Self);
+
+        if (account_id.size() > 0)
+        {
+            FStoryHeightDamageDealt& StoryHeightDamage = static_cast<AFortPlayerControllerAthena*>(Self)->EraPlayerInfo().DamageDealtTracker.StoryHeightDamage;
+
+            if (StoryHeightDamage.Above2Stories > 0)
+            {
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", nlohmann::json{
+                    {"above_2_stories", true},
+                    {"count", StoryHeightDamage.Above2Stories}
+                });
+            }
+
+            if (StoryHeightDamage.Above4Stories > 0)
+            {
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", nlohmann::json{
+                    {"above_4_stories", true},
+                    {"count", StoryHeightDamage.Above4Stories}
+                });
+            }
+
+            if (StoryHeightDamage.Above6Stories > 0)
+            {
+                gameserver_client::Client->SendEventToChannel("player:v2:" + account_id, "interaction:damage", nlohmann::json{
+                    {"above_6_stories", true},
+                    {"count", StoryHeightDamage.Above6Stories}
+                });
+            }
+
+            StoryHeightDamage.Above2Stories = 0;
+            StoryHeightDamage.Above4Stories = 0;
+            StoryHeightDamage.Above6Stories = 0;
         }
     }
 }
@@ -2969,6 +3198,14 @@ void player_component::HandleDebouncedDamage(AFortPlayerController* Self, EDamag
             UKismetSystemLibrary::K2_ClearTimer(Self, L"CannonBallDamageCallback");
         }
         UKismetSystemLibrary::K2_SetTimer(Self, L"CannonBallDamageCallback", 3.0, false);
+        break;
+    // Season 9 W1 "BrDamageAbove2/4/6Stories"
+    case EDamageCauser::StoryHeight:
+        if (UKismetSystemLibrary::K2_IsTimerActive(Self, L"StoryHeightDamageCallback"))
+        {
+            UKismetSystemLibrary::K2_ClearTimer(Self, L"StoryHeightDamageCallback");
+        }
+        UKismetSystemLibrary::K2_SetTimer(Self, L"StoryHeightDamageCallback", 3.0, false);
         break;
     default:
         break;
@@ -4235,6 +4472,40 @@ void player_component::handle_player_damaged(AFortPlayerPawn* HitActor, AFortPla
                 {
                     bFromAbove = (Instigator->Pawn()->K2_GetActorLocation().Z > HitActor->K2_GetActorLocation().Z);
                     bFromBelow = (Instigator->Pawn()->K2_GetActorLocation().Z < HitActor->K2_GetActorLocation().Z);
+                }
+
+                // Season 9 W1 "BrDamageAbove2/4/6Stories": weapon-agnostic, so it's tracked
+                // separately from the per-weapon bFromAbove above rather than duplicated into
+                // every EDamageCauser case below. A building story is 512 units (one wall/floor
+                // piece) in this engine version, matching the existing building-placement grid.
+                if (HitActor && Instigator->Pawn())
+                {
+                    constexpr float StoryHeightUnits = 512.0f;
+                    const float HeightAboveTarget = Instigator->Pawn()->K2_GetActorLocation().Z - HitActor->K2_GetActorLocation().Z;
+                    const int StoriesAbove = static_cast<int>(HeightAboveTarget / StoryHeightUnits);
+
+                    bool bAnyStoryThresholdMet = false;
+
+                    if (StoriesAbove >= 2)
+                    {
+                        Value.StoryHeightDamage.Above2Stories += Damage;
+                        bAnyStoryThresholdMet = true;
+                    }
+                    if (StoriesAbove >= 4)
+                    {
+                        Value.StoryHeightDamage.Above4Stories += Damage;
+                        bAnyStoryThresholdMet = true;
+                    }
+                    if (StoriesAbove >= 6)
+                    {
+                        Value.StoryHeightDamage.Above6Stories += Damage;
+                        bAnyStoryThresholdMet = true;
+                    }
+
+                    if (bAnyStoryThresholdMet)
+                    {
+                        HandleDebouncedDamage(Instigator, EDamageCauser::StoryHeight);
+                    }
                 }
 
                 // Bump hits
@@ -5674,6 +5945,18 @@ void player_component_hooks::GameplayCue_Hook(UObject* Self, UObject* Function, 
                     }
                     UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ShieldCallback", 5.0, false);
                 }
+            }
+            else if (Parameters.AggregatedSourceTags().GameplayTags.Find(FGameplayTag(L"Item.Consumable.ShadowBomb")))
+            {
+                // Season 9 W1 "BrDamageAfterShadowBomb": opens a 10s window during which damage
+                // dealt is reported with "after_shadow_bomb", mirroring bJustLandedFromGeyser.
+                static_cast<AFortPlayerControllerAthena*>(PlayerController)->EraPlayerInfo().bUsedShadowBombRecently = true;
+
+                if (UKismetSystemLibrary::K2_IsTimerActive(PlayerController, L"ClearUsedShadowBomb"))
+                {
+                    UKismetSystemLibrary::K2_ClearTimer(PlayerController, L"ClearUsedShadowBomb");
+                }
+                UKismetSystemLibrary::K2_SetTimer(PlayerController, L"ClearUsedShadowBomb", 10.0, false);
             }
         }
     }
