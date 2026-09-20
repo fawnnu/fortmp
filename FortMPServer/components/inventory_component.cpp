@@ -104,6 +104,14 @@ void inventory_component::clear_primary_inventory(AFortPlayerController* fort_pl
             spdlog::info(L"clear_primary_inventory is dropping '{}'", item_entry.ItemDefinition()->GetFullName().c_str());
         }
 
+        // Block AGID Smokebomb
+        static UFortItemDefinition* AGID_SmokeBomb = FindObject<UFortItemDefinition>(L"/Game/Athena/Items/Gameplay/SmokeBomb/AGID_SmokeBomb.AGID_SmokeBomb");
+
+        if (AGID_SmokeBomb && item_entry.ItemDefinition() == AGID_SmokeBomb)
+        {
+            continue;
+        }
+
         // Remove item from player
         remove_item(fort_player_controller, item_entry.ItemGuid(), -1, should_drop_item);
     }   
