@@ -1033,29 +1033,34 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
 
             if (AFortPlayerControllerAthena* AthenaPlayerController = InteractingPlayerController->Cast<AFortPlayerControllerAthena>())
             {
-                if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
-                                AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
-                                FName(TEXT("Athena.Location.Quest.SkyPlatform"))) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                if (sObjective == "Athena.Location.Quest.SkyPlatform")
                 {
-                    static std::map<std::string, std::string> SkyPlatformObjectivesMap = {
-                        {"Athena.Location.Quest.Visit.Generic.04", "battlepass_visit_athena_location_generic_4"},
-                        {"Athena.Location.Quest.Visit.Generic.05", "battlepass_visit_athena_location_generic_5"},
-                        {"Athena.Location.Quest.Visit.Generic.06", "battlepass_visit_athena_location_generic_6"},
-                        {"Athena.Location.Quest.Visit.Generic.07", "battlepass_visit_athena_location_generic_7"},
-                        {"Athena.Location.Quest.Visit.Generic.08", "battlepass_visit_athena_location_generic_8"},
-                        {"Athena.Location.Quest.Visit.Generic.09", "battlepass_visit_athena_location_generic_9"},
-                        {"Athena.Location.Quest.Visit.Generic.10", "battlepass_visit_athena_location_seal_07"}
+                    static std::map<FName, std::string> SkyPlatformObjectivesMap = {
+                        {L"Athena.Location.Quest.Visit.Generic.04", "battlepass_visit_athena_location_generic_4"},
+                        {L"Athena.Location.Quest.Visit.Generic.05", "battlepass_visit_athena_location_generic_5"},
+                        {L"Athena.Location.Quest.Visit.Generic.06", "battlepass_visit_athena_location_generic_6"},
+                        {L"Athena.Location.Quest.Visit.Generic.07", "battlepass_visit_athena_location_generic_7"},
+                        {L"Athena.Location.Quest.Visit.Generic.08", "battlepass_visit_athena_location_generic_8"},
+                        {L"Athena.Location.Quest.Visit.Generic.09", "battlepass_visit_athena_location_generic_9"},
+                        {L"Athena.Location.Quest.Visit.Generic.10", "battlepass_visit_athena_location_seal_07"}
                     };
 
-                    if (SkyPlatformObjectivesMap.contains(sObjective))
+                    for (auto& [key, val] : SkyPlatformObjectivesMap)
                     {
-                        nlohmann::json parameters{
-                            {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
-                            {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
-                            {"objective", SkyPlatformObjectivesMap[sObjective]}
-                        };
+                        if (std::find(AthenaPlayerController->EraPlayerInfo().CurrentPOIList.begin(),
+                                AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end(),
+                                key) != AthenaPlayerController->EraPlayerInfo().CurrentPOIList.end())
+                        {
+                            nlohmann::json parameters{
+                                {"x", InteractingPlayerController->Pawn()->K2_GetActorLocation().X},
+                                {"y", InteractingPlayerController->Pawn()->K2_GetActorLocation().Y},
+                                {"objective", val}
+                            };
 
-                        gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
+                            gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:visit", parameters);
+                            
+                            break;
+                        }
                     }
                 }
             }
