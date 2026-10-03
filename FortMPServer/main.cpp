@@ -137,6 +137,7 @@ void Setup()
 
                 loader_component::pre_init();
                 new playlist_component();
+                new vehicles_component();
                 new team_component();
                 new hook_manager();
                 new net_component();
@@ -156,7 +157,6 @@ void Setup()
                 new reboot_component();
                 new interact_component();
                 new harvesting_component();
-                new vehicles_component();
                 new storm_component();
                 new replication_component();
                 new creative_component();
