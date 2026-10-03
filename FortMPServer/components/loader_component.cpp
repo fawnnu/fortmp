@@ -142,6 +142,10 @@ void loader_component_hooks::NotifyCustomStatEvent_Hook(UFortQuestManager* Quest
 
         if (auto player_controller = player_component::get_player_by_quest_manager(QuestManager))
         {
+            // Season 9 W2/W3 "BrUseHvacDifferentMatches"/"BrUseFlyingDiscSelfCatch": the backend
+            // matches these quests on the raw tag, so every quest stat event is forwarded as-is.
+            challenges_component::SendCustomStatInteraction(player_controller, tag, ContextTags);
+
             if (tag.TagName == L"Athena.Quests.Guyser")
             {
                 player_controller->Cast<AFortPlayerControllerAthena>()->EraPlayerInfo().bJustUsedGeyser = true;
