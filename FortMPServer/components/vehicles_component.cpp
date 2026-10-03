@@ -172,6 +172,13 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
             } 
         }
     }
+    else
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: invalid map info.");
+        }
+    }
     
     if (STATIC_HASPROPERTY(Target, FortVehicleItemDef))
     {
