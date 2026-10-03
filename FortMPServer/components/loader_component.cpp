@@ -1122,7 +1122,7 @@ void loader_component::OnMapInfoLoaded()
                 spdlog::info(L"loader_component::OnMapInfoLoaded(): re-attempting spawn of vehicle '{}'", Spawner->GetFullName().c_str());
             }
         
-            vehicles_component::vehicle_spawn_implementation(Spawner);
+            //vehicles_component::vehicle_spawn_implementation(Spawner);
         }
         else
         {
