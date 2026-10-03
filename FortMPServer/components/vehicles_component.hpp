@@ -7,6 +7,10 @@ public:
 
     static void equip_vehicle_weapon(AFortPlayerController* target_player_controller, UFortWeaponItemDefinition* weapon_item_definition);
     static void unequip_vehicle_weapon(AFortPlayerController* target_player_controller);
+
+    static void vehicle_spawn_implementation(AFortAthenaVehicleSpawner* Target);
+
+    static inline std::vector<AFortAthenaVehicleSpawner*> vehicles_to_spawn;
 };
 
 namespace vehicles_component_hooks

@@ -122,6 +122,55 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
 {
     AFortAthenaVehicleSpawner_BeginPlay(Target);
 
+    vehicles_component::vehicle_spawn_implementation(Target);
+}
+
+void vehicles_component::equip_vehicle_weapon(AFortPlayerController* target_player_controller, UFortWeaponItemDefinition* weapon_item_definition)
+{
+    // Make sure input player is valid
+    if (target_player_controller)
+    {
+        // make sure the weapon definition is valid
+        if (weapon_item_definition)
+        {
+            if (inventory_component::get_inventory_item_by_definition(target_player_controller, weapon_item_definition) == nullptr)
+            {
+                // add it to the inventory
+                auto new_item = inventory_component::add_item(target_player_controller, weapon_item_definition, 1, INT_MAX);
+
+                // equip the ability weapon
+                auto CurrentWeapon = target_player_controller->Pawn()->EquipWeaponDefinition(weapon_item_definition, new_item->ItemEntry().ItemGuid());
+
+                // Set more in currentweapon
+                if (CurrentWeapon->IsA(AFortWeaponRangedForVehicle::StaticClass()))
+                {
+                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
+                    {
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
+
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
+                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();
+                    }
+                }
+                else if (CurrentWeapon->IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
+                {
+                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
+                    {
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
+
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
+                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();   
+                    }
+                }
+            }
+        }
+    }
+}
+
+void vehicles_component::vehicle_spawn_implementation(AFortAthenaVehicleSpawner* Target)
+{
     if (log_component::enable_debug_logs)
     {
         spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook called with Target {}.", Target->GetFullName().c_str());
@@ -200,8 +249,10 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
     {
         if (log_component::enable_debug_logs)
         {
-            spdlog::error(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: invalid map info.");
+            spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: invalid map info, deferring spawn.");
         }
+
+        vehicles_to_spawn.push_back(Target);
     }
     
     if (STATIC_HASPROPERTY(Target, FortVehicleItemDef))
@@ -232,51 +283,6 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
         if (random_percent <= spawn_percent)
         {
             Target->SpawnVehicle();
-        }
-    }
-    
-}
-
-void vehicles_component::equip_vehicle_weapon(AFortPlayerController* target_player_controller, UFortWeaponItemDefinition* weapon_item_definition)
-{
-    // Make sure input player is valid
-    if (target_player_controller)
-    {
-        // make sure the weapon definition is valid
-        if (weapon_item_definition)
-        {
-            if (inventory_component::get_inventory_item_by_definition(target_player_controller, weapon_item_definition) == nullptr)
-            {
-                // add it to the inventory
-                auto new_item = inventory_component::add_item(target_player_controller, weapon_item_definition, 1, INT_MAX);
-
-                // equip the ability weapon
-                auto CurrentWeapon = target_player_controller->Pawn()->EquipWeaponDefinition(weapon_item_definition, new_item->ItemEntry().ItemGuid());
-
-                // Set more in currentweapon
-                if (CurrentWeapon->IsA(AFortWeaponRangedForVehicle::StaticClass()))
-                {
-                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
-                    {
-                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
-                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
-
-                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
-                        static_cast<AFortWeaponRangedForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();
-                    }
-                }
-                else if (CurrentWeapon->IsA(AFortWeaponRangedDualForVehicle::StaticClass()))
-                {
-                    if (STATIC_HASPROPERTY(CurrentWeapon, MountedWeaponInfoRepped))
-                    {
-                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleCachedActor() = target_player_controller->Pawn()->GetVehicle();
-                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->MountedWeaponInfoRepped().HostVehicleSeatIndexCached() = target_player_controller->Pawn()->GetVehicleSeatIndex();
-
-                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnHostVehicleSetup();
-                        static_cast<AFortWeaponRangedDualForVehicle*>(CurrentWeapon)->OnRep_MountedWeaponInfoRepped();   
-                    }
-                }
-            }
         }
     }
 }

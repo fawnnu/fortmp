@@ -19,6 +19,7 @@
 #include "playlist_component.hpp"
 #include "replication_component.hpp"
 #include "storm_component.hpp"
+#include "vehicles_component.hpp"
 
 #include "../gui/renderer.hpp"
 #include "../utils/webhook_manager.hpp"
@@ -1110,6 +1111,27 @@ void loader_component::OnMapInfoLoaded()
     // event storm mutator
     era_mutators_component::Execute("event_begin", nullptr);
     era_mutators_component::Execute("mooney_event_prep", nullptr);
+
+    // Spawn vehicles
+    for (AFortAthenaVehicleSpawner* Spawner : vehicles_component::vehicles_to_spawn)
+    {
+        if (Spawner)
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"loader_component::OnMapInfoLoaded(): re-attempting spawn of vehicle '{}'", Spawner->GetFullName().c_str());
+            }
+        
+            vehicles_component::vehicle_spawn_implementation(Spawner);
+        }
+        else
+        {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::error(L"loader_component::OnMapInfoLoaded(): vehicle re-spawn attempted failed, NULL Spawner.");
+            }
+        }
+    }
     
     // Handle vehicle spawn rates
     TArray<AActor*> athena_vehicles = UGameplayStatics::GetAllActorsOfClass((*GWorld), AFortAthenaVehicle::StaticClass());
@@ -1603,6 +1625,7 @@ bool loader_component_hooks::SetGameMode_Hook()
         anticheat_component::Initialize();
         replication_component::BlacklistedActor.clear();
         net_component::ReplicationBlacklistPerConnection.clear();
+        vehicles_component::vehicles_to_spawn.clear();
         
         AFortGameModeAthena* AuthorityGameMode = SpawnDefaultActor<AFortGameModeAthena>(*GWorld, FindObject(L"/Game/Athena/Server/Athena_GameMode.Athena_GameMode_C", true));
 
