@@ -122,6 +122,11 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
 {
     AFortAthenaVehicleSpawner_BeginPlay(Target);
 
+    if (log_component::enable_debug_logs)
+    {
+        spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook called with Target {}.", Target->GetFullName().c_str());
+    }
+
     if (Target->HasProperty(L"SpawnedVehicle") && Target->SpawnedVehicle() == nullptr) return;
     
     UObject* vehicle_class = Target->GetVehicleClass();
@@ -136,6 +141,11 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
     {
         if (STATIC_HASPROPERTY(MapInfo, VehicleClassDetails))
         {
+            if (log_component::enable_debug_logs)
+            {
+                spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook is attempting to spawn {} vehicles of class {}.", MapInfo->VehicleClassDetails().Count, vehicle_class->GetFullName().c_str());
+            }
+            
             for (int i = 0; i < MapInfo->VehicleClassDetails().Count; ++i)
             {
                 TArrayManager VehicleClassDetails = MapInfo->VehicleClassDetails();
@@ -145,6 +155,11 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
 
                 float min_percent = Detail.VehicleMinSpawnPercent().GetValueAtLevel(0, nullptr);
                 float max_percent = Detail.VehicleMaxSpawnPercent().GetValueAtLevel(0, nullptr);
+
+                if (log_component::enable_debug_logs)
+                {
+                    spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook class {} has min_percet '{}' and max_percent '{}'.", vehicle_class->GetFullName().c_str(), min_percent, max_percent);
+                }
 
                 float spawn_percent = UKismetMathLibrary::RandomFloatInRange(min_percent, std::max(max_percent, min_percent));
 
@@ -160,6 +175,11 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
     
     if (STATIC_HASPROPERTY(Target, FortVehicleItemDef))
     {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook is attempting to spawn vehicle of class {}.", vehicle_class->GetFullName().c_str());
+        }
+        
         auto vehicle_def = Target->FortVehicleItemDef().Get();
 
         if (vehicle_def->VehicleActorClass().Get() != vehicle_class) return;
@@ -169,6 +189,11 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
         float min_percent = vehicle_def->VehicleMinSpawnPercent().GetValueAtLevel(0, nullptr);
         float max_percent = vehicle_def->VehicleMaxSpawnPercent().GetValueAtLevel(0, nullptr);
 
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook class {} has min_percet '{}' and max_percent '{}'.", vehicle_class->GetFullName().c_str(), min_percent, max_percent);
+        }
+        
         float spawn_percent = UKismetMathLibrary::RandomFloatInRange(min_percent, std::max(max_percent, min_percent));
 
         float random_percent = UKismetMathLibrary::RandomFloatInRange(0, 100);
