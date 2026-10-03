@@ -127,14 +127,38 @@ void vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook(AFortAth
         spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook called with Target {}.", Target->GetFullName().c_str());
     }
 
-    if (Target->HasProperty(L"SpawnedVehicle") && Target->SpawnedVehicle() == nullptr) return;
+    if (GetFortniteVersionEasy() < 9.0)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::info(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: running SpawnedVehicle property check as we are before 9.0.");
+        }
+        
+        if (Target->HasProperty(L"SpawnedVehicle") && Target->SpawnedVehicle() == nullptr) return;
+    }
     
     UObject* vehicle_class = Target->GetVehicleClass();
-    if (!vehicle_class) return;
+    if (!vehicle_class)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: invalid vehicle_class.");
+        }
+        
+        return;
+    }
     
     auto GameState = (*GWorld)->GameState();
-    if (!GameState) return;
-
+    if (!GameState)
+    {
+        if (log_component::enable_debug_logs)
+        {
+            spdlog::error(L"vehicles_component_hooks::AFortAthenaVehicleSpawner_BeginPlay_Hook: invalid GameState.");
+        }
+        
+        return;
+    }
+    
     auto MapInfo = GameState->MapInfo();
     
     if (MapInfo)
