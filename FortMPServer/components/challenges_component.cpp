@@ -997,6 +997,11 @@ void challenges_component::SendVisitInteraction(AFortPlayerController* Interacti
                 {"Athena.Quests.Location.HighestElevation.03", "battlepass_visit_highest_elevation_03"},
                 {"Athena.Quests.Location.HighestElevation.04", "battlepass_visit_highest_elevation_04"},
                 {"Athena.Quests.Location.HighestElevation.05", "battlepass_visit_highest_elevation_05"},
+                // Season 9 W2 "BrVisitThreeQuestProps": the oversized Phone, big Piano and giant
+                // Dancing Fish trophy (Generic.04 onwards are the W1 Sky Platforms, see below).
+                {"Athena.Location.Quest.Visit.Generic.01", "battlepass_visit_athena_location_generic_01"},
+                {"Athena.Location.Quest.Visit.Generic.02", "battlepass_visit_athena_location_generic_02"},
+                {"Athena.Location.Quest.Visit.Generic.03", "battlepass_visit_athena_location_generic_03"},
             };
 
             static std::map<std::string, std::string> SingleMatchObjectivesMap = {
@@ -1440,5 +1445,33 @@ void challenges_component_hooks::Athena_GiveQuestUpdateToPlayers_Hook(UObject* C
                 }
             }
         }
+    }
+}
+
+void challenges_component::SendCustomStatInteraction(AFortPlayerController* InteractingPlayerController, FGameplayTag SourceTag, FGameplayTagContainer ContextTags)
+{
+    CHECK_PAST_WARMUP()
+    CHECK_CREATIVE()
+
+    if (InteractingPlayerController == nullptr)
+    {
+        return;
+    }
+
+    std::string account_id = static_cast<AFortPlayerControllerAthena*>(InteractingPlayerController)->EraPlayerInfo().sAccountId;
+
+    if (account_id.size() > 0)
+    {
+        nlohmann::json parameters{
+            {"tag", SourceTag.TagName.sToString()},
+            {"context", nlohmann::json::array()}
+        };
+
+        for (FGameplayTag& ContextTag : ContextTags.GameplayTags)
+        {
+            parameters["context"].push_back(ContextTag.TagName.sToString());
+        }
+
+        gameserver_client::Client->SendEventToPlayerChannel(InteractingPlayerController, "player:v2:" + account_id, "interaction:custom-stat", parameters);
     }
 }
